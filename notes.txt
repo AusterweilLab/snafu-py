@@ -1,0 +1,19 @@
+joe:
+probability of x vector coming from participant's G
+effect sizes
+continuous vs discrete time
+data table
+
+
+
+P(x|z) using rho function -->
+ if z is known, then x P(x|z) is either 1 or 0
+ rho function is really P(x|z of length L)
+ not clear why this is what we want
+
+but given that... i can compute P(g|x) for a finite set G
+but how to exrapolate and say this G is probable because it has certain edges
+
+aren't we just penalizing long Zs in both steps, P(x|z) and P(z|g)?
+wouldnt this just predict a graph where all xs are connected?
+not true if we had timing data
