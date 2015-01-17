@@ -1,19 +1,28 @@
-joe:
-probability of x vector coming from participant's G
-effect sizes
-continuous vs discrete time
-data table
+Generate initial graph that satisfies Z1 and Z2, where Z1 is generated from X1 and Z2 is generated from X2
+
+- might be biased towards too many connections, esp for lots of Xs
+- hopefully wont matter in the long run?
+- theta shouldnt matter
+
+math for two Xs
+- computation time twice as long
+
+resampling
+
+prior??
+
+100 samples not enough to get good fidelity after single flip
+
+dynamic process
+- list and permute all edges
+- cycle through and flip each edge
+- accept flip if p(g') is greater than p(g)
+- otherwise, accept flip with probability p(g')/p(g) --> e^[log p(g') - log p(g)]
 
 
+spearman correlation coefficient - using 1 x and using 2 x (N x)
+rank of the true best
 
-P(x|z) using rho function -->
- if z is known, then x P(x|z) is either 1 or 0
- rho function is really P(x|z of length L)
- not clear why this is what we want
+proportion of length of trajectory compared to G (propotion of x:g, number of x)
 
-but given that... i can compute P(g|x) for a finite set G
-but how to exrapolate and say this G is probable because it has certain edges
-
-aren't we just penalizing long Zs in both steps, P(x|z) and P(z|g)?
-wouldnt this just predict a graph where all xs are connected?
-not true if we had timing data
+threading + cut-off long Zs

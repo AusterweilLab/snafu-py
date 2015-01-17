@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
 # V6
+# 
+# added log trick
+# added multiple Xs
 
 import networkx as nx
 import numpy as np
@@ -10,6 +13,8 @@ import math
 import matplotlib.pyplot as plt
 import time
 import scipy.stats as ss
+import matplotlib.animation as animation
+import threading
 
 # random walk given an adjacency matrix that hits every node; returns a list of tuples
 def random_walk(g,s=None):
@@ -82,7 +87,7 @@ def genZfromX(x, theta):
             path.append(x2.pop())
     return walk_from_path(path)
 
-# probability of random walk Z on link matrix A
+# log probability of random walk Z on link matrix A
 def logprobZ(walk,a):
     t=a/sum(a.astype(float))                        # transition matrix
     logProbList=[]
@@ -92,6 +97,18 @@ def logprobZ(walk,a):
     logProb=logProb + math.log(1/float(len(a)))     # base rate of first node when selected uniformly
     return logProb
 
+# log probability of a graph (no prior) -- 10=sd[60.4], 100=sd[31.2], 1000=sd[17.53]
+def logprobG(graph):
+    probG=0
+    for x in Xs:
+        zGs=[genZfromXG(x,graph) for i in range(100)]                # look how correlation changes with number of zs
+        loglist=[logprobZ(i,graph) for i in zGs]
+        logmax=max(loglist)
+        loglist=[i-logmax for i in loglist]                          # log trick: subtract off the max
+        probZG=math.log(sum([math.e**i for i in loglist])) + logmax  # add it back on
+        probG=probG+probZG
+    return probG
+        
 # Generate a connected Watts-Strogatz small-world graph
 # (n,k,p) = (number of nodes, each node connected to k-nearest neighbors, probability of rewiring)
 # k has to be even, tries is number of attempts to make connected graph
@@ -160,7 +177,8 @@ def drawG(g,save=False,display=True):
     if display==True:
         plt.show()
 
-def prior(a):
+# return small world statistic of a graph
+def smallworld(a):
     g_sm=nx.from_numpy_matrix(a)
     c_sm=nx.average_clustering(g_sm)
     l_sm=nx.average_shortest_path_length(g_sm)
@@ -183,18 +201,25 @@ def changes(theta):
 if __name__ == "__main__":
     numnodes=20             # number of nodes in graph
     numlinks=4              # initial number of edges per node (must be even)
-    probRewire=.2          # probability of re-wiring an edge
+    probRewire=.2           # probability of re-wiring an edge
     numedges=numlinks*10    # number of edges in graph
     
     theta=.5                # probability of hiding node when generating z from x (rho function)
-    
+    numx=2                  # number of Xs to generate
+    numgraphs=1000          # number of graphs to generate
+
     # Generate small-world graph
     g,a=genG(numnodes,numlinks,probRewire) 
     
     # Generate fake participant data
-    x=genX(g)
-    
-    Zs=[genZfromX(x,theta) for i in range(1000)]
+    Xs=[genX(g) for i in range(numx)]
+
+    Zs=[[] for i in range(numgraphs)]                        # initialize
+    for x in Xs:
+        tmp=[genZfromX(x,theta) for i in range(numgraphs)]   # generate numgraphs Zs per X
+        for i in range(numgraphs):
+            Zs[i] = Zs[i] + tmp[i]                           # concatenate Zs (not really a "Z" anymore but thats OK)
+
     As=[genGfromZ(z) for z in Zs]
     costs=[sum(sum(np.array(abs(i-a)))) for i in As]
 
@@ -202,13 +227,13 @@ if __name__ == "__main__":
     #gamma=ss.gamma(params[0],loc=params[1],scale=params[2])
     #gamma.pdf(x)
 
-    est_costs=[]
-    #est_costs2=[]
-    for q, graph in enumerate(As):
-        zGs=[genZfromXG(x,graph) for i in range(100)] # look how correlation changes with number of zs
-        probG=sum([logprobZ(i,graph) for i in zGs])/100
-        est_costs.append(probG)
-        #probG=probG + math.log(gamma.pdf(prior(graph)))
-        #est_costs2.append(probG)
-        print q
+    # Evaluate potential graphs
 
+    est_costs=[]
+    for q, graph in enumerate(As):
+        est_costs.append(logprobG(graph))
+        print q
+    plt.scatter(costs[0:len(est_costs)],est_costs)
+    plt.show(block=False)
+
+#ani=animation.FuncAnimation(

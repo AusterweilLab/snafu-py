@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
-# V5
-# optimized genZfromXG
-# prior(x) return small world statistic, but it's not used in computation
+# V7
+# started moving towards dynamic graph optimization
+# this is really a half version... it doesn't work 100%
 
 import networkx as nx
 import numpy as np
@@ -12,6 +12,7 @@ import math
 import matplotlib.pyplot as plt
 import time
 import scipy.stats as ss
+import matplotlib.animation as animation
 
 # random walk given an adjacency matrix that hits every node; returns a list of tuples
 def random_walk(g,s=None):
@@ -84,7 +85,7 @@ def genZfromX(x, theta):
             path.append(x2.pop())
     return walk_from_path(path)
 
-# probability of random walk Z on link matrix A
+# log probability of random walk Z on link matrix A
 def logprobZ(walk,a):
     t=a/sum(a.astype(float))                        # transition matrix
     logProbList=[]
@@ -94,6 +95,18 @@ def logprobZ(walk,a):
     logProb=logProb + math.log(1/float(len(a)))     # base rate of first node when selected uniformly
     return logProb
 
+# log probability of a graph (no prior)
+def logprobG(graph):
+    probG=0
+    for x in Xs:
+        zGs=[genZfromXG(x,graph) for i in range(100)]                # look how correlation changes with number of zs
+        loglist=[logprobZ(i,graph) for i in zGs]
+        logmax=max(loglist)
+        loglist=[i-logmax for i in loglist]                          # log trick: subtract off the max
+        probZG=math.log(sum([math.e**i for i in loglist])) + logmax  # add it back on
+        probG=probG+probZG
+    return probG
+        
 # Generate a connected Watts-Strogatz small-world graph
 # (n,k,p) = (number of nodes, each node connected to k-nearest neighbors, probability of rewiring)
 # k has to be even, tries is number of attempts to make connected graph
@@ -123,7 +136,8 @@ def timer(times):
     return t2-t1
 
 # constrained random walk
-# generate random walk on a that results in observed x
+# generate random walk on a that results in observed x 
+# if we had IRT data, this might be a good solution: http://cnr.lwlss.net/ConstrainedRandomWalk/
 def genZfromXG(x,a):
     # restrict walk to only the next node in x OR previously visited nodes
     possibles=np.zeros(len(a),dtype=int)
@@ -153,7 +167,7 @@ def drawG(g,save=False,display=True):
     pos=nx.spring_layout(g)
     nx.draw_networkx(g,pos,with_labels=True)
 #    nx.draw_networkx_labels(g,pos,font_size=12)
-#    for node in range(numnodes):                    # sometimes node labels aren't drawn
+#    for node in range(numnodes):                    # sometimes the above doesn't work
 #        plt.annotate(str(node), xy=pos[node])       # here's a workaround
     plt.title(x)
     plt.axis('off')
@@ -162,7 +176,8 @@ def drawG(g,save=False,display=True):
     if display==True:
         plt.show()
 
-def prior(a):
+# return small world statistic of a graph
+def smallworld(a):
     g_sm=nx.from_numpy_matrix(a)
     c_sm=nx.average_clustering(g_sm)
     l_sm=nx.average_shortest_path_length(g_sm)
@@ -172,40 +187,51 @@ def prior(a):
     s=(c_sm/c_rand)/(l_sm/l_rand)
     return s
 
-# function for investigating role of theta. not really necessary.
-def changes(theta):
-    Zs=[genZfromX(x, theta) for i in range(1000)]
-    As=[genGfromZ(z) for z in Zs]
-    counts=[np.bincount(np.array(i-a).flatten()+1) for i in As] # [missing links, correct links, added links]
-    missing=[i[0] for i in counts]
-    correct=[i[1] for i in counts]
-    added  =[i[2] for i in counts]
-    return [np.mean(missing), np.mean(correct), np.mean(added)]
-
 if __name__ == "__main__":
     numnodes=20             # number of nodes in graph
     numlinks=4              # initial number of edges per node (must be even)
-    probRewire=.2          # probability of re-wiring an edge
+    probRewire=.2           # probability of re-wiring an edge
     numedges=numlinks*10    # number of edges in graph
     
     theta=.5                # probability of hiding node when generating z from x (rho function)
-    
+    numx=2                  # number of Xs to generate
+
     # Generate small-world graph
     g,a=genG(numnodes,numlinks,probRewire) 
     
     # Generate fake participant data
-    x=genX(g)
-    
-    Zs=[genZfromX(x,theta) for i in range(1000)]
-    As=[genGfromZ(z) for z in Zs]
-    costs=[sum(sum(np.array(abs(i-a)))) for i in As]
+    Xs=[genX(g) for i in range(numx)]
+
+    Z=[]
+    for x in Xs:
+        Z= Z + genZfromX(x,theta)
+
+    lead=genGfromZ(Z)       # initial graph (leading graph)
+    cost=sum(sum(np.array(abs(lead-a))))
 
     est_costs=[]
-    j=[]
-    for q, graph in enumerate(As):
-        zGs=[genZfromXG(x,graph) for i in range(100)] # look how correlation changes with number of zs
-        j.append(zGs)
-        probG=sum([logprobZ(i,graph) for i in zGs])/100
-        est_costs.append(probG)
-        print q
+    est_costs.append(logprobG(lead))
+       
+    edgelist=[(i,j) for i in range(numnodes) for j in range(numnodes) if i>j] # list all edges
+    random.shuffle(edgelist)
+   
+    lpLead=logprobG(lead)
+    for edge in edgelist:
+        poss=np.copy(lead)
+        flip=edgelist.pop()
+        poss[flip]= 1-poss[flip]    # flip random edges
+        lpPoss = logprobG(poss)
+        if lpPoss > lpLead:
+            # check to make sure new G is possible
+            cost=sum(sum(np.array(abs(lead-a))))
+            print lpPoss, ">", lpLead, "cost: ", cost
+            lead=poss
+            lpLead=lpPoss
+            est_costs.append(lpLead)
+        else:
+            # accept with some probability
+            # math.e**(lpPoss-lpLead)
+            print lpPoss, "<", lpLead
 
+#    plt.scatter(costs[0:len(est_costs)],est_costs)
+#    plt.show(block=False)
