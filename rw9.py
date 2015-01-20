@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-# V8
-# threading! Cython!
+# V9
 
 import networkx as nx
 import numpy as np
