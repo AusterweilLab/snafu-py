@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-# V9
+# V10
+# removed threading, kept Cython (shaves 10ms per call)
 
 import networkx as nx
 import numpy as np
@@ -9,14 +10,11 @@ import operator
 import math
 import matplotlib.pyplot as plt
 import time
-import scipy.stats as ss
-import matplotlib.animation as animation
-import multiprocessing as mp
 import genz
-#import pyximport
-#pyximport.install(setup_args={'include_dirs':[np.get_include()]},pyimport=True)
+#import scipy.stats as ss
+#import matplotlib.animation as animation
 
-# random walk given an adjacency matrix that hits every node; returns a list of tuples
+# given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g,s=None):
     if s is None:
         s=random.choice(range(len(a)))
@@ -67,7 +65,7 @@ def firstHit(walk):
         firsthit.append(path.index(i))
     return zip(observed_walk(walk),firsthit)
 
-# generate random walk that results in observed x (using rho function)
+# generate random walk that results in observed x
 def genZfromX(x, theta):
     x2=x[:]                  # make a local copy
     x2.reverse()
@@ -97,32 +95,14 @@ def logprobZ(walk,a):
     logProb=logProb + math.log(1/float(len(a)))     # base rate of first node when selected uniformly
     return logProb
 
-# wrapper for genZfromXG using multithreading
-def threadZ(x,graph,numz):
-    zarr=[]
-    for i in range(numz):
-        zarr.append(genZfromXGold(x,graph))
-    return zarr
-
 # log probability of a graph (no prior)
-def logprobG(graph):
+def logprobG(graph,Xs):
     probG=0
     for x in Xs:
         result=[]
-        starttime=time.time()
-        if threading==0:
-            #zGs=[genZfromXG(x,graph) for i in range(numsamples)] # without threading
-            zGs=threadZ(x,graph,numsamples)
-        else:
-            pool = mp.Pool(processes=numthreads)
-            sperthread=numsamples/numthreads  # distribute samples evenly among threads
-            for i in range(numthreads):
-                if i+1==numthreads:
-                    sperthread= sperthread + (numsamples % numthreads) # in case it's not divisible evenly
-                result.append(pool.apply_async(threadZ, [x, graph, sperthread]))
-            zGs= reduce(operator.add,[i.get() for i in result])
-            pool.close()
-        print time.time()-starttime
+        #starttime=time.time()
+        zGs=[genz.genZfromXG(x,graph) for i in range(numsamples)]
+        #print time.time()-starttime
         loglist=[logprobZ(i,graph) for i in zGs]
         logmax=max(loglist)
         loglist=[i-logmax for i in loglist]                          # log trick: subtract off the max
@@ -161,9 +141,8 @@ def timer(times):
 # constrained random walk
 # generate random walk on a that results in observed x 
 # if we had IRT data, this might be a good solution: http://cnr.lwlss.net/ConstrainedRandomWalk/
+# Note: This function is unused, but can replace the Cython optimized genz.genZfromXG if necessary
 def genZfromXGold(x, a):
-    #list walk
-    #set x_left
     j=np.zeros(len(a),dtype=np.int32)
     possibles=np.zeros(len(a),dtype=np.int32)
     newa=np.copy(a)
@@ -197,7 +176,7 @@ def drawG(g,save=False,display=True):
     pos=nx.spring_layout(g)
     nx.draw_networkx(g,pos,with_labels=True)
 #    nx.draw_networkx_labels(g,pos,font_size=12)
-#    for node in range(numnodes):                    # sometimes the above doesn't work
+#    for node in range(numnodes):                    # if the above doesn't work
 #        plt.annotate(str(node), xy=pos[node])       # here's a workaround
     plt.title(x)
     plt.axis('off')
@@ -218,7 +197,7 @@ def genSample(num):
     costs=[sum(sum(np.array(abs(i-a)))) for i in As]
     est_costs=[]
     for q, graph in enumerate(As):
-        est_costs.append(logprobG(graph))
+        est_costs.append(logprobG(graph,Xs))
         print q
     return [costs,est_costs]
 
@@ -233,43 +212,25 @@ def smallworld(a):
     s=(c_sm/c_rand)/(l_sm/l_rand)
     return s
 
-if __name__ == "__main__":
-    numnodes=20             # number of nodes in graph
-    numlinks=4              # initial number of edges per node (must be even)
-    probRewire=.2           # probability of re-wiring an edge
-    numedges=numlinks*10    # number of edges in graph
-    
-    theta=.5                # probability of hiding node when generating z from x (rho function)
-    numx=2                  # number of Xs to generate
-
-    threading=0             # use multi-threading? speeds up code a bit
-    numthreads=2            # number of threads to deploy
-    numsamples=100          # number of sample z's to estimate likelihood
-
-    # Generate small-world graph
-    g,a=genG(numnodes,numlinks,probRewire) 
-    
-    # Generate fake participant data
-    Xs=[genX(g) for i in range(numx)]
-
+# dynamically find the best graph by flipping random edges and computing revised log-likelihood
+def findBest():
     # generate initial graph (lead graph)
     Z=reduce(operator.add,[genZfromX(x,theta) for x in Xs])    
     lead=genGfromZ(Z)      
     cost=sum(sum(np.array(abs(lead-a)))) # cost of lead graph
-
        
     edgelist=[(i,j) for i in range(numnodes) for j in range(numnodes) if i>j] # list all edges
     random.shuffle(edgelist)
    
-    lpLead = logprobG(lead)   # set lead LP
+    lpLead = logprobG(lead,Xs)   # set lead LP
     est_costs=[]
-    est_costs.append(logprobG(lead))
+    est_costs.append(logprobG(lead,Xs))
 
     for edge in edgelist:
         poss=np.copy(lead)
         flip=edgelist.pop()
         poss[flip]= 1-poss[flip]    # flip random edges
-        lpPoss = logprobG(poss)
+        lpPoss = logprobG(poss,Xs)
         if lpPoss > lpLead:
             # check to make sure new G is possible
             cost=sum(sum(np.array(abs(lead-a))))
@@ -282,6 +243,23 @@ if __name__ == "__main__":
             # math.e**(lpPoss-lpLead)
             print lpPoss, "<", lpLead
             #pass
+
+if __name__ == "__main__":
+    numnodes=20             # number of nodes in graph
+    numlinks=4              # initial number of edges per node (must be even)
+    probRewire=.2           # probability of re-wiring an edge
+    numedges=numlinks*10    # number of edges in graph
+
+    theta=.5                # probability of hiding node when generating z from x (rho function)
+    numx=2                  # number of Xs to generate
+    numsamples=100          # number of sample z's to estimate likelihood
+
+    # Generate small-world graph
+    g,a=genG(numnodes,numlinks,probRewire) 
+
+    # Generate fake participant data
+    Xs=[genX(g) for i in range(numx)]
+
 
 #    plt.scatter(costs[0:len(est_costs)],est_costs)
 #    plt.show(block=False)

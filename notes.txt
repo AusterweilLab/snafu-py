@@ -26,3 +26,23 @@ rank of the true best
 proportion of length of trajectory compared to G (propotion of x:g, number of x)
 
 threading + cut-off long Zs
+
+-----
+
+connect all Xs (comparison graph)
+change theta
+
+Xs based on starting at same node vs random node
+
+- generate more realistic random graphs (cluster/link)
+- 36.8 animals on average, 
+
+- # xs (1-5)
+- # nodes (20-60)
+- traj lengths (30%-100%)
+-- prune nodes that weren't hit
+- start/random nodes
+
+spearman, rank
+
+Hamming distance - minimal number of changes to network...

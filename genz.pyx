@@ -1,5 +1,7 @@
 #cython: wraparound=False
 
+# compile using python setup.py build_ext --inplace
+
 import numpy as np
 cimport numpy as np
 import random
@@ -44,9 +46,3 @@ def genZfromXG(list x, np.ndarray a):
                 pl=np.nonzero(newa)
                 newa[:,j]=0
     return walk
-
-def threadZ(x,graph,numz):
-    zarr=[]
-    for i in range(numz):
-        zarr.append(genZfromXG(x,graph))
-    return zarr
