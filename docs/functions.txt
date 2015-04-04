@@ -12,21 +12,20 @@ firstHit(walk): Given a random_walk, return a list of tuples where the first ele
 
 genZfromX(x, theta): Given participant data x and parameter theta, return a possible random_walk Z that could have generated x.
 
-logprobZ(walk, a):
-logprobG(graph, Xs):
+computeCosts(As)
+cost(graph,a)
+drawG(g,save=False,display=True)
+findBest():
+flatten_list(l)
 genG(n,k,p,tries=1000)
 genGfromZ(walk)
-spearman(costs,est_costs)
-rank(est_costs)
-trimX(prop,Xs,g,a,numnodes)
-flatten_list(l)
-timer(times)
-genZfromXGold(x,a)
-genz.genZfromXG(x,a)
-genZfromXG
-drawG(g,save=False,display=True)
-cost(graph)
-computeCosts(As)
 genSample(num)
+genz.genZfromXG(x,a)
+genZfromXGold(x,a)
+logprobZ(walk, a):
+logprobG(graph, Xs):
+rank(est_costs)
+spearman(costs,est_costs)
+trimX(prop,Xs,g,a,numnodes)
+timer(times)
 smallworld(a)
-findBest():
