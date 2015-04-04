@@ -46,3 +46,20 @@ Xs based on starting at same node vs random node
 spearman, rank
 
 Hamming distance - minimal number of changes to network...
+
+
+
+---------
+
+
+graph
+dv rank, xaxis numX , color (numnodes, propX, startNode)
+
+how does graph of connecting Xs compare to true Xs
+
+3 Xs
+randomly generate each block (animals, vegetables, fruit)
+
+run simulations on brie -- ask ting
+
+dont list previous animals -- show counter

@@ -10,6 +10,9 @@ import math
 import matplotlib.pyplot as plt
 import time
 import genz
+import scipy
+from scipy import stats
+
 #import scipy.stats as ss
 #import matplotlib.animation as animation
 
@@ -53,8 +56,8 @@ def observed_walk(walk):
         result.append(item)
     return result
 
-def genX(g):
-    return observed_walk(random_walk(g))
+def genX(g,s=None):
+    return observed_walk(random_walk(g,s))
 
 # first hitting times for each node
 def firstHit(walk):
@@ -99,9 +102,7 @@ def logprobG(graph,Xs):
     probG=0
     for x in Xs:
         result=[]
-        #starttime=time.time()
         zGs=[genz.genZfromXG(x,graph) for i in range(numsamples)]
-        #print time.time()-starttime
         loglist=[logprobZ(i,graph) for i in zGs]
         logmax=max(loglist)
         loglist=[i-logmax for i in loglist]                          # log trick: subtract off the max
@@ -118,16 +119,40 @@ def genG(n,k,p,tries=1000):
     #i=nx.incidence_matrix(g).todense()              # incidence matrix
     return g, np.array(a, dtype=np.int32)
 
-# returns both networkx graph G and link matrix A
+# only returns adjacency matrix, not nx graph
 def genGfromZ(walk):
-    #numnodes=len(observed_walk(walk))
     a=np.zeros((numnodes,numnodes))
     for i in set(walk):
         a[i[0],i[1]]=1
         a[i[1],i[0]]=1 # symmetry
     a=np.array(a.astype(int))
-    #g=nx.from_numpy_matrix(a)      # too slow, not necessary
     return a
+
+# calculate spearman coefficient for graph reconstruction procedure
+def spearman(costs, est_costs):
+    return scipy.stats.spearmanr(costs,est_costs)[0]
+
+# return rank of real graph within sample of reconstructed graphs AND "real graph cost"
+def rank(est_costs):
+    realgraphcost=logprobG(a,Xs) # estimated cost of true graph
+    return realgraphcost, len(est_costs)+1-sum([realgraphcost>j for j in est_costs])
+
+# trim Xs to proportion of graph size, the trim graph to remove any nodes that weren't hit
+# used to simulate human data that doesn't cover the whole graph every time
+def trimX(prop):
+    global Xs, g, a, numnodes   # updates global variables!
+    # truncate Xs
+    numtrim=int(round(numnodes*prop))
+    Xs=[i[0:numtrim] for i in Xs]
+    #update g, a
+    for i in range(numnodes):
+        if i not in set(flatten_list(Xs)):
+            g.remove_node(i)
+    a=np.array(nx.adjacency_matrix(g, range(numnodes)).todense()) 
+
+# helper function
+def flatten_list(l):
+    return [item for sublist in l for item in sublist]
 
 # helper function for optimization
 def timer(times):
@@ -138,7 +163,7 @@ def timer(times):
     return t2-t1
 
 # constrained random walk
-# generate random walk on a that results in observed x 
+# generate random walk on A that results in observed x 
 # if we had IRT data, this might be a good solution: http://cnr.lwlss.net/ConstrainedRandomWalk/
 # Note: This function is unused, but can replace the Cython optimized genz.genZfromXG if necessary
 def genZfromXGold(x, a):
@@ -176,7 +201,7 @@ def drawG(g,save=False,display=True):
 #    nx.draw_networkx_labels(g,pos,font_size=12)
 #    for node in range(numnodes):                    # if the above doesn't work
 #        plt.annotate(str(node), xy=pos[node])       # here's a workaround
-    plt.title(x)
+    plt.title(Xs)
     plt.axis('off')
     if save==True:
         plt.savefig('temp.png')
@@ -192,14 +217,14 @@ def cost(graph):
 def genSample(num):
     Zs=[reduce(operator.add,[genZfromX(x,theta) for x in Xs]) for i in range(num)]
     As=[genGfromZ(z) for z in Zs]
-    costs=[sum(sum(np.array(abs(i-a)))) for i in As]
+    costs=[cost(i) for i in As]
     est_costs=[]
     for q, graph in enumerate(As):
         est_costs.append(logprobG(graph,Xs))
-        print q
     return [costs,est_costs]
 
 # return small world statistic of a graph
+# WARNING: trimX doesn't update numlinks--need to fix somehow
 def smallworld(a):
     g_sm=nx.from_numpy_matrix(a)
     c_sm=nx.average_clustering(g_sm)
@@ -217,7 +242,7 @@ def findBest():
     lead=genGfromZ(Z)      
     cost=sum(sum(np.array(abs(lead-a)))) # cost of lead graph
        
-    edgelist=[(i,j) for i in range(numnodes) for j in range(numnodes) if i>j] # list all edges
+    edgelist=[(i,j) for i in range(numnodes) for j in range(numnodes) if i>j] # list all possible edges
     random.shuffle(edgelist)
    
     lpLead = logprobG(lead,Xs)   # set lead LP
@@ -246,18 +271,18 @@ def init():
     numnodes=20                           # number of nodes in graph
     numlinks=4                            # initial number of edges per node (must be even)
     probRewire=.2                         # probability of re-wiring an edge
-    numedges=numlinks*(numnodes/2.0)      # number of edges in graph
-    
+    numedges=numnodes*(numlinks/2)        # number of edges in graph
+
     theta=.5                # probability of hiding node when generating z from x (rho function)
-    numx=2                  # number of Xs to generate
+    numx=3                  # number of Xs to generate
     numsamples=100          # number of sample z's to estimate likelihood
 
     # Generate small-world graph
     g,a=genG(numnodes,numlinks,probRewire) 
-    
+
     # Generate fake participant data
     Xs=[genX(g) for i in range(numx)]
 
 
-#    plt.scatter(costs[0:len(est_costs)],est_costs)
-#    plt.show(block=False)
+    #    plt.scatter(costs[0:len(est_costs)],est_costs)
+    #    plt.show(block=False)
