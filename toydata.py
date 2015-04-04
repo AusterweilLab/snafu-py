@@ -10,6 +10,9 @@ numsamples=100          # number of sample z's to estimate likelihood
 numlinks=4              # initial number of edges per node (must be even)
 probRewire=.2           # probability of re-wiring an edge
 theta=.5                # probability of hiding node when generating z from x (rho function)
+writetofile=0           # write graphs to python pickle in order to re-load them later.
+                        # this file is generally quite large, and can't be pushed to github (file size limits)
+
 
 numnodes_set=range(20,65,5)
 numx_set=range(1,5)
@@ -65,8 +68,9 @@ with open(filename,'w') as f:
         csvfile.writerow(metric)
         loop=loop+1
 
-with open(picklefile,'w') as p:
-    pickle.dump(dat,p)
+if writefile==1:
+    with open(picklefile,'w') as p:
+        pickle.dump(dat,p)
 
 f.close()
 p.close()
