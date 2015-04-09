@@ -4,12 +4,12 @@
 import numpy as np
 import networkx as nx
 
-f=open('semanticnetwork/animalnet.csv')
+f=open('animalnet.csv')
 animal=np.loadtxt(f)
 animal=nx.from_numpy_matrix(animal)
 animal=list(nx.connected_component_subgraphs(animal))[0] # largest connected subgraph
 
-f=open('semanticnetwork/animalwords.csv')
+f=open('animalwords.csv')
 names=f.read().split()
 names=[names[i] for i in nx.nodes(animal)] # remove unconnected animals
 
