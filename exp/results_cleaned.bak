@@ -71,7 +71,7 @@ S101,2,animals,hippopotamus,1994,76858,0
 S101,2,animals,monkey,1898,78756,0
 S101,2,animals,shark,19954,98710,0
 S101,2,animals,antelope,9434,108144,0
-S101,2,animals,rhino,18736,126880,0
+S101,2,animals,rhinoceros,18736,126880,0
 S101,2,animals,pheasant,6187,133067,0
 S101,2,animals,quail,3438,136505,0
 S101,2,animals,snake,7978,144483,0
@@ -117,7 +117,7 @@ S101,4,fruits,blackberry,3640,49360,0
 S101,4,fruits,orange,10536,59896,0
 S101,4,fruits,lemon,1941,61837,0
 S101,4,fruits,lime,1244,63081,0
-S101,4,fruits,cantelope,8149,71230,0
+S101,4,fruits,cantaloupe,8149,71230,0
 S101,4,fruits,papaya,13495,84725,0
 S101,4,fruits,grape,10184,94909,0
 S101,4,fruits,watermelon,14364,109273,0
@@ -157,7 +157,7 @@ S101,5,animals,monkey,1953,123430,0
 S101,5,animals,snake,1066,124496,0
 S101,5,animals,mouse,1028,125524,0
 S101,5,animals,ant,3238,128762,0
-S101,5,animals,lllama,8030,136792,0
+S101,5,animals,llama,8030,136792,0
 S101,5,animals,dolphin,11520,148312,0
 S101,5,animals,fox,4916,153228,0
 S101,5,animals,chicken,7095,160323,0
@@ -229,8 +229,8 @@ S101,8,animals,bunny,3024,59956,0
 S101,8,animals,goose,2500,62456,0
 S101,8,animals,goose,1282,63738,0
 S101,8,animals,swan,3444,67182,0
-S101,8,animals,b,5912,73094,0
-S101,8,animals,beatle,1906,75000,0
+S101,8,animals,bee,5912,73094,0
+S101,8,animals,beetle,1906,75000,0
 S101,8,animals,grasshopper,7128,82128,0
 S101,8,animals,frog,5025,87153,0
 S101,8,animals,fox,5953,93106,0
@@ -261,7 +261,7 @@ S102,0,animals,lion,2230,51173,0
 S102,0,animals,zebra,2907,54080,0
 S102,0,animals,ostrich,3313,57393,0
 S102,0,animals,giraffe,4575,61968,0
-S102,0,animals,lllama,14608,76576,0
+S102,0,animals,llama,14608,76576,0
 S102,0,animals,turtle,18797,95373,0
 S102,0,animals,elephant,8790,104163,0
 S102,0,animals,monkey,7790,111953,0
@@ -315,7 +315,7 @@ S102,3,animals,donkey,4529,27832,0
 S102,3,animals,monkey,5123,32955,0
 S102,3,animals,cat,7334,40289,0
 S102,3,animals,dog,1087,41376,0
-S102,3,animals,lllama,6401,47777,0
+S102,3,animals,llama,6401,47777,0
 S102,3,animals,giraffe,7719,55496,0
 S102,3,animals,owl,22645,78141,0
 S102,3,animals,chicken,5555,83696,0
@@ -374,7 +374,7 @@ S102,6,animals,jaguar,2275,25337,0
 S102,6,animals,bobcat,4377,29714,0
 S102,6,animals,horse,9094,38808,0
 S102,6,animals,donkey,2864,41672,0
-S102,6,animals,lllama,2724,44396,0
+S102,6,animals,llama,2724,44396,0
 S102,6,animals,giraffe,2162,46558,0
 S102,6,animals,cat,1066,47624,0
 S102,6,animals,dog,1430,49054,0
@@ -620,7 +620,7 @@ S103,5,animals,seagull,1993,138794,0
 S103,5,animals,sealion,2130,140924,0
 S103,5,animals,seal,2602,143526,0
 S103,5,animals,mantis,5047,148573,0
-S103,5,animals,rhino,6507,155080,0
+S103,5,animals,rhinoceros,6507,155080,0
 S103,5,animals,antelope,1605,156685,0
 S103,5,animals,pig,3485,160170,0
 S103,5,animals,boar,4763,164933,0
@@ -679,7 +679,7 @@ S103,7,animals,hampster,4674,55747,0
 S103,7,animals,alpaca,2199,57946,0
 S103,7,animals,sheep,4180,62126,0
 S103,7,animals,goat,2270,64396,0
-S103,7,animals,lllama,3661,68057,0
+S103,7,animals,llama,3661,68057,0
 S103,7,animals,woolymammoth,6324,74381,0
 S103,7,animals,elephant,1468,75849,0
 S103,7,animals,zebra,2069,77918,0
@@ -763,7 +763,7 @@ S104,0,vegetables,carrot,2529,40582,0
 S104,0,vegetables,zucchini,6305,46887,0
 S104,0,vegetables,onion,10387,57274,0
 S104,0,vegetables,garlic,6554,63828,0
-S104,0,vegetables,asparaguss,32285,96113,0
+S104,0,vegetables,asparagus,32285,96113,0
 S104,0,vegetables,leek,7233,103346,0
 S104,0,vegetables,kale,1791,105137,0
 S104,0,vegetables,spinach,5157,110294,0
@@ -829,7 +829,7 @@ S104,3,vegetables,garlic,8850,53642,0
 S104,3,vegetables,potato,9251,62893,0
 S104,3,vegetables,greenbean,8000,70893,0
 S104,3,vegetables,zucchini,18724,89617,0
-S104,3,vegetables,asparaguss,44168,133785,0
+S104,3,vegetables,asparagus,44168,133785,0
 S104,4,fruits,banana,4809,4809,0
 S104,4,fruits,apple,1854,6663,0
 S104,4,fruits,orange,1519,8182,0
@@ -893,7 +893,7 @@ S104,6,vegetables,limabean,5520,18809,0
 S104,6,vegetables,leek,8643,27452,0
 S104,6,vegetables,corn,1984,29436,0
 S104,6,vegetables,pea,2385,31821,0
-S104,6,vegetables,asparaguss,10322,42143,0
+S104,6,vegetables,asparagus,10322,42143,0
 S104,6,vegetables,spinach,2672,44815,0
 S104,6,vegetables,zucchini,8513,53328,0
 S104,6,vegetables,greenpepper,7953,61281,0
@@ -1458,7 +1458,7 @@ S107,6,vegetables,whiteonion,3824,108096,0
 S107,6,vegetables,squash,9721,117817,0
 S107,6,vegetables,chive,9577,127394,0
 S107,6,vegetables,tomatillo,34508,161902,0
-S107,7,fruits,templeorangee,9949,9949,0
+S107,7,fruits,templeorange,9949,9949,0
 S107,7,fruits,grapefruit,2783,12732,0
 S107,7,fruits,banana,2393,15125,0
 S107,7,fruits,plantain,2248,17373,0
@@ -1482,7 +1482,7 @@ S107,7,fruits,peach,2072,72155,0
 S107,7,fruits,cherrytomato,5985,78140,0
 S107,7,fruits,strawberry,10049,88189,0
 S107,7,fruits,pomegranate,32660,120849,0
-S107,7,fruits,kurrant,11104,131953,0
+S107,7,fruits,currant,11104,131953,0
 S107,7,fruits,plum,1552,133505,0
 S107,7,fruits,prune,10569,144074,0
 S107,7,fruits,raisin,2672,146746,0
@@ -2006,7 +2006,7 @@ S110,0,animals,eagle,5682,39510,0
 S110,0,animals,vulture,3238,42748,0
 S110,0,animals,hawk,2249,44997,0
 S110,0,animals,hippopotamus,4112,49109,0
-S110,0,animals,rhino,1336,50445,0
+S110,0,animals,rhinoceros,1336,50445,0
 S110,0,animals,carp,2584,53029,0
 S110,0,animals,shark,1288,54317,0
 S110,0,animals,goldfish,1400,55717,0
@@ -2024,7 +2024,7 @@ S110,0,animals,buffalo,7824,110166,0
 S110,0,animals,cow,1344,111510,0
 S110,0,animals,chicken,1737,113247,0
 S110,0,animals,pig,2295,115542,0
-S110,0,animals,lllama,1544,117086,0
+S110,0,animals,llama,1544,117086,0
 S110,0,animals,alpaca,1457,118543,0
 S110,0,animals,ostrich,3488,122031,0
 S110,0,animals,emu,1104,123135,0
@@ -2282,7 +2282,7 @@ S111,5,animals,crocodile,9820,81445,0
 S111,5,animals,camel,21534,102979,0
 S111,5,animals,giraffe,4438,107417,0
 S111,5,animals,horse,10416,117833,0
-S111,5,animals,rhino,2895,120728,0
+S111,5,animals,rhinoceros,2895,120728,0
 S111,6,vegetables,corn,28327,28327,0
 S111,6,vegetables,cabbage,4070,32397,0
 S111,6,vegetables,onion,6466,38863,0
@@ -2297,7 +2297,7 @@ S111,7,animals,hyena,4775,29597,0
 S111,7,animals,cheetah,3648,33245,0
 S111,7,animals,horse,5113,38358,0
 S111,7,animals,camel,2378,40736,0
-S111,7,animals,rhino,3153,43889,0
+S111,7,animals,rhinoceros,3153,43889,0
 S111,7,animals,giraffe,4258,48147,0
 S111,7,animals,dog,7663,55810,0
 S111,7,animals,cat,1907,57717,0
@@ -2545,7 +2545,7 @@ S113,1,animals,giraffe,1840,19561,0
 S113,1,animals,lion,912,20473,0
 S113,1,animals,cheetah,1472,21945,0
 S113,1,animals,panther,1072,23017,0
-S113,1,animals,rhino,1168,24185,0
+S113,1,animals,rhinoceros,1168,24185,0
 S113,1,animals,elephant,3921,28106,0
 S113,1,animals,antelope,1263,29369,0
 S113,1,animals,gazelle,2448,31817,0
@@ -2615,7 +2615,7 @@ S113,3,animals,guineapig,1657,32037,0
 S113,3,animals,mouse,1055,33092,0
 S113,3,animals,rat,2536,35628,0
 S113,3,animals,elephant,5581,41209,0
-S113,3,animals,rhino,1098,42307,0
+S113,3,animals,rhinoceros,1098,42307,0
 S113,3,animals,leopard,5202,47509,0
 S113,3,animals,panther,1247,48756,0
 S113,3,animals,walrus,5328,54084,0
@@ -3197,7 +3197,7 @@ S116,1,animals,cat,1039,5060,0
 S116,1,animals,dog,704,5764,0
 S116,1,animals,horse,5202,10966,0
 S116,1,animals,sheep,3254,14220,0
-S116,1,animals,lllama,1241,15461,0
+S116,1,animals,llama,1241,15461,0
 S116,1,animals,pig,11459,26920,0
 S116,1,animals,bison,5216,32136,0
 S116,1,animals,squirrel,2575,34711,0
@@ -3301,7 +3301,7 @@ S116,5,animals,lion,4248,49298,0
 S116,5,animals,dolphin,4033,53331,0
 S116,5,animals,whale,2532,55863,0
 S116,5,animals,kangaroo,18089,73952,0
-S116,5,animals,lllama,4194,78146,0
+S116,5,animals,llama,4194,78146,0
 S116,5,animals,alpaca,1896,80042,0
 S116,5,animals,elephant,7105,87147,0
 S116,5,animals,giraffe,2085,89232,0
@@ -3357,7 +3357,7 @@ S116,7,fruits,mango,28504,93969,0
 S116,7,fruits,passionfruit,7099,101068,0
 S116,7,fruits,grapefruit,5254,106322,0
 S116,8,animals,bear,4756,4756,0
-S116,8,animals,lllama,1241,5997,0
+S116,8,animals,llama,1241,5997,0
 S116,8,animals,alpaca,2210,8207,0
 S116,8,animals,polarbear,3423,11630,0
 S116,8,animals,dolphin,2222,13852,0
@@ -3709,7 +3709,7 @@ S118,3,animals,tiger,3107,18000,0
 S118,3,animals,alligator,5088,23088,0
 S118,3,animals,crocodile,2073,25161,0
 S118,3,animals,shark,3928,29089,0
-S118,3,animals,rhino,4369,33458,0
+S118,3,animals,rhinoceros,4369,33458,0
 S118,3,animals,panther,4512,37970,0
 S118,3,animals,worm,3921,41891,0
 S118,3,animals,spider,4426,46317,0
@@ -3837,7 +3837,7 @@ S118,8,animals,beetle,1264,14183,0
 S118,8,animals,worm,1552,15735,0
 S118,8,animals,penguin,95027,110762,0
 S118,8,animals,elephant,1463,112225,0
-S118,8,animals,rhino,872,113097,0
+S118,8,animals,rhinoceros,872,113097,0
 S118,8,animals,tiger,786,113883,0
 S118,8,animals,lion,807,114690,0
 S118,8,animals,squirrel,3312,118002,0
@@ -3920,7 +3920,7 @@ S119,2,animals,cat,816,3696,0
 S119,2,animals,fish,1304,5000,0
 S119,2,animals,spider,5356,10356,0
 S119,2,animals,lion,7874,18230,0
-S119,2,animals,rhino,1489,19719,0
+S119,2,animals,rhinoceros,1489,19719,0
 S119,2,animals,elephant,1274,20993,0
 S119,2,animals,tiger,1359,22352,0
 S119,2,animals,jaguar,1220,23572,0
@@ -3978,7 +3978,7 @@ S119,4,animals,swan,4050,21529,0
 S119,4,animals,elephant,2773,24302,0
 S119,4,animals,lion,851,25153,0
 S119,4,animals,tiger,1032,26185,0
-S119,4,animals,rhino,2280,28465,0
+S119,4,animals,rhinoceros,2280,28465,0
 S119,4,animals,hippopotamus,1091,29556,0
 S119,4,animals,skunk,1683,31239,0
 S119,4,animals,opossum,6983,38222,0
@@ -4025,7 +4025,7 @@ S119,6,animals,crow,4626,25723,0
 S119,6,animals,lion,8990,34713,0
 S119,6,animals,tiger,753,35466,0
 S119,6,animals,elephant,1317,36783,0
-S119,6,animals,rhino,1724,38507,0
+S119,6,animals,rhinoceros,1724,38507,0
 S119,6,animals,meerkat,5666,44173,0
 S119,6,animals,snake,2863,47036,0
 S119,6,animals,lizard,1024,48060,0
@@ -4088,7 +4088,7 @@ S120,0,fruits,dragonfruit,9985,83974,0
 S120,0,fruits,pear,7008,90982,0
 S120,0,fruits,peach,20704,111686,0
 S120,0,fruits,persimmon,5648,117334,0
-S120,0,fruits,ppapaya,11136,128470,0
+S120,0,fruits,papaya,11136,128470,0
 S120,0,fruits,durian,3089,131559,0
 S120,0,fruits,pomegranate,16112,147671,0
 S120,0,fruits,lemon,15889,163560,0
