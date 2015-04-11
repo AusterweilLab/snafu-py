@@ -1,4 +1,5 @@
 /exp/results_cleaned.csv
+/exp/results_cleaned.bak
 /exp/logs
 /exp/writeup
 *.swp
