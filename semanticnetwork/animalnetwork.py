@@ -29,4 +29,8 @@ a=nx.to_numpy_matrix(g)
 numnodes=nx.number_of_nodes(g)
 numedges=nx.number_of_edges(g)
 
+numx=3
+Xs=[genX(g) for i in range(numx)]
+
+
 #plt.show()

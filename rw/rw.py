@@ -278,20 +278,20 @@ def walk_from_path(path):
 ### This information is not used when importing rw as a library, but does need
 ###  to be specified in your script
 
-numnodes=20                           # number of nodes in graph
-numlinks=4                            # initial number of edges per node (must be even)
-probRewire=.2                         # probability of re-wiring an edge
-numedges=numnodes*(numlinks/2)        # number of edges in graph
+#numnodes=20                           # number of nodes in graph
+#numlinks=4                            # initial number of edges per node (must be even)
+#probRewire=.2                         # probability of re-wiring an edge
+#numedges=numnodes*(numlinks/2)        # number of edges in graph
 
-theta=.5                # probability of hiding node when generating z from x (rho function)
-numx=3                  # number of Xs to generate
-numsamples=100          # number of sample z's to estimate likelihood
+#theta=.5                # probability of hiding node when generating z from x (rho function)
+#numx=3                  # number of Xs to generate
+#numsamples=100          # number of sample z's to estimate likelihood
 
 # Generate small-world graph
-g,a=genG(numnodes,numlinks,probRewire) 
+#g,a=genG(numnodes,numlinks,probRewire) 
 
 # Generate fake participant data
-Xs=[genX(g) for i in range(numx)]
+#Xs=[genX(g) for i in range(numx)]
 
 
     #    plt.scatter(costs[0:len(est_costs)],est_costs)

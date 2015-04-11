@@ -4,6 +4,7 @@
 # * S101 modified to separate items entered on the same line (RT lost)
 # * Lower case 
 # * Remove plurals and spaces
+# * still needs a significant amount of manual processing to clean up!! mostly spelling mistakes
 
 import json
 import os
