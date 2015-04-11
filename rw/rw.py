@@ -16,21 +16,33 @@ from scipy import stats
 #import scipy.stats as ss
 #import matplotlib.animation as animation
 
+# this is a convenience object for passing parameters to functions
+# it doesn't guarantee consistency or do anything fancy
+#class graphObject:
+#    a=None
+#    numx=None
+#    Xs=None
+#    def __init__(self, numlinks=0, numedges=0, numnodes=0, probRewire=0):
+#        self.numlinks=numlinks
+#        self.numedges=numedges
+#        self.numnodes=numnodes
+#        self.probRewire=probRewire
+
 # test function generates a sample of random graphs and compares them to the original
-def computeCosts(As):
-    costs=[cost(i) for i in As]
+def computeCosts(As,Xs,a,numsamples):
+    costs=[cost(i,a) for i in As]
     est_costs=[]
     for q, graph in enumerate(As):
-        est_costs.append(logprobG(graph,Xs))
+        est_costs.append(logprobG(graph,Xs,numsamples))
     return [costs,est_costs]
 
 # Objective graph cost
 # Returns the number of links that need to be added or removed to reach the true graph
-def cost(graph):
+def cost(graph,a):
     return sum(sum(np.array(abs(graph-a))))
    
 # Draw graph
-def drawG(g,save=False,display=True):
+def drawG(g,Xs,save=False,display=True):
     pos=nx.spring_layout(g)
     nx.draw_networkx(g,pos,with_labels=True)
 #    nx.draw_networkx_labels(g,pos,font_size=12)
@@ -44,24 +56,24 @@ def drawG(g,save=False,display=True):
         plt.show()
 
 # dynamically find the best graph by flipping random edges and computing revised log-likelihood
-def findBest():
+def findBest(numnodes, theta, Xs, numsamples):
     # generate initial graph (lead graph)
     Z=reduce(operator.add,[genZfromX(x,theta) for x in Xs])    
-    lead=genGfromZ(Z)      
+    lead=genGfromZ(Z, numnodes)      
     cost=sum(sum(np.array(abs(lead-a)))) # cost of lead graph
        
     edgelist=[(i,j) for i in range(numnodes) for j in range(numnodes) if i>j] # list all possible edges
     random.shuffle(edgelist)
    
-    lpLead = logprobG(lead,Xs)   # set lead LP
+    lpLead = logprobG(lead,Xs,numsamples)   # set lead LP
     est_costs=[]
-    est_costs.append(logprobG(lead,Xs))
+    est_costs.append(logprobG(lead,Xs,numsamples))
 
     for edge in edgelist:
         poss=np.copy(lead)
         flip=edgelist.pop()
         poss[flip]= 1-poss[flip]    # flip random edges
-        lpPoss = logprobG(poss,Xs)
+        lpPoss = logprobG(poss,Xs,numsamples)
         if lpPoss > lpLead:
             # check to make sure new G is possible
             cost=sum(sum(np.array(abs(lead-a))))
@@ -96,7 +108,7 @@ def genG(n,k,p,tries=1000):
     return g, np.array(a, dtype=np.int32)
 
 # only returns adjacency matrix, not nx graph
-def genGfromZ(walk):
+def genGfromZ(walk, numnodes):
     a=np.zeros((numnodes,numnodes))
     for i in set(walk):
         a[i[0],i[1]]=1
@@ -104,15 +116,15 @@ def genGfromZ(walk):
     a=np.array(a.astype(int))
     return a
 
-def genGraphs(num):
+def genGraphs(num, theta, Xs, numnodes):
     Zs=[reduce(operator.add,[genZfromX(x,theta) for x in Xs]) for i in range(num)]
-    As=[genGfromZ(z) for z in Zs]
+    As=[genGfromZ(z, numnodes) for z in Zs]
     return As
 
 # helper function for backwards compatibility
-def genSample(num):
-    As=genGraphs(num)
-    [costs, est_costs] = computeCosts(As)
+def genSample(num, theta, a, numsamples):
+    As=genGraphs(num, theta, Xs, numnodes)
+    [costs, est_costs] = computeCosts(As,Xs,a,numsamples)
     return [costs, est_costs]
 
 def genX(g,s=None):
@@ -171,7 +183,7 @@ def genZfromXGold(x, a):
     return walk
 
 # log probability of a graph (no prior)
-def logprobG(graph,Xs):
+def logprobG(graph,Xs,numsamples):
     probG=0
     for x in Xs:
         result=[]
@@ -227,13 +239,13 @@ def random_walk(g,s=None):
     return walk
 
 # return rank of real graph within sample of reconstructed graphs AND "real graph cost"
-def rank(est_costs):
-    realgraphcost=logprobG(a,Xs) # estimated cost of true graph
+def rank(est_costs,Xs,numsamples,a):
+    realgraphcost=logprobG(a,Xs,numsamples) # estimated cost of true graph
     return (realgraphcost, len(est_costs)+1-sum([realgraphcost>j for j in est_costs]))
 
 # return small world statistic of a graph
 # WARNING: trimX doesn't update numlinks--need to fix somehow
-def smallworld(a):
+def smallworld(a, numnodes, numlinks, numedges):
     g_sm=nx.from_numpy_matrix(a)
     c_sm=nx.average_clustering(g_sm)
     l_sm=nx.average_shortest_path_length(g_sm)

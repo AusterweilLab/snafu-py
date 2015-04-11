@@ -47,13 +47,13 @@ with open(filename,'w') as f:
         [Xs,g,a,numnodes]=trimX(trim,Xs,g,a,numnodes)
         dat[loop]["Xs"]=Xs
 
-        As=genGraphs(numgraphs)
-        costs, est_costs=computeCosts(As)
+        As=genGraphs(numgraphs, theta, Xs, numnodes)
+        costs, est_costs=computeCosts(As,Xs,a,numsamples)
 
         dat[loop]["As"]=As
         
         metric.append(spearman(costs, est_costs))
-        metric.append(rank(est_costs)[1])
+        metric.append(rank(est_costs,Xs,numsamples,a)[1])
         metric.append(len(g))                            # actual graph size after trim
             
         g_sm=[nx.from_numpy_matrix(a) for a in As]
