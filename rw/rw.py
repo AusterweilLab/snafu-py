@@ -116,8 +116,8 @@ def genGfromZ(walk, numnodes):
     a=np.array(a.astype(int))
     return a
 
-def genGraphs(num, theta, Xs, numnodes):
-    Zs=[reduce(operator.add,[genZfromX(x,theta) for x in Xs]) for i in range(num)]
+def genGraphs(numgraphs, theta, Xs, numnodes):
+    Zs=[reduce(operator.add,[genZfromX(x,theta) for x in Xs]) for i in range(numgraphs)]
     As=[genGfromZ(z, numnodes) for z in Zs]
     return As
 
