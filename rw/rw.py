@@ -277,7 +277,7 @@ def trimX(prop, Xs, g, a, numnodes):
     for i in range(numnodes):
         if i not in set(flatten_list(Xs)):
             g.remove_node(i)
-    a=np.array(nx.adjacency_matrix(g, range(numnodes)).todense()) 
+    a=np.array(nx.adjacency_matrix(g, range(numnodes)).todense())
     return Xs, g, a, numnodes
 
 # tuple walk from flat list
