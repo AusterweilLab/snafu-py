@@ -9,27 +9,21 @@ def probX(Xs, a):
         for curpos in range(1,len(x)-1):
             t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
             Q=np.copy(t)
-    
-            notinx=[]       # nodes not in current X
-            for i in range(numnodes):
-                if i not in x:
-                    notinx.append(i)
-
-            for i in sorted(x[curpos:]+notinx,reverse=True):   # to form Q matrix
+            
+            for i in sorted(x[curpos:],reverse=True):   # to form Q matrix
                 Q=np.delete(Q,i,0) # delete row
                 Q=np.delete(Q,i,1) # delete column
             I=np.identity(len(Q))
             N=inv(I-Q)
             
             R=np.copy(t)
-            for i in reversed(range(numnodes)):
-                if i in notinx:
-                    R=np.delete(R,i,1)
-                    R=np.delete(R,i,0)
-                elif i in x[curpos:]:
+            for i in reversed(range(len(x))):
+                if i in x[curpos:]:
                     R=np.delete(R,i,1) # columns are already visited nodes
                 else:
                     R=np.delete(R,i,0) # rows are absorbing/unvisited nodes
+            print R
+            print N
             B=np.dot(R,N)
             startindex=sorted(x[:curpos]).index(x[curpos-1])
             absorbingindex=sorted(x[curpos:]).index(x[curpos])
@@ -55,7 +49,7 @@ match_numnodes=1        # make sure trimmed graph has numnodes... else it causes
 while match_numnodes:
     g,a=genG(numnodes,numlinks,probRewire) 
     Xs=[genX(g) for i in range(numx)]
-    [Xs,g,a,numnodes]=trimX(trim,Xs,g,a,numnodes)
+    #[Xs,g,a,numnodes]=trimX(trim,Xs,g,a,numnodes)
     if 0 not in sum(a):
         match_numnodes=0
 
@@ -73,5 +67,4 @@ for it, graph in enumerate(genGraphs(numgraphs,theta,Xs,numnodes)):
     true.append(cost(graph,a))
     ours.append(logprobG(graph,Xs,numsamples))
     print it
-
 
