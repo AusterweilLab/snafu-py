@@ -83,7 +83,7 @@ def probX(Xs, a, irts):
             flist=[]
             oldQ=np.copy(Q)
 
-            for r in range(1,maxlen):
+            for r in range(0,maxlen):
                 Q=np.linalg.matrix_power(oldQ,r)
                 sumlist=[]
                 for k in range(numcols):
@@ -91,24 +91,14 @@ def probX(Xs, a, irts):
                     num2=t[x[curpos],notdeleted[k]]
                     if ((num1>0) and (num2>0)):
                         tmp=num1*num2
-                        if (tmp==0): 
-                            print "Warning: Underflow"
-                            #tmp=math.e**logTrick([math.log(num1),math.log(num2)])
-                            #if (tmp==0):
-                            #    print "Warning: Double Underflow"
-                            #    underflow=1
-                            tmp=0 # just ignore it for now...
                         sumlist.append(tmp)
                 innersum=sum(sumlist)
-                gamma=r*math.log(beta)-math.lgamma(r)+(r-1)*math.log(irt)-beta*irt
+                gamma=r*math.log(beta)-math.lgamma(r+1)+(r)*math.log(irt)-beta*irt
+                jeff = .99
                 if innersum > 0:
-                    flist.append(gamma+math.log(innersum))
-                else:
-                    flist.append(gamma)
-            f_tmp=[math.e**i for i in flist]
-            if 0.0 in f_tmp:
-                print "bad"
-            f=sum(f_tmp)
+                    flist.append(gamma*(1-jeff)+jeff*math.log(innersum))
+                    #print "innersum=", math.log(innersum), " gamma=", gamma, " ratio=", math.log(innersum)/gamma
+            f=sum([math.e**i for i in flist])
             prob.append(f)
         if 0.0 in prob: 
             print "Warning: Zero-probability transition? Check graph to make sure X is possible."
@@ -143,15 +133,17 @@ def expectedHidden(Xs, a):
     return expecteds
 
 numnodes=53                           # number of nodes in graph
+#numnodes=20
 numlinks=4                            # initial number of edges per node (must be even)
 probRewire=.2                         # probability of re-wiring an edge
 numedges=numnodes*(numlinks/2)        # number of edges in graph
 
 theta=.5                # probability of hiding node when generating z from x (rho function)
 numx=3                  # number of Xs to generate
+#numx=1
 numsamples=100          # number of sample z's to estimate likelihood
 numgraphs=100
-trim=.7
+trim=1
 match_numnodes=1        # make sure trimmed graph has numnodes... else it causes problems. fix later. or keep, maybe not a bad idea.
 maxlen=20               # no closed form, number of times to sum over
 
@@ -166,7 +158,7 @@ ours=[]
 his=[]
 true=[]
 
-expected_irts=expectedHidden(Xs,graph)
+expected_irts=expectedHidden(Xs,a)
 
 for it, graph in enumerate(genGraphs(numgraphs,theta,Xs,numnodes)):
     tmp=probX(Xs,graph,expected_irts)
