@@ -8,7 +8,18 @@ def logTrick(loglist):
     loglist=[i-logmax for i in loglist]                     # log trick: subtract off the max
     p=math.log(sum([math.e**i for i in loglist])) + logmax  # add it back on
     return p
-        
+
+# http://stackoverflow.com/questions/350519/getting-the-lesser-n-elements-of-a-list-in-python
+def maxs(items,n):
+    maxs = items[:n]
+    maxs.sort(reverse=True)
+    for i in items[n:]:
+        if i > maxs[-1]: 
+            maxs.append(i)
+            maxs.sort(reverse=True)
+            maxs= maxs[:n]
+    return maxs
+
 def origProbX(Xs, a):
     probs=[]
     expecteds=[]
@@ -53,6 +64,9 @@ def origProbX(Xs, a):
             raise
         probs.append(prob)
         expecteds.append(expected)
+    for i in range(len(probs)):
+        probs[i]=sum([math.log(j) for j in probs[i]])
+    probs=sum(probs)
     return probs
 
 def probX(Xs, a, irts):
@@ -101,9 +115,12 @@ def probX(Xs, a, irts):
             f=sum([math.e**i for i in flist])
             prob.append(f)
         if 0.0 in prob: 
-            print "Warning: Zero-probability transition? Check graph to make sure X is possible."
-            raise
+            #print "Warning: Zero-probability transition; graph cannot produce X"
+            return -1000
         probs.append(prob)
+    for i in range(len(probs)):
+        probs[i]=sum([math.log(j) for j in probs[i]])
+    probs=sum(probs)
     return probs
 
 def expectedHidden(Xs, a):
@@ -147,6 +164,11 @@ trim=1
 match_numnodes=1        # make sure trimmed graph has numnodes... else it causes problems. fix later. or keep, maybe not a bad idea.
 maxlen=20               # no closed form, number of times to sum over
 jeff = .99
+maxtokeep=10
+numperseed=10
+nodestotweak=[5]
+
+allnodes=[(i,j) for i in range(len(a)) for j in range(len(a)) if (i!=j) and (i>j)]
 
 while match_numnodes:
     g,a=genG(numnodes,numlinks,probRewire) 
@@ -155,25 +177,58 @@ while match_numnodes:
     if 0 not in sum(a):
         match_numnodes=0
 
-ours=[]
-his=[]
-true=[]
-
 expected_irts=expectedHidden(Xs,a)
 
-for it, graph in enumerate(genGraphs(numgraphs,theta,Xs,numnodes)):
-    tmp=probX(Xs,graph,expected_irts)
-    for i in range(len(tmp)):
-        tmp[i]=sum(tmp[i])
-    tmp=sum(tmp)
-    ours.append(tmp)
+graphs=genGraphs(numgraphs,theta,Xs,numnodes)
 
-    tmp=origProbX(Xs,graph)
-    for i in range(len(tmp)):
-        tmp[i]=sum(tmp[i])
-    tmp=sum(tmp)
-    his.append(tmp)
+# hill climbing with stochastic search
+def genFromSeeds(seedgraphs,numperseed,nodestotweak):
+    graphs=seedgraphs[:]
+    for i in seedgraphs:
+        for j in range(numperseed):
+            new=np.copy(i)
+            for k in range(random.choice(nodestotweak)):
+                rand1=rand2=0
+                while (rand1 == rand2):
+                    rand1=random.randint(0,len(i)-1)
+                    rand2=random.randint(0,len(i)-1)
+                new[rand1,rand2]=1-new[rand1,rand2]
+                new[rand2,rand1]=1-new[rand2,rand1]
+            graphs.append(new)
+    return graphs
 
-    true.append(cost(graph,a))
-    print it
+# hill climbing with stochastic search
+def xBest(graphs,numkeep):
+    ours=[]
+    his=[]
+    true=[]
 
+    for it, graph in enumerate(graphs):
+        tmp=probX(Xs,graph,expected_irts)
+        ours.append(tmp)
+
+        #tmp=origProbX(Xs,graph)
+        #for i in range(len(tmp)):
+        #    tmp[i]=sum(tmp[i])
+        #tmp=sum(tmp)
+        #his.append(tmp)
+
+        true.append(cost(graph,a))
+        #if (it % 10) == 0:
+        #    print it
+    
+    maxvals=maxs(ours,numkeep)
+    maxpos=[ours.index(i) for i in maxvals]
+    maxgraphs=[]
+    for i in maxpos:
+        maxgraphs.append(graphs[i])
+    print "MAX: ", max(ours), "COST: ", cost(graphs[ours.index(max(ours))],a)
+    return maxgraphs
+
+#def beam(graphs,keep):
+#    for i in 
+#    pass 
+
+while True:
+    graphs=xBest(graphs,1)
+    graphs=genFromSeeds(graphs,100,nodestotweak)
