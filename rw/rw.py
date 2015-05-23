@@ -9,7 +9,7 @@ import operator
 import math
 import matplotlib.pyplot as plt
 import time
-import genz
+#import genz
 import scipy
 from scipy import stats
 
@@ -187,7 +187,7 @@ def logprobG(graph,Xs,numsamples):
     probG=0
     for x in Xs:
         result=[]
-        zGs=[genz.genZfromXG(x,graph) for i in range(numsamples)]
+        zGs=[genZfromXGold(x,graph) for i in range(numsamples)]
         loglist=[logprobZ(i,graph) for i in zGs]
         logmax=max(loglist)
         loglist=[i-logmax for i in loglist]                          # log trick: subtract off the max
