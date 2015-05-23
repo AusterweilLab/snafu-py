@@ -166,9 +166,7 @@ maxlen=20               # no closed form, number of times to sum over
 jeff = .99
 maxtokeep=10
 numperseed=10
-nodestotweak=[5]
-
-allnodes=[(i,j) for i in range(len(a)) for j in range(len(a)) if (i!=j) and (i>j)]
+nodestotweak=[1]
 
 while match_numnodes:
     g,a=genG(numnodes,numlinks,probRewire) 
@@ -177,6 +175,7 @@ while match_numnodes:
     if 0 not in sum(a):
         match_numnodes=0
 
+allnodes=[(i,j) for i in range(len(a)) for j in range(len(a)) if (i!=j) and (i>j)]
 expected_irts=expectedHidden(Xs,a)
 
 graphs=genGraphs(numgraphs,theta,Xs,numnodes)
