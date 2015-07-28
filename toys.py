@@ -41,17 +41,18 @@ def xBest(graphs,numkeep):
  
     maxlen=numnodes # maybe?
     for it, graph in enumerate(graphs):
-        tmp=rw.probX(Xs,graph,expected_irts,numnodes,maxlen,jeff)
+        #tmp=rw.probX(Xs,graph,expected_irts,numnodes,maxlen,jeff)
+        tmp=rw.probXnoIRT(Xs,graph,numnodes)
         ours.append(tmp)
         #true.append(rw.cost(graph,a))  # only on toy networks
     
     maxvals=maxs(ours,numkeep)
-    print maxvals
+    #print maxvals
     maxpos=[ours.index(i) for i in maxvals]
     maxgraphs=[]
     for i in maxpos:
         maxgraphs.append(graphs[i])
-    #print "MAX: ", max(ours), "COST: ", rw.cost(graphs[ours.index(max(ours))],a) # only on toy networks
+    print "MAX: ", max(ours), "COST: ", rw.cost(graphs[ours.index(max(ours))],a)/2 # only on toy networks
     return maxgraphs, max(ours)
 
 # treat Xs as if there are no hidden nodes and connect all observations to form graph
@@ -102,10 +103,7 @@ def drawDot(g, filename, labels={}):
         nx.relabel_nodes(g, labels, copy=False)
     nx.drawing.write_dot(g, filename)
        
-allsubs=["S101","S102","S103","S104","S105","S106","S107","S108","S109","S110",
-         "S111","S112","S113","S114","S115","S116","S117","S118","S119","S120"]
-
-numnodes=30                           # number of nodes in graph
+numnodes=20                           # number of nodes in graph
 numlinks=4                            # initial n/fivebeumber of edges per node (must be even)
 probRewire=.2                         # probability of re-wiring an edge
 numedges=numnodes*(numlinks/2)        # number of edges in graph
@@ -119,26 +117,16 @@ jeff = .5
 numperseed=50
 nodestotweak=[1,1,1,2,3,4,5,6,7,8,9,10]
 numkeep=3
-
-# comment out except for demoing
-# numnodes=10
-# numgraphs=40
- 
-# record start time
+graph_seed=None
+graph_seed=55      # make sure same toy network is generated every time
 
 # toy data
-g,a=rw.genG(numnodes,numlinks,probRewire) 
+g,a=rw.genG(numnodes,numlinks,probRewire,graph_seed)
 Xs=[rw.genX(g) for i in range(numx)]
 [Xs,g,a,numnodes]=rw.trimX(trim,Xs,g,a,numnodes)
 expected_irts=rw.expectedHidden(Xs,a,numnodes)
 
-# for non-toy data; else comment out
-subj="S103"
-category="animals"
 starttime=str(datetime.now())
-
-Xs, items, expected_irts, numnodes=readX(subj,category)
-#Xs, items, expected_irts, numnodes = readX(allsubs,"animals") # group data
 
 # gen candidate graphs
 graphs=rw.genGraphs(numgraphs,theta,Xs,numnodes)
@@ -150,14 +138,6 @@ converge=0
 oldbestval=0
 fivebest=[]
 log=[]
-
-## draw graph as if no hidden nodes
-#for subj in allsubs:
-#    Xs, items, expected_irts, numnodes=readX(subj,category)
-#    a=noHidden(Xs,numnodes)
-#    print rw.probX(Xs,a,expected_irts,numnodes,maxlen,jeff)
-#    drawDot(a,subj+"_nohidden.dot",items)
-#    print subj
 
 log.append(starttime)
 while converge < max_converge:
@@ -179,22 +159,22 @@ gs=[nx.to_networkx_graph(i) for i in fivebest]
 endtime=str(datetime.now())
 log.append(endtime)
 
-for i, j in enumerate(gs):
-    nx.relabel_nodes(j, items, copy=False)
-    nx.write_dot(j,subj+"_"+str(i)+".dot")
-
-# write iterations and start/end time to log
-with open(subj+'_log.txt','w') as f:
-    for item in log:
-        print>>f, item
-
-with open(subj+'_lists.csv','w') as f:
-    for i, x in enumerate(Xs):
-        for item in x:
-            print>>f, str(i)+","+items[item]
-
-# write lists to file
-with open(subj+'_lists.csv','w') as f:
-    for i, x in enumerate(Xs):
-        for item in x:
-            print>>f, str(i)+","+items[item]
+#for i, j in enumerate(gs):
+#    nx.relabel_nodes(j, items, copy=False)
+#    nx.write_dot(j,subj+"_"+str(i)+".dot")
+#
+## write iterations and start/end time to log
+#with open(subj+'_log.txt','w') as f:
+#    for item in log:
+#        print>>f, item
+#
+#with open(subj+'_lists.csv','w') as f:
+#    for i, x in enumerate(Xs):
+#        for item in x:
+#            print>>f, str(i)+","+items[item]
+#
+## write lists to file
+#with open(subj+'_lists.csv','w') as f:
+#    for i, x in enumerate(Xs):
+#        for item in x:
+#            print>>f, str(i)+","+items[item]

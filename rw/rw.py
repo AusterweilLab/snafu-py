@@ -19,13 +19,17 @@ def cost(graph,a):
     return sum(sum(np.array(abs(graph-a))))
    
 # draw graph
-def drawG(g,Xs,save=False,display=True):
-    pos=nx.spring_layout(g)
-    nx.draw_networkx(g,pos,with_labels=True)
-#    nx.draw_networkx_labels(g,pos,font_size=12)
+def drawG(g,Xs=[],labels={},save=False,display=True):
+    if type(g) == np.ndarray:
+        g=nx.to_networkx_graph(g)
+    nx.relabel_nodes(g, labels, copy=False)
+    #pos=nx.spring_layout(g, scale=5.0)
+    pos = nx.graphviz_layout(g, prog="fdp")
+    nx.draw_networkx(g,pos,node_size=1000)
 #    for node in range(numnodes):                    # if the above doesn't work
 #        plt.annotate(str(node), xy=pos[node])       # here's a workaround
-    plt.title(Xs)
+    if Xs != []:
+        plt.title(Xs)
     plt.axis('off')
     if save==True:
         plt.savefig('temp.png')                      # need to parameterize
@@ -74,8 +78,8 @@ def flatten_list(l):
 # generate a connected Watts-Strogatz small-world graph
 # (n,k,p) = (number of nodes, each node connected to k-nearest neighbors, probability of rewiring)
 # k has to be even, tries is number of attempts to make connected graph
-def genG(n,k,p,tries=1000):
-    g=nx.connected_watts_strogatz_graph(n,k,p,tries) # networkx graph
+def genG(n,k,p,tries=1000, seed=None):
+    g=nx.connected_watts_strogatz_graph(n,k,p,tries,seed) # networkx graph
     a=np.array(nx.adjacency_matrix(g).todense())     # adjacency matrix
     return g, np.array(a, dtype=np.int32)
 
@@ -143,7 +147,6 @@ def path_from_walk(walk):
 
 # probability of observing Xs, including irts
 def probX(Xs, a, irts, numnodes, maxlen, jeff):
-    underflow=0
     probs=[]
     for xnum, x in enumerate(Xs):
         prob=[]
@@ -151,18 +154,19 @@ def probX(Xs, a, irts, numnodes, maxlen, jeff):
             irt=irts[xnum][curpos-1]
             t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
             Q=np.copy(t)
-    
+
             notinx=[]       # nodes not in trimmed X
             for i in range(numnodes):
                 if i not in x:
                     notinx.append(i)
 
             startindex=x[curpos-1]
-            deletedlist=sorted(x[curpos:]+notinx,reverse=True) # Alternatively: x[curpos:]+notinx OR [x[curpos]]
+            deletedlist=sorted(x[curpos:]+notinx,reverse=True) # Alternatively: x[curpos:]+notinx OR [x[curpos]] ?
             notdeleted=[i for i in range(numnodes) if i not in deletedlist]
             for i in deletedlist:  # to form Q matrix
                 Q=np.delete(Q,i,0) # delete row
                 Q=np.delete(Q,i,1) # delete column
+                
             startindex = startindex-sum([startindex > i for i in deletedlist])
 
             numcols=np.shape(Q)[1]
@@ -196,12 +200,11 @@ def probX(Xs, a, irts, numnodes, maxlen, jeff):
     probs=sum(probs)
     return probs
 
-def probXnoIRT(Xs, a, numnodes):
+# making some modifications, keep just in case
+def oldProbXnoIRT(Xs, a, numnodes):
     probs=[]
-    #expecteds=[]
     for x in Xs:
         prob=[]
-        #expected=[]
         for curpos in range(1,len(x)):
             t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
             Q=np.copy(t)
@@ -212,15 +215,11 @@ def probXnoIRT(Xs, a, numnodes):
                     notinx.append(i)
 
             startindex=x[curpos-1]
-            deleted=0
             for i in sorted(x[curpos:]+notinx,reverse=True):   # to form Q matrix
-                if i < startindex:
-                    deleted += 1
                 Q=np.delete(Q,i,0) # delete row
                 Q=np.delete(Q,i,1) # delete column
             I=np.identity(len(Q))
             N=inv(I-Q)
-            #expected.append(sum(N[:,startindex-deleted]))
 
             R=np.copy(t)
             for i in reversed(range(numnodes)):
@@ -239,7 +238,6 @@ def probXnoIRT(Xs, a, numnodes):
             print "Warning: Zero-probability transition? Check graph to make sure X is possible."
             raise
         probs.append(prob)
-        #expecteds.append(expected)
     for i in range(len(probs)):
         probs[i]=sum([math.log(j) for j in probs[i]])
     probs=sum(probs)
