@@ -97,8 +97,8 @@ def genGraphs(numgraphs, theta, Xs, numnodes):
     As=[genGfromZ(z, numnodes) for z in Zs]
     return As
 
-def genX(g,s=None):
-    return observed_walk(random_walk(g,s))
+def genX(g,s=None,seed=None):
+    return observed_walk(random_walk(g,s,seed))
 
 # generate random walk that results in observed x
 def genZfromX(x, theta):
@@ -200,8 +200,7 @@ def probX(Xs, a, irts, numnodes, maxlen, jeff):
     probs=sum(probs)
     return probs
 
-# making some modifications, keep just in case
-def oldProbXnoIRT(Xs, a, numnodes):
+def probXnoIRT(Xs, a, numnodes):
     probs=[]
     for x in Xs:
         prob=[]
@@ -215,7 +214,10 @@ def oldProbXnoIRT(Xs, a, numnodes):
                     notinx.append(i)
 
             startindex=x[curpos-1]
-            for i in sorted(x[curpos:]+notinx,reverse=True):   # to form Q matrix
+            deletedlist=sorted(x[curpos:]+notinx,reverse=True) # Alternatively: x[curpos:]+notinx OR [x[curpos]] ?
+            notdeleted=[i for i in range(numnodes) if i not in deletedlist]
+            
+            for i in deletedlist:  # to form Q matrix
                 Q=np.delete(Q,i,0) # delete row
                 Q=np.delete(Q,i,1) # delete column
             I=np.identity(len(Q))
@@ -235,8 +237,8 @@ def oldProbXnoIRT(Xs, a, numnodes):
             absorbingindex=sorted(x[curpos:]).index(x[curpos])
             prob.append(B[absorbingindex,startindex])
         if 0.0 in prob: 
-            print "Warning: Zero-probability transition? Check graph to make sure X is possible."
-            raise
+            #print "Warning: Zero-probability transition? Check graph to make sure X is possible."
+            return -1000
         probs.append(prob)
     for i in range(len(probs)):
         probs[i]=sum([math.log(j) for j in probs[i]])
@@ -244,18 +246,19 @@ def oldProbXnoIRT(Xs, a, numnodes):
     return probs
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
-def random_walk(g,s=None):
-    if s is None:
-        s=random.choice(nx.nodes(g))
+def random_walk(g,start=None,seed=None):
+    random.seed(seed)
+    if start is None:
+        start=random.choice(nx.nodes(g))
     walk=[]
     unused_nodes=set(nx.nodes(g))
-    unused_nodes.remove(s)
+    unused_nodes.remove(start)
     while len(unused_nodes) > 0:
-        p=s
-        s=random.choice([x for x in nx.all_neighbors(g,s)]) # follow random edge
-        walk.append((p,s))
-        if s in unused_nodes:
-            unused_nodes.remove(s)
+        p=start
+        start=random.choice([x for x in nx.all_neighbors(g,start)]) # follow random edge
+        walk.append((p,start))
+        if start in unused_nodes:
+            unused_nodes.remove(start)
     return walk
 
 # return small world statistic of a graph

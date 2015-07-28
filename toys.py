@@ -117,12 +117,14 @@ jeff = .5
 numperseed=50
 nodestotweak=[1,1,1,2,3,4,5,6,7,8,9,10]
 numkeep=3
-graph_seed=None
+#graph_seed=None
+#x_seed=None
 graph_seed=55      # make sure same toy network is generated every time
+x_seed=56          # make sure same Xs are generated every time
 
 # toy data
 g,a=rw.genG(numnodes,numlinks,probRewire,graph_seed)
-Xs=[rw.genX(g) for i in range(numx)]
+Xs=[rw.genX(g, seed=x_seed) for i in range(numx)]
 [Xs,g,a,numnodes]=rw.trimX(trim,Xs,g,a,numnodes)
 expected_irts=rw.expectedHidden(Xs,a,numnodes)
 
