@@ -12,6 +12,7 @@ import time
 import scipy
 from scipy import stats
 from numpy.linalg import inv
+from scipy.optimize import fmin
 
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
@@ -62,6 +63,23 @@ def expectedHidden(Xs, a, numnodes):
             expected.append(sum(N[:,startindex-deleted]))
         expecteds.append(expected)        
     return expecteds
+
+# find irt that maximizes probability given alpha hidden nodes using:
+# fmin(hiddenToIRT,1,args=(alpha,beta))
+def hiddenToIRT(irt, alpha, beta):
+    return -1*(alpha*math.log(beta)-math.lgamma(alpha)+(alpha-1)*math.log(irt)-beta*irt*beta)
+
+def expectedIRT(Xs, a, numnodes, beta=1, offset=1):
+    # contraints: alpha cant be 1, beta cant be greater than alpha
+    expecteds=expectedHidden(Xs, a, numnodes)
+    expected_irts=[]
+    for expected in expecteds:
+        irts=[]
+        for alpha in expected:
+            irt=fmin(hiddenToIRT, 1, args=(alpha+offset,beta))
+            irts.append(irt[0])
+        expected_irts.append(irts)
+    return expected_irts
 
 # first hitting times for each node
 def firstHit(walk):
@@ -193,7 +211,7 @@ def probX(Xs, a, irts, numnodes, maxlen, jeff):
             prob.append(f)
         if 0.0 in prob: 
             #print "Warning: Zero-probability transition; graph cannot produce X"
-            return -1000
+            return -100000
         probs.append(prob)
     for i in range(len(probs)):
         probs[i]=sum([math.log(j) for j in probs[i]])

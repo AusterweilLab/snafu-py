@@ -35,14 +35,16 @@ def genFromSeeds(seedgraphs,numperseed,nodestotweak):
     return graphs
 
 # hill climbing with stochastic search
-def xBest(graphs,numkeep):
+def xBest(graphs,numkeep,use_irts=1):
     ours=[]
     true=[]
      
     maxlen=numnodes # maybe?
     for it, graph in enumerate(graphs):
-        tmp=rw.probX(Xs,graph,expected_irts,numnodes,maxlen,jeff)
-        #tmp=rw.probXnoIRT(Xs,graph,numnodes)
+        if irt_param:
+            tmp=rw.probX(Xs,graph,expected_irts,numnodes,maxlen,jeff)
+        else:
+            tmp=rw.probXnoIRT(Xs,graph,numnodes)
         ours.append(tmp)
 
         true.append(rw.cost(graph,a))  # only on toy networks
@@ -125,41 +127,57 @@ offset=2             # for generating IRTs from hidden nodes
 graph_seed=65      # make sure same toy network is generated every time
 x_seed=65          # make sure same Xs are generated every time
 
-# toy data
-g,a=rw.genG(numnodes,numlinks,probRewire,seed=graph_seed)
-Xs=[rw.genX(g, seed=x_seed+i) for i in range(numx)]
-[Xs,g,a,numnodes]=rw.trimX(trim,Xs,g,a,numnodes)
-expected_irts=rw.expectedIRT(Xs,a,numnodes, beta, offset)
+cost_irts=[]
+cost_noirts=[]
+cost_orig=[]
 
-starttime=str(datetime.now())
+for seed_param in range(50):
+    for irt_param in range(2):
+        graph_seed=seed_param
+        x_seed=seed_param
 
-# gen candidate graphs
-graphs=rw.genGraphs(numgraphs,theta,Xs,numnodes)
-graphs.append(noHidden(Xs,numnodes)) # probably best starting graph
-#allnodes=[(i,j) for i in range(len(a)) for j in range(len(a)) if (i!=j) and (i>j)]
+        # toy data
+        g,a=rw.genG(numnodes,numlinks,probRewire,seed=graph_seed)
+        Xs=[rw.genX(g, seed=x_seed+i) for i in range(numx)]
+        [Xs,g,a,numnodes]=rw.trimX(trim,Xs,g,a,numnodes)
+        expected_irts=rw.expectedIRT(Xs,a,numnodes, beta, offset)
 
-max_converge=25
-converge=0
-oldbestval=0
-fivebest=[]
-log=[]
+        starttime=str(datetime.now())
 
-log.append(starttime)
-while converge < max_converge:
-    graphs, bestval=xBest(graphs,numkeep)
-    log.append(bestval)
-    if bestval == oldbestval:
-        converge += 1
-    else:
-        fivebest.append(graphs[0]) # TODO: make sure it's saving the 'best' of the returned graphs
-        if len(fivebest) > 5:
-            fivebest.pop(0)
-        converge = 0
-        oldbestval = bestval
-    graphs=genFromSeeds(graphs,numperseed,nodestotweak)
+        # gen candidate graphs
+        graphs=rw.genGraphs(numgraphs,theta,Xs,numnodes)
+        graphs.append(noHidden(Xs,numnodes)) # probably best starting graph
+        #allnodes=[(i,j) for i in range(len(a)) for j in range(len(a)) if (i!=j) and (i>j)]
 
-gs=[nx.to_networkx_graph(i) for i in fivebest]
+        max_converge=25
+        converge=0
+        oldbestval=0
+        fivebest=[]
+        log=[]
 
-# record endtime
-endtime=str(datetime.now())
-log.append(endtime)
+        log.append(starttime)
+        while converge < max_converge:
+            graphs, bestval=xBest(graphs,numkeep,irt_param)
+            log.append(bestval)
+            if bestval == oldbestval:
+                converge += 1
+            else:
+                fivebest.append(graphs[0]) # TODO: make sure it's saving the 'best' of the returned graphs
+                if len(fivebest) > 5:
+                    fivebest.pop(0)
+                converge = 0
+                oldbestval = bestval
+            graphs=genFromSeeds(graphs,numperseed,nodestotweak)
+
+        if irt:
+            cost_irts.append(rw.cost(fivebest[4],a)/2)
+        else:
+            cost_noirts.append(rw.cost(fivebest[4],a)/2)
+        cost_orig.append(rw.cost(noHidden(Xs,numnodes),a)/2)
+        print "FINAL COSTS:", cost_orig[-1], cost_noirts[-1], cost_irts[-1]
+
+        gs=[nx.to_networkx_graph(i) for i in fivebest]
+
+        # record endtime
+        endtime=str(datetime.now())
+        log.append(endtime)

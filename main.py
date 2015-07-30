@@ -119,6 +119,8 @@ jeff = .5
 numperseed=50
 nodestotweak=[1,1,1,2,3,4,5,6,7,8,9,10]
 numkeep=3
+beta=1             # for gamma distribution when generating IRTs from hidden nodes
+
 
 # comment out except for demoing
 # numnodes=10
@@ -130,7 +132,7 @@ numkeep=3
 g,a=rw.genG(numnodes,numlinks,probRewire) 
 Xs=[rw.genX(g) for i in range(numx)]
 [Xs,g,a,numnodes]=rw.trimX(trim,Xs,g,a,numnodes)
-expected_irts=rw.expectedHidden(Xs,a,numnodes)
+expected_irts=rw.expectedIRT(Xs,a,numnodes, beta)
 
 # for non-toy data; else comment out
 subj="S103"
