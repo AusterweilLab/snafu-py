@@ -41,7 +41,7 @@ def xBest(graphs,numkeep,use_irts=1):
      
     maxlen=numnodes # maybe?
     for it, graph in enumerate(graphs):
-        if irt_param:
+        if use_irts:
             tmp=rw.probX(Xs,graph,expected_irts,numnodes,maxlen,jeff)
         else:
             tmp=rw.probXnoIRT(Xs,graph,numnodes)
@@ -106,7 +106,7 @@ def drawDot(g, filename, labels={}):
         nx.relabel_nodes(g, labels, copy=False)
     nx.drawing.write_dot(g, filename)
        
-numnodes=20                           # number of nodes in graph
+numnodes=25                           # number of nodes in graph
 numlinks=4                            # initial n/fivebeumber of edges per node (must be even)
 probRewire=.2                         # probability of re-wiring an edge
 numedges=numnodes*(numlinks/2)        # number of edges in graph
@@ -149,7 +149,7 @@ for seed_param in range(50):
         graphs.append(noHidden(Xs,numnodes)) # probably best starting graph
         #allnodes=[(i,j) for i in range(len(a)) for j in range(len(a)) if (i!=j) and (i>j)]
 
-        max_converge=25
+        max_converge=5
         converge=0
         oldbestval=0
         fivebest=[]
@@ -169,15 +169,15 @@ for seed_param in range(50):
                 oldbestval = bestval
             graphs=genFromSeeds(graphs,numperseed,nodestotweak)
 
-        if irt:
-            cost_irts.append(rw.cost(fivebest[4],a)/2)
+        if irt_param:
+            cost_irts.append(rw.cost(fivebest[-1],a)/2)
         else:
-            cost_noirts.append(rw.cost(fivebest[4],a)/2)
-        cost_orig.append(rw.cost(noHidden(Xs,numnodes),a)/2)
-        print "FINAL COSTS:", cost_orig[-1], cost_noirts[-1], cost_irts[-1]
+            cost_noirts.append(rw.cost(fivebest[-1],a)/2)
+            cost_orig.append(rw.cost(noHidden(Xs,numnodes),a)/2)
 
         gs=[nx.to_networkx_graph(i) for i in fivebest]
 
         # record endtime
         endtime=str(datetime.now())
         log.append(endtime)
+    print "FINAL COSTS:", cost_orig[-1], cost_noirts[-1], cost_irts[-1]

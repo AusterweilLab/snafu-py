@@ -104,7 +104,7 @@ def drawDot(g, filename, labels={}):
         nx.relabel_nodes(g, labels, copy=False)
     nx.drawing.write_dot(g, filename)
        
-numnodes=20                           # number of nodes in graph
+numnodes=55                           # number of nodes in graph
 numlinks=4                            # initial n/fivebeumber of edges per node (must be even)
 probRewire=.2                         # probability of re-wiring an edge
 numedges=numnodes*(numlinks/2)        # number of edges in graph
@@ -118,8 +118,9 @@ jeff = .5
 numperseed=50
 nodestotweak=[1,1,1,2,3,4,5,6,7,8,9,10]
 numkeep=3
-beta=0.9             # for gamma distribution when generating IRTs from hidden nodes
-offset=2             # for generating IRTs from hidden nodes
+beta=1.4             # for gamma distribution when generating IRTs from hidden nodes
+offset=2           # for generating IRTs from hidden nodes
+
 #graph_seed=None
 #x_seed=None
 graph_seed=65      # make sure same toy network is generated every time

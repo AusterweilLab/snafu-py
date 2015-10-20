@@ -13,6 +13,7 @@ import scipy
 from scipy import stats
 from numpy.linalg import inv
 from scipy.optimize import fmin
+import sys
 
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
@@ -211,7 +212,7 @@ def probX(Xs, a, irts, numnodes, maxlen, jeff):
             prob.append(f)
         if 0.0 in prob: 
             #print "Warning: Zero-probability transition; graph cannot produce X"
-            return -100000
+            return -np.inf
         probs.append(prob)
     for i in range(len(probs)):
         probs[i]=sum([math.log(j) for j in probs[i]])
@@ -239,8 +240,9 @@ def probXnoIRT(Xs, a, numnodes):
                 Q=np.delete(Q,i,0) # delete row
                 Q=np.delete(Q,i,1) # delete column
             I=np.identity(len(Q))
-            N=inv(I-Q)
-
+            reg=(1+1e-5)
+            N=inv(I*reg-Q)
+            
             R=np.copy(t)
             for i in reversed(range(numnodes)):
                 if i in notinx:
@@ -256,7 +258,7 @@ def probXnoIRT(Xs, a, numnodes):
             prob.append(B[absorbingindex,startindex])
         if 0.0 in prob: 
             #print "Warning: Zero-probability transition? Check graph to make sure X is possible."
-            return -1000
+            return -np.inf
         probs.append(prob)
     for i in range(len(probs)):
         probs[i]=sum([math.log(j) for j in probs[i]])
@@ -284,9 +286,11 @@ def smallworld(a, numnodes, numlinks, numedges):
     g_sm=nx.from_numpy_matrix(a)
     c_sm=nx.average_clustering(g_sm)
     l_sm=nx.average_shortest_path_length(g_sm)
-    c_rand= (numedges*2.0)/(numnodes*(numnodes-1))     # same as edge density for a random graph
+    
+    # c_rand same as edge density for a random graph? not sure if "-1" belongs in denominator, double check
+    c_rand= (numedges*2.0)/(numnodes*(numnodes-1))     
     l_rand= math.log(numnodes)/math.log(2*numlinks)    # see humphries & gurney (2006) eq 11
-    #l_rand= (math.log(numnodes)-0.5772)/(math.log(2*numlinks)) + .5 # alternative from fronczak, fronczak & holyst (2004)
+    #l_rand= (math.log(numnodes)-0.5772)/(math.log(2*numlinks)) + .5 # alternative APL from fronczak, fronczak & holyst (2004)
     s=(c_sm/c_rand)/(l_sm/l_rand)
     return s
 
