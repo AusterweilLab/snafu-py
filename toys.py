@@ -33,9 +33,11 @@ x_seed=65          # make sure same Xs are generated every time
 
 # toy data
 g,a=rw.genG(numnodes,numlinks,probRewire,seed=graph_seed)
-Xs=[rw.genX(g, seed=x_seed+i) for i in range(numx)]
-[Xs,g,a,numnodes]=rw.trimX(trim,Xs,g,a,numnodes)
-expected_irts=rw.expectedIRT(Xs, a, numnodes, beta, offset)
+[Xs,irts]=zip(*[rw.genX(g, seed=x_seed+i,use_irts=1) for i in range(numx)])
+Xs=list(Xs)
+irts=list(irts)
+[Xs,g,a,numnodes]=rw.trimX(trim,Xs,g)
+irts=rw.stepsToIRT(irts, beta, offset)
 
 starttime=str(datetime.now())
 
@@ -50,12 +52,12 @@ log=[]
 
 log.append(starttime)
 while converge < max_converge:
-    graphs, bestval=rw.graphSearch(graphs,numkeep,Xs,numnodes,maxlen,jeff,expected_irts)
+    graphs, bestval=rw.graphSearch(graphs,numkeep,Xs,numnodes,maxlen,jeff,irts)
     log.append(bestval)
     if bestval == oldbestval:
         converge += 1
     else:
-        bestgraphs.append(graphs[0]) # TODO: make sure it's saving the 'best' of the returned graphs
+        bestgraphs.append(graphs[0])
         if len(bestgraphs) > 5:
             bestgraphs.pop(0)
         converge = 0

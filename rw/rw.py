@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-# V11
-
 import networkx as nx
 import numpy as np
 import random
@@ -14,6 +12,17 @@ from scipy import stats
 from numpy.linalg import inv
 from scipy.optimize import fmin
 import sys
+
+# create toy graph object. currently only small-world
+class ToyGraph:
+    def __init__(self, numnodes, numlinks, probRewire, graph_seed=None):
+
+        self.numnodes = numnodes                # number of nodes in graph
+        self.numlinks = numlinks                # initial number of edges per node (must be even)
+        self.probRewire = probRewire            # probability of re-wiring an edge
+        self.numedges = numnodes*(numlinks/2)   # number of edges in smallworld-graph
+        
+        self.g, self.a = genG(numnodes,numlinks,probRewire,seed=graph_seed)
 
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
@@ -78,21 +87,20 @@ def expectedHidden(Xs, a, numnodes):
 def hiddenToIRT(irt, alpha, beta):
     return -1*(alpha*math.log(beta)-math.lgamma(alpha)+(alpha-1)*math.log(irt)-beta*irt*beta)
 
-# generates fake IRTs
-def expectedIRT(Xs, a, numnodes, beta=1, offset=1):
+# generates fake IRTs from # of steps in a random walk, using gamma distribution
+def stepsToIRT(irts, beta=1, offset=1):
     # contraints: alpha cant be 1, beta cant be greater than alpha
-    expecteds=expectedHidden(Xs, a, numnodes)
-    expected_irts=[]
-    for expected in expecteds:
-        irts=[]
-        for alpha in expected:
-            irt=fmin(hiddenToIRT, 1, args=(alpha+offset,beta))
-            irts.append(irt[0])
-        expected_irts.append(irts)
-    return expected_irts
+    new_irts=[]
+    for irt in irts:
+        new_irt=[]
+        for alpha in irt:
+            irttime=fmin(hiddenToIRT, 1, args=(alpha+offset,beta))
+            new_irt.append(irttime[0])
+        new_irts.append(new_irt)
+    return new_irts
 
 # first hitting times for each node
-def firstHit(walk):
+def firstHits(walk):
     firsthit=[]
     path=path_from_walk(walk)
     for i in observed_walk(walk):
@@ -142,8 +150,18 @@ def genGraphs(numgraphs, theta, Xs, numnodes):
     As=[genGfromZ(z, numnodes) for z in Zs]
     return As
 
-def genX(g,s=None,seed=None):
-    return observed_walk(random_walk(g,s,seed))
+# return simulated data on graph g
+# if usr_irts==1, return irts (as steps)
+def genX(g,s=None,use_irts=0,seed=None):
+    rwalk=random_walk(g,s,seed)
+    Xs=observed_walk(rwalk)
+    
+    if use_irts==0: 
+        return Xs
+    else:
+        fh=list(zip(*firstHits(rwalk))[1])
+        irts=[fh[i]-fh[i-1] for i in range(1,len(fh))]
+        return Xs, irts
 
 # generate random walk that results in observed x
 def genZfromX(x, theta):
@@ -166,27 +184,22 @@ def genZfromX(x, theta):
     return walk_from_path(path)
 
 # search for best graph by hill climbing with stochastic search
+# returns numkeep graphs with the best graph at index 0
 def graphSearch(graphs,numkeep,Xs,numnodes,maxlen,jeff,irts=[]):
-    ours=[]
-    true=[]
+    loglikelihood=[]
     
     for it, graph in enumerate(graphs):
         if len(irts) > 0:      # if IRTs are supplied, use them
             tmp=probX(Xs,graph,irts,numnodes,maxlen,jeff)
         else:
             tmp=probXnoIRT(Xs,graph,numnodes)
-        ours.append(tmp)
-
-        #true.append(cost(graph,a))  # only on toy networks
+        loglikelihood.append(tmp)
     
-    maxvals=maxn(ours,numkeep)
-    maxpos=[ours.index(i) for i in maxvals]
-    maxgraphs=[]
-    for i in maxpos:
-        maxgraphs.append(graphs[i])
-    print "MAX: ", max(ours)
-    #print "COST: ", cost(graphs[ours.index(max(ours))],a) # only on toy networks
-    return maxgraphs, max(ours)
+    maxvals=maxn(loglikelihood,numkeep)
+    maxpos=[loglikelihood.index(i) for i in maxvals]
+    maxgraphs=[graphs[i] for i in maxpos]
+    print "MAX: ", max(loglikelihood)
+    return maxgraphs, max(loglikelihood)
 
 # log trick given list of log-likelihoods
 def logTrick(loglist):
@@ -374,7 +387,8 @@ def timer(times):
 
 # trim Xs to proportion of graph size, the trim graph to remove any nodes that weren't hit
 # used to simulate human data that doesn't cover the whole graph every time
-def trimX(prop, Xs, g, a, numnodes):
+def trimX(prop, Xs, g):
+    numnodes=g.number_of_nodes()
     alter_graph_size=1              # makes sure every node is visited at least once, so as to not change graph size
     while alter_graph_size==1:
         numtrim=int(round(numnodes*prop))
@@ -385,7 +399,6 @@ def trimX(prop, Xs, g, a, numnodes):
         a=np.array(nx.adjacency_matrix(g, range(numnodes)).todense())
         if 0 not in sum(a):
             alter_graph_size=0
-
     return Xs, g, a, numnodes
 
 # tuple walk from flat list

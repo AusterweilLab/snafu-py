@@ -64,7 +64,7 @@ beta=1             # for gamma distribution when generating IRTs from hidden nod
 # toy data
 g,a=rw.genG(numnodes,numlinks,probRewire) 
 Xs=[rw.genX(g) for i in range(numx)]
-[Xs,g,a,numnodes]=rw.trimX(trim,Xs,g,a,numnodes)
+[Xs,g,a,numnodes]=rw.trimX(trim,Xs,g)
 expected_irts=rw.expectedIRT(Xs,a,numnodes, beta)
 
 subj="S103"
@@ -91,7 +91,7 @@ while converge < max_converge:
     if bestval == oldbestval:
         converge += 1
     else:
-        bestgraphs.append(graphs[0]) # TODO: make sure it's saving the 'best' of the returned graphs
+        bestgraphs.append(graphs[0])
         if len(bestgraphs) > 5:
             bestgraphs.pop(0)
         converge = 0
