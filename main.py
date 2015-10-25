@@ -7,62 +7,7 @@ import networkx as nx
 #import graphviz
 import pygraphviz
 
-# http://stackoverflow.com/questions/350519/getting-the-lesser-n-elements-of-a-list-in-python
-def maxs(items,n):
-    maxs = items[:n]
-    maxs.sort(reverse=True)
-    for i in items[n:]:
-        if i > maxs[-1]: 
-            maxs.append(i)
-            maxs.sort(reverse=True)
-            maxs= maxs[:n]
-    return maxs
-
-# hill climbing with stochastic search
-def genFromSeeds(seedgraphs,numperseed,nodestotweak):
-    graphs=seedgraphs[:]
-    for i in seedgraphs:
-        for j in range(numperseed):
-            new=np.copy(i)
-            for k in range(random.choice(nodestotweak)):
-                rand1=rand2=0
-                while (rand1 == rand2):
-                    rand1=random.randint(0,len(i)-1)
-                    rand2=random.randint(0,len(i)-1)
-                new[rand1,rand2]=1-new[rand1,rand2]
-                new[rand2,rand1]=1-new[rand2,rand1]
-            graphs.append(new)
-    return graphs
-
-# hill climbing with stochastic search
-def xBest(graphs,numkeep):
-    ours=[]
-    true=[]
- 
-    maxlen=numnodes # maybe?
-    for it, graph in enumerate(graphs):
-        tmp=rw.probX(Xs,graph,expected_irts,numnodes,maxlen,jeff)
-        ours.append(tmp)
-        #true.append(rw.cost(graph,a))  # only on toy networks
-    
-    maxvals=maxs(ours,numkeep)
-    print maxvals
-    maxpos=[ours.index(i) for i in maxvals]
-    maxgraphs=[]
-    for i in maxpos:
-        maxgraphs.append(graphs[i])
-    #print "MAX: ", max(ours), "COST: ", rw.cost(graphs[ours.index(max(ours))],a) # only on toy networks
-    return maxgraphs, max(ours)
-
 # treat Xs as if there are no hidden nodes and connect all observations to form graph
-def noHidden(Xs, numnodes):
-    a=np.zeros((numnodes,numnodes))
-    for x in Xs:
-        for i in range(len(x)-1):
-            a[x[i]][x[i+1]]=1
-            a[x[i+1]][x[i]]=1 # symmetry
-    a=np.array(a.astype(int))
-    return a
 
 # read Xs in from user files
 def readX(subj,category):
@@ -95,13 +40,6 @@ def readX(subj,category):
     numnodes = len(items)
     return Xs, items, irts, numnodes
 
-def drawDot(g, filename, labels={}):
-    if type(g) == np.ndarray:
-        g=nx.to_networkx_graph(g)
-    if labels != {}:
-        nx.relabel_nodes(g, labels, copy=False)
-    nx.drawing.write_dot(g, filename)
-       
 allsubs=["S101","S102","S103","S104","S105","S106","S107","S108","S109","S110",
          "S111","S112","S113","S114","S115","S116","S117","S118","S119","S120"]
 
@@ -117,15 +55,10 @@ numgraphs=100
 maxlen=20               # no closed form, number of times to sum over
 jeff = .5
 numperseed=50
-nodestotweak=[1,1,1,2,3,4,5,6,7,8,9,10]
+edgestotweak=[1,1,1,2,3,4,5,6,7,8,9,10]
 numkeep=3
 beta=1             # for gamma distribution when generating IRTs from hidden nodes
 
-
-# comment out except for demoing
-# numnodes=10
-# numgraphs=40
- 
 # record start time
 
 # toy data
@@ -134,48 +67,38 @@ Xs=[rw.genX(g) for i in range(numx)]
 [Xs,g,a,numnodes]=rw.trimX(trim,Xs,g,a,numnodes)
 expected_irts=rw.expectedIRT(Xs,a,numnodes, beta)
 
-# for non-toy data; else comment out
 subj="S103"
 category="animals"
 starttime=str(datetime.now())
 
 Xs, items, expected_irts, numnodes=readX(subj,category)
-#Xs, items, expected_irts, numnodes = readX(allsubs,"animals") # group data
 
 # gen candidate graphs
 graphs=rw.genGraphs(numgraphs,theta,Xs,numnodes)
-graphs.append(noHidden(Xs,numnodes)) # probably best starting graph
+graphs.append(rw.noHidden(Xs,numnodes)) # probably best starting graph
 #allnodes=[(i,j) for i in range(len(a)) for j in range(len(a)) if (i!=j) and (i>j)]
 
 max_converge=25
 converge=0
 oldbestval=0
-fivebest=[]
+bestgraphs=[]
 log=[]
-
-## draw graph as if no hidden nodes
-#for subj in allsubs:
-#    Xs, items, expected_irts, numnodes=readX(subj,category)
-#    a=noHidden(Xs,numnodes)
-#    print rw.probX(Xs,a,expected_irts,numnodes,maxlen,jeff)
-#    drawDot(a,subj+"_nohidden.dot",items)
-#    print subj
 
 log.append(starttime)
 while converge < max_converge:
-    graphs, bestval=xBest(graphs,numkeep)
+    graphs, bestval=rw.graphSearch(graphs,numkeep,Xs,numnodes,maxlen,jeff,expected_irts)
     log.append(bestval)
     if bestval == oldbestval:
         converge += 1
     else:
-        fivebest.append(graphs[0]) # TODO: make sure it's saving the 'best' of the returned graphs
-        if len(fivebest) > 5:
-            fivebest.pop(0)
+        bestgraphs.append(graphs[0]) # TODO: make sure it's saving the 'best' of the returned graphs
+        if len(bestgraphs) > 5:
+            bestgraphs.pop(0)
         converge = 0
         oldbestval = bestval
-    graphs=genFromSeeds(graphs,numperseed,nodestotweak)
+    graphs=rw.genFromSeeds(graphs,numperseed,edgestotweak)
 
-gs=[nx.to_networkx_graph(i) for i in fivebest]
+gs=[nx.to_networkx_graph(i) for i in bestgraphs]
 
 # record endtime
 endtime=str(datetime.now())

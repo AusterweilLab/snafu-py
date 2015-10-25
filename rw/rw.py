@@ -18,8 +18,16 @@ import sys
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
 def cost(graph,a):
-    return sum(sum(np.array(abs(graph-a))))
+    return sum(sum(np.array(abs(graph-a))))/2
    
+# write graph to GraphViz file (.dot)
+def drawDot(g, filename, labels={}):
+    if type(g) == np.ndarray:
+        g=nx.to_networkx_graph(g)
+    if labels != {}:
+        nx.relabel_nodes(g, labels, copy=False)
+    nx.drawing.write_dot(g, filename)
+
 # draw graph
 def drawG(g,Xs=[],labels={},save=False,display=True):
     if type(g) == np.ndarray:
@@ -70,6 +78,7 @@ def expectedHidden(Xs, a, numnodes):
 def hiddenToIRT(irt, alpha, beta):
     return -1*(alpha*math.log(beta)-math.lgamma(alpha)+(alpha-1)*math.log(irt)-beta*irt*beta)
 
+# generates fake IRTs
 def expectedIRT(Xs, a, numnodes, beta=1, offset=1):
     # contraints: alpha cant be 1, beta cant be greater than alpha
     expecteds=expectedHidden(Xs, a, numnodes)
@@ -93,6 +102,23 @@ def firstHit(walk):
 # helper function generate flast lists from nested lists
 def flatten_list(l):
     return [item for sublist in l for item in sublist]
+
+# generate numperseed graphs from each graph in seedgraphs by randomly flipping
+# X edges, where X is chosen randomly from list edgestotweak
+def genFromSeeds(seedgraphs,numperseed,edgestotweak):
+    graphs=seedgraphs[:]
+    for i in seedgraphs:
+        for j in range(numperseed):
+            new=np.copy(i)
+            for k in range(random.choice(edgestotweak)):
+                rand1=rand2=0
+                while (rand1 == rand2):
+                    rand1=random.randint(0,len(i)-1)
+                    rand2=random.randint(0,len(i)-1)
+                new[rand1,rand2]=1-new[rand1,rand2]
+                new[rand2,rand1]=1-new[rand2,rand1]
+            graphs.append(new)
+    return graphs
 
 # generate a connected Watts-Strogatz small-world graph
 # (n,k,p) = (number of nodes, each node connected to k-nearest neighbors, probability of rewiring)
@@ -139,12 +165,52 @@ def genZfromX(x, theta):
             path.append(x2.pop())
     return walk_from_path(path)
 
+# search for best graph by hill climbing with stochastic search
+def graphSearch(graphs,numkeep,Xs,numnodes,maxlen,jeff,irts=[]):
+    ours=[]
+    true=[]
+    
+    for it, graph in enumerate(graphs):
+        if len(irts) > 0:      # if IRTs are supplied, use them
+            tmp=probX(Xs,graph,irts,numnodes,maxlen,jeff)
+        else:
+            tmp=probXnoIRT(Xs,graph,numnodes)
+        ours.append(tmp)
+
+        #true.append(cost(graph,a))  # only on toy networks
+    
+    maxvals=maxn(ours,numkeep)
+    maxpos=[ours.index(i) for i in maxvals]
+    maxgraphs=[]
+    for i in maxpos:
+        maxgraphs.append(graphs[i])
+    print "MAX: ", max(ours)
+    #print "COST: ", cost(graphs[ours.index(max(ours))],a) # only on toy networks
+    return maxgraphs, max(ours)
+
 # log trick given list of log-likelihoods
 def logTrick(loglist):
     logmax=max(loglist)
     loglist=[i-logmax for i in loglist]                     # log trick: subtract off the max
     p=math.log(sum([math.e**i for i in loglist])) + logmax  # add it back on
     return p
+
+# helper function grabs highest n items from list items
+# http://stackoverflow.com/questions/350519/getting-the-lesser-n-elements-of-a-list-in-python
+def maxn(items,n):
+    maxs = items[:n]
+    maxs.sort(reverse=True)
+    for i in items[n:]:
+        if i > maxs[-1]: 
+            maxs.append(i)
+            maxs.sort(reverse=True)
+            maxs= maxs[:n]
+    return maxs
+
+# wrapper returns one graph with theta=0
+# aka draw edge between all observed nodes in all lists
+def noHidden(Xs, numnodes):
+    return genGraphs(1, 0, Xs, numnodes)[0]
 
 # Unique nodes in random walk preserving order
 # (aka fake participant data)
