@@ -9,16 +9,16 @@ import pygraphviz
 
 
 # TOY GRAPH PARAMETERS
-numnodes=25                           
+numnodes=10                           
 numlinks=4                            
 probRewire=.2                         
 numedges=numnodes*(numlinks/2)        
-graph_seed=65                             # make sure same toy network is generated every time
+graph_seed=None                             # make sure same toy network is generated every time
 
 # FAKE DATA PARAMETERS
 numx=3
 trim=1
-x_seed=65                                 # make sure same Xs are generated every time
+x_seed=None                                 # make sure same Xs are generated every time
 
 # FITTING PARAMETERS
 theta=.5                                  # probability of hiding node when generating z from x (rho function)
@@ -35,8 +35,17 @@ offset=2                                  # for generating IRTs from hidden node
 cost_irts=[]
 cost_noirts=[]
 cost_orig=[]
+time_irts=[]
+time_noirts=[]
+bestval_irts=[]
+bestval_noirts=[]
+bestval_orig=[]
+bestgraph_irts=[]
+bestgraph_noirts=[]
 
-for seed_param in range(50):
+f=open('sim_results.csv','w', 0) # write to file with no buffering
+
+for seed_param in range(100):
     for irt_param in range(2):
         graph_seed=seed_param
         x_seed=seed_param
@@ -47,9 +56,11 @@ for seed_param in range(50):
         Xs=list(Xs)
         irts=list(irts)
         [Xs,g,a,numnodes]=rw.trimX(trim,Xs,g)
-        irts=rw.stepsToIRT(irts, beta, offset)
+        
+        if irt_param:
+            irts=rw.stepsToIRT(irts, beta, offset)
 
-        starttime=str(datetime.now())
+        starttime=datetime.now()
 
         # gen candidate graphs
         graphs=rw.genGraphs(numgraphs,theta,Xs,numnodes)
@@ -59,15 +70,12 @@ for seed_param in range(50):
         converge=0
         oldbestval=0
         bestgraphs=[]
-        log=[]
 
-        log.append(starttime)
         while converge < max_converge:
-            if irt_param==1:
+            if irt_param:
                 graphs, bestval=rw.graphSearch(graphs,numkeep,Xs,numnodes,maxlen,jeff,irts)
             else:
                 graphs, bestval=rw.graphSearch(graphs,numkeep,Xs,numnodes,maxlen,jeff)
-            log.append(bestval)
             if bestval == oldbestval:
                 converge += 1
             else:
@@ -78,15 +86,53 @@ for seed_param in range(50):
                 oldbestval = bestval
             graphs=rw.genFromSeeds(graphs,numperseed,edgestotweak)
 
+        # record endtime
+        elapsedtime=str(datetime.now()-starttime)
+
         if irt_param:
             cost_irts.append(rw.cost(bestgraphs[-1],a))
+            time_irts.append(elapsedtime)
+            bestval_irts.append(bestval)
+            bestgraph_irts.append(rw.graphToHash(bestgraphs[-1]))
         else:
             cost_noirts.append(rw.cost(bestgraphs[-1],a))
-            cost_orig.append(rw.cost(rw.noHidden(Xs,numnodes),a))
+            time_noirts.append(elapsedtime)
+            bestval_noirts.append(bestval)
+            bestgraph_noirts.append(rw.graphToHash(bestgraphs[-1]))
 
-        gs=[nx.to_networkx_graph(i) for i in bestgraphs]
+            orig=rw.noHidden(Xs,numnodes)
+            cost_orig.append(rw.cost(orig,a))
+            bestval_orig.append(rw.probXnoIRT(Xs, orig, numnodes))
+            
+        #gs=[nx.to_networkx_graph(i) for i in bestgraphs]
 
-        # record endtime
-        endtime=str(datetime.now())
-        log.append(endtime)
+    # log stuff here
+    f.write(str(max_converge) + ',' +
+            str(theta) + ',' +
+            str(numgraphs) + ',' +
+            str(edgestotweak).replace(',','') + ',' +
+            str(numkeep) + ',' + 
+            str(maxlen) + ',' +
+            str(jeff) + ',' +
+            str(numperseed) + ',' +
+            str(beta) + ',' +
+            str(offset) + ',' +
+            str(numnodes) + ',' +
+            str(numlinks) + ',' +
+            str(probRewire) + ',' +
+            str(numedges) + ',' +
+            str(graph_seed) + ',' +
+            str(numx) + ',' +
+            str(trim) + ',' +
+            str(x_seed) + ',' +
+            str(cost_orig[-1]) + ',' +
+            str(cost_irts[-1]) + ',' +
+            str(cost_noirts[-1]) + ',' +
+            str(time_irts[-1]) + ',' +
+            str(time_noirts[-1]) + ',' +
+            str(bestgraph_irts[-1]) + ',' +
+            str(bestgraph_noirts[-1]) + '\n')
+
     print "FINAL COSTS:", cost_orig[-1], cost_noirts[-1], cost_irts[-1]
+
+f.close()

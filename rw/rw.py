@@ -190,7 +190,7 @@ def graphSearch(graphs,numkeep,Xs,numnodes,maxlen,jeff,irts=[]):
     
     for it, graph in enumerate(graphs):
         if len(irts) > 0:      # if IRTs are supplied, use them
-            tmp=probX(Xs,graph,irts,numnodes,maxlen,jeff)
+            tmp=probX(Xs,graph,numnodes,irts,maxlen,jeff)
         else:
             tmp=probXnoIRT(Xs,graph,numnodes)
         loglikelihood.append(tmp)
@@ -200,6 +200,13 @@ def graphSearch(graphs,numkeep,Xs,numnodes,maxlen,jeff,irts=[]):
     maxgraphs=[graphs[i] for i in maxpos]
     print "MAX: ", max(loglikelihood)
     return maxgraphs, max(loglikelihood)
+
+# helper function converts binary adjacency matrix to base 36 string for easy storage in CSV
+# binary -> int -> base36
+def graphToHash(a):
+    def baseN(num,b,numerals="0123456789abcdefghijklmnopqrstuvwxyz"):
+        return ((num == 0) and numerals[0]) or (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
+    return baseN(int(''.join([str(i) for i in flatten_list(a)]),2), 36)
 
 # log trick given list of log-likelihoods
 def logTrick(loglist):
@@ -244,7 +251,7 @@ def path_from_walk(walk):
     return path
 
 # probability of observing Xs, including irts
-def probX(Xs, a, irts, numnodes, maxlen, jeff):
+def probX(Xs, a, numnodes,irts, maxlen, jeff):
     probs=[]
     for xnum, x in enumerate(Xs):
         prob=[]
