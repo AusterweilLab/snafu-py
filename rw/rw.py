@@ -12,6 +12,7 @@ from scipy import stats
 from numpy.linalg import inv
 from scipy.optimize import fmin
 import sys
+import textwrap
 
 # create toy graph object. currently only small-world
 class ToyGraph:
@@ -28,7 +29,21 @@ class ToyGraph:
 # returns the number of links that need to be added or removed to reach the true graph
 def cost(graph,a):
     return sum(sum(np.array(abs(graph-a))))/2
-   
+
+#
+def costSDT(graph, a):
+    Alinks=zip(*np.where(a==1))
+    Glinks=zip(*np.where(graph==1))
+    Anolinks=zip(*np.where(a==0))
+    Gnolinks=zip(*np.where(graph==0))
+    hit=sum([i in Alinks for i in Glinks])
+    fa=len(Glinks)-hit
+    cr=sum([i in Anolinks for i in Gnolinks])
+    miss=len(Gnolinks)-cr
+    cr=cr-len(a)            # don't count node self-transitions as correct rejections
+    return [hit/2, miss/2, fa/2, cr/2]
+
+
 # write graph to GraphViz file (.dot)
 def drawDot(g, filename, labels={}):
     if type(g) == np.ndarray:
@@ -70,7 +85,7 @@ def expectedHidden(Xs, a, numnodes):
                     notinx.append(i)
             
             startindex=x[curpos-1]
-            deleted=0
+
             for i in sorted(x[curpos:]+notinx,reverse=True):   # to form Q matrix
                 if i < startindex:
                     deleted += 1
@@ -120,7 +135,7 @@ def genFromSeeds(seedgraphs,numperseed,edgestotweak):
             new=np.copy(i)
             for k in range(random.choice(edgestotweak)):
                 rand1=rand2=0
-                while (rand1 == rand2):
+                while (rand1 == rand2):                    # avoid linking a node to itself
                     rand1=random.randint(0,len(i)-1)
                     rand2=random.randint(0,len(i)-1)
                 new[rand1,rand2]=1-new[rand1,rand2]
@@ -207,6 +222,14 @@ def graphToHash(a):
     def baseN(num,b,numerals="0123456789abcdefghijklmnopqrstuvwxyz"):
         return ((num == 0) and numerals[0]) or (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
     return baseN(int(''.join([str(i) for i in flatten_list(a)]),2), 36)
+
+def hashToGraph(graphhash, numnodes):
+    graphstring=bin(int(graphhash, 36))[2:]
+    zeropad=numnodes**2-len(graphstring)
+    graphstring=''.join(['0' for i in range(zeropad)]) + graphstring
+    arrs=textwrap.wrap(graphstring, numnodes)
+    mat=np.array([map(int, s) for s in arrs])
+    return mat
 
 # log trick given list of log-likelihoods
 def logTrick(loglist):
@@ -396,17 +419,19 @@ def timer(times):
 # used to simulate human data that doesn't cover the whole graph every time
 def trimX(prop, Xs, g):
     numnodes=g.number_of_nodes()
-    alter_graph_size=1              # makes sure every node is visited at least once, so as to not change graph size
-    while alter_graph_size==1:
-        numtrim=int(round(numnodes*prop))
-        Xs=[i[0:numtrim] for i in Xs]
-        for i in range(numnodes):
-            if i not in set(flatten_list(Xs)):
-                g.remove_node(i)
-        a=np.array(nx.adjacency_matrix(g, range(numnodes)).todense())
-        if 0 not in sum(a):
-            alter_graph_size=0
-    return Xs, g, a, numnodes
+    alter_graph_size=0              # report if graph size changes-- may result in disconnected graph!
+    numtrim=int(round(numnodes*prop))
+    Xs=[i[0:numtrim] for i in Xs]
+    for i in range(numnodes):
+        if i not in set(flatten_list(Xs)):
+            alter_graph_size=1
+    #        g.remove_node(i)
+    #a=np.array(nx.adjacency_matrix(g, range(numnodes)).todense())
+    #if 0 not in sum(a):         # ensures that graph is still connected after trimming Xs
+    #    alter_graph_size=0
+    if alter_graph_size==1:
+        print "WARNING: Not all graph nodes encountered after trimming X"
+    return Xs, alter_graph_size
 
 # tuple walk from flat list
 def walk_from_path(path):

@@ -9,27 +9,28 @@ import pygraphviz
 
 
 # TOY GRAPH PARAMETERS
-numnodes=10                           
+numnodes=15                           
 numlinks=4                            
-probRewire=.2                         
+probRewire=.4                         
 numedges=numnodes*(numlinks/2)        
 graph_seed=None                             # make sure same toy network is generated every time
 
 # FAKE DATA PARAMETERS
-numx=3
-trim=1
+numx=5
+trim=0.7
 x_seed=None                                 # make sure same Xs are generated every time
 
 # FITTING PARAMETERS
 theta=.5                                  # probability of hiding node when generating z from x (rho function)
 numgraphs=100
 maxlen=20                                 # no closed form, number of times to sum over
-jeff = .5
+jeff = .9
 numperseed=50
 edgestotweak=[1,1,1,2,3,4,5,6,7,8,9,10]
 numkeep=3
 beta=0.9                                  # for gamma distribution when generating IRTs from hidden nodes
 offset=2                                  # for generating IRTs from hidden nodes
+max_converge=5
 
 # SIMULATION RESULTS
 cost_irts=[]
@@ -43,7 +44,10 @@ bestval_orig=[]
 bestgraph_irts=[]
 bestgraph_noirts=[]
 
-f=open('sim_results.csv','w', 0) # write to file with no buffering
+# WRITE DATA
+outfile='sim_resultsx.csv'
+
+f=open(outfile,'a', 0) # write/append to file with no buffering
 
 for seed_param in range(100):
     for irt_param in range(2):
@@ -55,7 +59,7 @@ for seed_param in range(100):
         [Xs,irts]=zip(*[rw.genX(g, seed=x_seed+i,use_irts=1) for i in range(numx)])
         Xs=list(Xs)
         irts=list(irts)
-        [Xs,g,a,numnodes]=rw.trimX(trim,Xs,g)
+        [Xs,alter_graph]=rw.trimX(trim,Xs,g)
         
         if irt_param:
             irts=rw.stepsToIRT(irts, beta, offset)
@@ -66,7 +70,6 @@ for seed_param in range(100):
         graphs=rw.genGraphs(numgraphs,theta,Xs,numnodes)
         graphs.append(rw.noHidden(Xs,numnodes)) # probably best starting graph
 
-        max_converge=5
         converge=0
         oldbestval=0
         bestgraphs=[]
@@ -131,7 +134,10 @@ for seed_param in range(100):
             str(time_irts[-1]) + ',' +
             str(time_noirts[-1]) + ',' +
             str(bestgraph_irts[-1]) + ',' +
-            str(bestgraph_noirts[-1]) + '\n')
+            str(bestgraph_noirts[-1]) + ',' +
+            str(alter_graph) + '\n')
+            # include hit, miss, fa, cr for each of 3 graph types
+            # include LL
 
     print "FINAL COSTS:", cost_orig[-1], cost_noirts[-1], cost_irts[-1]
 
