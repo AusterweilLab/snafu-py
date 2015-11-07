@@ -1,5 +1,5 @@
 ---
-title: Reconstructing semantic networks
+title: Reconstructing semantic networks - 11/1/2015
 output: pdf_document
 ---
 
@@ -17,11 +17,12 @@ output: pdf_document
 
 ## Overview
 
-The following simulations use a sample of 100 graphs with 5 observed lists.
-Except when otherwise noted, the comparisons use exactly the same true graph
-and the same lists (Xs). For each simulation, all other parameters except the
-test parameter are being held constant.  The true graphs were generated using a
-small-world process and contain 15 nodes and 30 edges.
+The following simulations reproduce a sample of 100 known graphs using 5
+observed lists. Except when otherwise noted, the comparisons between
+reconstruction methods use exactly the same graphs and lists (Xs). For each
+simulation, all other parameters except the test parameter are being held
+constant. The known graphs were generated using a small-world process and
+contain 15 nodes and 30 edges.
 
 The graphs were evaluated using 3 processes: 
 
@@ -29,17 +30,18 @@ The graphs were evaluated using 3 processes:
 - **w/o IRT** is identical to INVITE; 
 - **w/ IRT** is our extension which includes IRTs.
   
-The cost with each method reflects the number of edges changes (additions or
+The cost of each method reflects the number of edge changes (additions or
 deletions) required to obtain the true graph from the best fitting graph.
 
 ## Preliminary: convergence parameter
 
 As a preliminary step, I want to make sure the graph search process is
-converging, so I tried two tolerance parameters. Thankfully, the process
-converges with a relatively small tolerance value, meaning I can run these
-simulations in hours and not days. However it's likely that if the graph size
-were increased, the search parameters will need to be altered to ensure that it
-explores the space appropriately. Currently this process is still very ad hoc.
+converging, so I tried two tolerance parameters. The process converged
+reasonably well with a small tolerance parameter ("max converge"), though the
+fitting is still fairly slow, and is considerably slower with larger graphs and
+more lists.  It's also likely that if the graph size were increased, the search
+parameters will need to be altered to ensure that it explores the space
+appropriately. Currently this process is still very ad hoc.
 
 ```{r}
     converge_dat_mean<-dat[numx==5 & jeff==0.5 & beta==0.9,.(.N,mean(cost_orig),mean(cost_irt),mean(cost_noirt)),by=max_converge]
@@ -47,14 +49,16 @@ explores the space appropriately. Currently this process is still very ad hoc.
 ```
 
 The process seems fairly stable using a low tolerance, and for whatever reason
-the graph using IRTs actually got a tiny bit worse with a higher tolerance.
+the fit when using IRTs actually got a bit worse when using a higher tolerance.
 Note that our methods perform better than RW, but using IRTs actually makes the
-graph fit worse; I'll get to that later.  Here are the distributions, excluding
-the "RW" method but collapsing over IRT and no-IRT graphs.
+graph fit worse; I'll get to that later. Here is the distribution of graph
+costs, excluding the "RW" method but collapsing over IRT and no-IRT graphs.
+Note there are 105 possible edges in the network, so the maximum possible cost
+is 105 A cost of zero would be identical to reproducing the original graph.
 
 ```{r}
     converge_dat<-melt(dat[numx==5 & jeff==0.5 & beta==0.9,],measure.vars=c("cost_orig","cost_irt","cost_noirt"))
-    ggplot(converge_dat[variable!="cost_orig"],aes(x=value, fill=factor(max_converge))) + geom_density(alpha=0.4)
+    ggplot(converge_dat[variable!="cost_orig"],aes(x=value, fill=factor(max_converge))) + geom_density(alpha=0.4) + xlab("cost")
 ```
 
 ## Preliminary: beta parameter for IRTs
@@ -70,18 +74,15 @@ its resilience with two values.
     kable(beta_dat_mean[,.("RW cost"=mean(V2),"w/ IRT"=mean(V3),"w/o IRT"=mean(V4)),by=beta])
 ```
 
-The method performs reasonably well with a beta value or 0.9. These
-distributions show that the beta value has a pretty small effect, at least
-within this range.
-
+And the distribution of costs for the two beta values:
 ```{r}
     beta_dat<-melt(dat[numx==5 & jeff==0.5 & max_converge==5,],measure.vars=c("cost_orig","cost_irt","cost_noirt"))
-    ggplot(beta_dat[variable=="cost_irt"],aes(x=value, fill=factor(beta))) + geom_density(alpha=0.4)
+    ggplot(beta_dat[variable=="cost_irt"],aes(x=value, fill=factor(beta))) + geom_density(alpha=0.4) + xlab("cost")
 ```
 
 ## IRT weighting
 
-One problem is that our method uses a weighting parameter combine IRT and
+One problem is that our method uses a weighting parameter to combine IRT and
 non-IRT information. Colloquially, this is the "jeff" parameter. A Bayesian
 solution should have this parameter set to 0.5, as was done in the above
 simulations. Higher values give more weight to non-IRT components; a weight of
@@ -98,7 +99,7 @@ this parameter. Of the values tested, a weight of 0.9 does the best.
 
 ```{r}
     jeff_dat<-melt(dat[numx==5 & trim==1 & max_converge==5 & beta==0.9,],measure.vars=c("cost_orig","cost_irt","cost_noirt"))
-    ggplot(jeff_dat[variable=="cost_irt"],aes(x=value, fill=factor(jeff))) + geom_density(alpha=0.4)
+    ggplot(jeff_dat[variable=="cost_irt"],aes(x=value, fill=factor(jeff))) + geom_density(alpha=0.4) + xlab("cost")
 ```
 
 ## Benefit of IRTs
@@ -107,12 +108,11 @@ Sow how much does using IRTs buy us? Using the best parameters from the above an
 
 ```{r}
     compare_dat<-melt(dat[numx==5 & trim==1 & max_converge==5 & jeff==0.9 & beta==0.9,],measure.vars=c("cost_orig","cost_irt","cost_noirt"))
-    ggplot(compare_dat,aes(x=value, fill=factor(variable))) + geom_density(alpha=0.4)
+    ggplot(compare_dat,aes(x=value, fill=factor(variable))) + geom_density(alpha=0.4) + xlab("cost")
 ```
 
-The answer is that it buys you a little, but not a lot. This advantage may
-improve with more lists, we should try even lower weighting parameters. But
-it's nice to know our method does something.
+The answer is that it buys you a little, but not a lot, at least with these
+parameters. But it's nice to know our method does something.
 
 With or without IRTs, the method clearly does better than the RW method. As the
 number of lists increases, RW should converge to a maximally connected graph,
@@ -138,27 +138,27 @@ Unsurprsingly, the IRT and no-IRT methods do slightly worse.
 Counterintuitively, the RW method does better. Presumably this is for the same
 reason increasing the number of lists is bad for RW. Additionally, the items
 towards the beginning of a list are much more likely to be directly connected.
-You can see the RW distribution has been pushed closer to the other
-distributions:
+You can see when using lists truncated to 70%, the RW distribution has been
+pushed closer to the other distributions:
 
 ```{r}
     compare_dat<-melt(dat[numx==5 & trim==0.7 & max_converge==5 & jeff==0.9 & beta==0.9,],measure.vars=c("cost_orig","cost_irt","cost_noirt"))
-    ggplot(compare_dat,aes(x=value, fill=factor(variable))) + geom_density(alpha=0.4)
+    ggplot(compare_dat,aes(x=value, fill=factor(variable))) + geom_density(alpha=0.4) + xlab("cost")
 ```
 
-These distributions compare each type before and after truncating the lists:
+These distributions compare each fitting method before and after truncating the lists:
 
 ```{r}
     compare_dat<-melt(dat[numx==5 & max_converge==5 & jeff==0.9 & beta==0.9,],measure.vars=c("cost_orig","cost_irt","cost_noirt"))
-    orig<-ggplot(compare_dat[variable=="cost_orig"],aes(x=value, fill=factor(trim))) + geom_density(alpha=0.4) + ggtitle("RW") + theme(legend.position="bottom")
-    irt<-ggplot(compare_dat[variable=="cost_irt"],aes(x=value, fill=factor(trim))) + geom_density(alpha=0.4) + ggtitle("w/ IRT") + theme(legend.position="bottom")
-    noirt<-ggplot(compare_dat[variable=="cost_noirt"],aes(x=value, fill=factor(trim))) + geom_density(alpha=0.4) + ggtitle("w/o IRT") + theme(legend.position="bottom")
+    orig<-ggplot(compare_dat[variable=="cost_orig"],aes(x=value, fill=factor(trim))) + geom_density(alpha=0.4) + ggtitle("RW") + theme(legend.position="bottom") + xlab("cost")
+    irt<-ggplot(compare_dat[variable=="cost_irt"],aes(x=value, fill=factor(trim))) + geom_density(alpha=0.4) + ggtitle("w/ IRT") + theme(legend.position="bottom") + xlab("cost")
+    noirt<-ggplot(compare_dat[variable=="cost_noirt"],aes(x=value, fill=factor(trim))) + geom_density(alpha=0.4) + ggtitle("w/o IRT") + theme(legend.position="bottom") + xlab("cost")
 
     grid.arrange(orig,irt,noirt,ncol=3)
 ```
 For the most part, truncating the lists had little effect on the other methods besides RW.
 
-# Signal Detection
+## Signal Detection
 
 Using the same toy graphs as above, there are 30 edges in the true graph and 75
 non-edges. The RW method results in a substantial number of false alarms, but
@@ -177,29 +177,35 @@ both more hits and fewer false alarms than not using IRTs.
 
 ```{r}
     hit_dat<-melt(dat[numx==5 & jeff==0.9 & beta==0.9 & trim==1 & max_converge==5,],measure.vars=c("hit_orig","hit_irt","hit_noirt"))
-    one<-ggplot(hit_dat,aes(x=value, fill=factor(variable))) + geom_density(alpha=0.4) + theme(legend.position="bottom")
+    one<-ggplot(hit_dat,aes(x=value, fill=factor(variable))) + geom_density(alpha=0.4) + theme(legend.position="bottom") + xlab("number of hits")
 
     fa_dat<-melt(dat[numx==5 & jeff==0.9 & beta==0.9 & trim==1 & max_converge==5,],measure.vars=c("fa_orig","fa_irt","fa_noirt"))
-    two<-ggplot(fa_dat,aes(x=value, fill=factor(variable))) + geom_density(alpha=0.4) + theme(legend.position="bottom")
+    two<-ggplot(fa_dat,aes(x=value, fill=factor(variable))) + geom_density(alpha=0.4) + theme(legend.position="bottom") + xlab("number of false alarms")
 
     grid.arrange(one,two,ncol=2)
 ```
 
-# Number of lists
+## Number of lists
+
+As the number of lists increases, the method improves roughly linearly; the RW method gets worse.
 
 ```{r}
     numx_dat<-dat[trim==1 & jeff==0.9 & beta==0.9 & max_converge==5,.(cost_orig=mean(cost_orig),cost_irt=mean(cost_irt),cost_noirt=mean(cost_noirt)),keyby=numx]
     numx_dat<-melt(numx_dat,measure.vars=c("cost_orig","cost_irt","cost_noirt"))
-    ggplot(numx_dat,aes(y=value,x=numx,color=variable)) + geom_point() + geom_line() + ylim(0,35)
+    ggplot(numx_dat,aes(y=value,x=numx,color=variable)) + geom_point() + geom_line() + ylim(0,35) + ylab("cost")
 ```
+
+Here is the data split into hits and false alarms. The y-axis in the first
+graph represents the proportion of true edges correctly identified; the y-axis
+in the second graph represents the proportion of non-edges correctly
+identified.
 
 ```{r}
     sdt_dat<-dat[trim==1 & max_converge==5 & beta==0.9 & jeff==0.9,.(hit_orig=mean(hit_orig),fa_orig=mean(fa_orig),hit_irt=mean(hit_irt),fa_irt=mean(fa_irt),hit_noirt=mean(hit_noirt),fa_noirt=mean(fa_noirt)),by=numx]
     sdt_dat<-melt(sdt_dat,id.vars=c("numx"))
     sdt_dat[,variable:=as.character(variable)]
     sdt_dat[,c("sdt","type"):=tstrsplit(variable,"_")]
-    sdt_dat<-dcast(sdt_dat, sdt ~ type)
-    sdt_dat<-dcast(sdt_dat, numx + type ~ sdt ,value.var="value")
+    sdt_dat<-data.table(dcast(sdt_dat, numx + type ~ sdt ,value.var="value"))
     sdt_dat[,fa:=fa/75]
     sdt_dat[,hit:=hit/30]
 

@@ -30,7 +30,6 @@ class ToyGraph:
 def cost(graph,a):
     return sum(sum(np.array(abs(graph-a))))/2
 
-#
 def costSDT(graph, a):
     Alinks=zip(*np.where(a==1))
     Glinks=zip(*np.where(graph==1))
@@ -97,21 +96,12 @@ def expectedHidden(Xs, a, numnodes):
         expecteds.append(expected)        
     return expecteds
 
-# find irt that maximizes probability given alpha hidden nodes using:
-# fmin(hiddenToIRT,1,args=(alpha,beta))
-def hiddenToIRT(irt, alpha, beta):
-    return -1*(alpha*math.log(beta)-math.lgamma(alpha)+(alpha-1)*math.log(irt)-beta*irt*beta)
-
 # generates fake IRTs from # of steps in a random walk, using gamma distribution
-def stepsToIRT(irts, beta=1, offset=1):
-    # contraints: alpha cant be 1, beta cant be greater than alpha
+def stepsToIRT(irts, beta=1):
     new_irts=[]
-    for irt in irts:
-        new_irt=[]
-        for alpha in irt:
-            irttime=fmin(hiddenToIRT, 1, args=(alpha+offset,beta))
-            new_irt.append(irttime[0])
-        new_irts.append(new_irt)
+    for irtlist in irts:
+        newlist=[np.random.gamma(irt, beta) for irt in irtlist]
+        new_irts.append(newlist)
     return new_irts
 
 # first hitting times for each node
@@ -200,7 +190,7 @@ def genZfromX(x, theta):
 
 # search for best graph by hill climbing with stochastic search
 # returns numkeep graphs with the best graph at index 0
-def graphSearch(graphs,numkeep,Xs,numnodes,maxlen,jeff,irts=[]):
+def graphSearch(graphs,numkeep,Xs,numnodes,maxlen,jeff,irts=[],prior=0):
     loglikelihood=[]
     
     for it, graph in enumerate(graphs):
@@ -208,6 +198,11 @@ def graphSearch(graphs,numkeep,Xs,numnodes,maxlen,jeff,irts=[]):
             tmp=probX(Xs,graph,numnodes,irts,maxlen,jeff)
         else:
             tmp=probXnoIRT(Xs,graph,numnodes)
+        if prior==1:
+            priordistribution=scipy.stats.norm(loc=4.937072,scale=0.5652063)
+            sw=smallworld(graph)
+            tmp=tmp + np.log(priordistribution.pdf(sw))
+
         loglikelihood.append(tmp)
     
     maxvals=maxn(loglikelihood,numkeep)
@@ -298,7 +293,7 @@ def probX(Xs, a, numnodes,irts, maxlen, jeff):
             startindex = startindex-sum([startindex > i for i in deletedlist])
 
             numcols=np.shape(Q)[1]
-            beta=1  # free parameter
+            beta=0.9  # free parameter
             flist=[]
             oldQ=np.copy(Q)
 
@@ -312,11 +307,11 @@ def probX(Xs, a, numnodes,irts, maxlen, jeff):
                         tmp=num1*num2
                         sumlist.append(tmp)
                 innersum=sum(sumlist)
-                alpha=r+1
+                alpha=r+2
+                
                 gamma=alpha*math.log(beta)-math.lgamma(alpha)+(alpha-1)*math.log(irt)-beta*irt*beta
                 if innersum > 0:
                     flist.append(gamma*(1-jeff)+jeff*math.log(innersum))
-                    #print "innersum=", math.log(innersum), " gamma=", gamma, " ratio=", math.log(innersum)/gamma
             f=sum([math.e**i for i in flist])
             prob.append(f)
         if 0.0 in prob: 
@@ -391,8 +386,14 @@ def random_walk(g,start=None,seed=None):
     return walk
 
 # return small world statistic of a graph
-def smallworld(a, numnodes, numlinks, numedges):
+# returns metric of largest component if disconnected
+def smallworld(a):
     g_sm=nx.from_numpy_matrix(a)
+    g_sm=max(nx.connected_component_subgraphs(g_sm),key=len)   # largest component
+    numnodes=g_sm.number_of_nodes()
+    numedges=g_sm.number_of_edges()
+    numlinks=numedges/(numnodes*2.0)
+    
     c_sm=nx.average_clustering(g_sm)
     l_sm=nx.average_shortest_path_length(g_sm)
     
