@@ -97,7 +97,8 @@ def expectedHidden(Xs, a, numnodes):
     return expecteds
 
 # generates fake IRTs from # of steps in a random walk, using gamma distribution
-def stepsToIRT(irts, beta=1):
+def stepsToIRT(irts, beta=1, seed=None):
+    np.random.seed(seed)
     new_irts=[]
     for irtlist in irts:
         newlist=[np.random.gamma(irt, beta) for irt in irtlist]
@@ -190,18 +191,15 @@ def genZfromX(x, theta):
 
 # search for best graph by hill climbing with stochastic search
 # returns numkeep graphs with the best graph at index 0
-def graphSearch(graphs,numkeep,Xs,numnodes,maxlen,jeff,irts=[],prior=0):
+def graphSearch(graphs,numkeep,Xs,numnodes,jeff=0.5,irts=[],prior=0,beta=1,maxlen=20):
     loglikelihood=[]
     
     for it, graph in enumerate(graphs):
-        if len(irts) > 0:      # if IRTs are supplied, use them
-            tmp=probX(Xs,graph,numnodes,irts,maxlen,jeff)
-        else:
-            tmp=probXnoIRT(Xs,graph,numnodes)
+        tmp=probX(Xs,graph,numnodes,irts,jeff,beta)
         if prior==1:
             priordistribution=scipy.stats.norm(loc=4.937072,scale=0.5652063)
             sw=smallworld(graph)
-            tmp=tmp + np.log(priordistribution.pdf(sw))
+            tmp=tmp + math.log(priordistribution.pdf(sw))
 
         loglikelihood.append(tmp)
     
@@ -269,13 +267,13 @@ def path_from_walk(walk):
     return path
 
 # probability of observing Xs, including irts
-def probX(Xs, a, numnodes,irts, maxlen, jeff):
+def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
     probs=[]
+    t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
+    
     for xnum, x in enumerate(Xs):
         prob=[]
         for curpos in range(1,len(x)):
-            irt=irts[xnum][curpos-1]
-            t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
             Q=np.copy(t)
 
             notinx=[]       # nodes not in trimmed X
@@ -284,84 +282,55 @@ def probX(Xs, a, numnodes,irts, maxlen, jeff):
                     notinx.append(i)
 
             startindex=x[curpos-1]
-            deletedlist=sorted(x[curpos:]+notinx,reverse=True) # Alternatively: x[curpos:]+notinx OR [x[curpos]] ?
+            deletedlist=sorted(x[curpos:]+notinx,reverse=True)
             notdeleted=[i for i in range(numnodes) if i not in deletedlist]
             for i in deletedlist:  # to form Q matrix
                 Q=np.delete(Q,i,0) # delete row
                 Q=np.delete(Q,i,1) # delete column
                 
-            startindex = startindex-sum([startindex > i for i in deletedlist])
-
-            numcols=np.shape(Q)[1]
-            beta=0.9  # free parameter
-            flist=[]
-            oldQ=np.copy(Q)
-
-            for r in range(0,maxlen):
-                Q=np.linalg.matrix_power(oldQ,r)
-                sumlist=[]
-                for k in range(numcols):
-                    num1=Q[k,startindex]
-                    num2=t[x[curpos],notdeleted[k]]
-                    if ((num1>0) and (num2>0)):
-                        tmp=num1*num2
-                        sumlist.append(tmp)
-                innersum=sum(sumlist)
-                alpha=r+2
+            if len(irts) > 0:
+                startindex = startindex-sum([startindex > i for i in deletedlist])
+                numcols=np.shape(Q)[1]
+                flist=[]
+                oldQ=np.copy(Q)
                 
-                gamma=alpha*math.log(beta)-math.lgamma(alpha)+(alpha-1)*math.log(irt)-beta*irt*beta
-                if innersum > 0:
-                    flist.append(gamma*(1-jeff)+jeff*math.log(innersum))
-            f=sum([math.e**i for i in flist])
-            prob.append(f)
+                irt=irts[xnum][curpos-1]
+                for r in range(1,maxlen):
+                    Q=np.linalg.matrix_power(oldQ,r-1)
+                    sumlist=[]
+                    for k in range(numcols):
+                        num1=Q[k,startindex]                # probability of being at node k in r-1 steps
+                        num2=t[x[curpos],notdeleted[k]]     # probability transitioning from k to absorbing node    
+                        sumlist.append(num1*num2)
+                    innersum=sum(sumlist)                   # sum over all possible paths
+                    
+                    gamma=math.log(scipy.stats.gamma.pdf(irt, r, scale=beta)) # r=alpha
+
+                    if innersum > 0: # double check w/ joe about this. math domain error without it
+                        flist.append(gamma*(1-jeff)+jeff*math.log(innersum))
+                f=sum([math.e**i for i in flist])
+                prob.append(f)      # probability of x_(t-1) to X_t
+            else:
+                I=np.identity(len(Q))
+                reg=(1+1e-5)             # nuisance parameter to prevent errors
+                N=inv(I*reg-Q)
+                R=np.copy(t)
+
+                for i in reversed(range(numnodes)):
+                    if i in notinx:
+                        R=np.delete(R,i,1)
+                        R=np.delete(R,i,0)
+                    elif i in x[curpos:]:
+                        R=np.delete(R,i,1) # columns are already visited nodes
+                    else:
+                        R=np.delete(R,i,0) # rows are absorbing/unvisited nodes
+                B=np.dot(R,N)
+                startindex=sorted(x[:curpos]).index(x[curpos-1])
+                absorbingindex=sorted(x[curpos:]).index(x[curpos])
+                prob.append(B[absorbingindex,startindex])
+                
         if 0.0 in prob: 
             #print "Warning: Zero-probability transition; graph cannot produce X"
-            return -np.inf
-        probs.append(prob)
-    for i in range(len(probs)):
-        probs[i]=sum([math.log(j) for j in probs[i]])
-    probs=sum(probs)
-    return probs
-
-def probXnoIRT(Xs, a, numnodes):
-    probs=[]
-    for x in Xs:
-        prob=[]
-        for curpos in range(1,len(x)):
-            t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
-            Q=np.copy(t)
-    
-            notinx=[]       # nodes not in trimmed X
-            for i in range(numnodes):
-                if i not in x:
-                    notinx.append(i)
-
-            startindex=x[curpos-1]
-            deletedlist=sorted(x[curpos:]+notinx,reverse=True) # Alternatively: x[curpos:]+notinx OR [x[curpos]] ?
-            notdeleted=[i for i in range(numnodes) if i not in deletedlist]
-            
-            for i in deletedlist:  # to form Q matrix
-                Q=np.delete(Q,i,0) # delete row
-                Q=np.delete(Q,i,1) # delete column
-            I=np.identity(len(Q))
-            reg=(1+1e-5)
-            N=inv(I*reg-Q)
-            
-            R=np.copy(t)
-            for i in reversed(range(numnodes)):
-                if i in notinx:
-                    R=np.delete(R,i,1)
-                    R=np.delete(R,i,0)
-                elif i in x[curpos:]:
-                    R=np.delete(R,i,1) # columns are already visited nodes
-                else:
-                    R=np.delete(R,i,0) # rows are absorbing/unvisited nodes
-            B=np.dot(R,N)
-            startindex=sorted(x[:curpos]).index(x[curpos-1])
-            absorbingindex=sorted(x[curpos:]).index(x[curpos])
-            prob.append(B[absorbingindex,startindex])
-        if 0.0 in prob: 
-            #print "Warning: Zero-probability transition? Check graph to make sure X is possible."
             return -np.inf
         probs.append(prob)
     for i in range(len(probs)):
