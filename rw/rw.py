@@ -196,7 +196,7 @@ def graphSearch(graphs,numkeep,Xs,numnodes,jeff=0.5,irts=[],prior=0,beta=1,maxle
     
     for it, graph in enumerate(graphs):
         tmp=probX(Xs,graph,numnodes,irts,jeff,beta)
-        if prior==1:
+        if prior:
             priordistribution=scipy.stats.norm(loc=4.937072,scale=0.5652063)
             sw=smallworld(graph)
             tmp=tmp + math.log(priordistribution.pdf(sw))

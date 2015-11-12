@@ -23,8 +23,7 @@ x_seed=None                                 # make sure same Xs are generated ev
 # FITTING PARAMETERS
 theta=.5                                  # probability of hiding node when generating z from x (rho function)
 numgraphs=100
-maxlen=20                                 # no closed form, number of times to sum over
-jeff = .9
+jeff = .5
 numperseed=50
 edgestotweak=[1,1,1,2,3,4,5,6,7,8,9,10]
 numkeep=3
@@ -53,7 +52,7 @@ outfile='sim_resultsx.csv'
 f=open(outfile,'a', 0) # write/append to file with no buffering
 
 for seed_param in range(100):
-    for irt_param in range(1,2):
+    for irt_param in range(2):
         print "SEED: ", seed_param
         graph_seed=seed_param
         x_seed=seed_param
@@ -111,7 +110,7 @@ for seed_param in range(100):
 
             orig=rw.noHidden(Xs,numnodes)
             cost_orig.append(rw.cost(orig,a))
-            bestval_orig.append(rw.probXnoIRT(Xs, orig, numnodes))
+            bestval_orig.append(rw.probX(Xs, orig, numnodes))
             sdt_orig.append(rw.costSDT(orig,a))
             
         #gs=[nx.to_networkx_graph(i) for i in bestgraphs]
@@ -141,7 +140,7 @@ for seed_param in range(100):
                 str(time_noirts[-1]) + ',' +
                 str(bestgraph_irts[-1]) + ',' +
                 str(bestgraph_noirts[-1]) + ',' +
-                str(alter_graph) + 
+                str(alter_graph) + ',' +
                 str(sdt_irts[-1][0]) + ',' +
                 str(sdt_irts[-1][1]) + ',' +
                 str(sdt_irts[-1][2]) + ',' +
