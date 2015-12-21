@@ -11,7 +11,7 @@ import pygraphviz
 # TOY GRAPH PARAMETERS
 numnodes=15                           
 numlinks=4                            
-probRewire=.4                         
+probRewire=.3                         
 numedges=numnodes*(numlinks/2)        
 graph_seed=None                             # make sure same toy network is generated every time
 
@@ -27,7 +27,7 @@ jeff = .5
 numperseed=50
 edgestotweak=[1,1,1,2,3,4,5,6,7,8,9,10]
 numkeep=3
-beta=1                                  # for gamma distribution when generating IRTs from hidden nodes
+beta=1.1                                  # for gamma distribution when generating IRTs from hidden nodes
 max_converge=5
 logstuff=1
 
@@ -66,6 +66,7 @@ for seed_param in range(100):
         
         if irt_param:
             irts=rw.stepsToIRT(irts, beta, seed=x_seed)
+            # TODO: also chop irts!
 
         starttime=datetime.now()
 
