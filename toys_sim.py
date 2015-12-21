@@ -24,7 +24,7 @@ beta=1.1                                  # for gamma distribution when generati
 # FITTING PARAMETERS
 theta=.5                                  # probability of hiding node when generating z from x (rho function)
 numgraphs=100
-jeff = .5
+jeff = .9
 numperseed=10
 edgestotweak=[1,1,1,2,3,4,5,6,7,8,9,10]
 numkeep=3
