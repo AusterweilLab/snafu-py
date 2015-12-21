@@ -19,6 +19,7 @@ graph_seed=None                             # make sure same toy network is gene
 numx=5
 trim=1
 x_seed=None                                 # make sure same Xs are generated every time
+beta=1.1                                  # for gamma distribution when generating IRTs from hidden nodes
 
 # FITTING PARAMETERS
 theta=.5                                  # probability of hiding node when generating z from x (rho function)
@@ -27,7 +28,6 @@ jeff = .5
 numperseed=50
 edgestotweak=[1,1,1,2,3,4,5,6,7,8,9,10]
 numkeep=3
-beta=1.1                                  # for gamma distribution when generating IRTs from hidden nodes
 max_converge=5
 logstuff=1
 
