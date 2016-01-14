@@ -102,7 +102,6 @@ def findBestGraph(Xs, irts, jeff=0.5, beta=1.0, numnodes=0):
     # free parameters
     prob_overlap=.8     # probability a link connecting nodes in multiple graphs
     prob_multi=.8       # probability of selecting an additional link
-    theta=.5            # theta parameter in genGraphs() method. usually not imporant
 
     if numnodes==0:         # unless specified (because Xs are trimmed and dont cover all nodes)
         numnodes=len(set(flatten_list(Xs)))
@@ -112,18 +111,8 @@ def findBestGraph(Xs, irts, jeff=0.5, beta=1.0, numnodes=0):
     converge = 0        # when converge >= max_converge, declare the graph converged.
     itern=0 # tmp variable for debugging
 
-    # find a good starting graph
-    # for small number of lists, method (noHidden) should work best
-    # for large number of lists, the graph is too dense, so use genGraphs method
-    # try both and choose the better one as the starting graph
-    start1=noHidden(Xs,numnodes)
-    start2=genGraphs(1, theta, Xs, numnodes)[0]
-    start1_p=probX(Xs,start1,numnodes,irts,jeff,beta)
-    start2_p=probX(Xs,start2,numnodes,irts,jeff,beta)
-    if start1_p >= start2_p:        # choose starting graph
-        graph=start1
-    else:
-        graph=start2
+    # find a good starting graph using naive RW
+    graph=noHidden(Xs,numnodes)
   
     best_graph=np.copy(graph)       # store copy of best graph
     cur_graph=np.copy(graph)        # candidate graph for comparison
@@ -548,9 +537,27 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
                 cost_orig.append(cost(orig,a))
                 bestval_orig.append(probX(Xs, orig, numnodes))
                 sdt_orig.append(costSDT(orig,a))
-                
+               
         # log stuff here
         if outfile != '':
+            # ugly quick fix
+            if 'inviteirt' not in methods:
+                cost_irts.append('NA')
+                time_irts.append('NA')
+                bestval_irts.append('NA')
+                bestgraph_irts.append('NA')
+                sdt_irts.append(['NA','NA','NA','NA'])
+            if 'invite' not in methods:
+                cost_noirts.append('NA')
+                time_noirts.append('NA')
+                sdt_noirts.append(['NA','NA','NA','NA'])
+                bestval_noirts.append('NA')
+                bestgraph_noirts.append('NA')
+            if 'rw' not in methods:
+                cost_orig.append('NA')
+                bestval_orig.append('NA')
+                sdt_orig.append(['NA','NA','NA','NA'])
+
             f.write(
                     str(jeff) + ',' +
                     str(beta) + ',' +
