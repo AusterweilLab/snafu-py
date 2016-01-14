@@ -98,7 +98,7 @@ def expectedHidden(Xs, a, numnodes):
         expecteds.append(expected)        
     return expecteds
 
-def findBestGraph(Xs, irts, jeff=0.5, beta=1.0, numnodes=0):
+def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
     # free parameters
     prob_overlap=.8     # probability a link connecting nodes in multiple graphs
     prob_multi=.8       # probability of selecting an additional link
