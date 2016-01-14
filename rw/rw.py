@@ -13,17 +13,19 @@ from numpy.linalg import inv
 from scipy.optimize import fmin
 import sys
 import textwrap
+from itertools import *
+from datetime import datetime
 
 # create toy graph object. currently only small-world
-class ToyGraph:
-    def __init__(self, numnodes, numlinks, probRewire, graph_seed=None):
-
-        self.numnodes = numnodes                # number of nodes in graph
-        self.numlinks = numlinks                # initial number of edges per node (must be even)
-        self.probRewire = probRewire            # probability of re-wiring an edge
-        self.numedges = numnodes*(numlinks/2)   # number of edges in smallworld-graph
-        
-        self.g, self.a = genG(numnodes,numlinks,probRewire,seed=graph_seed)
+#class ToyGraph:
+#    def __init__(self, numnodes, numlinks, probRewire, graph_seed=None):
+#
+#        self.numnodes = numnodes                # number of nodes in graph
+#        self.numlinks = numlinks                # initial number of edges per node (must be even)
+#        self.probRewire = probRewire            # probability of re-wiring an edge
+#        self.numedges = numnodes*(numlinks/2)   # number of edges in smallworld-graph
+#        
+#        self.g, self.a = genG(numnodes,numlinks,probRewire,seed=graph_seed)
 
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
@@ -96,14 +98,90 @@ def expectedHidden(Xs, a, numnodes):
         expecteds.append(expected)        
     return expecteds
 
-# generates fake IRTs from # of steps in a random walk, using gamma distribution
-def stepsToIRT(irts, beta=1, seed=None):
-    np.random.seed(seed)
-    new_irts=[]
-    for irtlist in irts:
-        newlist=[np.random.gamma(irt, beta) for irt in irtlist]
-        new_irts.append(newlist)
-    return new_irts
+def findBestGraph(Xs, irts, jeff=0.5, beta=1.0, numnodes=0):
+    # free parameters
+    prob_overlap=.8     # probability a link connecting nodes in multiple graphs
+    prob_multi=.8       # probability of selecting an additional link
+    theta=.5            # theta parameter in genGraphs() method. usually not imporant
+
+    if numnodes==0:         # unless specified (because Xs are trimmed and dont cover all nodes)
+        numnodes=len(set(flatten_list(Xs)))
+
+    #max_converge=numnodes*math.sqrt(numnodes) # number of alternative graphs to test that are not better than bestgraph before giving up
+    max_converge=500
+    converge = 0        # when converge >= max_converge, declare the graph converged.
+    itern=0 # tmp variable for debugging
+
+    # find a good starting graph
+    # for small number of lists, method (noHidden) should work best
+    # for large number of lists, the graph is too dense, so use genGraphs method
+    # try both and choose the better one as the starting graph
+    start1=noHidden(Xs,numnodes)
+    start2=genGraphs(1, theta, Xs, numnodes)[0]
+    start1_p=probX(Xs,start1,numnodes,irts,jeff,beta)
+    start2_p=probX(Xs,start2,numnodes,irts,jeff,beta)
+    if start1_p >= start2_p:        # choose starting graph
+        graph=start1
+    else:
+        graph=start2
+  
+    best_graph=np.copy(graph)       # store copy of best graph
+    cur_graph=np.copy(graph)        # candidate graph for comparison
+
+    best_ll=probX(Xs,best_graph,numnodes,irts,jeff,beta)   # LL of best graph found
+    cur_ll=best_ll                                         # LL of current graph
+
+    # items in at least 2 lists. links between these nodes are more likely to affect P(G)
+    # http://stackoverflow.com/q/2116286/353278
+    overlap=reduce(set.union, (starmap(set.intersection, combinations(map(set, Xs), 2))))
+    overlap=list(overlap)
+    combos=list(combinations(overlap,2))    # all possible links btw overlapping nodes
+
+    while converge < max_converge:
+        
+        links=[]        # links to toggle in candidate graph
+        while True:     # emulates do-while loop (ugly)
+            if random.random() <= prob_overlap:      # choose link from combos most of the time
+                link=random.choice(combos)
+            else:                                    # sometimes choose a link at random
+                link=(0,0)
+                while link[0]==link[1]:
+                    link=(int(math.floor(random.random()*numnodes)),int(math.floor(random.random()*numnodes)))
+            links.append(link)
+            if random.random() <= prob_multi:
+                break
+
+        # toggle links
+        for link in links:
+            cur_graph[link[0],link[1]] = 1 - cur_graph[link[0],link[1]] 
+            cur_graph[link[1],link[0]] = 1 - cur_graph[link[1],link[0]]
+
+        graph_ll=probX(Xs,cur_graph,numnodes,irts,jeff,beta)
+
+        # debugging... make sure its testing lots of graphs
+        itern=itern+1
+        if itern % 100 == 0:
+            print itern
+
+        # if graph is better than current graph, accept it
+        # if graph is worse, accept with some probability
+        if (graph_ll > cur_ll): # or (random.random() <= (math.exp(graph_ll)/math.exp(cur_ll))):
+            print "GRAPH: ", graph_ll, "CUR: ", cur_ll, "BEST: ", best_ll
+            graph=np.copy(cur_graph)
+            cur_ll = graph_ll
+            if cur_ll > best_ll:
+                converge = 0          # reset convergence criterion only if new graph is better than BEST graph
+                best_ll=cur_ll
+                best_graph = np.copy(cur_graph)
+            else:
+                converge += 1
+        else:
+            converge += 1
+            # toggle links back. my guess is this is faster than making graph copies but i dont know
+            for link in links:
+                cur_graph[link[0],link[1]] = 1 - cur_graph[link[0],link[1]]
+                cur_graph[link[1],link[0]] = 1 - cur_graph[link[1],link[0]] 
+    return best_graph, best_ll
 
 # first hitting times for each node
 def firstHits(walk):
@@ -117,6 +195,7 @@ def firstHits(walk):
 def flatten_list(l):
     return [item for sublist in l for item in sublist]
 
+# DEPRECATED
 # generate numperseed graphs from each graph in seedgraphs by randomly flipping
 # X edges, where X is chosen randomly from list edgestotweak
 def genFromSeeds(seedgraphs,numperseed,edgestotweak):
@@ -162,7 +241,7 @@ def genX(g,s=None,use_irts=0,seed=None):
     rwalk=random_walk(g,s,seed)
     Xs=observed_walk(rwalk)
     
-    if use_irts==0: 
+    if use_irts==0:
         return Xs
     else:
         fh=list(zip(*firstHits(rwalk))[1])
@@ -189,6 +268,7 @@ def genZfromX(x, theta):
             path.append(x2.pop())
     return walk_from_path(path)
 
+# DEPRECATED
 # search for best graph by hill climbing with stochastic search
 # returns numkeep graphs with the best graph at index 0
 def graphSearch(graphs,numkeep,Xs,numnodes,jeff=0.5,irts=[],prior=0,beta=1,maxlen=20):
@@ -224,7 +304,7 @@ def hashToGraph(graphhash, numnodes):
     mat=np.array([map(int, s) for s in arrs])
     return mat
 
-# log trick given list of log-likelihoods
+# log trick given list of log-likelihoods **UNUSED
 def logTrick(loglist):
     logmax=max(loglist)
     loglist=[i-logmax for i in loglist]                     # log trick: subtract off the max
@@ -288,7 +368,7 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
                 Q=np.delete(Q,i,0) # delete row
                 Q=np.delete(Q,i,1) # delete column
                 
-            if len(irts) > 0:
+            if (len(irts) > 0) and (jeff < 1): # use this method only when passing IRTs with weight < 1
                 startindex = startindex-sum([startindex > i for i in deletedlist])
                 numcols=np.shape(Q)[1]
                 flist=[]
@@ -310,7 +390,7 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
                         flist.append(gamma*(1-jeff)+jeff*math.log(innersum))
                 f=sum([math.e**i for i in flist])
                 prob.append(f)      # probability of x_(t-1) to X_t
-            else:
+            else:                        # if no IRTs, use standard INVITE
                 I=np.identity(len(Q))
                 reg=(1+1e-5)             # nuisance parameter to prevent errors
                 N=inv(I*reg-Q)
@@ -338,6 +418,37 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
     probs=sum(probs)
     return probs
 
+# read Xs in from user files
+def readX(subj,category,filepath):
+    if type(subj) == str:
+        subj=[subj]
+    game=-1
+    cursubj=-1
+    Xs=[]
+    irts=[]
+    items={}
+    idx=0
+    with open(filepath) as f:
+        for line in f:
+            row=line.split(',')
+            if (row[0] in subj) & (row[2] == category):
+                if (row[1] != game) or (row[0] != cursubj):
+                    Xs.append([])
+                    irts.append([])
+                    game=row[1]
+                    cursubj=row[0]
+                item=row[3]
+                irt=row[4]
+                if item not in items.values():
+                    items[idx]=item
+                    idx += 1
+                itemval=items.values().index(item)
+                if itemval not in Xs[-1]:   # ignore any duplicates in same list resulting from spelling corrections
+                    Xs[-1].append(itemval)
+                    irts[-1].append(int(irt)/1000.0)
+    numnodes = len(items)
+    return Xs, items, irts, numnodes
+
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g,start=None,seed=None):
     random.seed(seed)
@@ -353,6 +464,7 @@ def random_walk(g,start=None,seed=None):
         if start in unused_nodes:
             unused_nodes.remove(start)
     return walk
+
 
 # return small world statistic of a graph
 # returns metric of largest component if disconnected
@@ -373,17 +485,107 @@ def smallworld(a):
     s=(c_sm/c_rand)/(l_sm/l_rand)
     return s
 
-# calculate spearman coefficient for graph reconstruction procedure
-def spearman(costs, est_costs):
-    return scipy.stats.spearmanr(costs,est_costs)[0]
+# generates fake IRTs from # of steps in a random walk, using gamma distribution
+def stepsToIRT(irts, beta=1, seed=None):
+    np.random.seed(seed)
+    new_irts=[]
+    for irtlist in irts:
+        newlist=[np.random.gamma(irt, beta) for irt in irtlist]
+        new_irts.append(newlist)
+    return new_irts
 
-# helper function for optimization
-def timer(times):
-    t1=time.time()
-    for i in range(times):
-        genZfromXG(x,a) # insert function to time here
-    t2=time.time()
-    return t2-t1
+# runs a batch of toy graphs. logging code needs to be cleaned up significantly
+def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile, start_seed=0, 
+             methods=['rw','invite','inviteirt']):
+
+    numedges=numnodes*(numlinks/2)        # number of edges in graph    
+    f=open(outfile,'a', 0)                # write/append to file with no buffering
+   
+    # cubersome... find a better solution
+    cost_irts , time_irts , bestval_irts , bestgraph_irts , sdt_irts = [[] for i in range(5)]
+    cost_noirts , time_noirts , bestval_noirts , bestgraph_noirts , sdt_noirts = [[] for i in range(5)]
+    cost_orig , bestval_orig , sdt_orig = [[] for i in range(3)]
+
+    for seed_param in range(start_seed,start_seed+numgraphs):
+        for method in methods:
+            print "SEED: ", seed_param, "method: ", method
+            graph_seed=seed_param
+            x_seed=seed_param
+
+            # toy data
+            g,a=genG(numnodes,numlinks,probRewire,seed=graph_seed)
+            [Xs,steps]=zip(*[genX(g, seed=x_seed+i,use_irts=1) for i in range(numx)])
+            Xs=list(Xs)
+            steps=list(steps)
+            [Xs,alter_graph]=trimX(trim,Xs,g)
+                    
+            if method=='inviteirt':
+                irts=stepsToIRT(steps, beta, seed=x_seed) # TODO: also chop irts!
+            else:
+                irts=[]
+
+            # Find best graph! (and log time)
+            if method !='rw':
+                starttime=datetime.now()
+                best_graph, bestval=findBestGraph(Xs, irts, jeff, beta, numnodes)
+                elapsedtime=str(datetime.now()-starttime)
+
+            # Record cost, time elapsed, LL of best graph, hash of best graph, and SDT measures
+            if method=='inviteirt':                              # Using INVITE + IRT
+                cost_irts.append(cost(best_graph,a))
+                time_irts.append(elapsedtime)
+                bestval_irts.append(bestval)
+                bestgraph_irts.append(graphToHash(best_graph))
+                sdt_irts.append(costSDT(best_graph,a))
+            if method=='invite':                                 # Using vanilla INVITE
+                cost_noirts.append(cost(best_graph,a))
+                time_noirts.append(elapsedtime)
+                sdt_noirts.append(costSDT(best_graph,a))
+                bestval_noirts.append(bestval)
+                bestgraph_noirts.append(graphToHash(best_graph))
+            if method=='rw':                                      # Using naive RW
+                orig=noHidden(Xs,numnodes)
+                cost_orig.append(cost(orig,a))
+                bestval_orig.append(probX(Xs, orig, numnodes))
+                sdt_orig.append(costSDT(orig,a))
+                
+        # log stuff here
+        if outfile != '':
+            f.write(
+                    str(jeff) + ',' +
+                    str(beta) + ',' +
+                    str(numnodes) + ',' +
+                    str(numlinks) + ',' +
+                    str(probRewire) + ',' +
+                    str(numedges) + ',' +
+                    str(graph_seed) + ',' +
+                    str(numx) + ',' +
+                    str(trim) + ',' +
+                    str(x_seed) + ',' +
+                    str(cost_orig[-1]) + ',' +
+                    str(cost_irts[-1]) + ',' +
+                    str(cost_noirts[-1]) + ',' +
+                    str(time_irts[-1]) + ',' +
+                    str(time_noirts[-1]) + ',' +
+                    str(bestgraph_irts[-1]) + ',' +
+                    str(bestgraph_noirts[-1]) + ',' +
+                    str(alter_graph) + ',' +
+                    str(sdt_irts[-1][0]) + ',' +
+                    str(sdt_irts[-1][1]) + ',' +
+                    str(sdt_irts[-1][2]) + ',' +
+                    str(sdt_irts[-1][3]) + ',' +
+                    str(sdt_noirts[-1][0]) + ',' +
+                    str(sdt_noirts[-1][1]) + ',' +
+                    str(sdt_noirts[-1][2]) + ',' +
+                    str(sdt_noirts[-1][3]) + ',' +
+                    str(sdt_orig[-1][0]) + ',' +
+                    str(sdt_orig[-1][1]) + ',' +
+                    str(sdt_orig[-1][2]) + ',' +
+                    str(sdt_orig[-1][3]) + ',' +
+                    str(bestval_irts[-1]) + ',' +
+                    str(bestval_noirts[-1]) + ',' +
+                    str(bestval_orig[-1]) + '\n')
+    f.close()
 
 # trim Xs to proportion of graph size, the trim graph to remove any nodes that weren't hit
 # used to simulate human data that doesn't cover the whole graph every time

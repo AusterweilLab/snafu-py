@@ -25,31 +25,33 @@ def PfromB(b):
 def regml():
     # free parameters
     c=.75       # value used by Kwang, and Bottou, 2012
+    cb=.5       # regularization term (value?)
+    gamma=.5    # value?
     epochs=20   # value?
-    cb=100       # regularization term (value?)
-    gamma=.005    # value?
 
     # fixed parameters
     a=cb/len(Xs)
     
     b=np.random.rand(numnodes,numnodes)          # initialize b0
-    avg_b=np.zeros((numnodes,numnodes))            # represents best solution at each step
     for i in range(len(b)):                      # set diagonal to infinity
         b[i,i]=-np.inf
+    avg_b=np.copy(b)                             # represents best solution at each step
     
     t=1
     while t < epochs:
         print "epoch = ", t
         random.shuffle(Xs) 
         eta= gamma * (1 + gamma*a*t)**(-c)
-        derivative_mat = np.zeros((numnodes,numnodes))
-         
+        
         for xpos, x in enumerate(Xs):
             print "x =", xpos
 
-            for curpos in range(1,len(x)):
+            for curpos in range(len(x)):
                 print "curpos = ", curpos
                 P=PfromB(b)  # set transition matrix from b
+                denominator = P[x[curpos],x[curpos-1]]
+
+                derivative_mat = np.zeros((numnodes,numnodes))
 
                 # create Q matrix
                 Q=np.copy(P)
@@ -87,11 +89,10 @@ def regml():
                 NR=np.dot(N,R)
                 QNR=np.dot(Q,NR)
                 QNR=-1*QNR
-                k=curpos-1
-                denominator = NR[k,0]
-                
+               
                 for si in range(1,curpos):
                     for sj in range(numnodes):
+                        k=curpos-1
                         i=x[si]
                         j=x[sj]
 
@@ -99,12 +100,12 @@ def regml():
                         first=numerator/denominator
 
                         if sj>k:
-                            derivative_mat[i,j] = derivative_mat[i,j] - QNR[si,0] * first
+                            derivative_mat[i,j] = QNR[si,0] * first
                         else:
                             if (x[curpos])!=j:
                                 derivative_mat[i,j] = derivative_mat[i,j] - first*(QNR[si,0] - NR[sj,0]*P[i,x[curpos]])
                             else:
-                                derivative_mat[i,j] = derivative_mat[i,j] - first*(QNR[si,0] + NR[sj,0]*P[i,x[curpos]]*(1/P[i,j]-1))
+                                derivative_mat[i,j] = first*(QNR[si,0] + NR[sj,0]*P[i,x[curpos]]*(1/P[i,j]-1))
 
                     #    print derivative_mat[i,j]
                     #    print i,j,si,sj
@@ -113,9 +114,10 @@ def regml():
                     #        print tmp[i,j]
                     #        raise ValueError('NO')
 
-        dermat=np.transpose(derivative_mat)
-        b = b - eta * dermat
-        avg_b = ((t-1.0)/t)*avg_b + (1.0/t)*b
+            dermat=np.transpose(derivative_mat)
+            b = b - eta * dermat
+            avg_b = ((t-1)/t)*avg_b + (1/t)*b
+            print b
         t += 1
     return avg_b
 
@@ -141,4 +143,3 @@ def regml():
 #    for j in range(len(P)):
 
 newmat=regml()
-print PfromB(newmat)

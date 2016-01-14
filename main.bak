@@ -1,0 +1,126 @@
+import numpy as np
+import rw.rw as rw
+import math
+import random
+from datetime import datetime
+import networkx as nx
+#import graphviz
+import pygraphviz
+from itertools import *
+import random
+
+# https://docs.python.org/2/library/itertools.html
+def random_combination(iterable, r):
+    "Random selection from itertools.combinations(iterable, r)"
+    pool = tuple(iterable)
+    n = len(pool)
+    indices = sorted(random.sample(xrange(n), r))
+    return tuple(pool[i] for i in indices)
+
+allsubs=["S101","S102","S103","S104","S105","S106","S107","S108","S109","S110",
+         "S111","S112","S113","S114","S115","S116","S117","S118","S119","S120"]
+
+numnodes=30                           # number of nodes in graph
+numlinks=4                            # initial n/fivebeumber of edges per node (must be even)
+probRewire=.2                         # probability of re-wiring an edge
+numedges=numnodes*(numlinks/2)        # number of edges in graph
+numx=3
+trim=1
+
+theta=.5                # probability of hiding node when generating z from x (rho function)
+numgraphs=100
+maxlen=20               # no closed form, number of times to sum over
+jeff = 0.9
+numperseed=10
+edgestotweak=[1,1,1,2,3,4,5,6,7,8,9,10]
+numkeep=3
+beta=1.1             # for gamma distribution when generating IRTs from hidden nodes
+
+# record start time
+
+subj="S109"
+category="animals"
+starttime=str(datetime.now())
+
+Xs, items, irts, numnodes=rw.readX(subj,category)
+
+# gen candidate graphs
+#graphs=rw.genGraphs(numgraphs,theta,Xs,numnodes)
+graph=rw.noHidden(Xs,numnodes) # probably best starting graph
+
+# items in at least 2 lists
+# http://stackoverflow.com/q/2116286/353278
+overlap=reduce(set.union, (starmap(set.intersection, combinations(map(set, Xs), 2))))
+overlap=list(overlap)
+
+max_converge=500
+converge=0
+oldbestval=rw.probX(Xs,graph,numnodes,irts,jeff,beta)
+bestgraphs=[]
+log=[]
+change=1
+
+log.append(starttime)
+
+newgraph=np.copy(graph)
+
+numiter=0
+while change==1:
+    numiter = numiter + 1
+    random.shuffle(overlap)
+    combos = list(itertools.combinations(overlap,2))
+    if converge!=len(combos):
+        converge=0
+        for link in combos:
+            #link=random_combination(overlap, 2)
+            newgraph[link[0],link[1]] = 1 - newgraph[link[0],link[1]] 
+            newgraph[link[1],link[0]] = 1 - newgraph[link[1],link[0]] 
+            bestval=rw.probX(Xs,newgraph,numnodes,irts,jeff,beta)
+            log.append(bestval)
+            print oldbestval, bestval
+            if bestval < oldbestval:
+                converge += 1
+                newgraph[link[0],link[1]] = 1 - newgraph[link[0],link[1]] # change back is faster than making copy of graph
+                newgraph[link[1],link[0]] = 1 - newgraph[link[1],link[0]] 
+            else:
+                graph=np.copy(newgraph)
+                converge = 0
+                oldbestval = bestval
+    else:
+        change=0
+
+gs=[nx.to_networkx_graph(i) for i in bestgraphs]
+
+# record endtime
+endtime=str(datetime.now())
+log.append(endtime)
+
+for i, j in enumerate(gs):
+    nx.relabel_nodes(j, items, copy=False)
+    nx.write_dot(j,subj+"_"+str(i)+".dot")
+
+# write iterations and start/end time to log
+with open(subj+'_log.txt','w') as f:
+    for item in log:
+        print>>f, item
+
+# write lists to file
+with open(subj+'_lists.csv','w') as f:
+    for i, x in enumerate(Xs):
+        for item in x:
+            print>>f, str(i)+","+items[item]
+
+# items removed
+for i in np.argwhere(graph5-oldgraph==-1):
+    if i[0]>i[1]:   # skip duplicates
+        print items[i[0]],items[i[1]]
+
+# items added
+#for i in np.argwhere(graph5-oldgraph==1):
+#    if i[0]>i[1]:   # skip duplicates
+#        print items[i[0]],items[i[1]]
+
+
+# MATLAB BEAGLE example
+# [t,index]=ismember('ZEBU',BEAGLE_labels)
+# BEAGLE_sim(100,100)
