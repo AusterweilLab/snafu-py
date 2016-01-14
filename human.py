@@ -13,7 +13,7 @@ allsubs=["S101","S102","S103","S104","S105","S106","S107","S108","S109","S110",
          "S111","S112","S113","S114","S115","S116","S117","S118","S119","S120"]
 
 # free parameters
-jeff = 0.9           # 1-IRT weight
+jeff=0.9           # 1-IRT weight
 beta=1.1             # for gamma distribution when generating IRTs from hidden nodes
 
 subj="S111"
