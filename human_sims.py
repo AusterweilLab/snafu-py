@@ -4,7 +4,7 @@ import math
 import random
 from datetime import datetime
 import networkx as nx
-#import graphviz
+import graphviz
 import pygraphviz
 from itertools import *
 import random
@@ -16,7 +16,7 @@ allsubs=["S101","S102","S103","S104","S105","S106","S107","S108","S109","S110",
 jeff=0.9           # 1-IRT weight
 beta=1.1             # for gamma distribution when generating IRTs from hidden nodes
 
-subj="S111"
+subj="S110"
 category="animals"
 Xs, items, irts, numnodes=rw.readX(subj,category,'exp/results_cleaned.csv')
 
