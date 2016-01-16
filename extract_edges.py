@@ -15,7 +15,7 @@ types=['rw','invite','irt5','irt7','irt9']
 onezero={True: '1', False: '0'}
 
 # write edges from all graphs to file with no buffering
-path='humans'
+path='human_graphs/converge_1500'
 outfile='network_edges.csv'
 f=open(outfile,'w', 0)
 
