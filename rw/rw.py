@@ -107,7 +107,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
         numnodes=len(set(flatten_list(Xs)))
 
     #max_converge=numnodes*math.sqrt(numnodes) # number of alternative graphs to test that are not better than bestgraph before giving up
-    max_converge=500
+    max_converge=1500
     converge = 0        # when converge >= max_converge, declare the graph converged.
     itern=0 # tmp variable for debugging
 
