@@ -1,3 +1,5 @@
+## used to figure out approximate parameters for toy graphs from real-world data sets
+
 # morais data
 # node degree <k> = 2*(numedges/numnodes)
 
