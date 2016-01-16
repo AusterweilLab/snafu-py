@@ -107,7 +107,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
         numnodes=len(set(flatten_list(Xs)))
 
     #max_converge=numnodes*math.sqrt(numnodes) # number of alternative graphs to test that are not better than bestgraph before giving up
-    max_converge=500
+    max_converge=1500
     converge = 0        # when converge >= max_converge, declare the graph converged.
     itern=0 # tmp variable for debugging
 
@@ -489,7 +489,8 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
 
     numedges=numnodes*(numlinks/2)        # number of edges in graph    
     f=open(outfile,'a', 0)                # write/append to file with no buffering
-   
+    f.write('jeff,beta,numnodes,numlinks,probRewire,numedges,graph_seed,numx,trim,x_seed,cost_rw,cost_irts,cost_noirts,time_irts,time_noirts,bestgraph_irts,bestgraph_noirts,alter_graph,hit_irts,miss_irts,fa_irts,cr_irts,hit_noirts,miss_noirts,fa_noirts,cr_noirts,hit_rw,miss_rw,fa_rw,cr_rw,bestval_irts,bestval_noirts,bestval_rw\n')
+ 
     # cubersome... find a better solution
     cost_irts , time_irts , bestval_irts , bestgraph_irts , sdt_irts = [[] for i in range(5)]
     cost_noirts , time_noirts , bestval_noirts , bestgraph_noirts , sdt_noirts = [[] for i in range(5)]
