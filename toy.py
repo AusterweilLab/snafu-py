@@ -1,5 +1,7 @@
 import numpy as np
-import rw.rw as rw
+import sys
+sys.path.append('./rw')
+import rw
 import math
 import random
 from datetime import datetime
@@ -27,7 +29,7 @@ x_seed=65          # make sure same Xs are generated every time
 g,a=rw.genG(numnodes,numlinks,probRewire,seed=graph_seed)
 [Xs,steps]=zip(*[rw.genX(g, seed=x_seed+i,use_irts=1) for i in range(numx)])
 Xs=list(Xs)
-irts=list(irts)
+irts=list(steps)
 [Xs,alter_graph]=rw.trimX(trim,Xs,g)
 irts=rw.stepsToIRT(steps, beta, seed=x_seed) # TODO: also chop irts!
 

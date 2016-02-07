@@ -4,7 +4,7 @@ library(data.table)
 allsubs<-c("S101","S102","S103","S104","S105","S106","S107","S108","S109","S110","S111","S112","S113","S114","S115","S116","S117","S118","S119","S120")
 
 # human data
-humans<-fread('network_edges_1500.csv')
+humans<-fread('animals_1500.csv')
 setkey(humans,subj)
 
 # MATLAB files
@@ -13,6 +13,14 @@ beagle<-rawmat[5]$BEAGLE.sim
 lbls<-rawmat[4]$BEAGLE.labels
 lbls<-unlist(lbls)
 cats<-rawmat$BEAGLE.animalClassesIdxMatrix
+
+checkBeagle <- function(word1,word2) {
+    word1<-toupper(word1)
+    word2<-toupper(word2)
+    idx1<-match(word1,lbls)
+    idx2<-match(word2,lbls)
+    beagle[idx1,idx2]
+}
 
 # extract BEAGLE values and add to data table
 loadBEAGLEvals <- function() {
@@ -24,10 +32,8 @@ loadBEAGLEvals <- function() {
         idx2<-match(link2,lbls)
 
         if (is.na(idx1) | is.na(idx2)) {
-            #humans[i,beagle := "NA"]
             beaglevals<-c(beaglevals,NA)
         } else {
-            #humans[i,beagle := beagle[idx1,idx2]]
             beaglevals<-c(beaglevals,beagle[idx1,idx2])
         }
     }
@@ -81,7 +87,6 @@ catRand <- function() {
 }
 
 loadBEAGLEvals()
-humans<-humans[beagle!="NA"]
 beagleRand()
 humans[,beaglediff:=beagle-beaglerand]
 
@@ -89,14 +94,14 @@ sameCats()
 catRand()
 
 # BEAGLE test: INVITE vs IRT5
-t.test(humans[invite==0 & irt5==1,beaglediff]) # adds quality links!
-t.test(humans[invite==1 & irt5==0,beaglediff]) # removed quality links :(
-t.test(humans[invite==1 & irt5==0,beaglediff],humans[invite==0 & irt5==1,beaglediff]) # added links are better than removed links, but not significantly
+t.test(humans[invite==0 & irt5==1,mean(beaglediff,na.rm=T),by=subj][,V1])  # adds quality links!
+t.test(humans[invite==1 & irt5==0,mean(beaglediff,na.rm=T),by=subj][,V1])  # removes quality links :(
+t.test(humans[invite==1 & irt5==0,mean(beaglediff,na.rm=T),by=subj][,V1],humans[invite==0 & irt5==1,mean(beaglediff,na.rm=T),by=subj][,V1]) # added links are better than removed links, but not significantly
 
 # Troyer test: INVITE vs IRT5
-# same as BEAGLE, it adds good links but also removes good links
-t.test(humans[invite==0 & irt5==1,mean(mean(sharecat)-catrand),by=subj][,V1]) # not quite the right test...
-t.test(humans[invite==1 & irt5==0,mean(mean(sharecat)-catrand),by=subj][,V1])
+# IRT9 > INVITE > RW > IRT5
+# only significant test is EVERYTHING > IRT5
+t.test(humans[invite==1,mean(sharecat,na.rm=T),keyby=subj][,V1],humans[irt5==1,mean(sharecat,na.rm=T),keyby=subj][,V1],paired=T)
 
 
 

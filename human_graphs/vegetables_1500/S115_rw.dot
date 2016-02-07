@@ -1,0 +1,25 @@
+strict graph G {
+tomato;
+pepper;
+cauliflower;
+potato;
+onion;
+lettuce;
+carrot;
+broccoli;
+tomato -- lettuce  [weight=1];
+tomato -- pepper  [weight=1];
+tomato -- carrot  [weight=1];
+tomato -- broccoli  [weight=1];
+tomato -- onion  [weight=1];
+pepper -- onion  [weight=1];
+pepper -- potato  [weight=1];
+pepper -- broccoli  [weight=1];
+cauliflower -- broccoli  [weight=1];
+potato -- carrot  [weight=1];
+onion -- lettuce  [weight=1];
+onion -- carrot  [weight=1];
+lettuce -- carrot  [weight=1];
+lettuce -- broccoli  [weight=1];
+carrot -- broccoli  [weight=1];
+}
