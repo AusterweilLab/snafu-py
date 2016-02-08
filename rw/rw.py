@@ -107,8 +107,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
     if numnodes==0:         # unless specified (because Xs are trimmed and dont cover all nodes)
         numnodes=len(set(flatten_list(Xs)))
 
-    #max_converge=numnodes*math.sqrt(numnodes) # number of alternative graphs to test that are not better than bestgraph before giving up
-    max_converge=1500
+    max_converge=1500   # number of alternative graphs to test that are not better than bestgraph before giving up
     converge = 0        # when converge >= max_converge, declare the graph converged.
     itern=0 # tmp variable for debugging
 
@@ -116,10 +115,10 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
     graph=noHidden(Xs,numnodes)
   
     bestgraph=np.copy(graph)       # store copy of best graph
-    cur_graph=np.copy(graph)        # candidate graph for comparison
+    cur_graph=np.copy(graph)       # candidate graph for comparison
 
     best_ll=probX(Xs,bestgraph,numnodes,irts,jeff,beta)   # LL of best graph found
-    cur_ll=best_ll                                         # LL of current graph
+    cur_ll=best_ll                                        # LL of current graph
 
     # items in at least 2 lists. links between these nodes are more likely to affect P(G)
     # http://stackoverflow.com/q/2116286/353278
@@ -135,7 +134,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
                 link=random.choice(combos)
             else:                                    # sometimes choose a link at random
                 link=(0,0)
-                while link[0]==link[1]:
+                while link[0]==link[1]:              # avoid self-transitions
                     link=(int(math.floor(random.random()*numnodes)),int(math.floor(random.random()*numnodes)))
             links.append(link)
             if random.random() <= prob_multi:
@@ -192,24 +191,6 @@ def firstHits(walk):
 # helper function generate flast lists from nested lists
 def flatten_list(l):
     return [item for sublist in l for item in sublist]
-
-# DEPRECATED
-# generate numperseed graphs from each graph in seedgraphs by randomly flipping
-# X edges, where X is chosen randomly from list edgestotweak
-def genFromSeeds(seedgraphs,numperseed,edgestotweak):
-    graphs=seedgraphs[:]
-    for i in seedgraphs:
-        for j in range(numperseed):
-            new=np.copy(i)
-            for k in range(random.choice(edgestotweak)):
-                rand1=rand2=0
-                while (rand1 == rand2):                    # avoid linking a node to itself
-                    rand1=random.randint(0,len(i)-1)
-                    rand2=random.randint(0,len(i)-1)
-                new[rand1,rand2]=1-new[rand1,rand2]
-                new[rand2,rand1]=1-new[rand2,rand1]
-            graphs.append(new)
-    return graphs
 
 # generate a connected Watts-Strogatz small-world graph
 # (n,k,p) = (number of nodes, each node connected to k-nearest neighbors, probability of rewiring)
@@ -289,12 +270,13 @@ def graphSearch(graphs,numkeep,Xs,numnodes,jeff=0.5,irts=[],prior=0,beta=1,maxle
 
 # helper function converts binary adjacency matrix to base 36 string for easy storage in CSV
 # binary -> int -> base36
-def graphToHash(a):
+def graphToHash(a,numnodes):
     def baseN(num,b,numerals="0123456789abcdefghijklmnopqrstuvwxyz"):
         return ((num == 0) and numerals[0]) or (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
-    return baseN(int(''.join([str(i) for i in flatten_list(a)]),2), 36)
+    return str(numnodes) + '!' + baseN(int(''.join([str(i) for i in flatten_list(a)]),2), 36)
 
-def hashToGraph(graphhash, numnodes):
+def hashToGraph(graphhash):
+    numnodes, graphhash = graphhash.split('!')
     graphstring=bin(int(graphhash, 36))[2:]
     zeropad=numnodes**2-len(graphstring)
     graphstring=''.join(['0' for i in range(zeropad)]) + graphstring
@@ -351,30 +333,28 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
     
     for xnum, x in enumerate(Xs):
         prob=[]
+        
+        notinx=[]       # nodes not in trimmed X
+        for i in range(numnodes):
+            if i not in x:
+                notinx.append(i)
+        
         for curpos in range(1,len(x)):
-            Q=np.copy(t)
-
-            notinx=[]       # nodes not in trimmed X
-            for i in range(numnodes):
-                if i not in x:
-                    notinx.append(i)
-
             startindex=x[curpos-1]
             deletedlist=sorted(x[curpos:]+notinx,reverse=True)
             notdeleted=[i for i in range(numnodes) if i not in deletedlist]
-            for i in deletedlist:  # to form Q matrix
-                Q=np.delete(Q,i,0) # delete row
-                Q=np.delete(Q,i,1) # delete column
+            Q=np.delete(t,deletedlist,0) # make copy of t and delete rows
+            Q=np.delete(Q,deletedlist,1) # delete columns
                 
             if (len(irts) > 0) and (jeff < 1): # use this method only when passing IRTs with weight < 1
                 startindex = startindex-sum([startindex > i for i in deletedlist])
                 numcols=np.shape(Q)[1]
                 flist=[]
                 oldQ=np.copy(Q)
-                
+                Q=np.identity(len(oldQ)) # init to Q^0, for when r=1
                 irt=irts[xnum][curpos-1]
+
                 for r in range(1,maxlen):
-                    Q=np.linalg.matrix_power(oldQ,r-1)
                     sumlist=[]
                     for k in range(numcols):
                         num1=Q[k,startindex]                # probability of being at node k in r-1 steps
@@ -382,12 +362,14 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
                         sumlist.append(num1*num2)
                     innersum=sum(sumlist)                   # sum over all possible paths
                     
-                    gamma=math.log(scipy.stats.gamma.pdf(irt, r, scale=beta)) # r=alpha
+                    gamma=scipy.stats.gamma.pdf(irt, r, scale=beta) # r=alpha. probability of observing irt at r steps
 
-                    if innersum > 0: # double check w/ joe about this. math domain error without it
-                        flist.append(gamma*(1-jeff)+jeff*math.log(innersum))
+                    if innersum > 0: # sometimes it's not possible to get to the target node in r steps
+                        flist.append(math.log(gamma)*(1-jeff)+jeff*math.log(innersum))
+                    Q=np.dot(Q,oldQ)    # raise the power by one
+                
                 f=sum([math.e**i for i in flist])
-                prob.append(f)      # probability of x_(t-1) to X_t
+                prob.append(f)           # probability of x_(t-1) to X_t
             else:                        # if no IRTs, use standard INVITE
                 I=np.identity(len(Q))
                 reg=(1+1e-5)             # nuisance parameter to prevent errors
@@ -569,7 +551,7 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
                 data[method]['cost'].append(cost(bestgraph,a))
                 data[method]['time'].append(elapsedtime)
                 data[method]['bestval'].append(bestval)
-                data[method]['bestgraph'].append(graphToHash(bestgraph))
+                data[method]['bestgraph'].append(graphToHash(bestgraph,numnodes))
                 data[method]['hit'].append(hit)
                 data[method]['miss'].append(miss)
                 data[method]['fa'].append(fa)
