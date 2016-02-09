@@ -107,7 +107,6 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
     if numnodes==0:         # unless specified (because Xs are trimmed and dont cover all nodes)
         numnodes=len(set(flatten_list(Xs)))
 
-    tolerance=1500   # number of alternative graphs to test that are not better than bestgraph before giving up
     converge = 0        # when converge >= tolerance, declare the graph converged.
     itern=0 # tmp variable for debugging
 
