@@ -99,7 +99,7 @@ def expectedHidden(Xs, a, numnodes):
         expecteds.append(expected)        
     return expecteds
 
-def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
+def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
     # free parameters
     prob_overlap=.8     # probability a link connecting nodes in multiple graphs
     prob_multi=.8       # probability of selecting an additional link
@@ -107,8 +107,8 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
     if numnodes==0:         # unless specified (because Xs are trimmed and dont cover all nodes)
         numnodes=len(set(flatten_list(Xs)))
 
-    max_converge=1500   # number of alternative graphs to test that are not better than bestgraph before giving up
-    converge = 0        # when converge >= max_converge, declare the graph converged.
+    tolerance=1500   # number of alternative graphs to test that are not better than bestgraph before giving up
+    converge = 0        # when converge >= tolerance, declare the graph converged.
     itern=0 # tmp variable for debugging
 
     # find a good starting graph using naive RW
@@ -126,7 +126,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
     overlap=list(overlap)
     combos=list(combinations(overlap,2))    # all possible links btw overlapping nodes
 
-    while converge < max_converge:
+    while converge < tolerance:
         
         links=[]        # links to toggle in candidate graph
         while True:     # emulates do-while loop (ugly)
@@ -362,10 +362,11 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
                         sumlist.append(num1*num2)
                     innersum=sum(sumlist)                   # sum over all possible paths
                     
-                    gamma=scipy.stats.gamma.pdf(irt, r, scale=beta) # r=alpha. probability of observing irt at r steps
-
+                    # much faster than using scipy.stats.gamma.pdf
+                    log_gamma=r*math.log(beta)-math.lgamma(r)+(r-1)*math.log(irt)-beta*irt # r=alpha. probability of observing irt at r steps
+                    
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
-                        flist.append(math.log(gamma)*(1-jeff)+jeff*math.log(innersum))
+                        flist.append(log_gamma*(1-jeff)+jeff*math.log(innersum))
                     Q=np.dot(Q,oldQ)    # raise the power by one
                 
                 f=sum([math.e**i for i in flist])
@@ -466,11 +467,11 @@ def smallworld(a):
     return s
 
 # generates fake IRTs from # of steps in a random walk, using gamma distribution
-def stepsToIRT(irts, beta=1, seed=None):
-    np.random.seed(seed)
+def stepsToIRT(irts, beta=1.0, seed=None):
+    np.random.seed(seed)        # to generate the same IRTs each time
     new_irts=[]
     for irtlist in irts:
-        newlist=[np.random.gamma(irt, beta) for irt in irtlist]
+        newlist=[np.random.gamma(irt, (1.0/beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
         new_irts.append(newlist)
     return new_irts
 

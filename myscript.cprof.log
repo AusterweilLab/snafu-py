@@ -1,5 +1,5 @@
 events: Ticks
-summary: 84448
+summary: 9215
 fl=<decorator-gen-113>
 fn=_not_implemented_for
 1 0
@@ -44,7 +44,7 @@ calls=1 0
 cfl=/Library/Python/2.7/site-packages/scipy/optimize/__init__.py
 cfn=<module>
 calls=1 159
-5 9
+5 7
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=find_module
 calls=4 184
@@ -84,7 +84,7 @@ calls=1 1187
 cfl=/Library/Python/2.7/site-packages/scipy/integrate/__init__.py
 cfn=<module>
 calls=1 48
-5 16
+5 14
 
 fl=/Library/Python/2.7/site-packages/matplotlib/axis.py
 fn=Axis
@@ -361,12 +361,12 @@ cfn=__new__
 calls=1 5838
 21 0
 cfl=/Library/Python/2.7/site-packages/numpy/ma/core.py
-cfn=_frommethod
-calls=1 6053
-21 0
-cfl=/Library/Python/2.7/site-packages/numpy/ma/core.py
 cfn=__init__
 calls=8 7290
+21 0
+cfl=/Library/Python/2.7/site-packages/numpy/ma/core.py
+cfn=_frommethod
+calls=1 6053
 21 0
 cfl=/Library/Python/2.7/site-packages/numpy/ma/core.py
 cfn=_DomainSafeDivide
@@ -493,7 +493,7 @@ calls=4 366
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=_parseNoCache
 calls=8 957
-2764 0
+2764 1
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=__iadd__
 calls=4 486
@@ -603,7 +603,7 @@ fn=validate_float
 103 0
 
 fn=<method 'splitlines' of 'str' objects>
-0 9
+0 8
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/posixpath.py
 fn=abspath
@@ -670,7 +670,7 @@ calls=1 224
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/random.py
 fn=choice
-272 5
+272 3
 cfn=<len>
 calls=1731 0
 272 0
@@ -753,7 +753,7 @@ calls=1 318
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/urlparse.py
 cfn=<module>
 calls=1 29
-7 1
+7 2
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/mimetools.py
 cfn=<module>
 calls=1 1
@@ -859,7 +859,7 @@ calls=1 497
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/random.py
 cfn=<module>
 calls=1 40
-18 1
+18 2
 
 fl=/Library/Python/2.7/site-packages/matplotlib/stackplot.py
 fn=<module>
@@ -1181,7 +1181,7 @@ calls=1 17
 
 fl=/Library/Python/2.7/site-packages/matplotlib/artist.py
 fn=_get_setters_and_targets
-957 3
+957 2
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/inspect.py
 cfn=getargspec
 calls=470 803
@@ -1238,10 +1238,6 @@ cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threa
 cfn=_Verbose
 calls=1 56
 1 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py
-cfn=_BoundedSemaphore
-calls=1 514
-1 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/warnings.py
 cfn=filterwarnings
 calls=1 45
@@ -1264,6 +1260,10 @@ calls=1 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py
 cfn=_DummyThread
 calls=1 1126
+1 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py
+cfn=_BoundedSemaphore
+calls=1 514
 1 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py
 cfn=_Event
@@ -1378,7 +1378,7 @@ calls=4 80
 
 fl=/Library/Python/2.7/site-packages/matplotlib/mathtext.py
 fn=<module>
-19 2
+19 1
 cfl=/Library/Python/2.7/site-packages/matplotlib/mathtext.py
 cfn=Vbox
 calls=1 1262
@@ -1638,7 +1638,7 @@ calls=1 52
 cfl=/Library/Python/2.7/site-packages/scipy/sparse/linalg/matfuncs.py
 cfn=<module>
 calls=1 3
-105 5
+105 3
 cfl=/Library/Python/2.7/site-packages/numpy/testing/nosetester.py
 cfn=__init__
 calls=2 181
@@ -1746,7 +1746,7 @@ fn=<module>
 1 0
 
 fn=<numpy.core.multiarray.copyto>
-0 126
+0 100
 
 fl=/Library/Python/2.7/site-packages/six.py
 fn=__init__
@@ -1778,7 +1778,7 @@ calls=1 184
 cfl=/Library/Python/2.7/site-packages/matplotlib/axes/_subplots.py
 cfn=<module>
 calls=1 1
-1 26
+1 22
 
 fl=/Library/Python/2.7/site-packages/matplotlib/mathtext.py
 fn=Box
@@ -1826,7 +1826,7 @@ fn=<module>
 cfl=/Library/Python/2.7/site-packages/scipy/special/__init__.py
 cfn=<module>
 calls=1 542
-38 3
+38 2
 cfl=/Library/Python/2.7/site-packages/scipy/misc/pilutil.py
 cfn=<module>
 calls=1 7
@@ -1850,7 +1850,7 @@ fn=_resolve
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=_import_module
 calls=5 80
-114 12
+114 10
 
 fl=/Library/Python/2.7/site-packages/networkx/release.py
 fn=<module>
@@ -1924,7 +1924,7 @@ calls=2 2813
 cfl=/Library/Python/2.7/site-packages/numpy/core/machar.py
 cfn=_do_init
 calls=2 113
-97 21
+97 22
 cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 cfn=__init__
 calls=2 2809
@@ -1983,7 +1983,7 @@ fn=powerlaw_gen
 
 fl=/Library/Python/2.7/site-packages/numpy/core/fromnumeric.py
 fn=shape
-1462 331
+1462 14
 
 fl=<decorator-gen-181>
 fn=_not_implemented_for
@@ -2038,18 +2038,15 @@ fl=/Library/Python/2.7/site-packages/decorator.py
 fn=FunctionMaker
 84 0
 
-fn=<method 'take' of 'numpy.ndarray' objects>
-0 2002
-
 fl=/Library/Python/2.7/site-packages/scipy/misc/doccer.py
 fn=docformat
-12 27
+12 26
 cfn=<method 'splitlines' of 'str' objects>
 calls=6159 0
 12 8
 cfn=<method 'expandtabs' of 'str' objects>
 calls=6159 0
-12 12
+12 11
 cfn=<len>
 calls=205 0
 12 0
@@ -2217,7 +2214,7 @@ calls=1035 142
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/inspect.py
 cfn=getargs
 calls=1035 743
-803 6
+803 5
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/inspect.py
 cfn=ismethod
 calls=1035 67
@@ -2316,7 +2313,7 @@ calls=74 89
 cfn=<method 'items' of 'dict' objects>
 calls=18 0
 86 0
-cfn=<built-in method __new__ of type object at 0x103b21328>
+cfn=<built-in method __new__ of type object at 0x10b889328>
 calls=18 0
 86 0
 cfn=<method 'add' of 'set' objects>
@@ -2329,7 +2326,7 @@ fn=__init__
 
 fl=/Library/Python/2.7/site-packages/scipy/integrate/_ode.py
 fn=<module>
-39 2
+39 1
 cfl=/Library/Python/2.7/site-packages/scipy/integrate/_ode.py
 cfn=ode
 calls=1 103
@@ -2440,7 +2437,7 @@ calls=1 1
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/doctest.py
 cfn=<module>
 calls=1 46
-3 8
+3 7
 
 fl=/Library/Python/2.7/site-packages/networkx/readwrite/leda.py
 fn=<module>
@@ -2508,7 +2505,7 @@ calls=1 2607
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_distn_infrastructure.py
 cfn=__init__
 calls=86 1395
-5 86
+5 82
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 cfn=powernorm_gen
 calls=1 3430
@@ -2558,6 +2555,10 @@ cfn=lognorm_gen
 calls=1 2692
 5 0
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
+cfn=wald_gen
+calls=1 3945
+5 0
+cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 cfn=rdist_gen
 calls=1 3461
 5 0
@@ -2596,10 +2597,6 @@ calls=1 566
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 cfn=halfcauchy_gen
 calls=1 2017
-5 0
-cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
-cfn=truncnorm_gen
-calls=1 3772
 5 0
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 cfn=alpha_gen
@@ -2680,6 +2677,10 @@ calls=1 3183
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 cfn=gumbel_r_gen
 calls=1 1928
+5 0
+cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
+cfn=truncnorm_gen
+calls=1 3772
 5 0
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 cfn=fisk_gen
@@ -2800,10 +2801,6 @@ calls=1 57
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 cfn=genextreme_gen
 calls=1 1496
-5 0
-cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
-cfn=wald_gen
-calls=1 3945
 5 0
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 cfn=wrapcauchy_gen
@@ -3102,7 +3099,7 @@ calls=1 1
 cfl=/Library/Python/2.7/site-packages/networkx/utils/misc.py
 cfn=<module>
 calls=1 10
-1 5
+1 4
 cfl=/Library/Python/2.7/site-packages/networkx/utils/heaps.py
 cfn=<module>
 calls=1 3
@@ -3110,7 +3107,7 @@ calls=1 3
 cfl=/Library/Python/2.7/site-packages/networkx/utils/decorators.py
 cfn=<module>
 calls=1 1
-1 20
+1 24
 cfl=/Library/Python/2.7/site-packages/networkx/utils/union_find.py
 cfn=<module>
 calls=1 3
@@ -3188,9 +3185,13 @@ fl=/Library/Python/2.7/site-packages/matplotlib/mathtext.py
 fn=SubSuperCluster
 1809 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py
-fn=_BoundedSemaphore
-514 0
+fl=<decorator-gen-3>
+fn=_not_implemented_for
+1 0
+cfl=/Library/Python/2.7/site-packages/decorator.py
+cfn=decorate
+calls=1 224
+1 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/socket.py
 fn=_closedsocket
@@ -3321,7 +3322,7 @@ fn=<module>
 
 fl=/Library/Python/2.7/site-packages/numpy/polynomial/polynomial.py
 fn=<module>
-55 1
+55 0
 cfl=/Library/Python/2.7/site-packages/numpy/polynomial/_polybase.py
 cfn=<module>
 calls=1 8
@@ -3480,6 +3481,24 @@ fl=/Library/Python/2.7/site-packages/matplotlib/ticker.py
 fn=LinearLocator
 1075 0
 
+fl=./rw/rw.py
+fn=trimX
+577 0
+cfn=<round>
+calls=1 0
+577 0
+cfl=./rw/rw.py
+cfn=flatten_list
+calls=10 192
+577 0
+cfn=<range>
+calls=1 0
+577 0
+cfl=/Library/Python/2.7/site-packages/networkx/classes/graph.py
+cfn=number_of_nodes
+calls=1 587
+577 0
+
 fl=/Library/Python/2.7/site-packages/networkx/algorithms/distance_measures.py
 fn=<module>
 4 0
@@ -3595,7 +3614,7 @@ calls=1 44
 45 0
 
 fn=<isinstance>
-0 191
+0 64
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/abc.py
 cfn=__instancecheck__
 calls=41 128
@@ -3607,10 +3626,6 @@ fn=StringVar
 
 fn=<method 'write' of 'file' objects>
 0 0
-
-fl=<string>
-fn=_parse_args
-2 152
 
 fl=<decorator-gen-156>
 fn=<module>
@@ -3654,8 +3669,8 @@ cfn=<isinstance>
 calls=1 0
 290 0
 
-fl=<string>
-fn=DecimalTuple
+fl=<decorator-gen-36>
+fn=<module>
 1 0
 
 fn=<fcntl.fcntl>
@@ -3722,7 +3737,7 @@ calls=1 188
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/inspect.py
 cfn=<module>
 calls=1 25
-33 18
+33 22
 cfl=/Library/Python/2.7/site-packages/decorator.py
 cfn=ContextManager
 calls=1 282
@@ -3830,11 +3845,11 @@ fn=__init__
 cfl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
 cfn=__init__
 calls=344 1644
-1395 1
+1395 0
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_distn_infrastructure.py
 cfn=_construct_argparser
 calls=86 615
-1395 15
+1395 14
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_distn_infrastructure.py
 cfn=__init__
 calls=86 607
@@ -3842,7 +3857,7 @@ calls=86 607
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_distn_infrastructure.py
 cfn=_construct_doc
 calls=86 691
-1395 66
+1395 62
 cfn=<method 'get' of 'dict' objects>
 calls=86 0
 1395 0
@@ -3896,7 +3911,7 @@ fn=<module>
 cfl=/Library/Python/2.7/site-packages/scipy/linalg/blas.py
 cfn=<module>
 calls=1 133
-1 5
+1 2
 
 fl=/Library/Python/2.7/site-packages/matplotlib/mathtext.py
 fn=MathTextParser
@@ -3930,7 +3945,7 @@ calls=7 148
 177 0
 
 fn=<method 'expandtabs' of 'str' objects>
-0 12
+0 11
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/ctypes/__init__.py
 fn=c_ubyte
@@ -4093,7 +4108,7 @@ calls=1 1103
 cfl=/Library/Python/2.7/site-packages/dateutil/rrule.py
 cfn=<module>
 calls=1 7
-111 2
+111 1
 cfl=/Library/Python/2.7/site-packages/matplotlib/dates.py
 cfn=MonthLocator
 calls=1 1043
@@ -4344,7 +4359,7 @@ calls=1373 0
 
 fl=/Library/Python/2.7/site-packages/numpy/lib/npyio.py
 fn=<module>
-1 3
+1 0
 cfl=/Library/Python/2.7/site-packages/numpy/lib/npyio.py
 cfn=NpzFile
 calls=1 133
@@ -4368,10 +4383,10 @@ calls=1 136
 
 fl=/Library/Python/2.7/site-packages/numpy/core/_methods.py
 fn=_any
-37 241
+37 0
 cfn=<method 'reduce' of 'numpy.ufunc' objects>
-calls=521750 0
-37 2526
+calls=2024 0
+37 6
 
 fl=<decorator-gen-50>
 fn=<module>
@@ -4412,18 +4427,18 @@ fn=NoseTester
 
 fl=./rw/rw.py
 fn=findBestGraph
-102 27
+102 19
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/random.py
 cfn=choice
 calls=1596 272
-102 6
+102 3
 cfl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
 cfn=copy
 calls=16 837
 102 0
 cfn=<method 'random' of '_random.Random' objects>
 calls=4888 0
-102 1
+102 0
 cfn=<method 'append' of 'list' objects>
 calls=2000 0
 102 0
@@ -4443,7 +4458,7 @@ calls=1 0
 cfl=./rw/rw.py
 cfn=probX
 calls=1623 330
-102 83810
+102 8667
 
 fl=/Library/Python/2.7/site-packages/matplotlib/mathtext.py
 fn=Filll
@@ -4638,19 +4653,8 @@ fl=/Library/Python/2.7/site-packages/matplotlib/text.py
 fn=TextWithDash
 1011 0
 
-fl=/Library/Python/2.7/site-packages/numpy/core/fromnumeric.py
-fn=ravel
-1291 2237
-cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
-cfn=asarray
-calls=3118356 394
-1291 4456
-cfn=<method 'ravel' of 'numpy.ndarray' objects>
-calls=3118356 0
-1291 1221
-
 fn=<numpy.core.multiarray.array>
-0 8327
+0 254
 
 fl=/Library/Python/2.7/site-packages/numpy/ma/core.py
 fn=__init__
@@ -4726,7 +4730,7 @@ calls=7 0
 cfl=/Library/Python/2.7/site-packages/scipy/lib/six.py
 cfn=exec_
 calls=7 209
-1488 1
+1488 0
 cfn=<method 'update' of 'dict' objects>
 calls=7 0
 1488 0
@@ -4946,7 +4950,7 @@ fn=rc_params
 cfl=/Library/Python/2.7/site-packages/matplotlib/__init__.py
 cfn=rc_params_from_file
 calls=1 1055
-943 4
+943 3
 cfl=/Library/Python/2.7/site-packages/matplotlib/__init__.py
 cfn=matplotlib_fname
 calls=1 724
@@ -5008,10 +5012,10 @@ fn=Container
 
 fl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
 fn=copy
-837 26
+837 20
 cfn=<numpy.core.multiarray.array>
 calls=27370 0
-837 82
+837 65
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/urllib2.py
 fn=OpenerDirector
@@ -5038,7 +5042,7 @@ fn=Dvi
 43 0
 
 fn=<numpy.core.multiarray.empty>
-0 127
+0 104
 
 fl=/Library/Python/2.7/site-packages/matplotlib/backends/__init__.py
 fn=<module>
@@ -5067,7 +5071,7 @@ fn=NonIntersectingPathException
 17 0
 
 fn=<len>
-0 293
+0 13
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=__len__
 calls=1 62
@@ -5198,7 +5202,7 @@ calls=30 127
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_parse.py
 cfn=getwidth
 calls=90 141
-362 3
+362 4
 
 fl=<decorator-gen-53>
 fn=_open_file
@@ -5396,13 +5400,13 @@ fn=TransformedBbox
 
 fl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 fn=ones
-141 74
+141 56
 cfn=<numpy.core.multiarray.copyto>
 calls=54709 0
-141 126
+141 100
 cfn=<numpy.core.multiarray.empty>
 calls=54709 0
-141 127
+141 104
 
 fn=<_hashlib.openssl_md5>
 0 0
@@ -5433,7 +5437,7 @@ calls=1 184
 cfl=/Library/Python/2.7/site-packages/matplotlib/artist.py
 cfn=kwdoc
 calls=1 1322
-4 2
+4 1
 cfl=/Library/Python/2.7/site-packages/matplotlib/docstring.py
 cfn=update
 calls=1 48
@@ -5484,7 +5488,7 @@ calls=3 184
 cfl=/Library/Python/2.7/site-packages/scipy/stats/distributions.py
 cfn=<module>
 calls=1 8
-166 131
+166 122
 
 fl=/Library/Python/2.7/site-packages/numpy/polynomial/laguerre.py
 fn=Laguerre
@@ -5523,7 +5527,7 @@ calls=1 166
 cfl=/Library/Python/2.7/site-packages/matplotlib/cm.py
 cfn=_reverse_cmap_spec
 calls=72 51
-6 0
+6 1
 cfl=/Library/Python/2.7/site-packages/matplotlib/__init__.py
 cfn=__getitem__
 calls=1 871
@@ -5531,7 +5535,7 @@ calls=1 871
 cfl=/Library/Python/2.7/site-packages/matplotlib/cm.py
 cfn=_generate_cmap
 calls=144 64
-6 1
+6 2
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=find_module
 calls=1 184
@@ -5944,14 +5948,14 @@ fn=DeprecatedImport
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_compile.py
 fn=_compile
-33 4
+33 5
 cfn=<len>
 calls=1790 0
 33 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_compile.py
 cfn=_compile
 calls=667 33
-33 15
+33 18
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_parse.py
 cfn=__getitem__
 calls=1721 131
@@ -5962,7 +5966,7 @@ calls=4686 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_compile.py
 cfn=_compile_charset
 calls=246 179
-33 9
+33 11
 cfn=<_sre.getlower>
 calls=114 0
 33 0
@@ -5980,10 +5984,10 @@ calls=11 0
 
 fl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 fn=asanyarray
-464 1401
+464 1
 cfn=<numpy.core.multiarray.array>
-calls=2080933 0
-464 1946
+calls=2029 0
+464 1
 
 fl=<decorator-gen-133>
 fn=_not_implemented_for
@@ -6091,7 +6095,7 @@ calls=6 200
 
 fl=/Library/Python/2.7/site-packages/numpy/lib/__init__.py
 fn=<module>
-1 11
+1 2
 cfl=/Library/Python/2.7/site-packages/numpy/lib/arrayterator.py
 cfn=<module>
 calls=1 9
@@ -6099,7 +6103,7 @@ calls=1 9
 cfl=/Library/Python/2.7/site-packages/numpy/lib/npyio.py
 cfn=<module>
 calls=1 1
-1 3
+1 1
 cfl=/Library/Python/2.7/site-packages/numpy/lib/shape_base.py
 cfn=<module>
 calls=1 1
@@ -6115,15 +6119,15 @@ calls=1 7
 cfl=/Library/Python/2.7/site-packages/numpy/lib/index_tricks.py
 cfn=<module>
 calls=1 1
-1 6
+1 2
 cfl=/Library/Python/2.7/site-packages/numpy/lib/type_check.py
 cfn=<module>
 calls=1 3
-1 60
+1 44
 cfl=/Library/Python/2.7/site-packages/numpy/lib/polynomial.py
 cfn=<module>
 calls=1 4
-1 2
+1 1
 cfl=/Library/Python/2.7/site-packages/numpy/lib/info.py
 cfn=<module>
 calls=1 147
@@ -6285,27 +6289,12 @@ cfn=<posix.listdir>
 calls=1 0
 113 0
 
-fl=./rw/rw.py
-fn=trimX
-575 0
-cfn=<round>
-calls=1 0
-575 0
-cfl=./rw/rw.py
-cfn=flatten_list
-calls=10 192
-575 0
-cfn=<range>
-calls=1 0
-575 0
-cfl=/Library/Python/2.7/site-packages/networkx/classes/graph.py
-cfn=number_of_nodes
-calls=1 587
-575 0
-
 fl=/Library/Python/2.7/site-packages/matplotlib/backends/backend_agg.py
 fn=FigureCanvasAgg
 440 0
+
+fn=<method 'search' of '_sre.SRE_Pattern' objects>
+0 2
 
 fl=/Library/Python/2.7/site-packages/networkx/convert.py
 fn=<module>
@@ -6374,7 +6363,7 @@ fn=<module>
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/ctypes/__init__.py
 cfn=<module>
 calls=1 4
-51 2
+51 1
 cfl=/Library/Python/2.7/site-packages/numpy/lib/utils.py
 cfn=deprecate
 calls=1 113
@@ -6404,7 +6393,7 @@ calls=1 0
 
 fl=/Library/Python/2.7/site-packages/numpy/testing/__init__.py
 fn=<module>
-7 2
+7 0
 cfl=/Library/Python/2.7/site-packages/numpy/testing/decorators.py
 cfn=<module>
 calls=1 15
@@ -6412,19 +6401,44 @@ calls=1 15
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/__init__.py
 cfn=<module>
 calls=1 45
-7 9
+7 5
 cfl=/Library/Python/2.7/site-packages/numpy/testing/utils.py
 cfn=<module>
 calls=1 4
-7 7
+7 9
 cfl=/Library/Python/2.7/site-packages/numpy/testing/nosetester.py
 cfn=__init__
 calls=1 181
 7 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk/Tkinter.py
-fn=Menu
-2633 0
+fl=./rw/rw.py
+fn=random_walk
+435 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/random.py
+cfn=choice
+calls=104 272
+435 0
+cfn=<len>
+calls=104 0
+435 0
+cfl=/Library/Python/2.7/site-packages/networkx/classes/function.py
+cfn=all_neighbors
+calls=101 436
+435 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/random.py
+cfn=seed
+calls=3 100
+435 0
+cfn=<method 'append' of 'list' objects>
+calls=101 0
+435 0
+cfl=/Library/Python/2.7/site-packages/networkx/classes/function.py
+cfn=nodes
+calls=6 26
+435 0
+cfn=<method 'remove' of 'set' objects>
+calls=30 0
+435 0
 
 fl=<decorator-gen-155>
 fn=_not_implemented_for
@@ -6478,7 +6492,7 @@ calls=1 598
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/httplib.py
 fn=<module>
-67 1
+67 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/httplib.py
 cfn=HTTPResponse
 calls=1 325
@@ -6777,10 +6791,10 @@ fn=LineEnd
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_parse.py
 fn=__getitem__
-131 1
+131 2
 cfn=<isinstance>
 calls=3116 0
-131 0
+131 1
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_parse.py
 cfn=__init__
 calls=313 91
@@ -7050,7 +7064,7 @@ calls=5 0
 cfl=/Library/Python/2.7/site-packages/matplotlib/cm.py
 cfn=revcmap
 calls=67 34
-51 0
+51 1
 
 fl=/Library/Python/2.7/site-packages/matplotlib/ticker.py
 fn=Formatter
@@ -7343,13 +7357,6 @@ cfn=__iter__
 calls=495 59
 94 0
 
-fl=/Library/Python/2.7/site-packages/numpy/core/fromnumeric.py
-fn=nonzero
-1380 830
-cfn=<method 'nonzero' of 'numpy.ndarray' objects>
-calls=1559178 0
-1380 1092
-
 fl=/Library/Python/2.7/site-packages/scipy/sparse/base.py
 fn=todense
 575 0
@@ -7619,7 +7626,7 @@ calls=1 8
 cfl=/Library/Python/2.7/site-packages/matplotlib/dates.py
 cfn=<module>
 calls=1 111
-1 5
+1 3
 cfl=/Library/Python/2.7/site-packages/matplotlib/quiver.py
 cfn=<module>
 calls=1 15
@@ -7639,7 +7646,7 @@ calls=8 184
 cfl=/Library/Python/2.7/site-packages/matplotlib/tri/__init__.py
 cfn=<module>
 calls=1 3
-1 3
+1 2
 cfl=/Library/Python/2.7/site-packages/matplotlib/axes/_axes.py
 cfn=Axes
 calls=1 52
@@ -7655,7 +7662,7 @@ calls=1 1
 cfl=/Library/Python/2.7/site-packages/matplotlib/legend.py
 cfn=<module>
 calls=1 23
-1 2
+1 1
 
 fl=/Library/Python/2.7/site-packages/matplotlib/legend_handler.py
 fn=HandlerRegularPolyCollection
@@ -7787,7 +7794,7 @@ calls=1 224
 
 fl=/Library/Python/2.7/site-packages/numpy/__init__.py
 fn=<module>
-106 4
+106 2
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/warnings.py
 cfn=filterwarnings
 calls=2 45
@@ -7798,7 +7805,7 @@ calls=5 0
 cfl=/Library/Python/2.7/site-packages/numpy/ctypeslib.py
 cfn=<module>
 calls=1 51
-106 3
+106 2
 cfl=/Library/Python/2.7/site-packages/numpy/__init__.py
 cfn=ModuleDeprecationWarning
 calls=1 112
@@ -7810,7 +7817,7 @@ calls=1 3
 cfl=/Library/Python/2.7/site-packages/numpy/fft/__init__.py
 cfn=<module>
 calls=1 1
-106 2
+106 0
 cfl=/Library/Python/2.7/site-packages/numpy/_import_tools.py
 cfn=<module>
 calls=1 1
@@ -7826,15 +7833,15 @@ calls=1 124
 cfl=/Library/Python/2.7/site-packages/numpy/add_newdocs.py
 cfn=<module>
 calls=1 10
-106 86
-cfl=/Library/Python/2.7/site-packages/numpy/polynomial/__init__.py
-cfn=<module>
-calls=1 15
-106 9
+106 53
 cfl=/Library/Python/2.7/site-packages/numpy/ma/__init__.py
 cfn=<module>
 calls=1 38
-106 5
+106 3
+cfl=/Library/Python/2.7/site-packages/numpy/polynomial/__init__.py
+cfn=<module>
+calls=1 15
+106 2
 cfl=/Library/Python/2.7/site-packages/numpy/__config__.py
 cfn=<module>
 calls=1 3
@@ -7846,7 +7853,7 @@ calls=2 181
 cfl=/Library/Python/2.7/site-packages/numpy/random/__init__.py
 cfn=<module>
 calls=1 88
-106 7
+106 6
 
 fl=/Library/Python/2.7/site-packages/matplotlib/ticker.py
 fn=OldAutoLocator
@@ -7909,7 +7916,7 @@ fn=AGraph
 
 fl=/Library/Python/2.7/site-packages/networkx/readwrite/gml.py
 fn=<module>
-26 1
+26 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/cgi.py
 cfn=<module>
 calls=1 7
@@ -8002,7 +8009,7 @@ calls=1 5
 
 fl=/Library/Python/2.7/site-packages/pygraphviz/graphviz.py
 fn=<module>
-7 1
+7 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/new.py
 cfn=<module>
 calls=1 5
@@ -8060,7 +8067,7 @@ fn=DrawingArea
 
 fl=/Library/Python/2.7/site-packages/scipy/linalg/blas.py
 fn=<module>
-133 5
+133 2
 cfl=/Library/Python/2.7/site-packages/scipy/lib/_util.py
 cfn=<module>
 calls=1 1
@@ -8448,7 +8455,7 @@ calls=16 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/re.py
 cfn=compile
 calls=16 188
-1812 5
+1812 6
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=__init__
 calls=16 1540
@@ -8812,7 +8819,7 @@ calls=1 2605
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=__init__
 calls=11 1812
-58 4
+58 5
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=setName
 calls=2 840
@@ -8912,10 +8919,6 @@ cfn=Suppress
 calls=1 3072
 58 0
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
-cfn=setName
-calls=12 1543
-58 0
-cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=Dict
 calls=1 3038
 58 0
@@ -8926,6 +8929,10 @@ calls=1 2339
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=White
 calls=1 2045
+58 0
+cfl=/Library/Python/2.7/site-packages/pyparsing.py
+cfn=Each
+calls=1 2521
 58 0
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=ParseBaseException
@@ -9024,6 +9031,10 @@ cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=__init__
 calls=2 3031
 58 0
+cfl=/Library/Python/2.7/site-packages/pyparsing.py
+cfn=setName
+calls=12 1543
+58 0
 cfn=<method 'startswith' of 'str' objects>
 calls=1 0
 58 0
@@ -9036,10 +9047,6 @@ cfn=Word
 calls=1 1683
 58 0
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
-cfn=Each
-calls=1 2521
-58 0
-cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=__init__
 calls=5 1695
 58 1
@@ -9050,7 +9057,7 @@ calls=1 2723
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=srange
 calls=2 3359
-58 1
+58 2
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=__init__
 calls=1 2164
@@ -9143,21 +9150,9 @@ fn=BarContainer
 fn=<method 'iteritems' of 'dict' objects>
 0 0
 
-fl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
-fn=extract
-1400 2993
-cfl=/Library/Python/2.7/site-packages/numpy/core/fromnumeric.py
-cfn=ravel
-calls=3118356 1291
-1400 7916
-cfl=/Library/Python/2.7/site-packages/numpy/core/fromnumeric.py
-cfn=nonzero
-calls=1559178 1380
-1400 1923
-cfl=/Library/Python/2.7/site-packages/numpy/core/fromnumeric.py
-cfn=take
-calls=1559178 53
-1400 2816
+fl=/Library/Python/2.7/site-packages/numpy/random/info.py
+fn=<module>
+84 0
 
 fl=/Library/Python/2.7/site-packages/matplotlib/backend_bases.py
 fn=IdleEvent
@@ -9347,7 +9342,7 @@ fn=c_long
 
 fl=/Library/Python/2.7/site-packages/numpy/core/machar.py
 fn=_do_init
-113 6
+113 7
 cfl=/Library/Python/2.7/site-packages/numpy/core/getlimits.py
 cfn=<lambda>
 calls=10 150
@@ -9411,7 +9406,7 @@ fn=DocTestParser
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/re.py
 cfn=compile
 calls=5 188
-549 3
+549 4
 
 fl=<decorator-gen-72>
 fn=<module>
@@ -9488,7 +9483,7 @@ fn=validate_int
 111 0
 
 fn=<numpy.core._dotblas.dot>
-0 1345
+0 750
 
 fl=/Library/Python/2.7/site-packages/scipy/stats/_discrete_distns.py
 fn=hypergeom_gen
@@ -9526,25 +9521,6 @@ cfn=SparseWarning
 calls=1 16
 1 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/linecache.py
-fn=updatecache
-68 0
-cfn=<method 'endswith' of 'str' objects>
-calls=1 0
-68 0
-cfn=<posix.stat>
-calls=1 0
-68 0
-cfn=<open>
-calls=1 0
-68 0
-cfn=<method 'startswith' of 'str' objects>
-calls=1 0
-68 0
-cfn=<method 'readlines' of 'file' objects>
-calls=1 0
-68 0
-
 fl=/Library/Python/2.7/site-packages/matplotlib/transforms.py
 fn=Affine2DBase
 1605 0
@@ -9575,7 +9551,7 @@ fn=_SixMetaPathImporter
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/copy_reg.py
 fn=_reconstructor
 46 0
-cfn=<built-in method __new__ of type object at 0x103b21328>
+cfn=<built-in method __new__ of type object at 0x10b889328>
 calls=451 0
 46 0
 
@@ -9610,7 +9586,7 @@ calls=1 303
 18 0
 cfn=<__import__>
 calls=1 0
-18 16
+18 13
 cfn=<locals>
 calls=1 0
 18 0
@@ -9704,14 +9680,6 @@ cfn=expanduser
 calls=1 258
 98 0
 
-fl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
-fn=_pdf
-1656 817
-cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
-cfn=_logpdf
-calls=519726 1659
-1656 4432
-
 fl=/Library/Python/2.7/site-packages/matplotlib/backend_bases.py
 fn=DrawEvent
 1314 0
@@ -9773,7 +9741,7 @@ calls=1 224
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/subprocess.py
 fn=<module>
-389 1
+389 0
 cfn=<getattr>
 calls=1 0
 389 0
@@ -9796,12 +9764,9 @@ cfn=CalledProcessError
 calls=1 402
 389 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/ctypes/macholib/dyld.py
-fn=dyld_executable_path_search
-96 0
-cfn=<method 'startswith' of 'str' objects>
-calls=4 0
-96 0
+fl=<string>
+fn=Attribute
+1 0
 
 fn=<max>
 0 0
@@ -9811,7 +9776,7 @@ calls=198 663
 0 0
 
 fn=<numpy.core.multiarray.can_cast>
-0 39
+0 34
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/httplib.py
 fn=HTTPS
@@ -9921,7 +9886,7 @@ calls=939 127
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_parse.py
 cfn=_parse_sub
 calls=213 302
-380 14
+380 15
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_parse.py
 cfn=get
 calls=5091 202
@@ -9968,7 +9933,7 @@ calls=1 15
 cfl=/Library/Python/2.7/site-packages/scipy/linalg/lapack.py
 cfn=<module>
 calls=1 201
-7 1
+7 0
 
 fl=/Library/Python/2.7/site-packages/matplotlib/fontconfig_pattern.py
 fn=_families
@@ -10012,7 +9977,7 @@ calls=1 113
 cfl=/Library/Python/2.7/site-packages/matplotlib/axes/__init__.py
 cfn=<module>
 calls=1 1
-12 26
+12 22
 cfl=/Library/Python/2.7/site-packages/matplotlib/image.py
 cfn=<module>
 calls=1 5
@@ -10073,7 +10038,7 @@ fn=__init__
 
 fl=/Library/Python/2.7/site-packages/numpy/fft/__init__.py
 fn=<module>
-1 2
+1 0
 cfl=/Library/Python/2.7/site-packages/numpy/fft/helper.py
 cfn=<module>
 calls=1 4
@@ -10107,8 +10072,9 @@ cfn=compile
 calls=1 188
 63 0
 
-fn=<method 'nonzero' of 'numpy.ndarray' objects>
-0 1092
+fl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
+fn=wald_gen
+3945 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/tempfile.py
 fn=_set_cloexec
@@ -10204,21 +10170,6 @@ cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/warni
 cfn=formatwarning
 calls=1 36
 24 0
-
-fl=/Library/Python/2.7/site-packages/scipy/stats/_distn_infrastructure.py
-fn=argsreduce
-547 7936
-cfn=<isinstance>
-calls=519726 0
-547 110
-cfl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
-cfn=extract
-calls=1559178 1400
-547 15649
-cfl=/Library/Python/2.7/site-packages/numpy/core/shape_base.py
-cfn=atleast_1d
-calls=519726 8
-547 8519
 
 fn=<posix.fdopen>
 0 0
@@ -10463,7 +10414,7 @@ calls=152 0
 cfl=/Library/Python/2.7/site-packages/scipy/lib/six.py
 cfn=exec_
 calls=99 209
-615 13
+615 12
 
 fl=/Library/Python/2.7/site-packages/networkx/generators/random_graphs.py
 fn=connected_watts_strogatz_graph
@@ -10669,7 +10620,7 @@ calls=1 54
 cfl=/Library/Python/2.7/site-packages/pygraphviz/graphviz.py
 cfn=<module>
 calls=1 7
-5 1
+5 0
 cfl=/Library/Python/2.7/site-packages/pygraphviz/agraph.py
 cfn=PipeReader
 calls=1 32
@@ -10739,9 +10690,9 @@ fl=/Library/Python/2.7/site-packages/matplotlib/colorbar.py
 fn=ColorbarBase
 218 0
 
-fl=/Library/Python/2.7/site-packages/numpy/ma/core.py
-fn=_frommethod
-6053 0
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/mimetools.py
+fn=Message
+20 0
 
 fl=./rw/rw.py
 fn=flatten_list
@@ -10854,7 +10805,7 @@ fn=<module>
 15 0
 
 fn=<math.log>
-0 266
+0 260
 
 fl=/Library/Python/2.7/site-packages/matplotlib/rcsetup.py
 fn=validate_fonttype
@@ -10965,7 +10916,7 @@ fn=<method 'split' of 'str' objects>
 
 fl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 fn=<module>
-1 18
+1 16
 cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 cfn=extend_all
 calls=3 351
@@ -11017,7 +10968,7 @@ calls=1 2747
 cfl=/Library/Python/2.7/site-packages/numpy/core/arrayprint.py
 cfn=<module>
 calls=1 5
-1 1
+1 0
 cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 cfn=_unspecified
 calls=1 2743
@@ -11162,20 +11113,17 @@ fn=__Full
 
 fl=/Library/Python/2.7/site-packages/numpy/core/shape_base.py
 fn=atleast_1d
-8 2851
+8 0
 cfn=<len>
-calls=2078912 0
-8 277
+calls=8 0
+8 0
 cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 cfn=asanyarray
-calls=1559182 464
-8 2300
-cfn=<method 'reshape' of 'numpy.ndarray' objects>
-calls=1559178 0
-8 2825
+calls=4 464
+8 0
 cfn=<method 'append' of 'list' objects>
-calls=1559182 0
-8 264
+calls=4 0
+8 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk/Tkinter.py
 fn=YView
@@ -11251,7 +11199,7 @@ calls=1 44
 
 fl=/Library/Python/2.7/site-packages/matplotlib/__init__.py
 fn=_rc_params_in_file
-988 1
+988 0
 cfn=<len>
 calls=95 0
 988 0
@@ -11297,11 +11245,11 @@ fn=_import_module
 80 0
 cfn=<__import__>
 calls=9 0
-80 12
+80 10
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/fractions.py
 fn=<module>
-4 1
+4 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/abc.py
 cfn=__new__
 calls=1 86
@@ -11319,8 +11267,24 @@ cfn=Fraction
 calls=1 44
 4 0
 
-fn=<method 'reshape' of 'numpy.ndarray' objects>
-0 2825
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/linecache.py
+fn=updatecache
+68 0
+cfn=<method 'endswith' of 'str' objects>
+calls=1 0
+68 0
+cfn=<posix.stat>
+calls=1 0
+68 0
+cfn=<open>
+calls=1 0
+68 0
+cfn=<method 'startswith' of 'str' objects>
+calls=1 0
+68 0
+cfn=<method 'readlines' of 'file' objects>
+calls=1 0
+68 0
 
 fl=<decorator-gen-138>
 fn=<module>
@@ -11458,7 +11422,7 @@ fn=AitoffTransform
 
 fl=/Library/Python/2.7/site-packages/matplotlib/artist.py
 fn=<module>
-1 0
+1 1
 cfl=/Library/Python/2.7/site-packages/matplotlib/artist.py
 cfn=ArtistInspector
 calls=1 877
@@ -11466,7 +11430,7 @@ calls=1 877
 cfl=/Library/Python/2.7/site-packages/matplotlib/transforms.py
 cfn=<module>
 calls=1 30
-1 2
+1 1
 cfl=/Library/Python/2.7/site-packages/matplotlib/docstring.py
 cfn=<module>
 calls=1 1
@@ -11536,7 +11500,7 @@ calls=2 2697
 
 fl=/Library/Python/2.7/site-packages/matplotlib/tri/triangulation.py
 fn=<module>
-1 1
+1 0
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=find_module
 calls=2 184
@@ -11553,17 +11517,6 @@ fn=SparseFormatWarning
 fl=/Library/Python/2.7/site-packages/matplotlib/mlab.py
 fn=FormatDate
 3133 0
-
-fn=<built-in method __new__ of type object at 0x103b21328>
-0 1
-
-fl=/Library/Python/2.7/site-packages/scipy/stats/_distn_infrastructure.py
-fn=_argcheck
-758 2728
-cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
-cfn=asarray
-calls=519726 394
-758 597
 
 fl=<decorator-gen-80>
 fn=<module>
@@ -11614,10 +11567,10 @@ fn=__len__
 
 fl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 fn=asarray
-394 3558
+394 64
 cfn=<numpy.core.multiarray.array>
-calls=6346164 0
-394 6298
+calls=109452 0
+394 187
 
 fl=/Library/Python/2.7/site-packages/pyparsing.py
 fn=__ilshift__
@@ -11637,7 +11590,7 @@ calls=1 3
 cfl=/Library/Python/2.7/site-packages/scipy/optimize/_root.py
 cfn=<module>
 calls=1 7
-159 3
+159 2
 cfn=<dir>
 calls=1 0
 159 0
@@ -11664,7 +11617,7 @@ calls=2 181
 cfl=/Library/Python/2.7/site-packages/scipy/optimize/_minimize.py
 cfn=<module>
 calls=1 8
-159 3
+159 2
 cfn=<method 'startswith' of 'str' objects>
 calls=78 0
 159 0
@@ -11676,6 +11629,9 @@ fn=<lambda>
 fl=/Library/Python/2.7/site-packages/pyparsing.py
 fn=<genexpr>
 2353 0
+
+fn=<function seed at 0x10c077578>
+0 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/main.py
 fn=TestProgram
@@ -11729,15 +11685,15 @@ calls=402 0
 cfn=<getattr>
 calls=409 0
 929 0
+cfn=<method 'search' of '_sre.SRE_Pattern' objects>
+calls=402 0
+929 2
 cfn=<method 'replace' of 'unicode' objects>
 calls=312 0
 929 0
 cfn=<hasattr>
 calls=409 0
 929 0
-cfn=<method 'search' of '_sre.SRE_Pattern' objects>
-calls=402 0
-929 2
 cfn=<method 'group' of '_sre.SRE_Match' objects>
 calls=312 0
 929 0
@@ -11882,6 +11838,10 @@ cfn=LibError
 calls=1 79
 9 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/distutils/errors.py
+cfn=UnknownFileError
+calls=1 87
+9 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/distutils/errors.py
 cfn=DistutilsClassError
 calls=1 20
 9 0
@@ -11896,10 +11856,6 @@ calls=1 76
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/distutils/errors.py
 cfn=DistutilsPlatformError
 calls=1 50
-9 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/distutils/errors.py
-cfn=UnknownFileError
-calls=1 87
 9 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/distutils/errors.py
 cfn=DistutilsGetoptError
@@ -11931,16 +11887,16 @@ calls=9 0
 fl=/Library/Python/2.7/site-packages/numpy/core/getlimits.py
 fn=__new__
 93 0
-cfn=<built-in method __new__ of type object at 0x103b21328>
+cfn=<method 'append' of 'list' objects>
 calls=2 0
 93 0
-cfn=<method 'append' of 'list' objects>
+cfn=<built-in method __new__ of type object at 0x10b889328>
 calls=2 0
 93 0
 cfl=/Library/Python/2.7/site-packages/numpy/core/getlimits.py
 cfn=_init
 calls=2 126
-93 21
+93 22
 cfn=<issubclass>
 calls=4 0
 93 0
@@ -11965,7 +11921,7 @@ calls=1 0
 cfl=/Library/Python/2.7/site-packages/scipy/sparse/linalg/isolve/iterative.py
 cfn=<module>
 calls=1 1
-1 3
+1 2
 cfl=/Library/Python/2.7/site-packages/scipy/sparse/linalg/isolve/lsmr.py
 cfn=<module>
 calls=1 17
@@ -12029,7 +11985,7 @@ calls=90 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_compile.py
 cfn=_code
 calls=90 481
-496 22
+496 25
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_compile.py
 cfn=isstring
 calls=90 475
@@ -12037,7 +11993,7 @@ calls=90 475
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_parse.py
 cfn=parse
 calls=90 676
-496 23
+496 25
 
 fl=/Library/Python/2.7/site-packages/numpy/core/defchararray.py
 fn=chararray
@@ -12100,6 +12056,10 @@ calls=1 113
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/mimetools.py
 fn=<module>
 1 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/mimetools.py
+cfn=Message
+calls=1 20
+1 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/rfc822.py
 cfn=<module>
 calls=1 71
@@ -12118,10 +12078,6 @@ calls=1 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/warnings.py
 cfn=warnpy3k
 calls=1 14
-1 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/mimetools.py
-cfn=Message
-calls=1 20
 1 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/warnings.py
 cfn=__enter__
@@ -12220,7 +12176,7 @@ calls=1 3
 cfl=/Library/Python/2.7/site-packages/matplotlib/tri/triangulation.py
 cfn=<module>
 calls=1 1
-3 1
+3 0
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=find_module
 calls=8 184
@@ -12463,7 +12419,7 @@ calls=1 5
 cfl=/Library/Python/2.7/site-packages/scipy/linalg/misc.py
 cfn=<module>
 calls=1 1
-153 5
+153 3
 cfl=/Library/Python/2.7/site-packages/numpy/dual.py
 cfn=register_func
 calls=12 52
@@ -12474,11 +12430,11 @@ calls=1 0
 cfl=/Library/Python/2.7/site-packages/scipy/linalg/basic.py
 cfn=<module>
 calls=1 7
-153 2
+153 1
 cfl=/Library/Python/2.7/site-packages/scipy/linalg/decomp_schur.py
 cfn=<module>
 calls=1 1
-153 21
+153 23
 cfl=/Library/Python/2.7/site-packages/scipy/linalg/decomp_lu.py
 cfn=<module>
 calls=1 1
@@ -12527,18 +12483,18 @@ fn=<module>
 cfl=/Library/Python/2.7/site-packages/numpy/__init__.py
 cfn=<module>
 calls=1 106
-1 120
+1 71
 cfn=<method 'append' of 'list' objects>
 calls=1 0
 1 0
 cfl=./rw/rw.py
 cfn=<module>
 calls=1 3
-1 472
+1 442
 cfl=./rw/rw.py
 cfn=toyBatch
-calls=1 478
-1 83849
+calls=1 480
+1 8695
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py
 fn=_note
@@ -12565,11 +12521,11 @@ fn=seed
 cfn=<posix.urandom>
 calls=2 0
 100 0
+cfn=<function seed at 0x10c077578>
+calls=6 0
+100 0
 cfn=<binascii.hexlify>
 calls=2 0
-100 0
-cfn=<function seed at 0x10430b578>
-calls=6 0
 100 0
 
 fl=/Library/Python/2.7/site-packages/networkx/algorithms/bipartite/__init__.py
@@ -12629,7 +12585,7 @@ calls=100 0
 cfl=/Library/Python/2.7/site-packages/decorator.py
 cfn=make
 calls=199 168
-201 12
+201 13
 cfn=<method 'join' of 'str' objects>
 calls=199 0
 201 0
@@ -12670,7 +12626,7 @@ calls=11 871
 cfl=/Library/Python/2.7/site-packages/matplotlib/artist.py
 cfn=pprint_setters
 calls=11 1036
-1322 15
+1322 14
 cfn=<method 'join' of 'unicode' objects>
 calls=11 0
 1322 0
@@ -12692,7 +12648,7 @@ fn=RClass
 352 0
 
 fn=<range>
-0 482
+0 277
 
 fl=/Library/Python/2.7/site-packages/matplotlib/rcsetup.py
 fn=validate_color
@@ -12824,7 +12780,7 @@ fn=<module>
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/fractions.py
 cfn=<module>
 calls=1 4
-2 8
+2 7
 cfn=<method 'join' of 'str' objects>
 calls=1 0
 2 0
@@ -12896,7 +12852,7 @@ fn=<module>
 1 0
 
 fn=<method 'random' of '_random.Random' objects>
-0 1
+0 0
 
 fl=<decorator-gen-137>
 fn=<module>
@@ -12917,7 +12873,7 @@ calls=12 0
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=_parseNoCache
 calls=14 957
-1084 3
+1084 4
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=streamline
 calls=2 2292
@@ -12952,7 +12908,7 @@ fn=__init__
 
 fl=/Library/Python/2.7/site-packages/scipy/__init__.py
 fn=<module>
-65 1
+65 0
 cfl=/Library/Python/2.7/site-packages/scipy/lib/_version.py
 cfn=__init__
 calls=1 55
@@ -13173,7 +13129,7 @@ fn=__exit__
 
 fl=/Library/Python/2.7/site-packages/numpy/lib/index_tricks.py
 fn=<module>
-1 1
+1 0
 cfl=/Library/Python/2.7/site-packages/numpy/lib/index_tricks.py
 cfn=nd_grid
 calls=1 87
@@ -13181,7 +13137,7 @@ calls=1 87
 cfl=/Library/Python/2.7/site-packages/numpy/matrixlib/__init__.py
 cfn=<module>
 calls=1 3
-1 1
+1 0
 cfl=/Library/Python/2.7/site-packages/numpy/lib/index_tricks.py
 cfn=CClass
 calls=1 452
@@ -13209,7 +13165,7 @@ calls=1 603
 cfl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
 cfn=<module>
 calls=1 1
-1 2
+1 1
 cfl=/Library/Python/2.7/site-packages/numpy/lib/index_tricks.py
 cfn=ndenumerate
 calls=1 475
@@ -13334,11 +13290,11 @@ fn=pprint_setters
 cfl=/Library/Python/2.7/site-packages/matplotlib/artist.py
 cfn=_get_setters_and_targets
 calls=11 957
-1036 10
+1036 9
 cfl=/Library/Python/2.7/site-packages/matplotlib/artist.py
 cfn=get_valid_values
 calls=409 929
-1036 4
+1036 3
 cfn=<method 'append' of 'list' objects>
 calls=409 0
 1036 0
@@ -13373,7 +13329,7 @@ fn=UniformTriRefiner
 51 0
 
 fn=<numpy.core.multiarray.zeros>
-0 522
+0 36
 
 fl=/Library/Python/2.7/site-packages/matplotlib/ticker.py
 fn=_DummyAxis
@@ -13426,10 +13382,6 @@ cfl=<string>
 cfn=ArgInfo
 calls=1 1
 1 0
-cfl=<string>
-cfn=DecimalTuple
-calls=1 1
-1 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/xml/etree/ElementTree.py
 cfn=<module>
 calls=1 59
@@ -13440,6 +13392,10 @@ calls=1 1
 1 0
 cfl=<string>
 cfn=Mismatch
+calls=1 1
+1 0
+cfl=<string>
+cfn=Attribute
 calls=1 1
 1 0
 cfl=<string>
@@ -13478,7 +13434,7 @@ cfn=PIProxy
 calls=1 112
 1 0
 cfl=<string>
-cfn=Attribute
+cfn=DecimalTuple
 calls=1 1
 1 0
 cfl=<string>
@@ -13853,6 +13809,19 @@ cfn=__iter__
 calls=1 242
 1799 0
 
+fl=./rw/rw.py
+fn=stepsToIRT
+471 0
+cfn=<method 'gamma' of 'mtrand.RandomState' objects>
+calls=18 0
+471 0
+cfn=<method 'seed' of 'mtrand.RandomState' objects>
+calls=1 0
+471 0
+cfn=<method 'append' of 'list' objects>
+calls=3 0
+471 0
+
 fl=<decorator-gen-186>
 fn=<module>
 1 0
@@ -13962,7 +13931,7 @@ calls=1 3
 cfl=/Library/Python/2.7/site-packages/networkx/linalg/algebraicconnectivity.py
 cfn=<module>
 calls=1 4
-1 57
+1 50
 
 fl=./rw/rw.py
 fn=genX
@@ -13974,16 +13943,16 @@ calls=3 314
 cfn=<len>
 calls=3 0
 219 0
+cfl=./rw/rw.py
+cfn=random_walk
+calls=3 435
+219 0
 cfn=<range>
 calls=3 0
 219 0
 cfl=./rw/rw.py
 cfn=firstHits
 calls=3 184
-219 0
-cfl=./rw/rw.py
-cfn=random_walk
-calls=3 433
 219 0
 cfn=<zip>
 calls=3 0
@@ -14022,7 +13991,7 @@ fn=PipeReader
 32 0
 
 fn=<method 'append' of 'list' objects>
-0 734
+0 321
 
 fl=/Library/Python/2.7/site-packages/scipy/stats/kde.py
 fn=gaussian_kde
@@ -14089,7 +14058,7 @@ calls=23 52
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_compile.py
 cfn=_optimize_charset
 calls=254 208
-179 9
+179 10
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_compile.py
 cfn=_identityfunction
 calls=215 25
@@ -14221,6 +14190,10 @@ cfn=<method 'endswith' of 'str' objects>
 calls=199 0
 168 0
 cfl=<decorator-gen-156>
+cfn=<module>
+calls=1 1
+168 0
+cfl=<decorator-gen-36>
 cfn=<module>
 calls=1 1
 168 0
@@ -14653,10 +14626,6 @@ cfl=<decorator-gen-158>
 cfn=<module>
 calls=1 1
 168 0
-cfl=<decorator-gen-36>
-cfn=<module>
-calls=1 1
-168 0
 cfl=<decorator-gen-146>
 cfn=<module>
 calls=1 1
@@ -14756,11 +14725,11 @@ cfl=<decorator-gen-33>
 cfn=<module>
 calls=1 1
 168 0
-cfl=<decorator-gen-14>
+cfl=<decorator-gen-109>
 cfn=<module>
 calls=1 1
 168 0
-cfl=<decorator-gen-109>
+cfl=<decorator-gen-14>
 cfn=<module>
 calls=1 1
 168 0
@@ -14952,7 +14921,7 @@ calls=1 103
 
 fl=/Library/Python/2.7/site-packages/networkx/generators/__init__.py
 fn=<module>
-4 1
+4 2
 cfl=/Library/Python/2.7/site-packages/networkx/generators/hybrid.py
 cfn=<module>
 calls=1 4
@@ -14960,7 +14929,7 @@ calls=1 4
 cfl=/Library/Python/2.7/site-packages/networkx/generators/geometric.py
 cfn=<module>
 calls=1 4
-4 0
+4 1
 cfl=/Library/Python/2.7/site-packages/networkx/generators/random_clustered.py
 cfn=<module>
 calls=1 3
@@ -14993,6 +14962,10 @@ cfl=/Library/Python/2.7/site-packages/networkx/generators/directed.py
 cfn=<module>
 calls=1 9
 4 0
+cfl=/Library/Python/2.7/site-packages/networkx/generators/random_graphs.py
+cfn=<module>
+calls=1 5
+4 0
 cfl=/Library/Python/2.7/site-packages/networkx/generators/small.py
 cfn=<module>
 calls=1 5
@@ -15012,10 +14985,6 @@ calls=1 3
 cfl=/Library/Python/2.7/site-packages/networkx/generators/community.py
 cfn=<module>
 calls=1 1
-4 0
-cfl=/Library/Python/2.7/site-packages/networkx/generators/random_graphs.py
-cfn=<module>
-calls=1 5
 4 0
 
 fl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
@@ -15116,9 +15085,9 @@ cfn=<method 'match' of '_sre.SRE_Pattern' objects>
 calls=42 0
 231 0
 
-fl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
-fn=truncnorm_gen
-3772 0
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk/Tkinter.py
+fn=Menu
+2633 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_parse.py
 fn=isident
@@ -15169,10 +15138,10 @@ calls=1 1
 
 fl=/Library/Python/2.7/site-packages/numpy/core/_methods.py
 fn=_all
-40 55
+40 47
 cfn=<method 'reduce' of 'numpy.ufunc' objects>
 calls=109430 0
-40 499
+40 410
 
 fl=/Library/Python/2.7/site-packages/matplotlib/projections/geo.py
 fn=LambertAxes
@@ -15317,7 +15286,7 @@ fn=HandlerPathCollection
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/urllib.py
 fn=<module>
-23 2
+23 1
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/urllib.py
 cfn=addbase
 calls=1 946
@@ -15371,7 +15340,7 @@ calls=191 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/socket.py
 cfn=<module>
 calls=1 45
-23 2
+23 1
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/ssl.py
 cfn=<module>
 calls=1 56
@@ -15573,6 +15542,10 @@ fl=/Library/Python/2.7/site-packages/matplotlib/scale.py
 fn=NaturalLogTransform
 172 0
 
+fl=/Library/Python/2.7/site-packages/numpy/ma/core.py
+fn=_frommethod
+6053 0
+
 fl=<decorator-gen-67>
 fn=_not_implemented_for
 1 0
@@ -15622,7 +15595,7 @@ fn=<module>
 cfl=/Library/Python/2.7/site-packages/numpy/core/getlimits.py
 cfn=__new__
 calls=2 93
-1 21
+1 23
 
 fl=/Library/Python/2.7/site-packages/matplotlib/patches.py
 fn=_Base
@@ -15638,10 +15611,10 @@ calls=54 84
 
 fl=/Library/Python/2.7/site-packages/numpy/lib/twodim_base.py
 fn=eye
-190 149
+190 102
 cfn=<numpy.core.multiarray.zeros>
 calls=27355 0
-190 45
+190 36
 
 fl=/Library/Python/2.7/site-packages/numpy/lib/type_check.py
 fn=<module>
@@ -15653,7 +15626,7 @@ calls=1 5
 cfl=/Library/Python/2.7/site-packages/numpy/core/__init__.py
 cfn=<module>
 calls=1 1
-3 59
+3 43
 
 fl=/Library/Python/2.7/site-packages/scipy/optimize/zeros.py
 fn=<module>
@@ -15773,7 +15746,7 @@ calls=1 1554
 cfl=/Library/Python/2.7/site-packages/matplotlib/cm.py
 cfn=<module>
 calls=1 6
-10 3
+10 4
 cfl=/Library/Python/2.7/site-packages/matplotlib/collections.py
 cfn=AsteriskPolygonCollection
 calls=1 947
@@ -15817,7 +15790,7 @@ calls=12 48
 cfl=/Library/Python/2.7/site-packages/matplotlib/backend_bases.py
 cfn=<module>
 calls=1 28
-10 39
+10 33
 cfl=/Library/Python/2.7/site-packages/matplotlib/collections.py
 cfn=Collection
 calls=1 33
@@ -15879,24 +15852,24 @@ calls=1 224
 
 fl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
 fn=delete
-3427 1492
+3427 1115
 cfn=<isinstance>
 calls=109416 0
-3427 78
+3427 61
 cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 cfn=ones
 calls=54708 141
-3427 329
+3427 261
 cfn=<numpy.core.multiarray.can_cast>
 calls=54708 0
-3427 39
+3427 34
 cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 cfn=asarray
 calls=109416 394
-3427 308
+3427 251
 cfn=<method 'all' of 'numpy.ndarray' objects>
 calls=109416 0
-3427 633
+3427 516
 
 fl=/Library/Python/2.7/site-packages/matplotlib/mathtext.py
 fn=UnicodeFonts
@@ -16071,7 +16044,7 @@ calls=1 5
 cfl=/Library/Python/2.7/site-packages/pygraphviz/tests/__init__.py
 cfn=<module>
 calls=1 1
-19 10
+19 9
 cfl=/Library/Python/2.7/site-packages/pygraphviz/version.py
 cfn=<module>
 calls=1 6
@@ -16193,7 +16166,7 @@ calls=4 159
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=_resolve
 calls=5 114
-91 12
+91 10
 cfn=<setattr>
 calls=9 0
 91 0
@@ -16376,7 +16349,7 @@ calls=65 0
 23 0
 cfn=<map>
 calls=1 0
-23 13
+23 16
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/tokenize.py
 cfn=maybe
 calls=2 46
@@ -16787,7 +16760,7 @@ fn=<posix.getpid>
 
 fl=/Library/Python/2.7/site-packages/matplotlib/contour.py
 fn=<module>
-4 2
+4 1
 cfl=/Library/Python/2.7/site-packages/matplotlib/contour.py
 cfn=ContourLabeler
 calls=1 56
@@ -16864,13 +16837,6 @@ cfl=/Library/Python/2.7/site-packages/decorator.py
 cfn=decorate
 calls=1 224
 1 0
-
-fl=/Library/Python/2.7/site-packages/numpy/core/fromnumeric.py
-fn=take
-53 813
-cfn=<method 'take' of 'numpy.ndarray' objects>
-calls=1559178 0
-53 2002
 
 fn=<method '__subclasses__' of 'type' objects>
 0 0
@@ -16970,7 +16936,7 @@ calls=1 0
 952 0
 cfn=<cPickle.load>
 calls=1 0
-952 16
+952 12
 
 fl=<decorator-gen-47>
 fn=<module>
@@ -16985,7 +16951,7 @@ fn=Wm
 1519 0
 
 fn=<method 'ravel' of 'numpy.ndarray' objects>
-0 1221
+0 0
 
 fl=/Library/Python/2.7/site-packages/matplotlib/projections/polar.py
 fn=InvertedPolarTransform
@@ -17079,35 +17045,6 @@ fl=/Library/Python/2.7/site-packages/decorator.py
 fn=<lambda>
 115 0
 
-fl=./rw/rw.py
-fn=random_walk
-433 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/random.py
-cfn=choice
-calls=104 272
-433 0
-cfn=<len>
-calls=104 0
-433 0
-cfl=/Library/Python/2.7/site-packages/networkx/classes/function.py
-cfn=all_neighbors
-calls=101 436
-433 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/random.py
-cfn=seed
-calls=3 100
-433 0
-cfn=<method 'append' of 'list' objects>
-calls=101 0
-433 0
-cfl=/Library/Python/2.7/site-packages/networkx/classes/function.py
-cfn=nodes
-calls=6 26
-433 0
-cfn=<method 'remove' of 'set' objects>
-calls=30 0
-433 0
-
 fl=/Library/Python/2.7/site-packages/matplotlib/widgets.py
 fn=<module>
 10 2
@@ -17118,7 +17055,7 @@ calls=1 123
 cfl=/Library/Python/2.7/site-packages/matplotlib/lines.py
 cfn=<module>
 calls=1 4
-10 3
+10 2
 cfl=/Library/Python/2.7/site-packages/matplotlib/widgets.py
 cfn=Slider
 calls=1 249
@@ -17182,7 +17119,7 @@ calls=1 1692
 cfl=/Library/Python/2.7/site-packages/matplotlib/mlab.py
 cfn=<module>
 calls=1 176
-10 2
+10 1
 
 fl=/Library/Python/2.7/site-packages/networkx/classes/graph.py
 fn=<module>
@@ -17269,7 +17206,7 @@ fn=AutoWidthChar
 
 fl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
 fn=<module>
-1 2
+1 0
 cfl=/Library/Python/2.7/site-packages/numpy/lib/twodim_base.py
 cfn=<module>
 calls=1 3
@@ -17292,7 +17229,7 @@ fn=OneOrMore
 2762 0
 
 fn=<method 'reduce' of 'numpy.ufunc' objects>
-0 3026
+0 416
 
 fl=/Library/Python/2.7/site-packages/networkx/convert_matrix.py
 fn=<genexpr>
@@ -17337,7 +17274,7 @@ fn=<module>
 cfl=/Library/Python/2.7/site-packages/numpy/lib/__init__.py
 cfn=<module>
 calls=1 1
-10 84
+10 51
 cfl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
 cfn=add_newdoc
 calls=274 3251
@@ -17580,7 +17517,7 @@ fn=c_ulong
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/__init__.py
 fn=<module>
-45 2
+45 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/suite.py
 cfn=<module>
 calls=1 1
@@ -17599,7 +17536,7 @@ calls=1 1
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/case.py
 cfn=<module>
 calls=1 1
-45 3
+45 1
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/result.py
 cfn=<module>
 calls=1 1
@@ -17703,7 +17640,7 @@ fn=AbstractDigestAuthHandler
 
 fl=/Library/Python/2.7/site-packages/networkx/classes/__init__.py
 fn=<module>
-1 0
+1 1
 cfl=/Library/Python/2.7/site-packages/networkx/classes/function.py
 cfn=<module>
 calls=1 2
@@ -17778,7 +17715,7 @@ fn=<module>
 cfl=/Library/Python/2.7/site-packages/decorator.py
 cfn=<module>
 calls=1 33
-1 20
+1 23
 
 fn=<thread.allocate_lock>
 0 0
@@ -17824,7 +17761,7 @@ fn=__init__
 cfl=/Library/Python/2.7/site-packages/matplotlib/__init__.py
 cfn=__setitem__
 calls=400 851
-840 4
+840 3
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=iteritems
 calls=8 598
@@ -17906,11 +17843,11 @@ fn=_code
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_compile.py
 cfn=_compile_info
 calls=90 362
-481 4
+481 5
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_compile.py
 cfn=_compile
 calls=90 33
-481 17
+481 20
 cfn=<method 'append' of 'list' objects>
 calls=90 0
 481 0
@@ -17996,9 +17933,8 @@ cfn=__init__
 calls=6 263
 118 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/random.py
-fn=Random
-72 0
+fn=<built-in method __new__ of type object at 0x10b889328>
+0 1
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py
 fn=__init__
@@ -18048,7 +17984,7 @@ fn=compile
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/re.py
 cfn=_compile
 calls=86 226
-188 47
+188 51
 
 fl=/Library/Python/2.7/site-packages/matplotlib/ticker.py
 fn=IndexFormatter
@@ -18136,7 +18072,7 @@ fn=<module>
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/tempfile.py
 cfn=<module>
 calls=1 18
-4 3
+4 4
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/contextlib.py
 cfn=contextmanager
 calls=1 54
@@ -18363,9 +18299,48 @@ cfn=bitname
 calls=26 233
 305 0
 
-fl=/Library/Python/2.7/site-packages/numpy/core/records.py
-fn=format_parser
-84 0
+fl=/Library/Python/2.7/site-packages/networkx/readwrite/graphml.py
+fn=<module>
+36 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/xml/__init__.py
+cfn=<module>
+calls=1 17
+36 0
+cfl=<decorator-gen-53>
+cfn=_open_file
+calls=1 1
+36 0
+cfl=/Library/Python/2.7/site-packages/networkx/readwrite/graphml.py
+cfn=GraphMLWriter
+calls=1 232
+36 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/xml/etree/__init__.py
+cfn=<module>
+calls=1 1
+36 0
+cfl=/Library/Python/2.7/site-packages/networkx/readwrite/graphml.py
+cfn=GraphML
+calls=1 199
+36 0
+cfl=/Library/Python/2.7/site-packages/networkx/readwrite/graphml.py
+cfn=GraphMLReader
+calls=1 384
+36 0
+cfn=<method 'join' of 'str' objects>
+calls=1 0
+36 0
+cfl=/Library/Python/2.7/site-packages/networkx/utils/decorators.py
+cfn=open_file
+calls=2 88
+36 0
+cfl=<decorator-gen-51>
+cfn=_open_file
+calls=1 1
+36 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/xml/etree/cElementTree.py
+cfn=<module>
+calls=1 3
+36 3
 
 fl=/Library/Python/2.7/site-packages/matplotlib/mathtext.py
 fn=NegFil
@@ -18377,6 +18352,19 @@ fn=__init__
 cfn=<len>
 calls=3 0
 4 0
+
+fl=./rw/rw.py
+fn=walk_from_path
+589 0
+cfn=<len>
+calls=3 0
+589 0
+cfn=<range>
+calls=3 0
+589 0
+cfn=<method 'append' of 'list' objects>
+calls=18 0
+589 0
 
 fl=/Library/Python/2.7/site-packages/networkx/algorithms/operators/all.py
 fn=<module>
@@ -18418,7 +18406,7 @@ fn=_init
 cfl=/Library/Python/2.7/site-packages/numpy/core/machar.py
 cfn=__init__
 calls=2 97
-126 21
+126 22
 cfn=<method 'strip' of 'str' objects>
 calls=10 0
 126 0
@@ -18551,18 +18539,27 @@ calls=1 74
 cfl=/Library/Python/2.7/site-packages/numpy/linalg/__init__.py
 cfn=<module>
 calls=1 45
-4 1
+4 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/opcode.py
 fn=def_op
 27 0
 
-fl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
-fn=place
-1449 255
-cfn=<numpy.lib._compiled_base._insert>
-calls=519726 0
-1449 983
+fl=/Library/Python/2.7/site-packages/numpy/ma/__init__.py
+fn=<module>
+38 1
+cfl=/Library/Python/2.7/site-packages/numpy/ma/core.py
+cfn=<module>
+calls=1 21
+38 1
+cfl=/Library/Python/2.7/site-packages/numpy/ma/extras.py
+cfn=<module>
+calls=1 10
+38 0
+cfl=/Library/Python/2.7/site-packages/numpy/testing/nosetester.py
+cfn=__init__
+calls=2 181
+38 0
 
 fl=/Library/Python/2.7/site-packages/networkx/generators/bipartite.py
 fn=<module>
@@ -18581,16 +18578,16 @@ calls=36 0
 fl=/Library/Python/2.7/site-packages/networkx/convert_matrix.py
 fn=<module>
 22 0
+cfl=<decorator-gen-3>
+cfn=_not_implemented_for
+calls=1 1
+22 0
 cfn=<method 'join' of 'str' objects>
 calls=1 0
 22 0
 cfl=/Library/Python/2.7/site-packages/networkx/utils/decorators.py
 cfn=not_implemented_for
 calls=1 15
-22 0
-cfl=<decorator-gen-3>
-cfn=_not_implemented_for
-calls=1 1
 22 0
 
 fl=/Library/Python/2.7/site-packages/matplotlib/mlab.py
@@ -18645,13 +18642,9 @@ fl=/Library/Python/2.7/site-packages/scipy/sparse/base.py
 fn=SparseEfficiencyWarning
 24 0
 
-fl=/Library/Python/2.7/site-packages/pyparsing.py
-fn=setName
-1543 0
-cfl=/Library/Python/2.7/site-packages/pyparsing.py
-cfn=setName
-calls=12 840
-1543 0
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/random.py
+fn=Random
+72 0
 
 fl=/Library/Python/2.7/site-packages/matplotlib/docstring.py
 fn=do_copy
@@ -18666,7 +18659,7 @@ calls=1 0
 
 fl=/Library/Python/2.7/site-packages/scipy/special/__init__.py
 fn=<module>
-542 2
+542 1
 cfl=/Library/Python/2.7/site-packages/scipy/special/spfun_stats.py
 cfn=<module>
 calls=1 34
@@ -18685,7 +18678,7 @@ calls=1 1
 cfl=/Library/Python/2.7/site-packages/scipy/special/basic.py
 cfn=<module>
 calls=1 5
-542 1
+542 0
 cfl=/Library/Python/2.7/site-packages/numpy/testing/nosetester.py
 cfn=__init__
 calls=1 181
@@ -19181,6 +19174,10 @@ fl=/Library/Python/2.7/site-packages/matplotlib/cbook.py
 fn=tofloat
 327 0
 
+fl=/Library/Python/2.7/site-packages/pyparsing.py
+fn=Each
+2521 0
+
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/xml/etree/ElementTree.py
 fn=XMLParser
 1455 0
@@ -19255,7 +19252,7 @@ calls=1 1
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/tokenize.py
 cfn=<module>
 calls=1 23
-25 14
+25 18
 cfn=<hasattr>
 calls=3 0
 25 0
@@ -19518,7 +19515,7 @@ calls=1 218
 cfl=/Library/Python/2.7/site-packages/matplotlib/artist.py
 cfn=<module>
 calls=1 1
-20 4
+20 5
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=find_module
 calls=4 184
@@ -19526,11 +19523,11 @@ calls=4 184
 cfl=/Library/Python/2.7/site-packages/matplotlib/collections.py
 cfn=<module>
 calls=1 10
-20 52
+20 46
 cfl=/Library/Python/2.7/site-packages/matplotlib/contour.py
 cfn=<module>
 calls=1 4
-20 8
+20 7
 cfl=/Library/Python/2.7/site-packages/matplotlib/docstring.py
 cfn=__init__
 calls=2 39
@@ -19556,9 +19553,8 @@ cfn=allow_rasterization
 calls=1 33
 27 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/doctest.py
-fn=DocTestFinder
-784 0
+fn=<math.lgamma>
+0 143
 
 fl=/Library/Python/2.7/site-packages/matplotlib/mathtext.py
 fn=TruetypeFonts
@@ -19631,7 +19627,7 @@ calls=224 0
 cfl=/Library/Python/2.7/site-packages/scipy/stats/stats.py
 cfn=<module>
 calls=1 166
-331 131
+331 123
 cfn=<dir>
 calls=1 0
 331 0
@@ -19808,7 +19804,7 @@ fn=errstate
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk/Tkinter.py
 fn=<module>
-31 8
+31 7
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk/Tkinter.py
 cfn=Spinbox
 calls=1 3371
@@ -19850,10 +19846,6 @@ cfn=DoubleVar
 calls=1 321
 31 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk/Tkinter.py
-cfn=Menu
-calls=1 2633
-31 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk/Tkinter.py
 cfn=Checkbutton
 calls=1 2405
 31 0
@@ -19892,6 +19884,10 @@ calls=1 340
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk/Tkinter.py
 cfn=Tributton
 calls=1 3756
+31 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk/Tkinter.py
+cfn=Menu
+calls=1 2633
 31 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk/Tkinter.py
 cfn=Frame
@@ -20019,7 +20015,7 @@ calls=156 131
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_parse.py
 cfn=_parse
 calls=417 380
-302 22
+302 24
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_parse.py
 cfn=append
 calls=61 139
@@ -20112,11 +20108,11 @@ fn=AutoMinorLocator
 
 fl=/Library/Python/2.7/site-packages/numpy/polynomial/__init__.py
 fn=<module>
-15 6
+15 1
 cfl=/Library/Python/2.7/site-packages/numpy/polynomial/polynomial.py
 cfn=<module>
 calls=1 55
-15 1
+15 0
 cfl=/Library/Python/2.7/site-packages/numpy/polynomial/laguerre.py
 cfn=<module>
 calls=1 59
@@ -20152,7 +20148,7 @@ fn=<module>
 cfl=/Library/Python/2.7/site-packages/matplotlib/axes/_axes.py
 cfn=<module>
 calls=1 1
-1 20
+1 16
 cfl=/Library/Python/2.7/site-packages/matplotlib/axes/_subplots.py
 cfn=subplot_class_factory
 calls=1 161
@@ -20218,7 +20214,7 @@ fn=InvertedLog2Transform
 158 0
 
 fn=<sum>
-0 610
+0 451
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/cgi.py
 fn=FormContentDict
@@ -20269,7 +20265,7 @@ calls=165 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_parse.py
 cfn=getwidth
 calls=651 141
-141 2
+141 3
 cfn=<min>
 calls=1653 0
 141 0
@@ -20308,7 +20304,7 @@ calls=1 890
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/httplib.py
 cfn=<module>
 calls=1 67
-76 1
+76 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/urllib2.py
 cfn=HTTPPasswordMgrWithDefaultRealm
 calls=1 817
@@ -20439,9 +20435,6 @@ fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/urllib
 fn=FancyURLopener
 610 0
 
-fn=<function seed at 0x10430b578>
-0 0
-
 fl=/Library/Python/2.7/site-packages/matplotlib/streamplot.py
 fn=InvalidIndexError
 345 0
@@ -20482,7 +20475,7 @@ fn=get_init
 67 0
 
 fn=<__import__>
-0 3
+0 2
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=find_module
 calls=3 184
@@ -20490,7 +20483,7 @@ calls=3 184
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk/Tkinter.py
 cfn=<module>
 calls=1 31
-0 9
+0 8
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/lib-tk/FileDialog.py
 cfn=<module>
 calls=1 9
@@ -20498,7 +20491,7 @@ calls=1 9
 cfl=/Library/Python/2.7/site-packages/matplotlib/backends/backend_tkagg.py
 cfn=<module>
 calls=1 2
-0 15
+0 13
 
 fl=/Library/Python/2.7/site-packages/matplotlib/afm.py
 fn=<module>
@@ -20607,8 +20600,8 @@ cfn=Cmd
 calls=1 55
 46 0
 
-fl=<decorator-gen-36>
-fn=<module>
+fl=<string>
+fn=DecimalTuple
 1 0
 
 fl=/Library/Python/2.7/site-packages/matplotlib/cbook.py
@@ -20747,7 +20740,7 @@ fn=__new__
 cfn=<isinstance>
 calls=254 0
 274 0
-cfn=<built-in method __new__ of type object at 0x103b21328>
+cfn=<built-in method __new__ of type object at 0x10b889328>
 calls=148 0
 274 0
 
@@ -20775,7 +20768,7 @@ calls=47 0
 48 0
 
 fn=<method 'astype' of 'numpy.ndarray' objects>
-0 5
+0 4
 
 fl=/Library/Python/2.7/site-packages/matplotlib/patches.py
 fn=CurveFilledAB
@@ -20808,9 +20801,9 @@ fl=<decorator-gen-28>
 fn=<module>
 1 0
 
-fl=<string>
-fn=Attribute
-1 0
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/distutils/errors.py
+fn=UnknownFileError
+87 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/ctypes/macholib/dyld.py
 fn=dyld_image_suffix
@@ -20866,48 +20859,9 @@ cfn=<method 'update' of 'dict' objects>
 calls=1 0
 91 0
 
-fl=/Library/Python/2.7/site-packages/networkx/readwrite/graphml.py
-fn=<module>
-36 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/xml/__init__.py
-cfn=<module>
-calls=1 17
-36 0
-cfl=<decorator-gen-53>
-cfn=_open_file
-calls=1 1
-36 0
-cfl=/Library/Python/2.7/site-packages/networkx/readwrite/graphml.py
-cfn=GraphMLWriter
-calls=1 232
-36 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/xml/etree/__init__.py
-cfn=<module>
-calls=1 1
-36 0
-cfl=/Library/Python/2.7/site-packages/networkx/readwrite/graphml.py
-cfn=GraphML
-calls=1 199
-36 0
-cfl=/Library/Python/2.7/site-packages/networkx/readwrite/graphml.py
-cfn=GraphMLReader
-calls=1 384
-36 0
-cfn=<method 'join' of 'str' objects>
-calls=1 0
-36 0
-cfl=/Library/Python/2.7/site-packages/networkx/utils/decorators.py
-cfn=open_file
-calls=2 88
-36 0
-cfl=<decorator-gen-51>
-cfn=_open_file
-calls=1 1
-36 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/xml/etree/cElementTree.py
-cfn=<module>
-calls=1 3
-36 4
+fl=/Library/Python/2.7/site-packages/numpy/core/records.py
+fn=format_parser
+84 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/ctypes/__init__.py
 fn=PyDLL
@@ -20958,7 +20912,7 @@ fn=<module>
 cfl=/Library/Python/2.7/site-packages/scipy/sparse/linalg/__init__.py
 cfn=<module>
 calls=1 105
-4 14
+4 10
 cfl=/Library/Python/2.7/site-packages/scipy/sparse/__init__.py
 cfn=<module>
 calls=1 197
@@ -20974,11 +20928,11 @@ calls=1 105
 cfl=/Library/Python/2.7/site-packages/scipy/linalg/__init__.py
 cfn=<module>
 calls=1 153
-4 31
+4 30
 cfl=/Library/Python/2.7/site-packages/scipy/__init__.py
 cfn=<module>
 calls=1 65
-4 2
+4 1
 cfl=<decorator-gen-195>
 cfn=_not_implemented_for
 calls=1 1
@@ -21121,17 +21075,18 @@ calls=1 181
 
 fl=/Library/Python/2.7/site-packages/numpy/core/fromnumeric.py
 fn=any
-1772 669
+1772 1
 cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 cfn=asanyarray
-calls=521750 464
-1772 1046
+calls=2024 464
+1772 3
 cfn=<method 'any' of 'numpy.ndarray' objects>
-calls=521750 0
-1772 3190
+calls=2024 0
+1772 8
 
-fn=<method 'search' of '_sre.SRE_Pattern' objects>
-0 2
+fl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
+fn=truncnorm_gen
+3772 0
 
 fl=/Library/Python/2.7/site-packages/matplotlib/offsetbox.py
 fn=TextArea
@@ -21184,7 +21139,7 @@ calls=1 0
 
 fl=./rw/rw.py
 fn=<module>
-3 2
+3 1
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=find_module
 calls=2 184
@@ -21192,19 +21147,19 @@ calls=2 184
 cfl=/Library/Python/2.7/site-packages/scipy/stats/__init__.py
 cfn=<module>
 calls=1 331
-3 136
+3 127
 cfl=/Library/Python/2.7/site-packages/matplotlib/pyplot.py
 cfn=<module>
 calls=1 17
-3 123
+3 110
 cfl=/Library/Python/2.7/site-packages/matplotlib/__init__.py
 cfn=<module>
 calls=1 101
-3 48
+3 43
 cfl=/Library/Python/2.7/site-packages/networkx/__init__.py
 cfn=<module>
 calls=1 23
-3 162
+3 159
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/ctypes/_endian.py
 fn=BigEndianStructure
@@ -21550,7 +21505,7 @@ fn=deprecated
 fl=<string>
 fn=__new__
 8 0
-cfn=<built-in method __new__ of type object at 0x103b21328>
+cfn=<built-in method __new__ of type object at 0x10b889328>
 calls=2070 0
 8 0
 
@@ -21863,7 +21818,7 @@ calls=1 744
 cfl=/Library/Python/2.7/site-packages/matplotlib/widgets.py
 cfn=<module>
 calls=1 10
-28 13
+28 12
 cfl=/Library/Python/2.7/site-packages/matplotlib/backend_bases.py
 cfn=Event
 calls=1 1283
@@ -21903,7 +21858,7 @@ calls=1 2604
 cfl=/Library/Python/2.7/site-packages/matplotlib/textpath.py
 cfn=<module>
 calls=1 3
-28 24
+28 19
 cfl=/Library/Python/2.7/site-packages/matplotlib/backend_bases.py
 cfn=CloseEvent
 calls=1 1349
@@ -22207,7 +22162,7 @@ calls=1 282
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/doctest.py
 cfn=DocTestParser
 calls=1 549
-46 3
+46 4
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/doctest.py
 cfn=_SpoofOut
 calls=1 249
@@ -22223,18 +22178,18 @@ calls=1 1644
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pdb.py
 cfn=<module>
 calls=1 3
-46 2
+46 1
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/doctest.py
 cfn=_TestClass
 calls=1 2671
 46 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/doctest.py
-cfn=DocTestFinder
-calls=1 784
-46 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/doctest.py
 cfn=register_optionflag
 calls=10 128
+46 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/doctest.py
+cfn=DocTestFinder
+calls=1 784
 46 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/doctest.py
 cfn=_OutputRedirectingPdb
@@ -22313,6 +22268,10 @@ fl=/Library/Python/2.7/site-packages/networkx/algorithms/shortest_paths/dense.py
 fn=<module>
 3 0
 
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/doctest.py
+fn=DocTestFinder
+784 0
+
 fl=/Library/Python/2.7/site-packages/matplotlib/fontconfig_pattern.py
 fn=_name
 147 0
@@ -22323,22 +22282,6 @@ calls=8 318
 
 fn=<math.floor>
 0 0
-
-fl=/Library/Python/2.7/site-packages/numpy/ma/__init__.py
-fn=<module>
-38 3
-cfl=/Library/Python/2.7/site-packages/numpy/ma/core.py
-cfn=<module>
-calls=1 21
-38 1
-cfl=/Library/Python/2.7/site-packages/numpy/ma/extras.py
-cfn=<module>
-calls=1 10
-38 0
-cfl=/Library/Python/2.7/site-packages/numpy/testing/nosetester.py
-cfn=__init__
-calls=2 181
-38 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/ctypes/__init__.py
 fn=c_void_p
@@ -22394,10 +22337,6 @@ fn=__init__
 fl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 fn=cosine_gen
 809 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/mimetools.py
-fn=Message
-20 0
 
 fl=/Library/Python/2.7/site-packages/numpy/polynomial/hermite_e.py
 fn=<module>
@@ -22739,7 +22678,7 @@ fn=<module>
 cfl=/Library/Python/2.7/site-packages/pygraphviz/__init__.py
 cfn=<module>
 calls=1 19
-2 12
+2 11
 cfl=/Library/Python/2.7/site-packages/networkx/drawing/nx_agraph.py
 cfn=<module>
 calls=1 17
@@ -22762,7 +22701,7 @@ calls=4 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/case.py
 fn=<module>
-1 2
+1 1
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/case.py
 cfn=_AssertRaisesContext
 calls=1 98
@@ -22878,7 +22817,7 @@ calls=3 0
 231 0
 cfl=./rw/rw.py
 cfn=walk_from_path
-calls=3 587
+calls=3 589
 231 0
 
 fl=/Library/Python/2.7/site-packages/matplotlib/tri/triinterpolate.py
@@ -22984,7 +22923,7 @@ calls=1 1
 cfl=/Library/Python/2.7/site-packages/scipy/sparse/linalg/dsolve/linsolve.py
 cfn=<module>
 calls=1 1
-52 1
+52 0
 cfl=/Library/Python/2.7/site-packages/numpy/testing/nosetester.py
 cfn=__init__
 calls=1 181
@@ -23101,7 +23040,7 @@ fn=CheckButtons
 
 fl=/Library/Python/2.7/site-packages/scipy/special/basic.py
 fn=<module>
-5 1
+5 0
 cfl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
 cfn=__init__
 calls=1 1644
@@ -23128,14 +23067,11 @@ fn=<module>
 1 0
 
 fn=<sorted>
-0 102
+0 61
 
 fl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 fn=tukeylambda_gen
 3829 0
-
-fn=<numpy.lib._compiled_base._insert>
-0 983
 
 fl=/Library/Python/2.7/site-packages/pyparsing.py
 fn=__init__
@@ -23286,7 +23222,7 @@ calls=994 25
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_compile.py
 cfn=_mk_bitmap
 calls=61 259
-208 2
+208 3
 
 fl=<decorator-gen-85>
 fn=_not_implemented_for
@@ -23580,7 +23516,7 @@ calls=1 113
 
 fl=/Library/Python/2.7/site-packages/scipy/linalg/lapack.py
 fn=<module>
-201 1
+201 0
 cfl=/Library/Python/2.7/site-packages/scipy/lib/_util.py
 cfn=__init__
 calls=2 23
@@ -23608,7 +23544,7 @@ calls=1 215
 cfl=/Library/Python/2.7/site-packages/scipy/misc/__init__.py
 cfn=<module>
 calls=1 38
-3 5
+3 3
 cfl=/Library/Python/2.7/site-packages/scipy/sparse/linalg/matfuncs.py
 cfn=_ExpmPadeHelper
 calls=1 343
@@ -23723,11 +23659,11 @@ calls=1 1
 cfl=/Library/Python/2.7/site-packages/matplotlib/backends/__init__.py
 cfn=pylab_setup
 calls=1 18
-17 16
+17 13
 cfl=/Library/Python/2.7/site-packages/matplotlib/figure.py
 cfn=<module>
 calls=1 12
-17 31
+17 26
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=find_module
 calls=4 184
@@ -23747,7 +23683,7 @@ calls=1 102
 cfl=/Library/Python/2.7/site-packages/matplotlib/colorbar.py
 cfn=<module>
 calls=1 20
-17 67
+17 60
 cfl=/Library/Python/2.7/site-packages/matplotlib/pyplot.py
 cfn=_setup_pyplot_info_docstrings
 calls=1 2095
@@ -23782,9 +23718,9 @@ fl=/Library/Python/2.7/site-packages/scipy/sparse/csc.py
 fn=csc_matrix
 21 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/rfc822.py
-fn=AddressList
-770 0
+fl=<decorator-gen-109>
+fn=<module>
+1 0
 
 fl=/Library/Python/2.7/site-packages/matplotlib/cbook.py
 fn=__init__
@@ -23805,8 +23741,12 @@ fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/diffli
 fn=SequenceMatcher
 46 0
 
-fn=<numpy.core.multiarray.putmask>
-0 1032
+fl=/Library/Python/2.7/site-packages/networkx/generators/random_graphs.py
+fn=<module>
+5 0
+cfn=<method 'join' of 'str' objects>
+calls=1 0
+5 0
 
 fl=/Library/Python/2.7/site-packages/networkx/algorithms/isomorphism/isomorphvf2.py
 fn=DiGMState
@@ -23867,9 +23807,9 @@ cfn=<method 'extend' of 'list' objects>
 calls=1 0
 387 0
 
-fl=<decorator-gen-109>
-fn=<module>
-1 0
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/rfc822.py
+fn=AddressList
+770 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/warnings.py
 fn=simplefilter
@@ -23986,7 +23926,7 @@ fn=FieldStorage
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_compile.py
 fn=_mk_bitmap
-259 2
+259 3
 cfn=<method 'append' of 'list' objects>
 calls=488 0
 259 0
@@ -24009,7 +23949,7 @@ fn=gompertz_gen
 
 fl=/Library/Python/2.7/site-packages/scipy/sparse/linalg/dsolve/linsolve.py
 fn=<module>
-1 1
+1 0
 cfl=/Library/Python/2.7/site-packages/scipy/sparse/linalg/dsolve/linsolve.py
 cfn=MatrixRankWarning
 calls=1 24
@@ -24389,7 +24329,7 @@ fn=_Action
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/copy_reg.py
 fn=__newobj__
 92 0
-cfn=<built-in method __new__ of type object at 0x103b21328>
+cfn=<built-in method __new__ of type object at 0x10b889328>
 calls=65 0
 92 0
 
@@ -24432,7 +24372,7 @@ fn=<sys._getframe>
 
 fl=/Library/Python/2.7/site-packages/matplotlib/__init__.py
 fn=<module>
-101 7
+101 4
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=iterkeys
 calls=1 592
@@ -24456,7 +24396,7 @@ calls=1 1341
 cfl=/Library/Python/2.7/site-packages/matplotlib/__init__.py
 cfn=rc_params
 calls=1 943
-101 4
+101 3
 cfl=/Library/Python/2.7/site-packages/matplotlib/__init__.py
 cfn=checkdep_usetex
 calls=1 463
@@ -24479,7 +24419,7 @@ calls=4 871
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=<module>
 calls=1 58
-101 12
+101 14
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/distutils/__init__.py
 cfn=<module>
 calls=1 9
@@ -24503,7 +24443,7 @@ calls=1 1
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/urllib.py
 cfn=<module>
 calls=1 23
-101 5
+101 4
 cfl=/Library/Python/2.7/site-packages/matplotlib/__init__.py
 cfn=wrap
 calls=4 314
@@ -24558,11 +24498,11 @@ calls=1 2915
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=<module>
 calls=1 1
-101 1
+101 0
 cfl=/Library/Python/2.7/site-packages/matplotlib/cbook.py
 cfn=<module>
 calls=1 7
-101 2
+101 1
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/distutils/sysconfig.py
 cfn=<module>
 calls=1 10
@@ -24593,7 +24533,7 @@ fn=<module>
 cfl=/Library/Python/2.7/site-packages/pygraphviz/tests/test.py
 cfn=<module>
 calls=1 3
-1 10
+1 9
 
 fl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 fn=foldnorm_gen
@@ -24742,73 +24682,6 @@ fl=<string>
 fn=SplitResult
 1 0
 
-fl=./rw/rw.py
-fn=toyBatch
-478 0
-cfn=<method 'write' of 'file' objects>
-calls=15 0
-478 0
-cfl=./rw/rw.py
-cfn=findBestGraph
-calls=1 102
-478 83846
-cfl=./rw/rw.py
-cfn=trimX
-calls=1 575
-478 0
-cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
-cfn=array_str
-calls=1 1681
-478 0
-cfl=./rw/rw.py
-cfn=graphToHash
-calls=1 273
-478 0
-cfn=<method 'close' of 'file' objects>
-calls=1 0
-478 0
-cfn=<range>
-calls=1 0
-478 0
-cfn=<open>
-calls=1 0
-478 0
-cfl=./rw/rw.py
-cfn=genG
-calls=1 198
-478 1
-cfl=./rw/rw.py
-cfn=genX
-calls=3 219
-478 0
-cfn=<method 'append' of 'list' objects>
-calls=8 0
-478 0
-cfl=./rw/rw.py
-cfn=cost
-calls=1 32
-478 0
-cfn=<eval>
-calls=10 0
-478 0
-cfn=<zip>
-calls=1 0
-478 0
-cfn=<method 'join' of 'str' objects>
-calls=3 0
-478 0
-cfl=./rw/rw.py
-cfn=costSDT
-calls=1 35
-478 0
-cfl=./rw/rw.py
-cfn=stepsToIRT
-calls=1 469
-478 0
-cfn=<built-in method now>
-calls=2 0
-478 0
-
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/case.py
 fn=_ExpectedFailure
 34 0
@@ -24822,7 +24695,7 @@ calls=1 0
 
 fl=/Library/Python/2.7/site-packages/numpy/core/__init__.py
 fn=<module>
-1 11
+1 4
 cfl=/Library/Python/2.7/site-packages/numpy/core/machar.py
 cfn=<module>
 calls=1 7
@@ -24830,7 +24703,7 @@ calls=1 7
 cfl=/Library/Python/2.7/site-packages/numpy/testing/__init__.py
 cfn=<module>
 calls=1 7
-1 19
+1 15
 cfl=/Library/Python/2.7/site-packages/numpy/core/info.py
 cfn=<module>
 calls=1 83
@@ -24842,11 +24715,11 @@ calls=1 1
 cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 cfn=<module>
 calls=1 1
-1 22
+1 19
 cfl=/Library/Python/2.7/site-packages/numpy/core/_internal.py
 cfn=<module>
 calls=1 6
-1 2
+1 1
 cfn=<numpy.core.multiarray.set_typeDict>
 calls=1 0
 1 0
@@ -24891,51 +24764,6 @@ fl=/Library/Python/2.7/site-packages/scipy/integrate/_ode.py
 fn=complex_ode
 434 0
 
-fl=/Library/Python/2.7/site-packages/scipy/stats/_distn_infrastructure.py
-fn=pdf
-1529 15872
-cfl=/Library/Python/2.7/site-packages/numpy/core/fromnumeric.py
-cfn=shape
-calls=519726 1462
-1529 315
-cfl=<string>
-cfn=_parse_args
-calls=519726 2
-1529 152
-cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
-cfn=_pdf
-calls=519726 1656
-1529 5250
-cfl=/Library/Python/2.7/site-packages/scipy/stats/_distn_infrastructure.py
-cfn=argsreduce
-calls=519726 547
-1529 32216
-cfl=/Library/Python/2.7/site-packages/scipy/stats/_distn_infrastructure.py
-cfn=_argcheck
-calls=519726 758
-1529 3325
-cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
-cfn=asarray
-calls=519726 394
-1529 999
-cfn=<numpy.core.multiarray.zeros>
-calls=519726 0
-1529 476
-cfl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
-cfn=place
-calls=519726 1449
-1529 1239
-cfl=/Library/Python/2.7/site-packages/numpy/core/fromnumeric.py
-cfn=any
-calls=519726 1772
-1529 4892
-cfn=<numpy.core.multiarray.putmask>
-calls=519726 0
-1529 1032
-cfn=<map>
-calls=1039452 0
-1529 5095
-
 fn=<method 'clear' of 'dict' objects>
 0 0
 
@@ -24954,19 +24782,6 @@ fn=_data_matrix
 fl=/Library/Python/2.7/site-packages/pyparsing.py
 fn=_trim_arity
 771 0
-
-fl=./rw/rw.py
-fn=walk_from_path
-587 0
-cfn=<len>
-calls=3 0
-587 0
-cfn=<range>
-calls=3 0
-587 0
-cfn=<method 'append' of 'list' objects>
-calls=18 0
-587 0
 
 fl=/Library/Python/2.7/site-packages/pyparsing.py
 fn=streamline
@@ -25273,14 +25088,14 @@ cfl=/Library/Python/2.7/site-packages/networkx/readwrite/gml.py
 cfn=<module>
 calls=1 26
 4 5
+cfl=/Library/Python/2.7/site-packages/networkx/readwrite/graphml.py
+cfn=<module>
+calls=1 36
+4 5
 cfl=/Library/Python/2.7/site-packages/networkx/readwrite/multiline_adjlist.py
 cfn=<module>
 calls=1 27
 4 0
-cfl=/Library/Python/2.7/site-packages/networkx/readwrite/graphml.py
-cfn=<module>
-calls=1 36
-4 6
 cfl=/Library/Python/2.7/site-packages/networkx/readwrite/sparse6.py
 cfn=<module>
 calls=1 13
@@ -25444,7 +25259,7 @@ calls=5 113
 
 fl=/Library/Python/2.7/site-packages/dateutil/rrule.py
 fn=<module>
-7 1
+7 0
 cfl=/Library/Python/2.7/site-packages/dateutil/rrule.py
 cfn=_iterinfo
 calls=1 876
@@ -25594,17 +25409,9 @@ fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/csv.py
 fn=Sniffer
 162 0
 
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/distutils/errors.py
-fn=UnknownFileError
-87 0
-
-fl=<decorator-gen-3>
-fn=_not_implemented_for
-1 0
-cfl=/Library/Python/2.7/site-packages/decorator.py
-cfn=decorate
-calls=1 224
-1 0
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py
+fn=_BoundedSemaphore
+514 0
 
 fl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 fn=powerlognorm_gen
@@ -25657,6 +25464,13 @@ cfl=/Library/Python/2.7/site-packages/matplotlib/__init__.py
 cfn=_get_configdir
 calls=1 615
 1 0
+
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/ctypes/macholib/dyld.py
+fn=dyld_executable_path_search
+96 0
+cfn=<method 'startswith' of 'str' objects>
+calls=4 0
+96 0
 
 fl=/Library/Python/2.7/site-packages/scipy/sparse/compressed.py
 fn=__init__
@@ -25747,7 +25561,7 @@ fn=mielke_gen
 
 fl=/Library/Python/2.7/site-packages/numpy/core/arrayprint.py
 fn=<module>
-5 1
+5 0
 cfl=/Library/Python/2.7/site-packages/numpy/core/arrayprint.py
 cfn=TimedeltaFormat
 calls=1 743
@@ -25960,7 +25774,7 @@ calls=1 86
 cfl=/Library/Python/2.7/site-packages/networkx/algorithms/dag.py
 cfn=<module>
 calls=1 2
-1 8
+1 7
 cfl=/Library/Python/2.7/site-packages/networkx/algorithms/graphical.py
 cfn=<module>
 calls=1 3
@@ -26199,7 +26013,7 @@ calls=1 91
 cfl=/Library/Python/2.7/site-packages/matplotlib/font_manager.py
 cfn=pickle_load
 calls=1 952
-21 16
+21 12
 cfn=<hasattr>
 calls=1 0
 21 0
@@ -26335,11 +26149,11 @@ fn=converter
 
 fl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 fn=identity
-2125 157
+2125 94
 cfl=/Library/Python/2.7/site-packages/numpy/lib/twodim_base.py
 cfn=eye
 calls=27355 190
-2125 195
+2125 138
 
 fl=/Library/Python/2.7/site-packages/networkx/classes/graph.py
 fn=number_of_nodes
@@ -26412,10 +26226,6 @@ fl=/Library/Python/2.7/site-packages/matplotlib/blocking_input.py
 fn=BlockingInput
 34 0
 
-fl=/Library/Python/2.7/site-packages/numpy/random/info.py
-fn=<module>
-84 0
-
 fl=/Library/Python/2.7/site-packages/numpy/core/numerictypes.py
 fn=bitname
 233 0
@@ -26431,6 +26241,14 @@ calls=21 220
 fl=/Library/Python/2.7/site-packages/scipy/sparse/linalg/eigen/arpack/arpack.py
 fn=_ArpackParams
 303 0
+
+fl=/Library/Python/2.7/site-packages/pyparsing.py
+fn=setName
+1543 0
+cfl=/Library/Python/2.7/site-packages/pyparsing.py
+cfn=setName
+calls=12 840
+1543 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/re.py
 fn=filter
@@ -26473,7 +26291,7 @@ calls=1 20
 cfl=/Library/Python/2.7/site-packages/matplotlib/font_manager.py
 cfn=<module>
 calls=1 21
-3 20
+3 15
 cfl=/Library/Python/2.7/site-packages/matplotlib/textpath.py
 cfn=TextPath
 calls=1 415
@@ -26524,7 +26342,7 @@ calls=92 179
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_parse.py
 cfn=_parse_sub
 calls=92 302
-676 22
+676 24
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_parse.py
 cfn=get
 calls=92 202
@@ -26775,6 +26593,73 @@ cfn=Module_six_moves_urllib_response
 calls=1 430
 1 0
 
+fl=./rw/rw.py
+fn=toyBatch
+480 0
+cfl=./rw/rw.py
+cfn=trimX
+calls=1 577
+480 0
+cfn=<method 'write' of 'file' objects>
+calls=15 0
+480 0
+cfl=./rw/rw.py
+cfn=findBestGraph
+calls=1 102
+480 8691
+cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
+cfn=array_str
+calls=1 1681
+480 0
+cfl=./rw/rw.py
+cfn=graphToHash
+calls=1 273
+480 0
+cfn=<method 'close' of 'file' objects>
+calls=1 0
+480 0
+cfn=<range>
+calls=1 0
+480 0
+cfn=<open>
+calls=1 0
+480 0
+cfl=./rw/rw.py
+cfn=genG
+calls=1 198
+480 1
+cfl=./rw/rw.py
+cfn=stepsToIRT
+calls=1 471
+480 0
+cfl=./rw/rw.py
+cfn=genX
+calls=3 219
+480 0
+cfn=<method 'append' of 'list' objects>
+calls=8 0
+480 0
+cfl=./rw/rw.py
+cfn=cost
+calls=1 32
+480 0
+cfn=<eval>
+calls=10 0
+480 0
+cfn=<zip>
+calls=1 0
+480 0
+cfn=<method 'join' of 'str' objects>
+calls=3 0
+480 0
+cfl=./rw/rw.py
+cfn=costSDT
+calls=1 35
+480 0
+cfn=<built-in method now>
+calls=2 0
+480 0
+
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py
 fn=_Condition
 254 0
@@ -26906,9 +26791,32 @@ cfn=<built-in method now>
 calls=1 0
 161 0
 
-fl=/Library/Python/2.7/site-packages/pyparsing.py
-fn=Each
-2521 0
+fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/tempfile.py
+fn=_mkstemp_inner
+230 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/posixpath.py
+cfn=abspath
+calls=4 350
+230 0
+cfn=<posix.open>
+calls=4 0
+230 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/tempfile.py
+cfn=_get_candidate_names
+calls=4 216
+230 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/posixpath.py
+cfn=join
+calls=4 68
+230 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/tempfile.py
+cfn=_set_cloexec
+calls=4 48
+230 0
+cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/tempfile.py
+cfn=next
+calls=4 135
+230 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/repr.py
 fn=<module>
@@ -27077,7 +26985,7 @@ calls=1 18
 
 fl=/Library/Python/2.7/site-packages/numpy/linalg/__init__.py
 fn=<module>
-45 1
+45 0
 cfl=/Library/Python/2.7/site-packages/numpy/linalg/linalg.py
 cfn=<module>
 calls=1 10
@@ -27133,7 +27041,7 @@ calls=1 224
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/socket.py
 fn=<module>
-45 2
+45 1
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/socket.py
 cfn=_closedsocket
 calls=1 167
@@ -27207,7 +27115,7 @@ fn=KrylovJacobian
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/runner.py
 fn=<module>
-1 0
+1 1
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/unittest/signals.py
 cfn=<module>
 calls=1 1
@@ -27266,7 +27174,7 @@ fn=__init__
 
 fl=/Library/Python/2.7/site-packages/matplotlib/legend.py
 fn=<module>
-23 1
+23 0
 cfl=/Library/Python/2.7/site-packages/matplotlib/legend_handler.py
 cfn=<module>
 calls=1 26
@@ -27468,7 +27376,7 @@ calls=1 372
 
 fl=/Library/Python/2.7/site-packages/numpy/random/__init__.py
 fn=<module>
-88 6
+88 5
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py
 cfn=<module>
 calls=1 1
@@ -27483,6 +27391,10 @@ calls=2 244
 88 0
 cfn=<method 'extend' of 'list' objects>
 calls=1 0
+88 0
+cfl=/Library/Python/2.7/site-packages/numpy/random/info.py
+cfn=<module>
+calls=1 84
 88 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/warnings.py
 cfn=__exit__
@@ -27499,10 +27411,6 @@ calls=1 318
 cfl=/Library/Python/2.7/site-packages/numpy/testing/nosetester.py
 cfn=__init__
 calls=2 181
-88 0
-cfl=/Library/Python/2.7/site-packages/numpy/random/info.py
-cfn=<module>
-calls=1 84
 88 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/warnings.py
 cfn=__enter__
@@ -27609,7 +27517,7 @@ calls=90 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_compile.py
 cfn=compile
 calls=90 496
-226 47
+226 51
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/sre_compile.py
 cfn=isstring
 calls=90 475
@@ -27683,11 +27591,11 @@ fn=<module>
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_distn_infrastructure.py
 cfn=<module>
 calls=1 5
-8 26
+8 23
 cfl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 cfn=<module>
 calls=1 5
-8 90
+8 85
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=find_module
 calls=3 184
@@ -27860,7 +27768,7 @@ calls=1 100
 
 fl=/Library/Python/2.7/site-packages/matplotlib/cbook.py
 fn=<module>
-7 1
+7 0
 cfl=/Library/Python/2.7/site-packages/matplotlib/cbook.py
 cfn=_InstanceMethodPickler
 calls=1 2302
@@ -28100,19 +28008,6 @@ fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/distut
 fn=DistutilsFileError
 33 0
 
-fl=./rw/rw.py
-fn=stepsToIRT
-469 0
-cfn=<method 'gamma' of 'mtrand.RandomState' objects>
-calls=18 0
-469 0
-cfn=<method 'seed' of 'mtrand.RandomState' objects>
-calls=1 0
-469 0
-cfn=<method 'append' of 'list' objects>
-calls=3 0
-469 0
-
 fl=/Library/Python/2.7/site-packages/numpy/polynomial/polyutils.py
 fn=<module>
 45 0
@@ -28219,7 +28114,7 @@ calls=3 0
 cfn=<method 'lstrip' of 'str' objects>
 calls=1 0
 515 0
-cfn=<built-in method __new__ of type object at 0x103b21328>
+cfn=<built-in method __new__ of type object at 0x10b889328>
 calls=6 0
 515 0
 cfn=<method 'match' of '_sre.SRE_Pattern' objects>
@@ -28281,7 +28176,7 @@ fn=_construct_doc
 cfl=/Library/Python/2.7/site-packages/scipy/misc/doccer.py
 cfn=docformat
 calls=198 12
-691 71
+691 68
 cfn=<method 'copy' of 'dict' objects>
 calls=99 0
 691 0
@@ -28304,7 +28199,7 @@ fn=_WorkRep
 5418 0
 
 fn=<cPickle.load>
-0 16
+0 11
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/copy_reg.py
 cfn=_reconstructor
 calls=451 46
@@ -28343,7 +28238,7 @@ calls=1 2
 cfl=/Library/Python/2.7/site-packages/scipy/integrate/_ode.py
 cfn=<module>
 calls=1 39
-48 2
+48 1
 cfn=<dir>
 calls=1 0
 48 0
@@ -28458,15 +28353,11 @@ fn=SsGlue
 1759 0
 
 fn=<map>
-0 1600
-cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
-cfn=asarray
-calls=2078904 394
-0 3495
+0 0
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/re.py
 cfn=compile
 calls=4 188
-0 13
+0 16
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=_trim_arity
 calls=13 771
@@ -28534,7 +28425,7 @@ fn=dedent
 cfl=/Library/Python/2.7/site-packages/matplotlib/cbook.py
 cfn=dedent
 calls=174 1118
-94 3
+94 2
 
 fl=/Library/Python/2.7/site-packages/numpy/linalg/info.py
 fn=<module>
@@ -28621,7 +28512,7 @@ fn=srange
 cfl=/Library/Python/2.7/site-packages/pyparsing.py
 cfn=parseString
 calls=2 1084
-3359 1
+3359 2
 cfn=<method 'join' of 'str' objects>
 calls=2 0
 3359 0
@@ -28652,7 +28543,7 @@ fn=<module>
 
 fl=/Library/Python/2.7/site-packages/matplotlib/mlab.py
 fn=<module>
-176 1
+176 0
 cfl=/Library/Python/2.7/site-packages/matplotlib/mlab.py
 cfn=FIFOBuffer
 calls=1 2040
@@ -28778,55 +28669,54 @@ calls=1 0
 
 fl=./rw/rw.py
 fn=probX
-330 6296
+330 3823
 cfl=/Library/Python/2.7/site-packages/numpy/core/fromnumeric.py
 cfn=shape
 calls=27354 1462
-330 15
+330 14
 cfl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
 cfn=copy
 calls=27354 837
-330 108
+330 85
 cfn=<len>
 calls=60627 0
-330 12
+330 10
 cfn=<numpy.core._dotblas.dot>
 calls=519726 0
-330 1345
+330 750
 cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/warnings.py
 cfn=_show_warning
 calls=1 24
 330 0
 cfn=<math.log>
-calls=781380 0
-330 266
+calls=1442382 0
+330 260
 cfn=<range>
 calls=584912 0
-330 481
+330 275
 cfn=<method 'append' of 'list' objects>
 calls=2242818 0
-330 461
+330 313
 cfl=/Library/Python/2.7/site-packages/numpy/lib/function_base.py
 cfn=delete
 calls=54708 3427
-330 2881
+330 2240
+cfn=<math.lgamma>
+calls=519726 0
+330 143
 cfn=<sum>
 calls=581497 0
-330 610
+330 451
 cfn=<method 'astype' of 'numpy.ndarray' objects>
 calls=1623 0
-330 5
+330 4
 cfn=<sorted>
 calls=27354 0
-330 102
-cfl=/Library/Python/2.7/site-packages/scipy/stats/_distn_infrastructure.py
-cfn=pdf
-calls=519726 1529
-330 70869
+330 61
 cfl=/Library/Python/2.7/site-packages/numpy/core/numeric.py
 cfn=identity
 calls=27354 2125
-330 352
+330 232
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/ctypes/__init__.py
 fn=LibraryLoader
@@ -28975,19 +28865,19 @@ fn=<module>
 cfl=/Library/Python/2.7/site-packages/networkx/release.py
 cfn=<module>
 calls=1 30
-23 3
+23 2
 cfl=/Library/Python/2.7/site-packages/networkx/utils/__init__.py
 cfn=<module>
 calls=1 1
-23 26
+23 29
 cfl=/Library/Python/2.7/site-packages/networkx/linalg/__init__.py
 cfn=<module>
 calls=1 1
-23 58
+23 52
 cfl=/Library/Python/2.7/site-packages/networkx/generators/__init__.py
 cfn=<module>
 calls=1 4
-23 3
+23 5
 cfl=/Library/Python/2.7/site-packages/networkx/exception.py
 cfn=<module>
 calls=1 9
@@ -28995,7 +28885,7 @@ calls=1 9
 cfl=/Library/Python/2.7/site-packages/networkx/classes/__init__.py
 cfn=<module>
 calls=1 1
-23 1
+23 2
 cfl=/Library/Python/2.7/site-packages/networkx/convert_matrix.py
 cfn=<module>
 calls=1 22
@@ -29007,7 +28897,7 @@ calls=1 2
 cfl=/Library/Python/2.7/site-packages/networkx/drawing/__init__.py
 cfn=<module>
 calls=1 2
-23 14
+23 13
 cfl=/Library/Python/2.7/site-packages/networkx/tests/__init__.py
 cfn=<module>
 calls=1 1
@@ -29015,7 +28905,7 @@ calls=1 1
 cfl=/Library/Python/2.7/site-packages/networkx/readwrite/__init__.py
 cfn=<module>
 calls=1 4
-23 19
+23 18
 cfl=/Library/Python/2.7/site-packages/networkx/external/__init__.py
 cfn=<module>
 calls=1 1
@@ -29023,7 +28913,7 @@ calls=1 1
 cfl=/Library/Python/2.7/site-packages/networkx/algorithms/__init__.py
 cfn=<module>
 calls=1 1
-23 33
+23 32
 cfl=/Library/Python/2.7/site-packages/networkx/relabel.py
 cfn=<module>
 calls=1 7
@@ -29171,13 +29061,6 @@ cfn=<method 'sub' of '_sre.SRE_Pattern' objects>
 calls=4 0
 144 0
 
-fl=/Library/Python/2.7/site-packages/networkx/generators/random_graphs.py
-fn=<module>
-5 0
-cfn=<method 'join' of 'str' objects>
-calls=1 0
-5 0
-
 fl=/Library/Python/2.7/site-packages/dateutil/rrule.py
 fn=_genitem
 1079 0
@@ -29201,33 +29084,6 @@ fn=chi2_gen
 fl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
 fn=ksone_gen
 57 0
-
-fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/tempfile.py
-fn=_mkstemp_inner
-230 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/posixpath.py
-cfn=abspath
-calls=4 350
-230 0
-cfn=<posix.open>
-calls=4 0
-230 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/tempfile.py
-cfn=_get_candidate_names
-calls=4 216
-230 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/posixpath.py
-cfn=join
-calls=4 68
-230 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/tempfile.py
-cfn=_set_cloexec
-calls=4 48
-230 0
-cfl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/tempfile.py
-cfn=next
-calls=4 135
-230 0
 
 fl=/Library/Python/2.7/site-packages/dateutil/parser.py
 fn=__init__
@@ -29267,15 +29123,11 @@ fn=<method 'get' of 'dict' objects>
 0 0
 
 fn=<method 'all' of 'numpy.ndarray' objects>
-0 79
+0 58
 cfl=/Library/Python/2.7/site-packages/numpy/core/_methods.py
 cfn=_all
 calls=109430 40
-0 554
-
-fl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
-fn=_logpdf
-1659 4432
+0 457
 
 fn=<method 'remove' of 'list' objects>
 0 0
@@ -29408,10 +29260,6 @@ calls=1 0
 fl=/Library/Python/2.7/site-packages/matplotlib/mathtext.py
 fn=NegFill
 1751 0
-
-fl=/Library/Python/2.7/site-packages/scipy/stats/_continuous_distns.py
-fn=wald_gen
-3945 0
 
 fl=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/xml/etree/ElementTree.py
 fn=TreeBuilder
@@ -29552,11 +29400,11 @@ fn=anglit_gen
 246 0
 
 fn=<method 'any' of 'numpy.ndarray' objects>
-0 421
+0 1
 cfl=/Library/Python/2.7/site-packages/numpy/core/_methods.py
 cfn=_any
-calls=521750 37
-0 2768
+calls=2024 37
+0 7
 
 fl=/Library/Python/2.7/site-packages/numpy/ma/core.py
 fn=__init__
@@ -29648,7 +29496,7 @@ calls=3 184
 cfl=/Library/Python/2.7/site-packages/six.py
 cfn=__get__
 calls=2 91
-2 12
+2 10
 cfl=/Library/Python/2.7/site-packages/matplotlib/backends/backend_agg.py
 cfn=<module>
 calls=1 21
