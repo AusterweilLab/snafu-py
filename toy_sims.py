@@ -17,11 +17,11 @@ trim=.7                               # ~ What proportion of graph does each lis
 
 # PARAMETERS FOR RECONTRUCTING GRAPH
 jeff=0.9                              # 1-IRT weight
-beta=1/1.1                              # for gamma distribution when generating IRTs from hidden nodes
+beta=1.1                              # for gamma distribution when generating IRTs from hidden nodes
 
 # WRITE DATA
 numgraphs=315                         # number of toy graphs to generate/reconstruct
-outfile='sim_results_compare.csv'
+outfile='sim_results_rw.csv'
 
 # optionally, pass a methods argument
 # default is methods=['rw','invite','inviteirt'] 
