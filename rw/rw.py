@@ -16,17 +16,6 @@ import textwrap
 from itertools import *
 from datetime import datetime
 
-# create toy graph object. currently only small-world
-#class ToyGraph:
-#    def __init__(self, numnodes, numlinks, probRewire, graph_seed=None):
-#
-#        self.numnodes = numnodes                # number of nodes in graph
-#        self.numlinks = numlinks                # initial number of edges per node (must be even)
-#        self.probRewire = probRewire            # probability of re-wiring an edge
-#        self.numedges = numnodes*(numlinks/2)   # number of edges in smallworld-graph
-#        
-#        self.g, self.a = genG(numnodes,numlinks,probRewire,seed=graph_seed)
-
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
 def cost(graph,a):
@@ -521,20 +510,23 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
         [Xs,steps]=zip(*[genX(g, seed=x_seed+i,use_irts=1) for i in range(numx)])
         Xs=list(Xs)
         steps=list(steps)
-        [Xs,alter_graph]=trimX(trim,Xs,g)
 
-        if alter_graph==0:      # only use data that covers entire graph
+        # generate IRTs if using IRT model
+        if 'inviteirt' in methods:
+            irts=stepsToIRT(steps, beta, seed=x_seed)
+
+        # trim data when necessary
+        [Xs,irts,alter_graph]=trimX(trim,Xs,irts,g)
+
+        if alter_graph==0:      # only use data that covers entire graph (only a problem when trimming data)
             for method in methods:
                 print "SEED: ", seed_param, "method: ", method
- 
-                # generate IRTs if using IRT model
-                irts=[]
-                if method=='inviteirt':
-                    irts=stepsToIRT(steps, beta, seed=x_seed)
                 
                 # Find best graph! (and log time)
                 starttime=datetime.now()
-                if method in ['invite','inviteirt']:
+                if method == 'invite':
+                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes)
+                if method == 'inviteirt':
                     bestgraph, bestval=findBestGraph(Xs, irts, jeff, beta, numnodes)
                 if method == 'rw':
                     bestgraph=noHidden(Xs,numnodes)
@@ -572,21 +564,16 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
 
 # trim Xs to proportion of graph size, the trim graph to remove any nodes that weren't hit
 # used to simulate human data that doesn't cover the whole graph every time
-def trimX(prop, Xs, g):
+def trimX(prop, Xs, steps, g):
     numnodes=g.number_of_nodes()
     alter_graph_size=0              # report if graph size changes-- may result in disconnected graph!
     numtrim=int(round(numnodes*prop))
     Xs=[i[0:numtrim] for i in Xs]
+    steps=[i[0:(numtrim-1)] for i in steps]
     for i in range(numnodes):
         if i not in set(flatten_list(Xs)):
             alter_graph_size=1
-    #        g.remove_node(i)
-    #a=np.array(nx.adjacency_matrix(g, range(numnodes)).todense())
-    #if 0 not in sum(a):         # ensures that graph is still connected after trimming Xs
-    #    alter_graph_size=0
-    if alter_graph_size==1:
-        print "WARNING: Not all graph nodes encountered after trimming X"
-    return Xs, alter_graph_size
+    return Xs, steps, alter_graph_size
 
 # tuple walk from flat list
 def walk_from_path(path):

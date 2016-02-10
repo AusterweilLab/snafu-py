@@ -25,7 +25,7 @@ for subj in allsubs:
 
     # Find best graphs!
     rw_graph = rw.noHidden(Xs,numnodes)
-    rw_g=nx.to_networkx_graph(rw_graph)
+    rw_g=nx.to_networkx_graph(rw_graph) # use rw.drawDot instead
     nx.relabel_nodes(rw_g, items, copy=False)
     nx.write_dot(rw_g,subj+"_rw.dot")
 

@@ -17,16 +17,15 @@ trim=.7                               # ~ What proportion of graph does each lis
 
 # PARAMETERS FOR RECONTRUCTING GRAPH
 jeff=0.9                              # 1-IRT weight
-beta=1/1.1                            # for gamma distribution when generating IRTs from hidden nodes
+beta=1.1                            # for gamma distribution when generating IRTs from hidden nodes
 
 # WRITE DATA
-numgraphs=315                         # number of toy graphs to generate/reconstruct
-outfile='sim_results_rw_5.csv'
+numgraphs=500                         # number of toy graphs to generate/reconstruct
+outfile='sim_results_2.csv'
 
 # optionally, pass a methods argument
 # default is methods=['rw','invite','inviteirt'] 
 
 rw.toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile,start_seed=1)
 
-# _1.py beta=1/1.1, looks like new
-# _2.py beta=1/1.1, matches old!! problem is not in probX or stepsToIRT
+# _new.csv beta=1/1.1
