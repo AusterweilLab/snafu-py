@@ -16,17 +16,6 @@ import textwrap
 from itertools import *
 from datetime import datetime
 
-# create toy graph object. currently only small-world
-#class ToyGraph:
-#    def __init__(self, numnodes, numlinks, probRewire, graph_seed=None):
-#
-#        self.numnodes = numnodes                # number of nodes in graph
-#        self.numlinks = numlinks                # initial number of edges per node (must be even)
-#        self.probRewire = probRewire            # probability of re-wiring an edge
-#        self.numedges = numnodes*(numlinks/2)   # number of edges in smallworld-graph
-#        
-#        self.g, self.a = genG(numnodes,numlinks,probRewire,seed=graph_seed)
-
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
 def cost(graph,a):
@@ -87,6 +76,7 @@ def expectedHidden(Xs, a, numnodes):
             
             startindex=x[curpos-1]
 
+            deleted=0
             for i in sorted(x[curpos:]+notinx,reverse=True):   # to form Q matrix
                 if i < startindex:
                     deleted += 1
@@ -98,7 +88,7 @@ def expectedHidden(Xs, a, numnodes):
         expecteds.append(expected)        
     return expecteds
 
-def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
+def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
     # free parameters
     prob_overlap=.8     # probability a link connecting nodes in multiple graphs
     prob_multi=.8       # probability of selecting an additional link
@@ -106,19 +96,17 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
     if numnodes==0:         # unless specified (because Xs are trimmed and dont cover all nodes)
         numnodes=len(set(flatten_list(Xs)))
 
-    #max_converge=numnodes*math.sqrt(numnodes) # number of alternative graphs to test that are not better than bestgraph before giving up
-    max_converge=1500
-    converge = 0        # when converge >= max_converge, declare the graph converged.
+    converge = 0        # when converge >= tolerance, declare the graph converged.
     itern=0 # tmp variable for debugging
 
     # find a good starting graph using naive RW
     graph=noHidden(Xs,numnodes)
   
-    best_graph=np.copy(graph)       # store copy of best graph
-    cur_graph=np.copy(graph)        # candidate graph for comparison
+    bestgraph=np.copy(graph)       # store copy of best graph
+    cur_graph=np.copy(graph)       # candidate graph for comparison
 
-    best_ll=probX(Xs,best_graph,numnodes,irts,jeff,beta)   # LL of best graph found
-    cur_ll=best_ll                                         # LL of current graph
+    best_ll=probX(Xs,bestgraph,numnodes,irts,jeff,beta)   # LL of best graph found
+    cur_ll=best_ll                                        # LL of current graph
 
     # items in at least 2 lists. links between these nodes are more likely to affect P(G)
     # http://stackoverflow.com/q/2116286/353278
@@ -126,7 +114,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
     overlap=list(overlap)
     combos=list(combinations(overlap,2))    # all possible links btw overlapping nodes
 
-    while converge < max_converge:
+    while converge < tolerance:
         
         links=[]        # links to toggle in candidate graph
         while True:     # emulates do-while loop (ugly)
@@ -134,7 +122,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
                 link=random.choice(combos)
             else:                                    # sometimes choose a link at random
                 link=(0,0)
-                while link[0]==link[1]:
+                while link[0]==link[1]:              # avoid self-transitions
                     link=(int(math.floor(random.random()*numnodes)),int(math.floor(random.random()*numnodes)))
             links.append(link)
             if random.random() <= prob_multi:
@@ -161,7 +149,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
             if cur_ll > best_ll:
                 converge = 0          # reset convergence criterion only if new graph is better than BEST graph
                 best_ll=cur_ll
-                best_graph = np.copy(cur_graph)
+                bestgraph = np.copy(cur_graph)
             else:
                 converge += 1
         else:
@@ -170,7 +158,15 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0):
             for link in links:
                 cur_graph[link[0],link[1]] = 1 - cur_graph[link[0],link[1]]
                 cur_graph[link[1],link[0]] = 1 - cur_graph[link[1],link[0]] 
-    return best_graph, best_ll
+    return bestgraph, best_ll
+
+def firstEdge(Xs, numnodes):
+    a=np.zeros((numnodes,numnodes))
+    for x in Xs:
+        a[x[0],x[1]]=1
+        a[x[1],x[0]]=1 # symmetry
+    a=np.array(a.astype(int))
+    return a
 
 # first hitting times for each node
 def firstHits(walk):
@@ -183,24 +179,6 @@ def firstHits(walk):
 # helper function generate flast lists from nested lists
 def flatten_list(l):
     return [item for sublist in l for item in sublist]
-
-# DEPRECATED
-# generate numperseed graphs from each graph in seedgraphs by randomly flipping
-# X edges, where X is chosen randomly from list edgestotweak
-def genFromSeeds(seedgraphs,numperseed,edgestotweak):
-    graphs=seedgraphs[:]
-    for i in seedgraphs:
-        for j in range(numperseed):
-            new=np.copy(i)
-            for k in range(random.choice(edgestotweak)):
-                rand1=rand2=0
-                while (rand1 == rand2):                    # avoid linking a node to itself
-                    rand1=random.randint(0,len(i)-1)
-                    rand2=random.randint(0,len(i)-1)
-                new[rand1,rand2]=1-new[rand1,rand2]
-                new[rand2,rand1]=1-new[rand2,rand1]
-            graphs.append(new)
-    return graphs
 
 # generate a connected Watts-Strogatz small-world graph
 # (n,k,p) = (number of nodes, each node connected to k-nearest neighbors, probability of rewiring)
@@ -342,30 +320,28 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
     
     for xnum, x in enumerate(Xs):
         prob=[]
+        
+        notinx=[]       # nodes not in trimmed X
+        for i in range(numnodes):
+            if i not in x:
+                notinx.append(i)
+        
         for curpos in range(1,len(x)):
-            Q=np.copy(t)
-
-            notinx=[]       # nodes not in trimmed X
-            for i in range(numnodes):
-                if i not in x:
-                    notinx.append(i)
-
             startindex=x[curpos-1]
             deletedlist=sorted(x[curpos:]+notinx,reverse=True)
             notdeleted=[i for i in range(numnodes) if i not in deletedlist]
-            for i in deletedlist:  # to form Q matrix
-                Q=np.delete(Q,i,0) # delete row
-                Q=np.delete(Q,i,1) # delete column
+            Q=np.delete(t,deletedlist,0) # make copy of t and delete rows
+            Q=np.delete(Q,deletedlist,1) # delete columns
                 
             if (len(irts) > 0) and (jeff < 1): # use this method only when passing IRTs with weight < 1
                 startindex = startindex-sum([startindex > i for i in deletedlist])
                 numcols=np.shape(Q)[1]
                 flist=[]
                 oldQ=np.copy(Q)
-                
+                Q=np.identity(len(oldQ)) # init to Q^0, for when r=1
                 irt=irts[xnum][curpos-1]
+
                 for r in range(1,maxlen):
-                    Q=np.linalg.matrix_power(oldQ,r-1)
                     sumlist=[]
                     for k in range(numcols):
                         num1=Q[k,startindex]                # probability of being at node k in r-1 steps
@@ -373,12 +349,15 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
                         sumlist.append(num1*num2)
                     innersum=sum(sumlist)                   # sum over all possible paths
                     
-                    gamma=math.log(scipy.stats.gamma.pdf(irt, r, scale=beta)) # r=alpha
-
-                    if innersum > 0: # double check w/ joe about this. math domain error without it
-                        flist.append(gamma*(1-jeff)+jeff*math.log(innersum))
+                    # much faster than using scipy.stats.gamma.pdf
+                    log_gamma=r*math.log(beta)-math.lgamma(r)+(r-1)*math.log(irt)-beta*irt # r=alpha. probability of observing irt at r steps
+                    
+                    if innersum > 0: # sometimes it's not possible to get to the target node in r steps
+                        flist.append(log_gamma*(1-jeff)+jeff*math.log(innersum))
+                    Q=np.dot(Q,oldQ)    # raise the power by one
+                
                 f=sum([math.e**i for i in flist])
-                prob.append(f)      # probability of x_(t-1) to X_t
+                prob.append(f)           # probability of x_(t-1) to X_t
             else:                        # if no IRTs, use standard INVITE
                 I=np.identity(len(Q))
                 reg=(1+1e-5)             # nuisance parameter to prevent errors
@@ -475,17 +454,17 @@ def smallworld(a):
     return s
 
 # generates fake IRTs from # of steps in a random walk, using gamma distribution
-def stepsToIRT(irts, beta=1, seed=None):
-    np.random.seed(seed)
+def stepsToIRT(irts, beta=1.0, seed=None):
+    np.random.seed(seed)        # to generate the same IRTs each time
     new_irts=[]
     for irtlist in irts:
-        newlist=[np.random.gamma(irt, beta) for irt in irtlist]
+        newlist=[np.random.gamma(irt, (1.0/beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
         new_irts.append(newlist)
     return new_irts
 
 # runs a batch of toy graphs. logging code needs to be cleaned up significantly
 def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile, start_seed=0, 
-             methods=['rw','invite','inviteirt'],header=0):
+             methods=['rw','invite','inviteirt','fe'],header=1):
 
     numedges=numnodes*(numlinks/2)        # number of edges in graph    
     f=open(outfile,'a', 0)                # write/append to file with no buffering

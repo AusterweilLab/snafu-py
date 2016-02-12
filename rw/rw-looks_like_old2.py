@@ -16,17 +16,6 @@ import textwrap
 from itertools import *
 from datetime import datetime
 
-# create toy graph object. currently only small-world
-#class ToyGraph:
-#    def __init__(self, numnodes, numlinks, probRewire, graph_seed=None):
-#
-#        self.numnodes = numnodes                # number of nodes in graph
-#        self.numlinks = numlinks                # initial number of edges per node (must be even)
-#        self.probRewire = probRewire            # probability of re-wiring an edge
-#        self.numedges = numnodes*(numlinks/2)   # number of edges in smallworld-graph
-#        
-#        self.g, self.a = genG(numnodes,numlinks,probRewire,seed=graph_seed)
-
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
 def cost(graph,a):
@@ -478,96 +467,113 @@ def stepsToIRT(irts, beta=1.0, seed=None):
 def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile, start_seed=0, 
              methods=['rw','invite','inviteirt','fe'],header=1):
 
-    # break out of function if using unknown method
-    for method in methods:
-        if method not in ['rw','invite','inviteirt','fe']:
-            print "ERROR: Trying to fit graph with unknown method: ", method
-            raise
-
-    # stuff to write to file
-    globalvals=['jeff','beta','numnodes','numlinks','probRewire',
-                'numedges','graph_seed','numx','trim','x_seed']               # same across all methods
-    methodvals=['cost','time','bestgraph','hit','miss','fa','cr','bestval']   # differ per method
-
+    numedges=numnodes*(numlinks/2)        # number of edges in graph    
     f=open(outfile,'a', 0)                # write/append to file with no buffering
     if header==1:
-        f.write(','.join(globalvals))
-        f.write(',')
+        f.write('jeff,beta,numnodes,numlinks,probRewire,numedges,graph_seed,numx,trim,x_seed,cost_rw,cost_irts,cost_noirts,time_irts,time_noirts,bestgraph_irts,bestgraph_noirts,alter_graph,hit_irts,miss_irts,fa_irts,cr_irts,hit_noirts,miss_noirts,fa_noirts,cr_noirts,hit_rw,miss_rw,fa_rw,cr_rw,bestval_irts,bestval_noirts,bestval_rw\n')
+ 
+    # cubersome... find a better solution
+    cost_irts , time_irts , bestval_irts , bestgraph_irts , sdt_irts = [[] for i in range(5)]
+    cost_noirts , time_noirts , bestval_noirts , bestgraph_noirts , sdt_noirts = [[] for i in range(5)]
+    cost_orig , bestval_orig , sdt_orig = [[] for i in range(3)]
+
+    for seed_param in range(start_seed,start_seed+numgraphs):
         for method in methods:
-            towrite=[i+'_'+method for i in methodvals]
-            f.write(','.join(towrite))
-            f.write(',')
-        f.write('\n')
- 
-    # store all data in dict to write to file later
-    data={}
-    for method in methods:
-        data[method]={}
-        for val in methodvals:
-            data[method][val]=[]
+            print "SEED: ", seed_param, "method: ", method
+            graph_seed=seed_param
+            x_seed=seed_param
 
-    numedges=numnodes*(numlinks/2)        # number of edges in graph    
-
-    # how many graphs to run?
-    seed_param=start_seed
-    last_seed=start_seed+numgraphs
-
-    while seed_param < last_seed:
-        graph_seed=seed_param
-        x_seed=seed_param
-
-        # generate toy data
-        g,a=genG(numnodes,numlinks,probRewire,seed=graph_seed)
-        [Xs,steps]=zip(*[genX(g, seed=x_seed+i,use_irts=1) for i in range(numx)])
-        Xs=list(Xs)
-        steps=list(steps)
-        [Xs,alter_graph]=trimX(trim,Xs,g)
-
-        if alter_graph==0:      # only use data that covers entire graph
-            for method in methods:
-                print "SEED: ", seed_param, "method: ", method
- 
-                # generate IRTs if using IRT model
+            # toy data
+            g,a=genG(numnodes,numlinks,probRewire,seed=graph_seed)
+            [Xs,steps]=zip(*[genX(g, seed=x_seed+i,use_irts=1) for i in range(numx)])
+            Xs=list(Xs)
+            steps=list(steps)
+            [Xs,alter_graph]=trimX(trim,Xs,g)
+                    
+            if method=='inviteirt':
+                irts=stepsToIRT(steps, beta, seed=x_seed) # TODO: also chop irts!
+            else:
                 irts=[]
-                if method=='inviteirt':
-                    irts=stepsToIRT(steps, beta, seed=x_seed)
-                
-                # Find best graph! (and log time)
-                starttime=datetime.now()
-                if method in ['invite','inviteirt']:
-                    bestgraph, bestval=findBestGraph(Xs, irts, jeff, beta, numnodes)
-                if method == 'rw':
-                    bestgraph=noHidden(Xs,numnodes)
-                    bestval=probX(Xs, bestgraph, numnodes)
-                if method == 'fe':
-                    bestgraph=firstEdge(Xs,numnodes)
-                    bestval=probX(Xs, bestgraph, numnodes)
-                elapsedtime=str(datetime.now()-starttime)
-        
-                # compute SDT
-                hit, miss, fa, cr = costSDT(bestgraph,a)
 
-                # Record cost, time elapsed, LL of best graph, hash of best graph, and SDT measures
-                data[method]['cost'].append(cost(bestgraph,a))
-                data[method]['time'].append(elapsedtime)
-                data[method]['bestval'].append(bestval)
-                data[method]['bestgraph'].append(graphToHash(bestgraph,numnodes))
-                data[method]['hit'].append(hit)
-                data[method]['miss'].append(miss)
-                data[method]['fa'].append(fa)
-                data[method]['cr'].append(cr)
-    
-            # log stuff here
-            if outfile != '':
-                towrite=[str(eval(i)) for i in globalvals] # EVAL!!!
-                f.write(','.join(towrite))
-                for method in methods:
-                    for val in methodvals:
-                        f.write(','+str(data[method][val][-1]))
-                f.write('\n')
-        else:
-            last_seed = last_seed + 1       # if data is unusable (doesn't cover whole graph), add another seed
-        seed_param = seed_param + 1
+            # Find best graph! (and log time)
+            if method !='rw':
+                starttime=datetime.now()
+                best_graph, bestval=findBestGraph(Xs, irts, jeff, beta, numnodes)
+                elapsedtime=str(datetime.now()-starttime)
+
+            # Record cost, time elapsed, LL of best graph, hash of best graph, and SDT measures
+            if method=='inviteirt':                              # Using INVITE + IRT
+                cost_irts.append(cost(best_graph,a))
+                time_irts.append(elapsedtime)
+                bestval_irts.append(bestval)
+                bestgraph_irts.append(graphToHash(best_graph,numnodes))
+                sdt_irts.append(costSDT(best_graph,a))
+            if method=='invite':                                 # Using vanilla INVITE
+                cost_noirts.append(cost(best_graph,a))
+                time_noirts.append(elapsedtime)
+                sdt_noirts.append(costSDT(best_graph,a))
+                bestval_noirts.append(bestval)
+                bestgraph_noirts.append(graphToHash(best_graph,numnodes))
+            if method=='rw':                                      # Using naive RW
+                orig=noHidden(Xs,numnodes)
+                cost_orig.append(cost(orig,a))
+                bestval_orig.append(probX(Xs, orig, numnodes))
+                sdt_orig.append(costSDT(orig,a))
+               
+        # log stuff here
+        if outfile != '':
+            # ugly quick fix
+            if 'inviteirt' not in methods:
+                cost_irts.append('NA')
+                time_irts.append('NA')
+                bestval_irts.append('NA')
+                bestgraph_irts.append('NA')
+                sdt_irts.append(['NA','NA','NA','NA'])
+            if 'invite' not in methods:
+                cost_noirts.append('NA')
+                time_noirts.append('NA')
+                sdt_noirts.append(['NA','NA','NA','NA'])
+                bestval_noirts.append('NA')
+                bestgraph_noirts.append('NA')
+            if 'rw' not in methods:
+                cost_orig.append('NA')
+                bestval_orig.append('NA')
+                sdt_orig.append(['NA','NA','NA','NA'])
+
+            f.write(
+                    str(jeff) + ',' +
+                    str(beta) + ',' +
+                    str(numnodes) + ',' +
+                    str(numlinks) + ',' +
+                    str(probRewire) + ',' +
+                    str(numedges) + ',' +
+                    str(graph_seed) + ',' +
+                    str(numx) + ',' +
+                    str(trim) + ',' +
+                    str(x_seed) + ',' +
+                    str(cost_orig[-1]) + ',' +
+                    str(cost_irts[-1]) + ',' +
+                    str(cost_noirts[-1]) + ',' +
+                    str(time_irts[-1]) + ',' +
+                    str(time_noirts[-1]) + ',' +
+                    str(bestgraph_irts[-1]) + ',' +
+                    str(bestgraph_noirts[-1]) + ',' +
+                    str(alter_graph) + ',' +
+                    str(sdt_irts[-1][0]) + ',' +
+                    str(sdt_irts[-1][1]) + ',' +
+                    str(sdt_irts[-1][2]) + ',' +
+                    str(sdt_irts[-1][3]) + ',' +
+                    str(sdt_noirts[-1][0]) + ',' +
+                    str(sdt_noirts[-1][1]) + ',' +
+                    str(sdt_noirts[-1][2]) + ',' +
+                    str(sdt_noirts[-1][3]) + ',' +
+                    str(sdt_orig[-1][0]) + ',' +
+                    str(sdt_orig[-1][1]) + ',' +
+                    str(sdt_orig[-1][2]) + ',' +
+                    str(sdt_orig[-1][3]) + ',' +
+                    str(bestval_irts[-1]) + ',' +
+                    str(bestval_noirts[-1]) + ',' +
+                    str(bestval_orig[-1]) + '\n')
     f.close()
 
 # trim Xs to proportion of graph size, the trim graph to remove any nodes that weren't hit

@@ -420,15 +420,15 @@ def readX(subj,category,filepath):
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g,start=None,seed=None):
-    myrandom=random.Random(seed)
+    random.seed(seed)
     if start is None:
-        start=myrandom.choice(nx.nodes(g))
+        start=random.choice(nx.nodes(g))
     walk=[]
     unused_nodes=set(nx.nodes(g))
     unused_nodes.remove(start)
     while len(unused_nodes) > 0:
         p=start
-        start=myrandom.choice([x for x in nx.all_neighbors(g,start)]) # follow random edge
+        start=random.choice([x for x in nx.all_neighbors(g,start)]) # follow random edge
         walk.append((p,start))
         if start in unused_nodes:
             unused_nodes.remove(start)
@@ -456,10 +456,10 @@ def smallworld(a):
 
 # generates fake IRTs from # of steps in a random walk, using gamma distribution
 def stepsToIRT(irts, beta=1.0, seed=None):
-    myrandom=np.random.RandomState(seed)        # to generate the same IRTs each time
+    np.random.seed(seed)        # to generate the same IRTs each time
     new_irts=[]
     for irtlist in irts:
-        newlist=[myrandom.gamma(irt, (1.0/beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
+        newlist=[np.random.gamma(irt, (1.0/beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
         new_irts.append(newlist)
     return new_irts
 
@@ -481,7 +481,7 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
     f=open(outfile,'a', 0)                # write/append to file with no buffering
     if header==1:
         f.write(','.join(globalvals))
-        f.write(',toynetwork,')
+        f.write(',')
         for method in methods:
             towrite=[i+'_'+method for i in methodvals]
             f.write(','.join(towrite))
@@ -516,7 +516,7 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
             irts=stepsToIRT(steps, beta, seed=x_seed)
 
         # trim data when necessary
-        [Xs,irts,alter_graph]=trimX(trim,Xs,irts,g)
+        [Xs,alter_graph]=trimX(trim,Xs,g)
 
         if alter_graph==0:      # only use data that covers entire graph (only a problem when trimming data)
             for method in methods:
@@ -540,7 +540,6 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
                 hit, miss, fa, cr = costSDT(bestgraph,a)
 
                 # Record cost, time elapsed, LL of best graph, hash of best graph, and SDT measures
-                # TODO: record target graph
                 data[method]['cost'].append(cost(bestgraph,a))
                 data[method]['time'].append(elapsedtime)
                 data[method]['bestval'].append(bestval)
@@ -554,7 +553,6 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
             if outfile != '':
                 towrite=[str(eval(i)) for i in globalvals] # EVAL!!!
                 f.write(','.join(towrite))
-                f.write(','+graphToHash(a,numnodes))
                 for method in methods:
                     for val in methodvals:
                         f.write(','+str(data[method][val][-1]))
@@ -566,16 +564,21 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
 
 # trim Xs to proportion of graph size, the trim graph to remove any nodes that weren't hit
 # used to simulate human data that doesn't cover the whole graph every time
-def trimX(prop, Xs, steps, g):
+def trimX(prop, Xs, g):
     numnodes=g.number_of_nodes()
     alter_graph_size=0              # report if graph size changes-- may result in disconnected graph!
     numtrim=int(round(numnodes*prop))
     Xs=[i[0:numtrim] for i in Xs]
-    steps=[i[0:(numtrim-1)] for i in steps]
     for i in range(numnodes):
         if i not in set(flatten_list(Xs)):
             alter_graph_size=1
-    return Xs, steps, alter_graph_size
+    #        g.remove_node(i)
+    #a=np.array(nx.adjacency_matrix(g, range(numnodes)).todense())
+    #if 0 not in sum(a):         # ensures that graph is still connected after trimming Xs
+    #    alter_graph_size=0
+    if alter_graph_size==1:
+        print "WARNING: Not all graph nodes encountered after trimming X"
+    return Xs, alter_graph_size
 
 # tuple walk from flat list
 def walk_from_path(path):
