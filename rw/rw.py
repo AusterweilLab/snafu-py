@@ -185,6 +185,7 @@ def flatten_list(l):
 # k has to be even, tries is number of attempts to make connected graph
 def genG(n,k,p,tries=1000, seed=None):
     g=nx.connected_watts_strogatz_graph(n,k,p,tries,seed) # networkx graph
+    random.seed(None)                               # bug in nx, random seed needs to be reset    
     a=np.array(nx.adjacency_matrix(g).todense())     # adjacency matrix
     return g, np.array(a, dtype=np.int32)
 
@@ -526,8 +527,10 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
                 starttime=datetime.now()
                 if method == 'invite':
                     bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes)
+                    print graphToHash(bestgraph,numnodes)
                 if method == 'inviteirt':
                     bestgraph, bestval=findBestGraph(Xs, irts, jeff, beta, numnodes)
+                    print graphToHash(bestgraph,numnodes)
                 if method == 'rw':
                     bestgraph=noHidden(Xs,numnodes)
                     bestval=probX(Xs, bestgraph, numnodes)
