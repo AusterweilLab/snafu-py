@@ -15,6 +15,15 @@ import sys
 import textwrap
 from itertools import *
 from datetime import datetime
+from scipy import ma
+
+# TODO: masked arrays
+# TODO: unit tests
+# TODO: swap axes
+
+# Set the random seed to allow search process to be replicable. Untested.
+# Currently needed because search procedure is inconsistent
+randomseed=1
 
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
@@ -185,8 +194,8 @@ def flatten_list(l):
 # k has to be even, tries is number of attempts to make connected graph
 def genG(n,k,p,tries=1000, seed=None):
     g=nx.connected_watts_strogatz_graph(n,k,p,tries,seed) # networkx graph
-    random.seed(None)                               # bug in nx, random seed needs to be reset    
-    a=np.array(nx.adjacency_matrix(g).todense())     # adjacency matrix
+    random.seed(randomseed)                               # bug in nx, random seed needs to be reset    
+    a=np.array(nx.adjacency_matrix(g).todense())          # adjacency matrix
     return g, np.array(a, dtype=np.int32)
 
 # only returns adjacency matrix, not nx graph
@@ -332,6 +341,12 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
             startindex=x[curpos-1]
             deletedlist=sorted(x[curpos:]+notinx,reverse=True)
             notdeleted=[i for i in range(numnodes) if i not in deletedlist]
+            
+            #mask=np.zeros_like(t)
+            #mask[:,deletedlist]=1
+            #mask[deletedlist,:]=1
+            #Q=ma.masked_array(t,mask)
+            
             Q=np.delete(t,deletedlist,0) # make copy of t and delete rows
             Q=np.delete(Q,deletedlist,1) # delete columns
                 
@@ -543,7 +558,6 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
                 hit, miss, fa, cr = costSDT(bestgraph,a)
 
                 # Record cost, time elapsed, LL of best graph, hash of best graph, and SDT measures
-                # TODO: record target graph
                 data[method]['cost'].append(cost(bestgraph,a))
                 data[method]['time'].append(elapsedtime)
                 data[method]['bestval'].append(bestval)
