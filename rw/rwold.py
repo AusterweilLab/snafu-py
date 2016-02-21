@@ -17,9 +17,9 @@ from itertools import *
 from datetime import datetime
 from scipy import ma
 
+# TODO: masked arrays
 # TODO: unit tests
-# TODO: reset random seed after each method
-# TODO: print num changes, cost for each toy network
+# TODO: swap axes
 
 # Set the random seed to allow search process to be replicable. Untested.
 # Currently needed because search procedure is inconsistent
@@ -144,16 +144,15 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
 
         graph_ll=probX(Xs,cur_graph,numnodes,irts,jeff,beta)
 
-        # for debugging... make sure its testing lots of graphs
-        #itern=itern+1
-        #if itern % 100 == 0:
-            #print itern
+        # debugging... make sure its testing lots of graphs
+        itern=itern+1
+        if itern % 100 == 0:
+            print itern
 
         # if graph is better than current graph, accept it
         # if graph is worse, accept with some probability
         if (graph_ll > cur_ll): # or (random.random() <= (math.exp(graph_ll)/math.exp(cur_ll))):
-            # for debugging
-            #print "GRAPH: ", graph_ll, "CUR: ", cur_ll, "BEST: ", best_ll
+            print "GRAPH: ", graph_ll, "CUR: ", cur_ll, "BEST: ", best_ll
             graph=np.copy(cur_graph)
             cur_ll = graph_ll
             if cur_ll > best_ll:
@@ -327,46 +326,52 @@ def path_from_walk(walk):
 
 # probability of observing Xs, including irts
 def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
-    probs=[] 
+    probs=[]
     t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
     
     for xnum, x in enumerate(Xs):
         prob=[]
         
-        notinx=[i for i in range(numnodes) if i not in x]        # nodes not in trimmed X
+        notinx=[]       # nodes not in trimmed X
+        for i in range(numnodes):
+            if i not in x:
+                notinx.append(i)
         
         for curpos in range(1,len(x)):
             startindex=x[curpos-1]
             deletedlist=sorted(x[curpos:]+notinx,reverse=True)
-            notdeleted=np.array([i for i in range(numnodes) if i not in deletedlist])
-           
-            Q=t[notdeleted[:, None],notdeleted]
+            notdeleted=[i for i in range(numnodes) if i not in deletedlist]
+            
+            #mask=np.zeros_like(t)
+            #mask[:,deletedlist]=1
+            #mask[deletedlist,:]=1
+            #Q=ma.masked_array(t,mask)
+            
+            Q=np.delete(t,deletedlist,0) # make copy of t and delete rows
+            Q=np.delete(Q,deletedlist,1) # delete columns
                 
             if (len(irts) > 0) and (jeff < 1): # use this method only when passing IRTs with weight < 1
                 startindex = startindex-sum([startindex > i for i in deletedlist])
-                # same as startindex==sorted(x[:curpos]).index(x[curpos-1])... less readable, maybe more efficient?
-                
-                numcols=len(Q)
+                numcols=np.shape(Q)[1]
                 flist=[]
-                newQ=np.identity(numcols) # init to Q^0, for when r=1
+                oldQ=np.copy(Q)
+                Q=np.identity(len(oldQ)) # init to Q^0, for when r=1
                 irt=irts[xnum][curpos-1]
 
-                logbeta=math.log(beta) # precomputing for tiny speedup
-
                 for r in range(1,maxlen):
-                    innersum=0
+                    sumlist=[]
                     for k in range(numcols):
-                        num1=newQ[k,startindex]                # probability of being at node k in r-1 steps
+                        num1=Q[k,startindex]                # probability of being at node k in r-1 steps
                         num2=t[x[curpos],notdeleted[k]]     # probability transitioning from k to absorbing node    
-                        innersum=innersum+(num1*num2)        # maybe possibility of underflow for large graphs?
-                   
-
+                        sumlist.append(num1*num2)
+                    innersum=sum(sumlist)                   # sum over all possible paths
+                    
                     # much faster than using scipy.stats.gamma.pdf
-                    log_gamma=r*logbeta-math.lgamma(r)+(r-1)*math.log(irt)-beta*irt # r=alpha. probability of observing irt at r steps
+                    log_gamma=r*math.log(beta)-math.lgamma(r)+(r-1)*math.log(irt)-beta*irt # r=alpha. probability of observing irt at r steps
                     
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
                         flist.append(log_gamma*(1-jeff)+jeff*math.log(innersum))
-                    newQ=np.dot(newQ,Q)    # raise the power by one
+                    Q=np.dot(Q,oldQ)    # raise the power by one
                 
                 f=sum([math.e**i for i in flist])
                 prob.append(f)           # probability of x_(t-1) to X_t
@@ -374,11 +379,16 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
                 I=np.identity(len(Q))
                 reg=(1+1e-5)             # nuisance parameter to prevent errors
                 N=inv(I*reg-Q)
-                
-                r=np.array(sorted(x[curpos:]))
-                c=sorted(x[:curpos])
-                R=t[r[:,None],c]
+                R=np.copy(t)
 
+                for i in reversed(range(numnodes)):
+                    if i in notinx:
+                        R=np.delete(R,i,1)
+                        R=np.delete(R,i,0)
+                    elif i in x[curpos:]:
+                        R=np.delete(R,i,1) # columns are already visited nodes
+                    else:
+                        R=np.delete(R,i,0) # rows are absorbing/unvisited nodes
                 B=np.dot(R,N)
                 startindex=sorted(x[:curpos]).index(x[curpos-1])
                 absorbingindex=sorted(x[curpos:]).index(x[curpos])
@@ -518,7 +528,6 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
         steps=list(steps)
 
         # generate IRTs if using IRT model
-        irts=[]
         if 'inviteirt' in methods:
             irts=stepsToIRT(steps, beta, seed=x_seed)
 
@@ -544,7 +553,6 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
                     bestgraph=firstEdge(Xs,numnodes)
                     bestval=probX(Xs, bestgraph, numnodes)
                 elapsedtime=str(datetime.now()-starttime)
-                print elapsedtime
         
                 # compute SDT
                 hit, miss, fa, cr = costSDT(bestgraph,a)
@@ -592,3 +600,4 @@ def walk_from_path(path):
     for i in range(len(path)-1):
         walk.append((path[i],path[i+1])) 
     return walk
+
