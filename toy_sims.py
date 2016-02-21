@@ -21,9 +21,9 @@ beta=(1/1.1)                            # for gamma distribution when generating
 
 # WRITE DATA
 numgraphs=100                         # number of toy graphs to generate/reconstruct
-outfile='sim_results_optimize.csv'
+outfile='sim_results_ok2.csv'
 
 # optionally, pass a methods argument
 # default is methods=['rw','invite','inviteirt'] 
     
-rw.toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile,start_seed=1,methods=['inviteirt','invite'])
+rw.toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile,start_seed=1,methods=['invite','inviteirt'])
