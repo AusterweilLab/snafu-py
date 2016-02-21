@@ -17,10 +17,8 @@ from itertools import *
 from datetime import datetime
 from scipy import ma
 
-# TODO: masked arrays
 # TODO: unit tests
 # TODO: swap axes
-# TODO: check "notinx"
 # TODO: reset random seed after each method
 
 # Set the random seed to allow search process to be replicable. Untested.
@@ -146,15 +144,16 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
 
         graph_ll=probX(Xs,cur_graph,numnodes,irts,jeff,beta)
 
-        # debugging... make sure its testing lots of graphs
-        itern=itern+1
-        if itern % 100 == 0:
-            print itern
+        # for debugging... make sure its testing lots of graphs
+        #itern=itern+1
+        #if itern % 100 == 0:
+            #print itern
 
         # if graph is better than current graph, accept it
         # if graph is worse, accept with some probability
         if (graph_ll > cur_ll): # or (random.random() <= (math.exp(graph_ll)/math.exp(cur_ll))):
-            print "GRAPH: ", graph_ll, "CUR: ", cur_ll, "BEST: ", best_ll
+            # for debugging
+            #print "GRAPH: ", graph_ll, "CUR: ", cur_ll, "BEST: ", best_ll
             graph=np.copy(cur_graph)
             cur_ll = graph_ll
             if cur_ll > best_ll:
@@ -327,17 +326,14 @@ def path_from_walk(walk):
     return path
 
 # probability of observing Xs, including irts
-def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
-    probs=[]
+def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=10):
+    probs=[] 
     t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
     
     for xnum, x in enumerate(Xs):
         prob=[]
         
-        notinx=[]       # nodes not in trimmed X
-        for i in range(numnodes):
-            if i not in x:
-                notinx.append(i)
+        notinx=[i for i in range(numnodes) if i not in x]        # nodes not in trimmed X
         
         for curpos in range(1,len(x)):
             startindex=x[curpos-1]
@@ -348,21 +344,25 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
                 
             if (len(irts) > 0) and (jeff < 1): # use this method only when passing IRTs with weight < 1
                 startindex = startindex-sum([startindex > i for i in deletedlist])
+                # same as startindex==sorted(x[:curpos]).index(x[curpos-1])... less readable, maybe more efficient?
+                
                 numcols=len(Q)
                 flist=[]
                 newQ=np.identity(numcols) # init to Q^0, for when r=1
                 irt=irts[xnum][curpos-1]
 
+                logbeta=math.log(beta) # precomputing for tiny speedup
+
                 for r in range(1,maxlen):
-                    sumlist=[]
+                    innersum=0
                     for k in range(numcols):
                         num1=newQ[k,startindex]                # probability of being at node k in r-1 steps
                         num2=t[x[curpos],notdeleted[k]]     # probability transitioning from k to absorbing node    
-                        sumlist.append(num1*num2)
-                    innersum=sum(sumlist)                   # sum over all possible paths
-                    
+                        innersum=innersum+(num1*num2)        # maybe possibility of underflow for large graphs?
+                   
+
                     # much faster than using scipy.stats.gamma.pdf
-                    log_gamma=r*math.log(beta)-math.lgamma(r)+(r-1)*math.log(irt)-beta*irt # r=alpha. probability of observing irt at r steps
+                    log_gamma=r*logbeta-math.lgamma(r)+(r-1)*math.log(irt)-beta*irt # r=alpha. probability of observing irt at r steps
                     
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
                         flist.append(log_gamma*(1-jeff)+jeff*math.log(innersum))
@@ -544,6 +544,7 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
                     bestgraph=firstEdge(Xs,numnodes)
                     bestval=probX(Xs, bestgraph, numnodes)
                 elapsedtime=str(datetime.now()-starttime)
+                print elapsedtime
         
                 # compute SDT
                 hit, miss, fa, cr = costSDT(bestgraph,a)

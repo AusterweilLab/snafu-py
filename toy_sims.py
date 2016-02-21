@@ -20,7 +20,7 @@ jeff=0.9                              # 1-IRT weight
 beta=(1/1.1)                            # for gamma distribution when generating IRTs from hidden nodes
 
 # WRITE DATA
-numgraphs=1                         # number of toy graphs to generate/reconstruct
+numgraphs=100                         # number of toy graphs to generate/reconstruct
 outfile='sim_results_optimize.csv'
 
 # optionally, pass a methods argument
