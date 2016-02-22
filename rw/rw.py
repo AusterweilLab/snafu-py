@@ -98,6 +98,8 @@ def expectedHidden(Xs, a, numnodes):
     return expecteds
 
 def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
+    random.seed(randomseed)     # for replicability
+    
     # free parameters
     prob_overlap=.8     # probability a link connecting nodes in multiple graphs
     prob_multi=.8       # probability of selecting an additional link
@@ -111,11 +113,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
     # find a good starting graph using naive RW
     graph=noHidden(Xs,numnodes)
   
-    bestgraph=np.copy(graph)       # store copy of best graph
-    cur_graph=np.copy(graph)       # candidate graph for comparison
-
-    best_ll=probX(Xs,bestgraph,numnodes,irts,jeff,beta)   # LL of best graph found
-    cur_ll=best_ll                                        # LL of current graph
+    best_ll=probX(Xs,graph,numnodes,irts,jeff,beta)   # LL of best graph found
 
     # items in at least 2 lists. links between these nodes are more likely to affect P(G)
     # http://stackoverflow.com/q/2116286/353278
@@ -139,10 +137,10 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
 
         # toggle links
         for link in links:
-            cur_graph[link[0],link[1]] = 1 - cur_graph[link[0],link[1]] 
-            cur_graph[link[1],link[0]] = 1 - cur_graph[link[1],link[0]]
+            graph[link[0],link[1]] = 1 - graph[link[0],link[1]] 
+            graph[link[1],link[0]] = 1 - graph[link[1],link[0]]
 
-        graph_ll=probX(Xs,cur_graph,numnodes,irts,jeff,beta)
+        graph_ll=probX(Xs,graph,numnodes,irts,jeff,beta)
 
         # for debugging... make sure its testing lots of graphs
         #itern=itern+1
@@ -150,25 +148,18 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
             #print itern
 
         # if graph is better than current graph, accept it
-        # if graph is worse, accept with some probability
-        if (graph_ll > cur_ll): # or (random.random() <= (math.exp(graph_ll)/math.exp(cur_ll))):
+        if (graph_ll > best_ll):
             # for debugging
-            #print "GRAPH: ", graph_ll, "CUR: ", cur_ll, "BEST: ", best_ll
-            graph=np.copy(cur_graph)
-            cur_ll = graph_ll
-            if cur_ll > best_ll:
-                converge = 0          # reset convergence criterion only if new graph is better than BEST graph
-                best_ll=cur_ll
-                bestgraph = np.copy(cur_graph)
-            else:
-                converge += 1
+            #print "GRAPH: ", graph_ll, "BEST: ", best_ll
+            best_ll = graph_ll
+            converge = 0          # reset convergence criterion only if new graph is better than BEST graph
         else:
             converge += 1
-            # toggle links back. my guess is this is faster than making graph copies but i dont know
+            # toggle links back, should be faster than making graph copy
             for link in links:
-                cur_graph[link[0],link[1]] = 1 - cur_graph[link[0],link[1]]
-                cur_graph[link[1],link[0]] = 1 - cur_graph[link[1],link[0]] 
-    return bestgraph, best_ll
+                graph[link[0],link[1]] = 1 - graph[link[0],link[1]]
+                graph[link[1],link[0]] = 1 - graph[link[1],link[0]] 
+    return graph, best_ll
 
 def firstEdge(Xs, numnodes):
     a=np.zeros((numnodes,numnodes))
@@ -236,7 +227,7 @@ def genZfromX(x, theta):
     path.append(x2.pop())
 
     while len(x2) > 0:
-        if random.random() < theta:
+        if random.random() < theta:     # might want to set random seed for replicability?
             # add random hidden node
             possibles=set(path) # choose equally from previously visited nodes
             possibles.discard(path[-1]) # but exclude last node (node cant link to itself)
@@ -348,26 +339,30 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
                 
                 numcols=len(Q)
                 flist=[]
-                newQ=np.identity(numcols) # init to Q^0, for when r=1
+                newQ=np.zeros(numcols)  # init to Q^0, for when r=1 (using only one row for efficiency)
+                newQ[startindex]=1.0
+
                 irt=irts[xnum][curpos-1]
 
-                logbeta=math.log(beta) # precomputing for tiny speedup
+                # precompute for small speedup
+                logbeta=math.log(beta)
+                logirt=math.log(irt)
 
                 for r in range(1,maxlen):
                     innersum=0
                     for k in range(numcols):
-                        num1=newQ[k,startindex]                # probability of being at node k in r-1 steps
+                        num1=newQ[k]                        # probability of being at node k in r-1 steps
                         num2=t[x[curpos],notdeleted[k]]     # probability transitioning from k to absorbing node    
                         innersum=innersum+(num1*num2)        # maybe possibility of underflow for large graphs?
                    
 
                     # much faster than using scipy.stats.gamma.pdf
-                    log_gamma=r*logbeta-math.lgamma(r)+(r-1)*math.log(irt)-beta*irt # r=alpha. probability of observing irt at r steps
+                    log_gamma=r*logbeta-math.lgamma(r)+(r-1)*logirt-beta*irt # r=alpha. probability of observing irt at r steps
                     
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
                         flist.append(log_gamma*(1-jeff)+jeff*math.log(innersum))
-                    newQ=np.dot(newQ,Q)    # raise the power by one
-                
+                    newQ=np.inner(newQ,Q)     # raise power by one
+
                 f=sum([math.e**i for i in flist])
                 prob.append(f)           # probability of x_(t-1) to X_t
             else:                        # if no IRTs, use standard INVITE
