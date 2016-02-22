@@ -353,7 +353,7 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
                     for k in range(numcols):
                         num1=newQ[k]                        # probability of being at node k in r-1 steps
                         num2=t[x[curpos],notdeleted[k]]     # probability transitioning from k to absorbing node    
-                        innersum=innersum+(num1*num2)        # maybe possibility of underflow for large graphs?
+                        innersum=innersum+(num1*num2)
                    
 
                     # much faster than using scipy.stats.gamma.pdf
