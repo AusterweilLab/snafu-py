@@ -16,6 +16,8 @@ import textwrap
 from itertools import *
 from datetime import datetime
 from scipy import ma
+from ExGUtils.stats import *
+from ExGUtils.exgauss import *
 
 # TODO: unit tests
 # TODO: reset random seed after each method
@@ -317,7 +319,7 @@ def path_from_walk(walk):
     return path
 
 # probability of observing Xs, including irts
-def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
+def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamma"):
     probs=[] 
     t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
     
@@ -345,8 +347,9 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
                 irt=irts[xnum][curpos-1]
 
                 # precompute for small speedup
-                logbeta=math.log(beta)
-                logirt=math.log(irt)
+                if irtmethod=="gamma":
+                    logbeta=math.log(beta)
+                    logirt=math.log(irt)
 
                 for r in range(1,maxlen):
                     innersum=0
@@ -354,13 +357,19 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
                         num1=newQ[k]                        # probability of being at node k in r-1 steps
                         num2=t[x[curpos],notdeleted[k]]     # probability transitioning from k to absorbing node    
                         innersum=innersum+(num1*num2)
-                   
 
                     # much faster than using scipy.stats.gamma.pdf
-                    log_gamma=r*logbeta-math.lgamma(r)+(r-1)*logirt-beta*irt # r=alpha. probability of observing irt at r steps
-                    
+
+                    if irtmethod=="gamma":
+                        log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-beta*irt # r=alpha. probability of observing irt at r steps
+                    if irtmethod=="exgauss":
+                        tau=.5
+                        sig=.5
+                        # same as math.log(exgauss(irt,r,sig,tau)) but avoids underflow
+                        log_dist=math.log(tau/2.0)+(tau/2.0)*(2.0*r+tau*(sig**2)-2*irt)+math.log(math.erfc((r+tau*(sig**2)-irt)/(math.sqrt(2)*sig)))
+
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
-                        flist.append(log_gamma*(1-jeff)+jeff*math.log(innersum))
+                        flist.append(log_dist*(1-jeff)+jeff*math.log(innersum))
                     newQ=np.inner(newQ,Q)     # raise power by one
 
                 f=sum([math.e**i for i in flist])
@@ -456,11 +465,16 @@ def smallworld(a):
     return s
 
 # generates fake IRTs from # of steps in a random walk, using gamma distribution
-def stepsToIRT(irts, beta=1.0, seed=None):
+def stepsToIRT(irts, beta=1.0, method="gamma", seed=None):
     myrandom=np.random.RandomState(seed)        # to generate the same IRTs each time
     new_irts=[]
     for irtlist in irts:
-        newlist=[myrandom.gamma(irt, (1.0/beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
+        if method=="gamma":
+            newlist=[myrandom.gamma(irt, (1.0/beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
+        if method=="exgauss":
+            sig=0.5
+            tau=0.5
+            newlist=[rand_exg(irt, 0.5, (1/0.5)) for irt in irtlist]  # ex-gaussian
         new_irts.append(newlist)
     return new_irts
 

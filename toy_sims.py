@@ -16,7 +16,7 @@ numx=3                                # How many observed lists?
 trim=.7                               # ~ What proportion of graph does each list cover?
 
 # PARAMETERS FOR RECONTRUCTING GRAPH
-jeff=0.5                              # 1-IRT weight
+jeff=0.9                              # 1-IRT weight
 beta=(1/1.1)                            # for gamma distribution when generating IRTs from hidden nodes
 
 # WRITE DATA
