@@ -323,7 +323,13 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamm
 
     for xnum, x in enumerate(Xs):
         prob=[]
+        prob.append(statdist[x[0]])      # probability of X_1
+
+        # if impossible starting point, return immediately
+        if prob[-1]==0.0:
+            return -np.inf
         
+
         notinx=[i for i in range(numnodes) if i not in x]        # nodes not in trimmed X
         
         for curpos in range(1,len(x)):
@@ -431,7 +437,10 @@ def readX(subj,category,filepath):
 def random_walk(g,start=None,seed=None):
     myrandom=random.Random(seed)
     if start is None:
-        start=myrandom.choice(nx.nodes(g))
+        start=myrandom.choice(nx.nodes(g))      # choose starting point uniformly
+    elif isinstance(start,scipy.stats._distn_infrastructure.rv_discrete):
+        start=start.rvs(random_state=seed)      # choose starting point from stationary distribution
+
     walk=[]
     unused_nodes=set(nx.nodes(g))
     unused_nodes.remove(start)
@@ -521,7 +530,11 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
 
         # generate toy data
         g,a=genG(numnodes,numlinks,probRewire,seed=graph_seed)
-        [Xs,steps]=zip(*[genX(g, seed=x_seed+i,use_irts=1) for i in range(numx)])
+        t=a/sum(a).astype(float)
+        statdist=stationary(t)
+        randstart=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
+        
+        [Xs,steps]=zip(*[genX(g, s=randstart,seed=x_seed+i,use_irts=1) for i in range(numx)])
         Xs=list(Xs)
         steps=list(steps)
 
@@ -601,12 +614,12 @@ def walk_from_path(path):
         walk.append((path[i],path[i+1])) 
     return walk
 
-def stationary(t,method="eigen"):
-    if method=="unweighted":
-        return sum(t>0)/float(sum(sum(t>0)))    # only works for unweighted matrices!
-    else if method=="power":
+def stationary(t,method="unweighted"):
+    if method=="unweighted":                 # only works for unweighted matrices!
+        return sum(t>0)/float(sum(sum(t>0)))   
+    elif method=="power":                       # slow?
         return np.linalg.matrix_power(t,500)[:,0]
-    else:
+    else:                                       # buggy
         eigen=np.linalg.eig(t)[1][:,0]
         return np.real(eigen/sum(eigen))
 
