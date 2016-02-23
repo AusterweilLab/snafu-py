@@ -6,16 +6,11 @@ import random
 import operator
 import math
 import matplotlib.pyplot as plt
-import time
 import scipy
-from scipy import stats
 from numpy.linalg import inv
-from scipy.optimize import fmin
-import sys
 import textwrap
 from itertools import *
 from datetime import datetime
-from scipy import ma
 from ExGUtils.stats import *
 from ExGUtils.exgauss import *
 
@@ -26,6 +21,7 @@ from ExGUtils.exgauss import *
 # Set the random seed to allow search process to be replicable. Untested.
 # Currently needed because search procedure is inconsistent
 randomseed=1
+np.seterr(under='warn')
 
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
@@ -322,7 +318,9 @@ def path_from_walk(walk):
 def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamma"):
     probs=[] 
     t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
-    
+                                        # will throw warning if a node is inaccessible 
+    statdist=stationary(t)
+
     for xnum, x in enumerate(Xs):
         prob=[]
         
@@ -376,7 +374,7 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamm
                 prob.append(f)           # probability of x_(t-1) to X_t
             else:                        # if no IRTs, use standard INVITE
                 I=np.identity(len(Q))
-                reg=(1+1e-5)             # nuisance parameter to prevent errors
+                reg=(1+1e-10)             # nuisance parameter to prevent errors
                 N=inv(I*reg-Q)
                 
                 r=np.array(sorted(x[curpos:]))
@@ -387,10 +385,11 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamm
                 startindex=sorted(x[:curpos]).index(x[curpos-1])
                 absorbingindex=sorted(x[curpos:]).index(x[curpos])
                 prob.append(B[absorbingindex,startindex])
-                
-        if 0.0 in prob: 
-            #print "Warning: Zero-probability transition; graph cannot produce X"
-            return -np.inf
+            
+            # if there's an impossible transition, return immediately
+            if prob[-1]==0.0:
+                return -np.inf
+
         probs.append(prob)
     for i in range(len(probs)):
         probs[i]=sum([math.log(j) for j in probs[i]])
@@ -601,3 +600,23 @@ def walk_from_path(path):
     for i in range(len(path)-1):
         walk.append((path[i],path[i+1])) 
     return walk
+
+def stationary(t,method="eigen"):
+    if method=="unweighted":
+        return sum(t>0)/float(sum(sum(t>0)))    # only works for unweighted matrices!
+    else if method=="power":
+        return np.linalg.matrix_power(t,500)[:,0]
+    else:
+        eigen=np.linalg.eig(t)[1][:,0]
+        return np.real(eigen/sum(eigen))
+
+# stationary distribution:
+#
+# 1) stationary=sum(a)/float(sum(sum(a)))
+# or 2)
+#   w,v=np.linalg.eig(t)
+#   stationary=v[:,0]/sum(v[:,0])
+#
+# but does (1) work on weighted matrices?
+
+
