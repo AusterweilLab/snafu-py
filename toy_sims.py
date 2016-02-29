@@ -21,7 +21,7 @@ beta=(1/1.1)                            # for gamma distribution when generating
 
 # WRITE DATA
 numgraphs=100                         # number of toy graphs to generate/reconstruct
-outfile='sim_results_2.csv'
+outfile='sim_results_1.csv'
 
 # optionally, pass a methods argument
 # default is methods=['fe','rw','invite','inviteirt'] 

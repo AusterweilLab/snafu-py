@@ -21,7 +21,6 @@ from ExGUtils.exgauss import *
 # Set the random seed to allow search process to be replicable. Untested.
 # Currently needed because search procedure is inconsistent
 randomseed=1
-np.seterr(under='warn')
 
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
@@ -118,6 +117,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
     overlap=reduce(set.union, (starmap(set.intersection, combinations(map(set, Xs), 2))))
     overlap=list(overlap)
     combos=list(combinations(overlap,2))    # all possible links btw overlapping nodes
+    firstedges=[(x[0], x[1]) for x in Xs]
 
     while converge < tolerance:
         
@@ -127,7 +127,8 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
                 link=random.choice(combos)
             else:                                    # sometimes choose a link at random
                 link=(0,0)
-                while link[0]==link[1]:              # avoid self-transitions
+                # avoid self-transition, avoid first edges (for efficiency only, since FE are required to produce data)
+                while (link[0]==link[1]) or (link in firstedges) or (link[::-1] in firstedges): 
                     link=(int(math.floor(random.random()*numnodes)),int(math.floor(random.random()*numnodes)))
             links.append(link)
             if random.random() <= prob_multi:
@@ -182,10 +183,13 @@ def flatten_list(l):
 # generate a connected Watts-Strogatz small-world graph
 # (n,k,p) = (number of nodes, each node connected to k-nearest neighbors, probability of rewiring)
 # k has to be even, tries is number of attempts to make connected graph
-def genG(n,k,p,tries=1000, seed=None):
-    g=nx.connected_watts_strogatz_graph(n,k,p,tries,seed) # networkx graph
-    random.seed(randomseed)                               # bug in nx, random seed needs to be reset    
-    a=np.array(nx.adjacency_matrix(g).todense())          # adjacency matrix
+def genG(n,k,p,tries=1000, seed=None, graphtype="sw"):
+    if graphtype=="sw":
+        g=nx.connected_watts_strogatz_graph(n,k,p,tries,seed) # networkx graph
+        random.seed(randomseed)                               # bug in nx, random seed needs to be reset    
+        a=np.array(nx.adjacency_matrix(g).todense())          # adjacency matrix
+    else: # erdos-renyi... TODO fix up
+        g=nx.erdos_renyi_graph(n,p)
     return g, np.array(a, dtype=np.int32)
 
 # only returns adjacency matrix, not nx graph
@@ -315,12 +319,17 @@ def path_from_walk(walk):
     return path
 
 # probability of observing Xs, including irts
-def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamma"):
+def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamma",mattype="link"):
     probs=[] 
-    t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
-                                        # will throw warning if a node is inaccessible 
-    statdist=stationary(t)
 
+    # generate transition matrix (from: column, to: row) if given link matrix
+    if mattype=="link":
+        t=a/sum(a.astype(float))            # will throw warning if a node is inaccessible
+    else:
+        t=a
+
+    statdist=stationary(t)
+    
     for xnum, x in enumerate(Xs):
         prob=[]
         prob.append(statdist[x[0]])      # probability of X_1
@@ -329,9 +338,8 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamm
         if prob[-1]==0.0:
             return -np.inf
         
-
         notinx=[i for i in range(numnodes) if i not in x]        # nodes not in trimmed X
-        
+
         for curpos in range(1,len(x)):
             startindex=x[curpos-1]
             deletedlist=sorted(x[curpos:]+notinx,reverse=True)
@@ -472,6 +480,15 @@ def smallworld(a):
     s=(c_sm/c_rand)/(l_sm/l_rand)
     return s
 
+def stationary(t,method="unweighted"):
+    if method=="unweighted":                 # only works for unweighted matrices!
+        return sum(t>0)/float(sum(sum(t>0)))   
+    elif method=="power":                       # slow?
+        return np.linalg.matrix_power(t,500)[:,0]
+    else:                                       # buggy
+        eigen=np.linalg.eig(t)[1][:,0]
+        return np.real(eigen/sum(eigen))
+
 # generates fake IRTs from # of steps in a random walk, using gamma distribution
 def stepsToIRT(irts, beta=1.0, method="gamma", seed=None):
     myrandom=np.random.RandomState(seed)        # to generate the same IRTs each time
@@ -531,7 +548,7 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
         # generate toy data
         g,a=genG(numnodes,numlinks,probRewire,seed=graph_seed)
         t=a/sum(a).astype(float)
-        statdist=stationary(t)
+        statdist=stationary(t)     # TODO: put this stuff in genX or somewhere else so user doesn't have to deal with it
         randstart=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
         
         [Xs,steps]=zip(*[genX(g, s=randstart,seed=x_seed+i,use_irts=1) for i in range(numx)])
@@ -613,23 +630,3 @@ def walk_from_path(path):
     for i in range(len(path)-1):
         walk.append((path[i],path[i+1])) 
     return walk
-
-def stationary(t,method="unweighted"):
-    if method=="unweighted":                 # only works for unweighted matrices!
-        return sum(t>0)/float(sum(sum(t>0)))   
-    elif method=="power":                       # slow?
-        return np.linalg.matrix_power(t,500)[:,0]
-    else:                                       # buggy
-        eigen=np.linalg.eig(t)[1][:,0]
-        return np.real(eigen/sum(eigen))
-
-# stationary distribution:
-#
-# 1) stationary=sum(a)/float(sum(sum(a)))
-# or 2)
-#   w,v=np.linalg.eig(t)
-#   stationary=v[:,0]/sum(v[:,0])
-#
-# but does (1) work on weighted matrices?
-
-
