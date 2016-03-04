@@ -21,6 +21,7 @@ $(document).ready(function() {
         this.init = function() {
             this.items=[];
             this.times=[];
+            this.firsttime=[];
             this.category="";
             this.starttime=0;
             this.countdown=timeperlist;
@@ -60,6 +61,7 @@ $(document).ready(function() {
     var timeperlist=180;                                // 3 minutes per list
     var list=genList(categories,numx);                  // Generate a valid list
     var game=new gameObj();                             // Keeps track of current game
+    var firstkey=1;
 
     rivets.bind($('body'), { game: game });
 
@@ -68,7 +70,11 @@ $(document).ready(function() {
 
     // Add item to list
     $("#current").keydown(function (e) {
+        if (e.which == 9) {                              // Prevents "tab+enter" bug
+            e.preventDefault();
+        }
         if (e.keyCode == 13) {                           // If user hits enter:
+            firstkey=1;
             str=$(this).val();
             if ($.trim(str).length > 0) {
                 game.items.push($.trim(str));            // store in list
@@ -77,6 +83,10 @@ $(document).ready(function() {
                 $("#items").append("<p>" + str + " recorded</p>");
                 $("#items p").fadeOut(800);
             }
+        }
+        if ((e.keyCode != 13) & (firstkey==1)) {
+            game.firsttime.push((new Date).getTime());
+            firstkey=0;
         }
     });
 
