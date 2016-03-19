@@ -320,7 +320,7 @@ def path_from_walk(walk):
 
 # probability of observing Xs, including irts
 def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamma",mattype="link"):
-    random.seed(randomseed)             # bug in nx, random seed needs to be reset    
+    #random.seed(randomseed)             # bug in nx, random seed needs to be reset    
     probs=[] 
 
     # generate transition matrix (from: column, to: row) if given link matrix
