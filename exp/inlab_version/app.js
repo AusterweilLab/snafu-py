@@ -115,6 +115,7 @@ $(document).ready(function() {
     }
 
     function endGame() {
+        firstkey=1
         var gamecopy = $.extend(true, {}, game);
         games.push(gamecopy);
 

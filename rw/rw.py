@@ -630,3 +630,24 @@ def walk_from_path(path):
     for i in range(len(path)-1):
         walk.append((path[i],path[i+1])) 
     return walk
+
+def write_csv(gs, fh, subj="NA"):
+    fh=open(fh,'w',0)
+    if isinstance(gs,nx.classes.graph.Graph):
+        edges=set(flatten_list([gs.edges()]))
+        for edge in edges:
+            fh.write(subj    + "," +
+                    edge[0]  + "," +
+                    edge[1]  + "\n")
+    else:
+        onezero={True: '1', False: '0'}        
+        edges=set(flatten_list([gs[i].edges() for i in range(len(gs))]))
+        for edge in edges:
+            edgelist=""
+            for g in gs:
+                edgelist=edgelist+","+onezero[g.has_edge(edge[0],edge[1])]
+            fh.write(subj    + "," +
+                    edge[0]  + "," +
+                    edge[1]  + 
+                    edgelist + "\n")
+    return
