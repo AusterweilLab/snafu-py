@@ -24,11 +24,19 @@ Xs, items, irts, numnodes=rw.readX(subj,category,'exp/results_cleaned.csv')
 
 # Find best graph!
 best_graph, bestval=rw.findBestGraph(Xs, irts, jeff, beta)
+best_rw=rw.noHidden(Xs, numnodes)
 
 # convert best graph to networkX graph, add labels, write to file
 g=nx.to_networkx_graph(best_graph)
+g2=nx.to_networkx_graph(best_rw)
+
 nx.relabel_nodes(g, items, copy=False)
-nx.write_dot(g,subj+".dot")
+nx.relabel_nodes(g2, items, copy=False)
+
+#nx.write_dot(g,subj+".dot")           # write to DOT
+#rw.write_csv(g,subj+".csv",subj)      # write single graph
+rw.write_csv([g, g2],subj+".csv",subj) # write multiple graphs
+
 
 # write lists to file
 #with open(subj+'_lists.csv','w') as f:

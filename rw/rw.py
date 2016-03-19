@@ -6,16 +6,13 @@ import random
 import operator
 import math
 import matplotlib.pyplot as plt
-import time
 import scipy
-from scipy import stats
 from numpy.linalg import inv
-from scipy.optimize import fmin
-import sys
 import textwrap
 from itertools import *
 from datetime import datetime
-from scipy import ma
+from ExGUtils.stats import *
+from ExGUtils.exgauss import *
 
 # TODO: unit tests
 # TODO: reset random seed after each method
@@ -98,6 +95,8 @@ def expectedHidden(Xs, a, numnodes):
     return expecteds
 
 def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
+    random.seed(randomseed)     # for replicability
+    
     # free parameters
     prob_overlap=.8     # probability a link connecting nodes in multiple graphs
     prob_multi=.8       # probability of selecting an additional link
@@ -111,17 +110,14 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
     # find a good starting graph using naive RW
     graph=noHidden(Xs,numnodes)
   
-    bestgraph=np.copy(graph)       # store copy of best graph
-    cur_graph=np.copy(graph)       # candidate graph for comparison
-
-    best_ll=probX(Xs,bestgraph,numnodes,irts,jeff,beta)   # LL of best graph found
-    cur_ll=best_ll                                        # LL of current graph
+    best_ll=probX(Xs,graph,numnodes,irts,jeff,beta)   # LL of best graph found
 
     # items in at least 2 lists. links between these nodes are more likely to affect P(G)
     # http://stackoverflow.com/q/2116286/353278
     overlap=reduce(set.union, (starmap(set.intersection, combinations(map(set, Xs), 2))))
     overlap=list(overlap)
     combos=list(combinations(overlap,2))    # all possible links btw overlapping nodes
+    firstedges=[(x[0], x[1]) for x in Xs]
 
     while converge < tolerance:
         
@@ -131,7 +127,8 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
                 link=random.choice(combos)
             else:                                    # sometimes choose a link at random
                 link=(0,0)
-                while link[0]==link[1]:              # avoid self-transitions
+                # avoid self-transition, avoid first edges (for efficiency only, since FE are required to produce data)
+                while (link[0]==link[1]) or (link in firstedges) or (link[::-1] in firstedges): 
                     link=(int(math.floor(random.random()*numnodes)),int(math.floor(random.random()*numnodes)))
             links.append(link)
             if random.random() <= prob_multi:
@@ -139,10 +136,10 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
 
         # toggle links
         for link in links:
-            cur_graph[link[0],link[1]] = 1 - cur_graph[link[0],link[1]] 
-            cur_graph[link[1],link[0]] = 1 - cur_graph[link[1],link[0]]
+            graph[link[0],link[1]] = 1 - graph[link[0],link[1]] 
+            graph[link[1],link[0]] = 1 - graph[link[1],link[0]]
 
-        graph_ll=probX(Xs,cur_graph,numnodes,irts,jeff,beta)
+        graph_ll=probX(Xs,graph,numnodes,irts,jeff,beta)
 
         # for debugging... make sure its testing lots of graphs
         #itern=itern+1
@@ -150,25 +147,18 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
             #print itern
 
         # if graph is better than current graph, accept it
-        # if graph is worse, accept with some probability
-        if (graph_ll > cur_ll): # or (random.random() <= (math.exp(graph_ll)/math.exp(cur_ll))):
+        if (graph_ll > best_ll):
             # for debugging
-            #print "GRAPH: ", graph_ll, "CUR: ", cur_ll, "BEST: ", best_ll
-            graph=np.copy(cur_graph)
-            cur_ll = graph_ll
-            if cur_ll > best_ll:
-                converge = 0          # reset convergence criterion only if new graph is better than BEST graph
-                best_ll=cur_ll
-                bestgraph = np.copy(cur_graph)
-            else:
-                converge += 1
+            #print "GRAPH: ", graph_ll, "BEST: ", best_ll
+            best_ll = graph_ll
+            converge = 0          # reset convergence criterion only if new graph is better than BEST graph
         else:
             converge += 1
-            # toggle links back. my guess is this is faster than making graph copies but i dont know
+            # toggle links back, should be faster than making graph copy
             for link in links:
-                cur_graph[link[0],link[1]] = 1 - cur_graph[link[0],link[1]]
-                cur_graph[link[1],link[0]] = 1 - cur_graph[link[1],link[0]] 
-    return bestgraph, best_ll
+                graph[link[0],link[1]] = 1 - graph[link[0],link[1]]
+                graph[link[1],link[0]] = 1 - graph[link[1],link[0]] 
+    return graph, best_ll
 
 def firstEdge(Xs, numnodes):
     a=np.zeros((numnodes,numnodes))
@@ -193,10 +183,13 @@ def flatten_list(l):
 # generate a connected Watts-Strogatz small-world graph
 # (n,k,p) = (number of nodes, each node connected to k-nearest neighbors, probability of rewiring)
 # k has to be even, tries is number of attempts to make connected graph
-def genG(n,k,p,tries=1000, seed=None):
-    g=nx.connected_watts_strogatz_graph(n,k,p,tries,seed) # networkx graph
-    random.seed(randomseed)                               # bug in nx, random seed needs to be reset    
-    a=np.array(nx.adjacency_matrix(g).todense())          # adjacency matrix
+def genG(n,k,p,tries=1000, seed=None, graphtype="sw"):
+    if graphtype=="sw":
+        g=nx.connected_watts_strogatz_graph(n,k,p,tries,seed) # networkx graph
+        random.seed(randomseed)                               # bug in nx, random seed needs to be reset    
+        a=np.array(nx.adjacency_matrix(g).todense())          # adjacency matrix
+    else: # erdos-renyi... TODO fix up
+        g=nx.erdos_renyi_graph(n,p)
     return g, np.array(a, dtype=np.int32)
 
 # only returns adjacency matrix, not nx graph
@@ -236,7 +229,7 @@ def genZfromX(x, theta):
     path.append(x2.pop())
 
     while len(x2) > 0:
-        if random.random() < theta:
+        if random.random() < theta:     # might want to set random seed for replicability?
             # add random hidden node
             possibles=set(path) # choose equally from previously visited nodes
             possibles.discard(path[-1]) # but exclude last node (node cant link to itself)
@@ -326,16 +319,28 @@ def path_from_walk(walk):
     return path
 
 # probability of observing Xs, including irts
-def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
+def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamma",mattype="link"):
     random.seed(randomseed)             # bug in nx, random seed needs to be reset    
     probs=[] 
-    t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
+
+    # generate transition matrix (from: column, to: row) if given link matrix
+    if mattype=="link":
+        t=a/sum(a.astype(float))            # will throw warning if a node is inaccessible
+    else:
+        t=a
+
+    statdist=stationary(t)
     
     for xnum, x in enumerate(Xs):
         prob=[]
+        prob.append(statdist[x[0]])      # probability of X_1
+
+        # if impossible starting point, return immediately
+        if prob[-1]==0.0:
+            return -np.inf
         
         notinx=[i for i in range(numnodes) if i not in x]        # nodes not in trimmed X
-        
+
         for curpos in range(1,len(x)):
             startindex=x[curpos-1]
             deletedlist=sorted(x[curpos:]+notinx,reverse=True)
@@ -349,31 +354,42 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
                 
                 numcols=len(Q)
                 flist=[]
-                newQ=np.identity(numcols) # init to Q^0, for when r=1
+                newQ=np.zeros(numcols)  # init to Q^0, for when r=1 (using only one row for efficiency)
+                newQ[startindex]=1.0
+
                 irt=irts[xnum][curpos-1]
 
-                logbeta=math.log(beta) # precomputing for tiny speedup
+                # precompute for small speedup
+                if irtmethod=="gamma":
+                    logbeta=math.log(beta)
+                    logirt=math.log(irt)
 
                 for r in range(1,maxlen):
                     innersum=0
                     for k in range(numcols):
-                        num1=newQ[k,startindex]                # probability of being at node k in r-1 steps
+                        num1=newQ[k]                        # probability of being at node k in r-1 steps
                         num2=t[x[curpos],notdeleted[k]]     # probability transitioning from k to absorbing node    
-                        innersum=innersum+(num1*num2)        # maybe possibility of underflow for large graphs?
-                   
+                        innersum=innersum+(num1*num2)
 
                     # much faster than using scipy.stats.gamma.pdf
-                    log_gamma=r*logbeta-math.lgamma(r)+(r-1)*math.log(irt)-beta*irt # r=alpha. probability of observing irt at r steps
-                    
+
+                    if irtmethod=="gamma":
+                        log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-beta*irt # r=alpha. probability of observing irt at r steps
+                    if irtmethod=="exgauss":
+                        tau=.5
+                        sig=.5
+                        # same as math.log(exgauss(irt,r,sig,tau)) but avoids underflow
+                        log_dist=math.log(tau/2.0)+(tau/2.0)*(2.0*r+tau*(sig**2)-2*irt)+math.log(math.erfc((r+tau*(sig**2)-irt)/(math.sqrt(2)*sig)))
+
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
-                        flist.append(log_gamma*(1-jeff)+jeff*math.log(innersum))
-                    newQ=np.dot(newQ,Q)    # raise the power by one
-                
+                        flist.append(log_dist*(1-jeff)+jeff*math.log(innersum))
+                    newQ=np.inner(newQ,Q)     # raise power by one
+
                 f=sum([math.e**i for i in flist])
                 prob.append(f)           # probability of x_(t-1) to X_t
             else:                        # if no IRTs, use standard INVITE
                 I=np.identity(len(Q))
-                reg=(1+1e-5)             # nuisance parameter to prevent errors
+                reg=(1+1e-10)             # nuisance parameter to prevent errors
                 N=inv(I*reg-Q)
                 
                 r=np.array(sorted(x[curpos:]))
@@ -384,10 +400,11 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20):
                 startindex=sorted(x[:curpos]).index(x[curpos-1])
                 absorbingindex=sorted(x[curpos:]).index(x[curpos])
                 prob.append(B[absorbingindex,startindex])
-                
-        if 0.0 in prob: 
-            #print "Warning: Zero-probability transition; graph cannot produce X"
-            return -np.inf
+            
+            # if there's an impossible transition, return immediately
+            if prob[-1]==0.0:
+                return -np.inf
+
         probs.append(prob)
     for i in range(len(probs)):
         probs[i]=sum([math.log(j) for j in probs[i]])
@@ -429,7 +446,10 @@ def readX(subj,category,filepath):
 def random_walk(g,start=None,seed=None):
     myrandom=random.Random(seed)
     if start is None:
-        start=myrandom.choice(nx.nodes(g))
+        start=myrandom.choice(nx.nodes(g))      # choose starting point uniformly
+    elif isinstance(start,scipy.stats._distn_infrastructure.rv_discrete):
+        start=start.rvs(random_state=seed)      # choose starting point from stationary distribution
+
     walk=[]
     unused_nodes=set(nx.nodes(g))
     unused_nodes.remove(start)
@@ -461,12 +481,26 @@ def smallworld(a):
     s=(c_sm/c_rand)/(l_sm/l_rand)
     return s
 
+def stationary(t,method="unweighted"):
+    if method=="unweighted":                 # only works for unweighted matrices!
+        return sum(t>0)/float(sum(sum(t>0)))   
+    elif method=="power":                       # slow?
+        return np.linalg.matrix_power(t,500)[:,0]
+    else:                                       # buggy
+        eigen=np.linalg.eig(t)[1][:,0]
+        return np.real(eigen/sum(eigen))
+
 # generates fake IRTs from # of steps in a random walk, using gamma distribution
-def stepsToIRT(irts, beta=1.0, seed=None):
+def stepsToIRT(irts, beta=1.0, method="gamma", seed=None):
     myrandom=np.random.RandomState(seed)        # to generate the same IRTs each time
     new_irts=[]
     for irtlist in irts:
-        newlist=[myrandom.gamma(irt, (1.0/beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
+        if method=="gamma":
+            newlist=[myrandom.gamma(irt, (1.0/beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
+        if method=="exgauss":
+            sig=0.5
+            tau=0.5
+            newlist=[rand_exg(irt, 0.5, (1/0.5)) for irt in irtlist]  # ex-gaussian
         new_irts.append(newlist)
     return new_irts
 
@@ -514,7 +548,11 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
 
         # generate toy data
         g,a=genG(numnodes,numlinks,probRewire,seed=graph_seed)
-        [Xs,steps]=zip(*[genX(g, seed=x_seed+i,use_irts=1) for i in range(numx)])
+        t=a/sum(a).astype(float)
+        statdist=stationary(t)     # TODO: put this stuff in genX or somewhere else so user doesn't have to deal with it
+        randstart=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
+        
+        [Xs,steps]=zip(*[genX(g, s=randstart,seed=x_seed+i,use_irts=1) for i in range(numx)])
         Xs=list(Xs)
         steps=list(steps)
 
@@ -593,3 +631,24 @@ def walk_from_path(path):
     for i in range(len(path)-1):
         walk.append((path[i],path[i+1])) 
     return walk
+
+def write_csv(gs, fh, subj="NA"):
+    fh=open(fh,'w',0)
+    if isinstance(gs,nx.classes.graph.Graph):
+        edges=set(flatten_list([gs.edges()]))
+        for edge in edges:
+            fh.write(subj    + "," +
+                    edge[0]  + "," +
+                    edge[1]  + "\n")
+    else:
+        onezero={True: '1', False: '0'}        
+        edges=set(flatten_list([gs[i].edges() for i in range(len(gs))]))
+        for edge in edges:
+            edgelist=""
+            for g in gs:
+                edgelist=edgelist+","+onezero[g.has_edge(edge[0],edge[1])]
+            fh.write(subj    + "," +
+                    edge[0]  + "," +
+                    edge[1]  + 
+                    edgelist + "\n")
+    return
