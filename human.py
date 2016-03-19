@@ -38,11 +38,6 @@ nx.relabel_nodes(g2, items, copy=False)
 rw.write_csv([g, g2],subj+".csv",subj) # write multiple graphs
 
 
-
-
-
-
-
 # write lists to file
 #with open(subj+'_lists.csv','w') as f:
 #    for i, x in enumerate(Xs):
