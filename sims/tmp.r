@@ -9,4 +9,4 @@ colnames(newdat2)<-c("numx","Method","cost")
 newdat2[,Method:=toupper(Method)]
 newdat2[Method=="INVITE",Method:="U-INVITE"]
 plotbasic <- theme_bw() + theme_classic(base_size=18) + theme(legend.key=element_blank(), plot.title=element_text(face="bold"))
-ggplot(newdat2,aes(x=numx,y=cost,group=Method,color=Method)) + geom_line(size=2) + plotbasic + xlab("Number of lists") + ylab("Cost") + scale_y_continuous(expand=c(0,0), limits=c(0,30)) + theme(legend.position = c(.8,.8)) 
+ggplot(newdat2,aes(x=numx,y=cost,group=Method,color=Method,linetype=Method)) + geom_line(size=1.5) + plotbasic + xlab("Number of lists") + ylab("Cost") + scale_y_continuous(expand=c(0,0), limits=c(0,30)) + theme(legend.position = c(.8,.8)) + scale_linetype_manual(values=c("solid", "dotted","dashed","dotdash"))

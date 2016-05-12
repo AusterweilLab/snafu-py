@@ -4,7 +4,7 @@ library(data.table)
 allsubs<-c("S101","S102","S103","S104","S105","S106","S107","S108","S109","S110","S111","S112","S113","S114","S115","S116","S117","S118","S119","S120")
 
 # human data
-humans<-fread('animals_1500.csv')
+#humans<-fread('animals_1500.csv')
 setkey(humans,subj)
 
 # MATLAB files

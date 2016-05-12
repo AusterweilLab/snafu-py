@@ -109,7 +109,8 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
 
     # find a good starting graph using naive RW
     graph=noHidden(Xs,numnodes)
-  
+    #graph=genGraphs(1, 0.5, Xs, numnodes)[0]
+
     best_ll=probX(Xs,graph,numnodes,irts,jeff,beta)   # LL of best graph found
 
     # items in at least 2 lists. links between these nodes are more likely to affect P(G)
@@ -140,6 +141,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
             graph[link[1],link[0]] = 1 - graph[link[1],link[0]]
 
         graph_ll=probX(Xs,graph,numnodes,irts,jeff,beta)
+        print "ORIG: ", best_ll, " NEW: ", graph_ll
 
         # for debugging... make sure its testing lots of graphs
         #itern=itern+1
@@ -336,6 +338,7 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamm
         prob.append(statdist[x[0]])      # probability of X_1
 
         # if impossible starting point, return immediately
+        # TODO: check/ shouldn't this be under for curpos loop? does it make a difference (in terms of speed)?
         if prob[-1]==0.0:
             return -np.inf
         

@@ -7,8 +7,18 @@ import random
 import networkx as nx
 import pygraphviz
 
+# Temporary stuff to test out prior
+import scipy
+tris=[]
+g=nx.connected_watts_strogatz_graph(50,4,p=.3,tries=1000)
+p0=sum(nx.triangles(g).values())/3
+for i in range(10000):
+    g=nx.connected_watts_strogatz_graph(50,4,p=.3,tries=1000)
+    tris.append(sum(nx.triangles(g).values())/3)
+kde=scipy.stats.gaussian_kde(tris)
+
 # PARAMETERS OF TOY SMALL-WORLD GRAPH
-numnodes=15                           # number of nodes in graph
+numnodes=50                           # number of nodes in graph
 numlinks=4                            # initial number of edges per node (must be even)
 probRewire=.3                         # probability of re-wiring an edge
 numedges=numnodes*(numlinks/2)        # number of edges in graph
