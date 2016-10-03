@@ -7,22 +7,14 @@ import random
 import networkx as nx
 import pygraphviz
 
-# Temporary stuff to test out prior
-import scipy
-tris=[]
-g=nx.connected_watts_strogatz_graph(50,4,p=.3,tries=1000)
-p0=sum(nx.triangles(g).values())/3
-for i in range(10000):
-    g=nx.connected_watts_strogatz_graph(50,4,p=.3,tries=1000)
-    tris.append(sum(nx.triangles(g).values())/3)
-kde=scipy.stats.gaussian_kde(tris)
+# IDEA start graph RW++, make triangles by doing RW plus adding edges for items 2-adjacent? makes it more small-world
 
 # PARAMETERS OF TOY SMALL-WORLD GRAPH
 numnodes=50                           # number of nodes in graph
 numlinks=4                            # initial number of edges per node (must be even)
 probRewire=.3                         # probability of re-wiring an edge
 numedges=numnodes*(numlinks/2)        # number of edges in graph
-numx=3                               # How many observed lists?
+numx=3                                # How many observed lists?
 trim=.7                               # ~ What proportion of graph does each list cover?
 
 # PARAMETERS FOR RECONTRUCTING GRAPH
@@ -35,4 +27,4 @@ outfile='sim_results_1.csv'
 
 # optionally, pass a methods argument
 # default is methods=['fe','rw','invite','inviteirt'] 
-rw.toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile,start_seed=1,methods=['inviteirt','invite'])
+rw.toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile,start_seed=1,methods=['invite'])

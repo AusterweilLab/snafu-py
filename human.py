@@ -15,15 +15,30 @@ allsubs=["S101","S102","S103","S104","S105","S106","S107","S108","S109","S110",
          "S111","S112","S113","S114","S115","S116","S117","S118","S119","S120"]
 
 # free parameters
-jeff=0.9           # 1-IRT weight
+jeff=0.9            # 1-IRT weight
 beta=1.1             # for gamma distribution when generating IRTs from hidden nodes
 
-subj="S105"
+subj="13"
 category="animals"
-Xs, items, irts, numnodes=rw.readX(subj,category,'exp/results_cleaned.csv')
+Xs, items, irts, numnodes=rw.readX(subj,category,'new_data.csv')
+
+#JZ
+node_degree=4
+prob_rewire=.3
+
+print "generating prior distribution..."
+import scipy
+sw=[]
+for i in range(10000):
+    g=nx.connected_watts_strogatz_graph(numnodes,node_degree,p=prob_rewire,tries=1000)
+    g=nx.to_numpy_matrix(g)
+    sw.append(rw.smallworld(g))
+kde=scipy.stats.gaussian_kde(sw)
+print "...done"
+#ZJ
 
 # Find best graph!
-best_graph, bestval=rw.findBestGraph(Xs, irts, jeff, beta)
+best_graph, bestval=rw.findBestGraph(Xs, irts=[], jeff=jeff, beta=beta, kde=kde) #JZ
 best_rw=rw.noHidden(Xs, numnodes)
 
 # convert best graph to networkX graph, add labels, write to file

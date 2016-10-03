@@ -94,9 +94,9 @@ def expectedHidden(Xs, a, numnodes):
         expecteds.append(expected)        
     return expecteds
 
-def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
+def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, kde=0):
     random.seed(randomseed)     # for replicability
-    
+   
     # free parameters
     prob_overlap=.8     # probability a link connecting nodes in multiple graphs
     prob_multi=.8       # probability of selecting an additional link
@@ -108,10 +108,14 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
     itern=0 # tmp variable for debugging
 
     # find a good starting graph using naive RW
-    graph=noHidden(Xs,numnodes)
-    #graph=genGraphs(1, 0.5, Xs, numnodes)[0]
+    #graph=noHidden(Xs,numnodes)
+    graph=genGraphs(1, .5, Xs, numnodes)[0]
 
     best_ll=probX(Xs,graph,numnodes,irts,jeff,beta)   # LL of best graph found
+    #JZ
+    sw=smallworld(graph)
+    best_ll=best_ll + math.log(kde(sw)[0])
+    #ZJ
 
     # items in at least 2 lists. links between these nodes are more likely to affect P(G)
     # http://stackoverflow.com/q/2116286/353278
@@ -141,6 +145,11 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500):
             graph[link[1],link[0]] = 1 - graph[link[1],link[0]]
 
         graph_ll=probX(Xs,graph,numnodes,irts,jeff,beta)
+        #JZ
+        sw=smallworld(graph)
+        graph_ll=graph_ll + math.log(kde(sw)[0])
+        #ZJ
+        
         print "ORIG: ", best_ll, " NEW: ", graph_ll
 
         # for debugging... make sure its testing lots of graphs
@@ -511,6 +520,19 @@ def stepsToIRT(irts, beta=1.0, method="gamma", seed=None):
 def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile, start_seed=0, 
              methods=['rw','invite','inviteirt','fe'],header=1):
 
+    # PRIOR - move when ready, lines marked JZ/ZJ
+    #JZ
+    print "generating prior distribution..."
+    import scipy
+    sw=[]
+    for i in range(10000):
+        g=nx.connected_watts_strogatz_graph(50,4,p=.3,tries=1000)
+        g=nx.to_numpy_matrix(g)
+        sw.append(smallworld(g))
+    kde=scipy.stats.gaussian_kde(sw)
+    print "...done"
+    #ZJ
+
     # break out of function if using unknown method
     for method in methods:
         if method not in ['rw','invite','inviteirt','fe']:
@@ -574,7 +596,7 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
                 # Find best graph! (and log time)
                 starttime=datetime.now()
                 if method == 'invite':
-                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes)
+                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes, kde=kde) # JZ
                     print graphToHash(bestgraph,numnodes)
                 if method == 'inviteirt':
                     bestgraph, bestval=findBestGraph(Xs, irts, jeff, beta, numnodes)
