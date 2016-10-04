@@ -112,10 +112,11 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, k
     graph=genGraphs(1, .5, Xs, numnodes)[0]
 
     best_ll=probX(Xs,graph,numnodes,irts,jeff,beta)   # LL of best graph found
-    #JZ
-    sw=smallworld(graph)
-    best_ll=best_ll + math.log(kde(sw)[0])
-    #ZJ
+
+    # inclue prior?
+    if kde:
+        sw=smallworld(graph)
+        best_ll=best_ll + math.log(kde(sw)[0])
 
     # items in at least 2 lists. links between these nodes are more likely to affect P(G)
     # http://stackoverflow.com/q/2116286/353278
@@ -145,10 +146,11 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, k
             graph[link[1],link[0]] = 1 - graph[link[1],link[0]]
 
         graph_ll=probX(Xs,graph,numnodes,irts,jeff,beta)
-        #JZ
-        sw=smallworld(graph)
-        graph_ll=graph_ll + math.log(kde(sw)[0])
-        #ZJ
+        
+        # include prior?
+        if kde:
+            sw=smallworld(graph)
+            graph_ll=graph_ll + math.log(kde(sw)[0])
         
         print "ORIG: ", best_ll, " NEW: ", graph_ll
 
@@ -249,27 +251,6 @@ def genZfromX(x, theta):
             # first hit!
             path.append(x2.pop())
     return walk_from_path(path)
-
-# DEPRECATED
-# search for best graph by hill climbing with stochastic search
-# returns numkeep graphs with the best graph at index 0
-def graphSearch(graphs,numkeep,Xs,numnodes,jeff=0.5,irts=[],prior=0,beta=1,maxlen=20):
-    loglikelihood=[]
-    
-    for it, graph in enumerate(graphs):
-        tmp=probX(Xs,graph,numnodes,irts,jeff,beta)
-        if prior:
-            priordistribution=scipy.stats.norm(loc=4.937072,scale=0.5652063)
-            sw=smallworld(graph)
-            tmp=tmp + math.log(priordistribution.pdf(sw))
-
-        loglikelihood.append(tmp)
-    
-    maxvals=maxn(loglikelihood,numkeep)
-    maxpos=[loglikelihood.index(i) for i in maxvals]
-    maxgraphs=[graphs[i] for i in maxpos]
-    print "MAX: ", max(loglikelihood)
-    return maxgraphs, max(loglikelihood)
 
 # helper function converts binary adjacency matrix to base 36 string for easy storage in CSV
 # binary -> int -> base36
@@ -659,13 +640,13 @@ def walk_from_path(path):
 
 def write_csv(gs, fh, subj="NA"):
     fh=open(fh,'w',0)
-    if isinstance(gs,nx.classes.graph.Graph):
+    if isinstance(gs,nx.classes.graph.Graph):       # write nx graph
         edges=set(flatten_list([gs.edges()]))
         for edge in edges:
             fh.write(subj    + "," +
                     edge[0]  + "," +
                     edge[1]  + "\n")
-    else:
+    else:                                           # write matrix
         onezero={True: '1', False: '0'}        
         edges=set(flatten_list([gs[i].edges() for i in range(len(gs))]))
         for edge in edges:
@@ -677,3 +658,27 @@ def write_csv(gs, fh, subj="NA"):
                     edge[1]  + 
                     edgelist + "\n")
     return
+
+# so far only uses first two columns, no "filters"
+# only makes symmetric (undirected) graph
+# not optimized
+def read_csv(fh):
+    fh=open(fh,'r')
+    items={}
+    idx=0
+    biglist=[]
+    for line in fh:
+        line=line.rstrip()
+        twoitems=line.split(',')[0:2]
+        biglist.append(twoitems)
+        for item in twoitems:
+            if item not in items.values():
+                items[idx]=item
+                idx += 1
+    graph=np.zeros((len(items),len(items)))
+    for twoitems in biglist:
+        idx1=items.values().index(twoitems[0])
+        idx2=items.values().index(twoitems[1])
+        graph[idx1,idx2]=1
+        graph[idx2,idx1]=1
+    return graph, items
