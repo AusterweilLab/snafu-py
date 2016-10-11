@@ -95,7 +95,7 @@ def expectedHidden(Xs, a, numnodes):
         expecteds.append(expected)        
     return expecteds
 
-def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, kde=0, startingpoint="naiverw"):
+def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, kde=0):
     random.seed(randomseed)     # for replicability
    
     # free parameters
@@ -109,10 +109,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, k
     itern=0 # tmp variable for debugging
 
     # find a good starting graph using naive RW
-    if startingpoint=="windowgraph":
-        graph=windowGraph(Xs,numnodes)
-    else:
-        graph=noHidden(Xs,numnodes)
+    graph=noHidden(Xs,numnodes)
 
     best_ll=probX(Xs,graph,numnodes,irts,jeff,beta)   # LL of best graph found
 
@@ -668,22 +665,14 @@ def walk_from_path(path):
     return walk
 
 # incomplete
-def windowGraph(Xs, numnodes, windowsize=2):
-    if windowsize < 1:
-        print "Error in windowGraph(): windowsize must be >= 1"
-        return
+def windowGraph(Xs, numnodes, windowsize):
     graph = genGraphs(1, 0, Xs, numnodes)[0]    # start with naive RW
-    if windowsize==1:
-        return graph                            # same as naive RW if windowsize=1
-    for x in Xs:                                # for each list
-        for pos in range(len(x)):               # for each item in list
-            for i in range(2,windowsize+1):      # for each window size
-                if pos+i < len(x):
-                    graph[x[pos],x[pos+i]]=1
-                    graph[x[pos+i],x[pos]]=1
-                if pos-i >= 0:
-                    graph[x[pos],x[pos-i]]=1
-                    graph[x[pos-i],x[pos]]=1
+    for x in Xs:
+        for pos in range(len(x)):
+            if pos+windowsize < len(x):
+                for i in range(2,windowsize+1)
+                graph[x[pos],x[pos+
+            
     return graph
 
 def write_csv(gs, fh, subj="NA"):

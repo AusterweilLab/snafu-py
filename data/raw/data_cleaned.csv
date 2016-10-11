@@ -944,7 +944,7 @@ S3,1,animals,baboon,2388,38972,0
 S3,1,animals,ape,1196,40168,0
 S3,1,animals,gorilla,1896,42064,0
 S3,1,animals,snake,1669,43733,0
-S3,1,animals,octopu,5797,49530,0
+S3,1,animals,octopus,5797,49530,0
 S3,1,animals,fish,791,50321,0
 S3,1,animals,whale,1114,51435,0
 S3,1,animals,panda,2814,54249,0
@@ -1045,7 +1045,7 @@ S3,3,animals,guineapig,1041,65215,0
 S3,3,animals,chicken,2584,67799,0
 S3,3,animals,gerbil,7624,75423,0
 S3,3,animals,molerat,1884,77307,0
-S3,3,animals,octopu,2877,80184,0
+S3,3,animals,octopus,2877,80184,0
 S3,3,animals,meerkat,3909,84093,0
 S3,3,animals,jaguar,4170,88263,0
 S3,3,animals,cheetah,1507,89770,0
@@ -1460,7 +1460,7 @@ S3,11,animals,dolphin,1162,8191,0
 S3,11,animals,penguin,920,9111,0
 S3,11,animals,whale,799,9910,0
 S3,11,animals,seal,712,10622,0
-S3,11,animals,octopu,2837,13459,0
+S3,11,animals,octopus,2837,13459,0
 S3,11,animals,squid,738,14197,0
 S3,11,animals,calamari,6248,20445,0
 S3,11,animals,toucan,2420,22865,0
@@ -1603,7 +1603,7 @@ S3,13,animals,owl,1545,55026,0
 S3,13,animals,hummingbird,2102,57128,0
 S3,13,animals,lizard,1049,58177,0
 S3,13,animals,iguana,793,58970,0
-S3,13,animals,octopu,4113,63083,0
+S3,13,animals,octopus,4113,63083,0
 S3,13,animals,squid,2243,65326,0
 S3,13,animals,calamari,1042,66368,0
 S3,13,animals,turkey,2782,69150,0
@@ -1842,7 +1842,7 @@ S3,17,animals,chimpanzee,1389,32216,0
 S3,17,animals,gorilla,1515,33731,0
 S3,17,animals,baboon,2175,35906,0
 S3,17,animals,hyena,682,36588,0
-S3,17,animals,octopu,3006,39594,0
+S3,17,animals,octopus,3006,39594,0
 S3,17,animals,calamari,744,40338,0
 S3,17,animals,squid,608,40946,0
 S3,17,animals,tuna,1465,42411,0
@@ -1914,7 +1914,7 @@ S4,1,animals,ant,5505,37802,0
 S4,1,animals,beetle,1819,39621,0
 S4,1,animals,worm,3077,42698,0
 S4,1,animals,bird,2624,45322,0
-S4,1,animals,octopu,15427,60749,0
+S4,1,animals,octopus,15427,60749,0
 S4,1,animals,shark,2923,63672,0
 S4,1,animals,bear,907,64579,0
 S4,1,animals,walrus,1685,66264,0
@@ -2586,7 +2586,7 @@ S5,13,animals,hair,2818,27198,0
 S5,13,animals,snail,29335,56533,0
 S5,13,animals,camel,3249,59782,0
 S5,13,animals,oyster,23042,82824,0
-S5,13,animals,octopu,13278,96102,0
+S5,13,animals,octopus,13278,96102,0
 S5,13,animals,platypus,13582,109684,0
 S5,14,supermarket items,talcumpowder,23801,23801,0
 S5,14,supermarket items,babyformula,4435,28236,0
@@ -2705,7 +2705,7 @@ S5,17,animals,squid,1892,84724,0
 S5,17,animals,seaurchin,3684,88408,0
 S5,17,animals,shrimp,1981,90389,0
 S5,17,animals,lobster,3719,94108,0
-S5,17,animals,octopu,5189,99297,0
+S5,17,animals,octopus,5189,99297,0
 S5,17,animals,eel,1588,100885,0
 S5,17,animals,coyfish,3732,104617,0
 S5,17,animals,clownfish,5547,110164,0
@@ -3518,7 +3518,7 @@ S8,5,animals,salmon,13280,198802,0
 S8,5,animals,shark,1468,200270,0
 S8,5,animals,whale,1583,201853,0
 S8,5,animals,dolphin,2455,204308,0
-S8,5,animals,octopu,2518,206826,0
+S8,5,animals,octopus,2518,206826,0
 S8,5,animals,squid,1990,208816,0
 S8,5,animals,jellyfish,8525,217341,0
 S8,5,animals,cow,4848,222189,0
@@ -3617,7 +3617,7 @@ S8,7,animals,frog,3426,152510,0
 S8,7,animals,toad,2677,155187,0
 S8,7,animals,whale,11132,166319,0
 S8,7,animals,dolphin,3227,169546,0
-S8,7,animals,octopu,3478,173024,0
+S8,7,animals,octopus,3478,173024,0
 S8,7,animals,squid,2260,175284,0
 S8,7,animals,jellyfish,4337,179621,0
 S8,7,animals,clownfish,2535,182156,0
@@ -3751,7 +3751,7 @@ S8,10,animals,shark,1603,49041,0
 S8,10,animals,clownfish,4780,53821,0
 S8,10,animals,eel,1304,55125,0
 S8,10,animals,barracuda,3118,58243,0
-S8,10,animals,octopu,9162,67405,0
+S8,10,animals,octopus,9162,67405,0
 S8,10,animals,squid,4373,71778,0
 S8,10,animals,bunny,11223,83001,0
 S8,10,animals,fox,981,83982,0
@@ -4704,7 +4704,7 @@ S10,11,animals,parrot,4571,195895,0
 S10,11,animals,snail,8275,204170,0
 S10,11,animals,starfish,1863,206033,0
 S10,11,animals,squirrel,2856,208889,0
-S10,11,animals,octopu,2420,211309,0
+S10,11,animals,octopus,2420,211309,0
 S10,11,animals,crab,1339,212648,0
 S10,11,animals,plankton,14703,227351,0
 S10,11,animals,jellyfish,4755,232106,0
@@ -5465,7 +5465,7 @@ S11,9,animals,bluewhale,2768,55922,0
 S11,9,animals,spermwhale,1801,57723,0
 S11,9,animals,humpbackwhale,5105,62828,0
 S11,9,animals,squid,1497,64325,0
-S11,9,animals,octopu,1813,66138,0
+S11,9,animals,octopus,1813,66138,0
 S11,9,animals,giantsquid,2536,68674,0
 S11,9,animals,crab,2999,71673,0
 S11,9,animals,crustacean,4571,76244,0
@@ -6003,7 +6003,7 @@ S12,4,animals,alligator,3192,105578,0
 S12,4,animals,scorpion,1850,107428,0
 S12,4,animals,rhinoceros,2700,110128,0
 S12,4,animals,elephant,5431,115559,0
-S12,4,animals,octopu,7742,123301,0
+S12,4,animals,octopus,7742,123301,0
 S12,4,animals,squid,1652,124953,0
 S12,4,animals,mouse,4473,129426,0
 S12,4,animals,rat,856,130282,0
@@ -6570,7 +6570,7 @@ S12,11,animals,dolphin,1644,158304,0
 S12,11,animals,tuna,923,159227,0
 S12,11,animals,salmon,2619,161846,0
 S12,11,animals,catfish,1524,163370,0
-S12,11,animals,octopu,5960,169330,0
+S12,11,animals,octopus,5960,169330,0
 S12,11,animals,squid,1275,170605,0
 S12,11,animals,crab,970,171575,0
 S12,11,animals,shrimp,1903,173478,0
