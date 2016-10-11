@@ -28,6 +28,7 @@ def cost(graph,a):
     return sum(sum(np.array(abs(graph-a))))/2
 
 # graph=estimated graph, a=target/comparison graph
+# speed should be improved for large graphs if possible
 def costSDT(graph, a):          
     Alinks=zip(*np.where(a==1))
     Glinks=zip(*np.where(graph==1))

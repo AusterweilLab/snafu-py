@@ -18,10 +18,13 @@ numnodes=len(items)
 sdt_rws=[]
 sdt_uis=[]
 
-for i in range(1):
+f=open('usf_sims.csv','a', 0)                # write/append to file with no buffering
+
+for gnum in range(100):
+    print gnum
     # generate toy lists
-    numlists=10
-    listlength=30   # must be <= numnodes
+    numlists=5
+    listlength=50   # must be <= numnodes
     Xs=[rw.genX(usfg)[0:listlength] for i in range(numlists)]
 
     itemsinXs=np.unique(rw.flatten_list(Xs))    # list of items that appear in toy data
@@ -44,6 +47,13 @@ for i in range(1):
 
     sdt_rws.append(sdt_rw)
     sdt_uis.append(sdt_ui)
+
+    towrite = rw.flatten_list([sdt_rw,sdt_ui])
+    towrite = ','.join([str(i) for i in towrite])
+    f.write(towrite)
+    f.write('\n')
+
+    
 
 
 
