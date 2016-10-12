@@ -1,18 +1,16 @@
-#!/usr/bin/python
-
 import networkx as nx
 import numpy as np
 import random
 import operator
 import math
-import matplotlib.pyplot as plt
 import scipy
+
 from numpy.linalg import inv
 import textwrap
 from itertools import *
 from datetime import datetime
-from ExGUtils.stats import *
-from ExGUtils.exgauss import *
+#from ExGUtils.stats import *
+#from ExGUtils.exgauss import *
 
 # TODO: unit tests
 # TODO: reset random seed after each method
@@ -40,33 +38,6 @@ def costSDT(graph, a):
     miss=len(Gnolinks)-cr
     cr=cr-len(a)            # don't count node self-transitions as correct rejections
     return [hit/2, miss/2, fa/2, cr/2]
-
-
-# write graph to GraphViz file (.dot)
-def drawDot(g, filename, labels={}):
-    if type(g) == np.ndarray:
-        g=nx.to_networkx_graph(g)
-    if labels != {}:
-        nx.relabel_nodes(g, labels, copy=False)
-    nx.drawing.write_dot(g, filename)
-
-# draw graph
-def drawG(g,Xs=[],labels={},save=False,display=True):
-    if type(g) == np.ndarray:
-        g=nx.to_networkx_graph(g)
-    nx.relabel_nodes(g, labels, copy=False)
-    #pos=nx.spring_layout(g, scale=5.0)
-    pos = nx.graphviz_layout(g, prog="fdp")
-    nx.draw_networkx(g,pos,node_size=1000)
-#    for node in range(numnodes):                    # if the above doesn't work
-#        plt.annotate(str(node), xy=pos[node])       # here's a workaround
-    if Xs != []:
-        plt.title(Xs)
-    plt.axis('off')
-    if save==True:
-        plt.savefig('temp.png')                      # need to parameterize
-    if display==True:
-        plt.show()
 
 # returns a vector of how many hidden nodes to expect between each Xi for each X in Xs
 def expectedHidden(Xs, a, numnodes):
@@ -96,7 +67,7 @@ def expectedHidden(Xs, a, numnodes):
         expecteds.append(expected)        
     return expecteds
 
-def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, kde=0, startingpoint="naiverw"):
+def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, prior=0, startingpoint="naiverw"):
     random.seed(randomseed)     # for replicability
    
     # free parameters
@@ -118,9 +89,9 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, k
     best_ll=probX(Xs,graph,numnodes,irts,jeff,beta)   # LL of best graph found
 
     # inclue prior?
-    if kde:
+    if prior:
         sw=smallworld(graph)
-        best_ll=best_ll + math.log(kde(sw)[0])
+        best_ll=best_ll + math.log(prior(sw)[0])
 
     # items in at least 2 lists. links between these nodes are more likely to affect P(G)
     # http://stackoverflow.com/q/2116286/353278
@@ -152,9 +123,9 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, k
         graph_ll=probX(Xs,graph,numnodes,irts,jeff,beta)
         
         # include prior?
-        if kde:
+        if prior:
             sw=smallworld(graph)
-            graph_ll=graph_ll + math.log(kde(sw)[0])
+            graph_ll=graph_ll + math.log(prior(sw)[0])
         
         print "ORIG: ", best_ll, " NEW: ", graph_ll
 
@@ -226,10 +197,26 @@ def genGraphs(numgraphs, theta, Xs, numnodes):
     As=[genGfromZ(z, numnodes) for z in Zs]
     return As
 
+# generate pdf of small-world metric based on W-S criteria
+# n <- # samples (larger n == better fidelity)
+# tries <- W-S parameter (number of tries to generate connected graph)
+def genPrior(numnodes, numlinks, probRewire, n=10000, tries=1000):
+    print "generating prior distribution..."
+    sw=[]
+    for i in range(n):
+        g=nx.connected_watts_strogatz_graph(numnodes,numlinks,probRewire,tries=tries)
+        g=nx.to_numpy_matrix(g)
+        sw.append(smallworld(g))
+    kde=scipy.stats.gaussian_kde(sw)
+    print "...done"
+    return kde
+
 # return simulated data on graph g
 # if usr_irts==1, return irts (as steps)
-def genX(g,s=None,use_irts=0,seed=None):
-    rwalk=random_walk(g,s,seed)
+def genX(g,s=None,use_irts=0,seed=None,jump=0):
+    if (jump < 0) or (jump > 1):
+        print "Error: jump parameter must be 0 <= j <= 1"
+    rwalk=random_walk(g,s,seed,jump=jump)
     Xs=observed_walk(rwalk)
     
     if use_irts==0:
@@ -259,22 +246,6 @@ def genZfromX(x, theta):
             path.append(x2.pop())
     return walk_from_path(path)
 
-# helper function converts binary adjacency matrix to base 36 string for easy storage in CSV
-# binary -> int -> base36
-def graphToHash(a,numnodes):
-    def baseN(num,b,numerals="0123456789abcdefghijklmnopqrstuvwxyz"):
-        return ((num == 0) and numerals[0]) or (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
-    return str(numnodes) + '!' + baseN(int(''.join([str(i) for i in flatten_list(a)]),2), 36)
-
-def hashToGraph(graphhash):
-    numnodes, graphhash = graphhash.split('!')
-    graphstring=bin(int(graphhash, 36))[2:]
-    zeropad=numnodes**2-len(graphstring)
-    graphstring=''.join(['0' for i in range(zeropad)]) + graphstring
-    arrs=textwrap.wrap(graphstring, numnodes)
-    mat=np.array([map(int, s) for s in arrs])
-    return mat
-
 # log trick given list of log-likelihoods **UNUSED
 def logTrick(loglist):
     logmax=max(loglist)
@@ -282,7 +253,7 @@ def logTrick(loglist):
     p=math.log(sum([math.e**i for i in loglist])) + logmax  # add it back on
     return p
 
-# helper function grabs highest n items from list items
+# helper function grabs highest n items from list items **UNUSED
 # http://stackoverflow.com/questions/350519/getting-the-lesser-n-elements-of-a-list-in-python
 def maxn(items,n):
     maxs = items[:n]
@@ -411,39 +382,9 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamm
     probs=sum(probs)
     return probs
 
-# read Xs in from user files
-def readX(subj,category,filepath):
-    if type(subj) == str:
-        subj=[subj]
-    game=-1
-    cursubj=-1
-    Xs=[]
-    irts=[]
-    items={}
-    idx=0
-    with open(filepath) as f:
-        for line in f:
-            row=line.split(',')
-            if (row[0] in subj) & (row[2] == category):
-                if (row[1] != game) or (row[0] != cursubj):
-                    Xs.append([])
-                    irts.append([])
-                    game=row[1]
-                    cursubj=row[0]
-                item=row[3]
-                irt=row[4]
-                if item not in items.values():
-                    items[idx]=item
-                    idx += 1
-                itemval=items.values().index(item)
-                if itemval not in Xs[-1]:   # ignore any duplicates in same list resulting from spelling corrections
-                    Xs[-1].append(itemval)
-                    irts[-1].append(int(irt)/1000.0)
-    numnodes = len(items)
-    return Xs, items, irts, numnodes
-
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
-def random_walk(g,start=None,seed=None):
+
+def random_walk(g,start=None,seed=None,jump=0):
     myrandom=random.Random(seed)
     if start is None:
         start=myrandom.choice(nx.nodes(g))      # choose starting point uniformly
@@ -455,35 +396,14 @@ def random_walk(g,start=None,seed=None):
     unused_nodes.remove(start)
     while len(unused_nodes) > 0:
         p=start
-        start=myrandom.choice([x for x in nx.all_neighbors(g,start)]) # follow random edge
+        if random.random() > jump:
+            start=myrandom.choice([x for x in nx.all_neighbors(g,start)]) # follow random edge
+        else:
+            start=myrandom.choice(nx.nodes(g))      # TODO: confirm this works
         walk.append((p,start))
         if start in unused_nodes:
             unused_nodes.remove(start)
     return walk
-
-# so far only uses first two columns, no "filters"
-# only makes symmetric (undirected) graph
-# not optimized
-def read_csv(fh):
-    fh=open(fh,'r')
-    items={}
-    idx=0
-    biglist=[]
-    for line in fh:
-        line=line.rstrip()
-        twoitems=line.split(',')[0:2]
-        biglist.append(twoitems)
-        for item in twoitems:
-            if item not in items.values():
-                items[idx]=item
-                idx += 1
-    graph=np.zeros((len(items),len(items)))
-    for twoitems in biglist:
-        idx1=items.values().index(twoitems[0])
-        idx2=items.values().index(twoitems[1])
-        graph[idx1,idx2]=1
-        graph[idx2,idx1]=1
-    return graph, items
 
 # return small world statistic of a graph
 # returns metric of largest component if disconnected
@@ -529,20 +449,11 @@ def stepsToIRT(irts, beta=1.0, method="gamma", seed=None):
 
 # runs a batch of toy graphs. logging code needs to be cleaned up significantly
 def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile, start_seed=0, 
-             methods=['rw','invite','inviteirt','fe'],header=1):
+             methods=['rw','invite','inviteirt','fe'],header=1,prior=0):
 
-    # PRIOR - move when ready, lines marked JZ/ZJ
-    #JZ
-    print "generating prior distribution..."
-    import scipy
-    sw=[]
-    for i in range(10000):
-        g=nx.connected_watts_strogatz_graph(50,4,p=.3,tries=1000)
-        g=nx.to_numpy_matrix(g)
-        sw.append(smallworld(g))
-    kde=scipy.stats.gaussian_kde(sw)
-    print "...done"
-    #ZJ
+
+    if prior==1:
+        prior=genPrior(numnodes, numlinks, probRewire)
 
     # break out of function if using unknown method
     for method in methods:
@@ -585,7 +496,7 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
         # generate toy data
         g,a=genG(numnodes,numlinks,probRewire,seed=graph_seed)
         t=a/sum(a).astype(float)
-        statdist=stationary(t)     # TODO: put this stuff in genX or somewhere else so user doesn't have to deal with it
+        statdist=stationary(t)     # TODO: put this stuff in genX or somewhere else
         randstart=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
         
         [Xs,steps]=zip(*[genX(g, s=randstart,seed=x_seed+i,use_irts=1) for i in range(numx)])
@@ -607,10 +518,10 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
                 # Find best graph! (and log time)
                 starttime=datetime.now()
                 if method == 'invite':
-                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes, kde=kde) # JZ
+                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes, prior=prior)
                     print graphToHash(bestgraph,numnodes)
                 if method == 'inviteirt':
-                    bestgraph, bestval=findBestGraph(Xs, irts, jeff, beta, numnodes)
+                    bestgraph, bestval=findBestGraph(Xs, irts, jeff, beta, numnodes, prior=prior)
                     print graphToHash(bestgraph,numnodes)
                 if method == 'rw':
                     bestgraph=noHidden(Xs,numnodes)
@@ -686,24 +597,3 @@ def windowGraph(Xs, numnodes, windowsize=2):
                     graph[x[pos],x[pos-i]]=1
                     graph[x[pos-i],x[pos]]=1
     return graph
-
-def write_csv(gs, fh, subj="NA"):
-    fh=open(fh,'w',0)
-    if isinstance(gs,nx.classes.graph.Graph):       # write nx graph
-        edges=set(flatten_list([gs.edges()]))
-        for edge in edges:
-            fh.write(subj    + "," +
-                    edge[0]  + "," +
-                    edge[1]  + "\n")
-    else:                                           # write matrix
-        onezero={True: '1', False: '0'}        
-        edges=set(flatten_list([gs[i].edges() for i in range(len(gs))]))
-        for edge in edges:
-            edgelist=""
-            for g in gs:
-                edgelist=edgelist+","+onezero[g.has_edge(edge[0],edge[1])]
-            fh.write(subj    + "," +
-                    edge[0]  + "," +
-                    edge[1]  + 
-                    edgelist + "\n")
-    return

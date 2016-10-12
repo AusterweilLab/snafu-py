@@ -1,6 +1,4 @@
 import numpy as np
-import sys
-sys.path.append('./rw')
 import rw
 import math
 import random
@@ -20,25 +18,19 @@ beta=1.1             # for gamma distribution when generating IRTs from hidden n
 
 subj="S1"
 category="animals"
-Xs, items, irts, numnodes=rw.readX(subj,category,'logs/data.csv')
+Xs, items, irts, numnodes=rw.readX(subj,category,'data/raw/data_cleaned.csv')
 
 #JZ
 node_degree=4
 prob_rewire=.3
 
-print "generating prior distribution..."
-import scipy
-sw=[]
-for i in range(10000):
-    g=nx.connected_watts_strogatz_graph(numnodes,node_degree,p=prob_rewire,tries=1000)
-    g=nx.to_numpy_matrix(g)
-    sw.append(rw.smallworld(g))
-kde=scipy.stats.gaussian_kde(sw)
-print "...done"
-#ZJ
+# two free parameters
+numlinks=4
+probRewire=.3
+prior=rw.genPrior(numnodes, numlinks, probRewire)
 
 # Find best graph!
-best_graph, bestval=rw.findBestGraph(Xs, irts=[], jeff=jeff, beta=beta, kde=kde) #JZ
+best_graph, bestval=rw.findBestGraph(Xs, irts=[], jeff=jeff, beta=beta, prior=prior) #JZ
 best_rw=rw.noHidden(Xs, numnodes)
 
 # convert best graph to networkX graph, add labels, write to file
