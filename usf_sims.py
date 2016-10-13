@@ -20,7 +20,7 @@ sdt_uis=[]
 
 f=open('usf_sims.csv','a', 0)                # write/append to file with no buffering
 
-for numlists in range(2,30):
+for numlists in range(2,50):
     for listlength in [15,30,50,70]:
         for gnum in range(10):  # how many samples for each numlists/listlength combo
             print numlists, listlength, gnum

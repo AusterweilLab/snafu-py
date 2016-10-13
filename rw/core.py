@@ -104,8 +104,8 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, p
         
         links=[]        # links to toggle in candidate graph
         while True:     # emulates do-while loop (ugly)
-            if random.random() <= prob_overlap:      # choose link from combos most of the time
-                link=random.choice(combos)
+            if (random.random() <= prob_overlap) and (len(combos) > 0):      # choose link from combos most of the time 
+                link=random.choice(combos)                              # as long as combos isn't empty
             else:                                    # sometimes choose a link at random
                 link=(0,0)
                 # avoid self-transition, avoid first edges (for efficiency only, since FE are required to produce data)
