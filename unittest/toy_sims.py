@@ -21,8 +21,8 @@ beta=(1/1.1)                            # for gamma distribution when generating
 
 # WRITE DATA
 numgraphs=100                         # number of toy graphs to generate/reconstruct
-outfile='test_case_jump.csv'
+outfile='test_case.csv'
 
 # optionally, pass a methods argument
 # default is methods=['fe','rw','invite','inviteirt'] 
-rw.toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile,start_seed=1,jump=0.5,methods=['rw','invite'])
+rw.toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile,start_seed=1)

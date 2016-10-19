@@ -4,13 +4,15 @@
 # * Write graph to file
 # * Read fluency data from file
 
+import textwrap
+import numpy as np
+
+# package not very necessary and a cause of trouble on many machines
 try: import matplotlib.pyplot as plt
 except: print "Warning: Failed to import matplotlib"
 
 # sibling functions
-from rw import *
-
-
+from helper import *
 
 # write graph to GraphViz file (.dot)
 def drawDot(g, filename, labels={}):

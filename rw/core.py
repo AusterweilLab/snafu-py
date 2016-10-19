@@ -3,14 +3,17 @@ import numpy as np
 import random
 import operator
 import math
-import scipy
+import scipy.stats
 
 from numpy.linalg import inv
-import textwrap
 from itertools import *
 from datetime import datetime
 #from ExGUtils.stats import *
 #from ExGUtils.exgauss import *
+
+# sibling packages
+from io import *
+from helper import *
 
 # TODO: unit tests
 # TODO: reset random seed after each method
@@ -67,7 +70,7 @@ def expectedHidden(Xs, a, numnodes):
         expecteds.append(expected)        
     return expecteds
 
-def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, prior=0, startingpoint="naiverw"):
+def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, prior=0, startingpoint="naiverw", jump=0.0):
     random.seed(randomseed)     # for replicability
    
     # free parameters
@@ -86,12 +89,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, p
     else:
         graph=noHidden(Xs,numnodes)
 
-    best_ll=probX(Xs,graph,numnodes,irts,jeff,beta)   # LL of best graph found
-
-    # inclue prior?
-    if prior:
-        sw=smallworld(graph)
-        best_ll=best_ll + math.log(prior(sw)[0])
+    best_ll=probX(Xs,graph,numnodes,irts,jeff,beta,jump=jump,prior=prior)   # LL of best graph found
 
     # items in at least 2 lists. links between these nodes are more likely to affect P(G)
     # http://stackoverflow.com/q/2116286/353278
@@ -120,12 +118,7 @@ def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, p
             graph[link[0],link[1]] = 1 - graph[link[0],link[1]] 
             graph[link[1],link[0]] = 1 - graph[link[1],link[0]]
 
-        graph_ll=probX(Xs,graph,numnodes,irts,jeff,beta)
-        
-        # include prior?
-        if prior:
-            sw=smallworld(graph)
-            graph_ll=graph_ll + math.log(prior(sw)[0])
+        graph_ll=probX(Xs,graph,numnodes,irts,jeff,beta,jump=jump,prior=prior)
         
         print "ORIG: ", best_ll, " NEW: ", graph_ll
 
@@ -163,10 +156,6 @@ def firstHits(walk):
     for i in observed_walk(walk):
         firsthit.append(path.index(i))
     return zip(observed_walk(walk),firsthit)
-
-# helper function generate flast lists from nested lists
-def flatten_list(l):
-    return [item for sublist in l for item in sublist]
 
 # generate a connected Watts-Strogatz small-world graph
 # (n,k,p) = (number of nodes, each node connected to k-nearest neighbors, probability of rewiring)
@@ -213,7 +202,7 @@ def genPrior(numnodes, numlinks, probRewire, n=10000, tries=1000):
 
 # return simulated data on graph g
 # if usr_irts==1, return irts (as steps)
-def genX(g,s=None,use_irts=0,seed=None,jump=0):
+def genX(g,s=None,use_irts=0,seed=None,jump=0.0):
     if (jump < 0) or (jump > 1):
         print "Error: jump parameter must be 0 <= j <= 1"
     rwalk=random_walk(g,s,seed,jump=jump)
@@ -246,25 +235,6 @@ def genZfromX(x, theta):
             path.append(x2.pop())
     return walk_from_path(path)
 
-# log trick given list of log-likelihoods **UNUSED
-def logTrick(loglist):
-    logmax=max(loglist)
-    loglist=[i-logmax for i in loglist]                     # log trick: subtract off the max
-    p=math.log(sum([math.e**i for i in loglist])) + logmax  # add it back on
-    return p
-
-# helper function grabs highest n items from list items **UNUSED
-# http://stackoverflow.com/questions/350519/getting-the-lesser-n-elements-of-a-list-in-python
-def maxn(items,n):
-    maxs = items[:n]
-    maxs.sort(reverse=True)
-    for i in items[n:]:
-        if i > maxs[-1]: 
-            maxs.append(i)
-            maxs.sort(reverse=True)
-            maxs= maxs[:n]
-    return maxs
-
 # wrapper returns one graph with theta=0
 # aka draw edge between all observed nodes in all lists
 def noHidden(Xs, numnodes):
@@ -289,7 +259,9 @@ def path_from_walk(walk):
     return path
 
 # probability of observing Xs, including irts
-def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamma",mattype="link"):
+def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamma",mattype="link",
+          jump=0.0,jumptype="uniform"):
+
     #random.seed(randomseed)             # bug in nx, random seed needs to be reset    
     probs=[] 
 
@@ -372,19 +344,40 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamm
                 absorbingindex=sorted(x[curpos:]).index(x[curpos])
                 prob.append(B[absorbingindex,startindex])
             
-            # if there's an impossible transition, return immediately
-            if prob[-1]==0.0:
+            # if there's an impossible transition and no jumping, return immediately
+            if (prob[-1]==0.0) and (jump == 0.0):
                 return -np.inf
 
         probs.append(prob)
+
+    # adjust for jumping probability
+    for i in range(len(probs)):               # loop through all lists
+        for jnum, j in enumerate(1,probs[i]): # loop through all items, excluding first item
+            if jumptype=="uniform":
+                jumpval=float(jump)/numnodes           # uniform jumping
+            else:
+                jumpval=statdist(Xs[i][jnum])          # stationary probability jumping
+            if j==0.0:
+                if jumpval==0.0:
+                    return -np.inf               # no RW transition and no jump probability!
+                else:
+                    probs[i][jnum]=jumpval       # if no RW transition, jump to any node in the network uniformly
+            else:
+                probs[i][jnum]=jumpval + (1-jump)*j   # else normalize existing probability and add jumping probability
+                
     for i in range(len(probs)):
         probs[i]=sum([math.log(j) for j in probs[i]])
     probs=sum(probs)
+
+    # inclue prior?
+    if prior:
+        sw=smallworld(a)
+        probs=probs + math.log(prior(sw)[0])
+    
     return probs
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
-
-def random_walk(g,start=None,seed=None,jump=0):
+def random_walk(g,start=None,seed=None,jump=0.0,jumptype="uniform"):
     myrandom=random.Random(seed)
     if start is None:
         start=myrandom.choice(nx.nodes(g))      # choose starting point uniformly
@@ -396,10 +389,11 @@ def random_walk(g,start=None,seed=None,jump=0):
     unused_nodes.remove(start)
     while len(unused_nodes) > 0:
         p=start
-        if random.random() > jump:
+        if myrandom.random() > jump:
             start=myrandom.choice([x for x in nx.all_neighbors(g,start)]) # follow random edge
         else:
-            start=myrandom.choice(nx.nodes(g))      # TODO: confirm this works
+            # WEIRD bug where it's only choosing 0-9 (of 20), but works if you put a print random.random() afterwards
+            start=myrandom.choice(nx.nodes(g))          # jump uniformly
         walk.append((p,start))
         if start in unused_nodes:
             unused_nodes.remove(start)
@@ -449,8 +443,7 @@ def stepsToIRT(irts, beta=1.0, method="gamma", seed=None):
 
 # runs a batch of toy graphs. logging code needs to be cleaned up significantly
 def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile, start_seed=0, 
-             methods=['rw','invite','inviteirt','fe'],header=1,prior=0):
-
+             methods=['rw','invite','inviteirt','fe'],header=1,prior=0,jump=0.0):
 
     if prior==1:
         prior=genPrior(numnodes, numlinks, probRewire)
@@ -470,10 +463,11 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
     if header==1:
         f.write(','.join(globalvals))
         f.write(',toynetwork,')
-        for method in methods:
+        for methodnum, method in enumerate(methods):
             towrite=[i+'_'+method for i in methodvals]
             f.write(','.join(towrite))
-            f.write(',')
+            if methodnum != (len(methods)-1):   # if not the last method, add a comma
+                f.write(',')
         f.write('\n')
  
     # store all data in dict to write to file later
@@ -498,8 +492,8 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
         t=a/sum(a).astype(float)
         statdist=stationary(t)     # TODO: put this stuff in genX or somewhere else
         randstart=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
-        
-        [Xs,steps]=zip(*[genX(g, s=randstart,seed=x_seed+i,use_irts=1) for i in range(numx)])
+
+        [Xs,steps]=zip(*[genX(g, s=randstart,seed=x_seed+i,use_irts=1,jump=jump) for i in range(numx)])
         Xs=list(Xs)
         steps=list(steps)
 
@@ -518,17 +512,17 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
                 # Find best graph! (and log time)
                 starttime=datetime.now()
                 if method == 'invite':
-                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes, prior=prior)
+                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes, prior=prior, jump=jump)
                     print graphToHash(bestgraph,numnodes)
                 if method == 'inviteirt':
-                    bestgraph, bestval=findBestGraph(Xs, irts, jeff, beta, numnodes, prior=prior)
+                    bestgraph, bestval=findBestGraph(Xs, irts, jeff, beta, numnodes, prior=prior, jump=jump)
                     print graphToHash(bestgraph,numnodes)
                 if method == 'rw':
                     bestgraph=noHidden(Xs,numnodes)
-                    bestval=probX(Xs, bestgraph, numnodes)
+                    bestval=probX(Xs, bestgraph, numnodes, jump=jump)
                 if method == 'fe':
                     bestgraph=firstEdge(Xs,numnodes)
-                    bestval=probX(Xs, bestgraph, numnodes)
+                    bestval=probX(Xs, bestgraph, numnodes, jump=jump)
                 elapsedtime=str(datetime.now()-starttime)
                 print elapsedtime
         
