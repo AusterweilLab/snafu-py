@@ -21,7 +21,7 @@ from helper import *
 
 # Set the random seed to allow search process to be replicable. Untested.
 # Currently needed because search procedure is inconsistent
-randomseed=1
+randomseed=None
 
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
@@ -70,7 +70,7 @@ def expectedHidden(Xs, a, numnodes):
         expecteds.append(expected)        
     return expecteds
 
-def findBestGraph(Xs, irts=[], jeff=0.5, beta=1.0, numnodes=0, tolerance=1500, prior=0, startingpoint="naiverw", jump=0.0):
+def findBestGraph(Xs, irts=[], jeff=0.9, beta=1.0, numnodes=0, tolerance=1500, prior=0, startingpoint="naiverw", jump=0.0):
     random.seed(randomseed)     # for replicability
    
     # free parameters
@@ -203,6 +203,11 @@ def genPrior(numnodes, numlinks, probRewire, n=10000, tries=1000):
 # return simulated data on graph g
 # if usr_irts==1, return irts (as steps)
 def genX(g,s=None,use_irts=0,seed=None,jump=0.0):
+    if s=="stationary":
+        a=np.array(nx.to_numpy_matrix(g))
+        t=a/sum(a).astype(float)
+        statdist=stationary(t)
+        s=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
     if (jump < 0) or (jump > 1):
         print "Error: jump parameter must be 0 <= j <= 1"
     rwalk=random_walk(g,s,seed,jump=jump)
@@ -259,8 +264,8 @@ def path_from_walk(walk):
     return path
 
 # probability of observing Xs, including irts
-def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamma",mattype="link",
-          jump=0.0,jumptype="uniform"):
+def probX(Xs, a, numnodes, irts=[], jeff=0.9, beta=1, maxlen=20, irtmethod="gamma",mattype="link",
+          jump=0.0,jumptype="uniform",prior=0):
 
     #random.seed(randomseed)             # bug in nx, random seed needs to be reset    
     probs=[] 
@@ -352,18 +357,19 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamm
 
     # adjust for jumping probability
     for i in range(len(probs)):               # loop through all lists
-        for jnum, j in enumerate(1,probs[i]): # loop through all items, excluding first item
-            if jumptype=="uniform":
-                jumpval=float(jump)/numnodes           # uniform jumping
-            else:
-                jumpval=statdist(Xs[i][jnum])          # stationary probability jumping
-            if j==0.0:
-                if jumpval==0.0:
-                    return -np.inf               # no RW transition and no jump probability!
+        for jnum, j in enumerate(probs[i]): # loop through all items
+            if jnum != 0:                   # exlcuding first item (don't jump to first item!)
+                if jumptype=="uniform":
+                    jumpval=float(jump)/numnodes           # uniform jumping
                 else:
-                    probs[i][jnum]=jumpval       # if no RW transition, jump to any node in the network uniformly
-            else:
-                probs[i][jnum]=jumpval + (1-jump)*j   # else normalize existing probability and add jumping probability
+                    jumpval=statdist(Xs[i][jnum])          # stationary probability jumping
+                if j==0.0:
+                    if jumpval==0.0:
+                        return -np.inf               # no RW transition and no jump probability!
+                    else:
+                        probs[i][jnum]=jumpval       # if no RW transition, jump to any node in the network uniformly
+                else:
+                    probs[i][jnum]=jumpval + (1-jump)*j   # else normalize existing probability and add jumping probability
                 
     for i in range(len(probs)):
         probs[i]=sum([math.log(j) for j in probs[i]])
@@ -373,7 +379,7 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.5, beta=1, maxlen=20, irtmethod="gamm
     if prior:
         sw=smallworld(a)
         probs=probs + math.log(prior(sw)[0])
-    
+
     return probs
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
@@ -387,34 +393,39 @@ def random_walk(g,start=None,seed=None,jump=0.0,jumptype="uniform"):
     walk=[]
     unused_nodes=set(nx.nodes(g))
     unused_nodes.remove(start)
+    first=start
     while len(unused_nodes) > 0:
-        p=start
         if myrandom.random() > jump:
-            start=myrandom.choice([x for x in nx.all_neighbors(g,start)]) # follow random edge
+            second=myrandom.choice([x for x in nx.all_neighbors(g,first)]) # follow random edge
         else:
-            # WEIRD bug where it's only choosing 0-9 (of 20), but works if you put a print random.random() afterwards
-            start=myrandom.choice(nx.nodes(g))          # jump uniformly
-        walk.append((p,start))
-        if start in unused_nodes:
-            unused_nodes.remove(start)
+            second=myrandom.choice(nx.nodes(g))          # jump uniformly
+        walk.append((first,second))
+        if second in unused_nodes:
+            unused_nodes.remove(second)
+        first=second
     return walk
 
 # return small world statistic of a graph
 # returns metric of largest component if disconnected
 def smallworld(a):
-    g_sm=nx.from_numpy_matrix(a)
+    if isinstance(a,np.ndarray):
+        g_sm=nx.from_numpy_matrix(a)    # if matrix is passed, convert to networkx
+    else:
+        g_sm = a                        # else assume networkx graph was passed
     g_sm=max(nx.connected_component_subgraphs(g_sm),key=len)   # largest component
     numnodes=g_sm.number_of_nodes()
     numedges=g_sm.number_of_edges()
-    numlinks=numedges/(numnodes*2.0)
+    numlinks=(numedges*2.0)/numnodes # node degree
     
-    c_sm=nx.average_clustering(g_sm)
+    c_sm=nx.average_clustering(g_sm)        # c^ws in H&G (2006)
+    #c_sm=sum(nx.triangles(usfg).values())/(# of paths of length 2) # c^tri
     l_sm=nx.average_shortest_path_length(g_sm)
     
     # c_rand same as edge density for a random graph? not sure if "-1" belongs in denominator, double check
-    c_rand= (numedges*2.0)/(numnodes*(numnodes-1))     
-    l_rand= math.log(numnodes)/math.log(2*numlinks)    # see humphries & gurney (2006) eq 11
-    #l_rand= (math.log(numnodes)-0.5772)/(math.log(2*numlinks)) + .5 # alternative APL from fronczak, fronczak & holyst (2004)
+    #c_rand= (numedges*2.0)/(numnodes*(numnodes-1))   # c^ws_rand?  
+    c_rand= float(numlinks)/numnodes                  # c^tri_rand?
+    l_rand= math.log(numnodes)/math.log(numlinks)    # see humphries & gurney (2008) eq 11
+    #l_rand= (math.log(numnodes)-0.5772)/(math.log(numlinks)) + .5 # alternative APL from fronczak, fronczak & holyst (2004)
     s=(c_sm/c_rand)/(l_sm/l_rand)
     return s
 
@@ -450,22 +461,24 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
 
     # break out of function if using unknown method
     for method in methods:
-        if method not in ['rw','invite','inviteirt','fe']:
+        if method not in ['rw','invite','inviteirt','fe','invitenoprior']:
             print "ERROR: Trying to fit graph with unknown method: ", method
             raise
 
     # stuff to write to file
     globalvals=['jeff','beta','numnodes','numlinks','probRewire',
-                'numedges','graph_seed','numx','trim','x_seed']               # same across all methods
-    methodvals=['cost','time','bestgraph','hit','miss','fa','cr','bestval']   # differ per method
+                'numedges','graph_seed','numx','trim','x_seed','toynetwork','truegraphval']  # same across all methods
+    methodvals=['cost','time','bestgraph','hit','miss','fa','cr','bestval']     # differ per method
 
     f=open(outfile,'a', 0)                # write/append to file with no buffering
     if header==1:
         f.write(','.join(globalvals))
-        f.write(',toynetwork,')
+        f.write(',')
         for methodnum, method in enumerate(methods):
             towrite=[i+'_'+method for i in methodvals]
             f.write(','.join(towrite))
+            print methodnum
+            print len(methods)-1
             if methodnum != (len(methods)-1):   # if not the last method, add a comma
                 f.write(',')
         f.write('\n')
@@ -489,13 +502,13 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
 
         # generate toy data
         g,a=genG(numnodes,numlinks,probRewire,seed=graph_seed)
-        t=a/sum(a).astype(float)
-        statdist=stationary(t)     # TODO: put this stuff in genX or somewhere else
-        randstart=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
 
-        [Xs,steps]=zip(*[genX(g, s=randstart,seed=x_seed+i,use_irts=1,jump=jump) for i in range(numx)])
+        [Xs,steps]=zip(*[genX(g, s="stationary",seed=x_seed+i,use_irts=1,jump=jump) for i in range(numx)])
         Xs=list(Xs)
         steps=list(steps)
+        
+        toynetwork=graphToHash(a,numnodes)  # to write to file
+        truegraphval=probX(Xs, a, numnodes, jump=jump, prior=prior)
 
         # generate IRTs if using IRT model
         irts=[]
@@ -504,13 +517,16 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
 
         # trim data when necessary
         [Xs,irts,alter_graph]=trimX(trim,Xs,irts,g)
-
+        
         if alter_graph==0:      # only use data that covers entire graph (only a problem when trimming data)
             for method in methods:
                 print "SEED: ", seed_param, "method: ", method
                 
                 # Find best graph! (and log time)
                 starttime=datetime.now()
+                if method == 'invitenoprior':        # temporary hack-- should separate methods and prior
+                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes, jump=jump)
+                    print graphToHash(bestgraph,numnodes)
                 if method == 'invite':
                     bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes, prior=prior, jump=jump)
                     print graphToHash(bestgraph,numnodes)
@@ -543,7 +559,6 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
             if outfile != '':
                 towrite=[str(eval(i)) for i in globalvals] # EVAL!!!
                 f.write(','.join(towrite))
-                f.write(','+graphToHash(a,numnodes))
                 for method in methods:
                     for val in methodvals:
                         f.write(','+str(data[method][val][-1]))

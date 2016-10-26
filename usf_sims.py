@@ -3,8 +3,6 @@
 # Check to see whether reconstructed graph produced correct/incorrect edges
 
 import numpy as np
-import sys
-sys.path.append('./rw')
 import rw
 import math
 import random

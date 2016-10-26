@@ -20,9 +20,10 @@ jeff=0.9                                # 1-IRT weight
 beta=(1/1.1)                            # for gamma distribution when generating IRTs from hidden nodes
 
 # WRITE DATA
-numgraphs=100                         # number of toy graphs to generate/reconstruct
-outfile='test_case_jump.csv'
+numgraphs=10                         # number of toy graphs to generate/reconstruct
+outfile='test_case_prior.csv'
 
 # optionally, pass a methods argument
 # default is methods=['fe','rw','invite','inviteirt'] 
-rw.toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile,start_seed=1,jump=0.5,methods=['rw','invite'])
+for numx in range(3,50):
+    rw.toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile,start_seed=1,methods=['rw','invitenoprior','invite'],prior=1,header=1, jump=0.05)
