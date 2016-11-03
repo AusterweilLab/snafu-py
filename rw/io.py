@@ -50,6 +50,7 @@ def graphToHash(a,numnodes):
 # see graphToHash function
 def hashToGraph(graphhash):
     numnodes, graphhash = graphhash.split('!')
+    numnodes=int(numnodes)
     graphstring=bin(int(graphhash, 36))[2:]
     zeropad=numnodes**2-len(graphstring)
     graphstring=''.join(['0' for i in range(zeropad)]) + graphstring

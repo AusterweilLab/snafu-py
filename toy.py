@@ -34,7 +34,8 @@ irts=rw.stepsToIRT(steps, beta, seed=x_seed)
 [Xs,irts,alter_graph]=rw.trimX(trim,Xs,irts,g)
 
 # Find best graph!
-best_graph, bestval=rw.findBestGraph(Xs, irts, jeff, beta, numnodes)
+#best_graph, bestval=rw.findBestGraph(Xs, irts, jeff, beta, numnodes)
+best_graph, bestval=rw.findBestGraph(Xs, numnodes=numnodes)
 
 # convert best graph to networkX graph, write to file
 #g=nx.to_networkx_graph(best_graph)

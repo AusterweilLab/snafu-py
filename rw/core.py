@@ -70,7 +70,7 @@ def expectedHidden(Xs, a, numnodes):
         expecteds.append(expected)        
     return expecteds
 
-def findBestGraph(Xs, irts=[], jeff=0.9, beta=1.0, numnodes=0, tolerance=1500, prior=0, startingpoint="naiverw", jump=0.0):
+def findBestGraph(Xs, irts=[], jeff=0.9, beta=1.0, numnodes=0, tolerance=1500, prior=0, startingpoint="naiverw", jump=0.0, debug="T"):
     random.seed(randomseed)     # for replicability
    
     # free parameters
@@ -120,7 +120,8 @@ def findBestGraph(Xs, irts=[], jeff=0.9, beta=1.0, numnodes=0, tolerance=1500, p
 
         graph_ll=probX(Xs,graph,numnodes,irts,jeff,beta,jump=jump,prior=prior)
         
-        print "ORIG: ", best_ll, " NEW: ", graph_ll
+        if debug=="T":
+            print "ORIG: ", best_ll, " NEW: ", graph_ll
 
         # for debugging... make sure its testing lots of graphs
         #itern=itern+1
@@ -169,6 +170,27 @@ def genG(n,k,p,tries=1000, seed=None, graphtype="sw"):
         g=nx.erdos_renyi_graph(n,p)
     return g, np.array(a, dtype=np.int32)
 
+def genSteyvers(n,m, tail=1):                          # tail allows m-1 "null" nodes in neighborhood of every node
+    a=np.zeros((n,n))                                  # initialize matrix
+    for i in range(m):                                 # complete m x m graph
+        for j in range(m):
+            if i!= j:
+                a[i,j]=1
+    for i in range(m,n):                               # for the rest of nodes, preferentially attach
+        nodeprob=sum(a)/sum(sum(a))                    # choose node to differentiate with this probability distribution
+        diffnode=np.random.choice(n,p=nodeprob)    # node to differentiate
+        h=list(np.where(a[diffnode])[0]) + [diffnode]  # neighborhood of diffnode
+        if tail==1:
+            h=h + [-1]*(m-1)
+        #hprob=sum(a[:,h])/sum(sum(a[:,h]))                 # attach proportional to node degree?
+        #tolink=np.random.choice(h,m,replace=False,p=hprob)
+        tolink=np.random.choice(h,m,replace=False)          # or attach randomly
+        for j in tolink:
+            if j != -1:
+                a[i,j]=1
+                a[j,i]=1
+    return a
+
 # only returns adjacency matrix, not nx graph
 def genGfromZ(walk, numnodes):
     a=np.zeros((numnodes,numnodes))
@@ -189,7 +211,7 @@ def genGraphs(numgraphs, theta, Xs, numnodes):
 # generate pdf of small-world metric based on W-S criteria
 # n <- # samples (larger n == better fidelity)
 # tries <- W-S parameter (number of tries to generate connected graph)
-def genPrior(numnodes, numlinks, probRewire, n=10000, tries=1000):
+def genPrior(numnodes, numlinks, probRewire, n=10000, tries=1000, bins=100):
     print "generating prior distribution..."
     sw=[]
     for i in range(n):
@@ -197,8 +219,16 @@ def genPrior(numnodes, numlinks, probRewire, n=10000, tries=1000):
         g=nx.to_numpy_matrix(g)
         sw.append(smallworld(g))
     kde=scipy.stats.gaussian_kde(sw)
+    binsize=(max(sw)-min(sw))/bins
     print "...done"
-    return kde
+    return [kde, binsize]
+
+# calculate P(SW_graph|graph type) using pdf generated from genPrior
+def evalPrior(val, prior):
+    kde=prior[0]
+    binsize=prior[1]
+    prob=kde.integrate_box_1d(val-(binsize/2.0),val+(binsize/2.0))
+    return prob
 
 # return simulated data on graph g
 # if usr_irts==1, return irts (as steps)
@@ -264,6 +294,7 @@ def path_from_walk(walk):
     return path
 
 # probability of observing Xs, including irts
+#@profile
 def probX(Xs, a, numnodes, irts=[], jeff=0.9, beta=1, maxlen=20, irtmethod="gamma",mattype="link",
           jump=0.0,jumptype="uniform",prior=0):
 
@@ -337,7 +368,7 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.9, beta=1, maxlen=20, irtmethod="gamm
                 prob.append(f)           # probability of x_(t-1) to X_t
             else:                        # if no IRTs, use standard INVITE
                 I=np.identity(len(Q))
-                reg=(1+1e-10)             # nuisance parameter to prevent errors
+                reg=(1+1e-10)             # nuisance parameter to prevent errors; can also use pinv, but that's much slower
                 N=inv(I*reg-Q)
                 
                 r=np.array(sorted(x[curpos:]))
@@ -348,7 +379,7 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.9, beta=1, maxlen=20, irtmethod="gamm
                 startindex=sorted(x[:curpos]).index(x[curpos-1])
                 absorbingindex=sorted(x[curpos:]).index(x[curpos])
                 prob.append(B[absorbingindex,startindex])
-            
+
             # if there's an impossible transition and no jumping, return immediately
             if (prob[-1]==0.0) and (jump == 0.0):
                 return -np.inf
@@ -378,7 +409,7 @@ def probX(Xs, a, numnodes, irts=[], jeff=0.9, beta=1, maxlen=20, irtmethod="gamm
     # inclue prior?
     if prior:
         sw=smallworld(a)
-        probs=probs + math.log(prior(sw)[0])
+        probs=probs + math.log(evalPrior(sw, prior))
 
     return probs
 
@@ -415,7 +446,7 @@ def smallworld(a):
     g_sm=max(nx.connected_component_subgraphs(g_sm),key=len)   # largest component
     numnodes=g_sm.number_of_nodes()
     numedges=g_sm.number_of_edges()
-    numlinks=(numedges*2.0)/numnodes # node degree
+    nodedegree=(numedges*2.0)/numnodes
     
     c_sm=nx.average_clustering(g_sm)        # c^ws in H&G (2006)
     #c_sm=sum(nx.triangles(usfg).values())/(# of paths of length 2) # c^tri
@@ -423,9 +454,9 @@ def smallworld(a):
     
     # c_rand same as edge density for a random graph? not sure if "-1" belongs in denominator, double check
     #c_rand= (numedges*2.0)/(numnodes*(numnodes-1))   # c^ws_rand?  
-    c_rand= float(numlinks)/numnodes                  # c^tri_rand?
-    l_rand= math.log(numnodes)/math.log(numlinks)    # see humphries & gurney (2008) eq 11
-    #l_rand= (math.log(numnodes)-0.5772)/(math.log(numlinks)) + .5 # alternative APL from fronczak, fronczak & holyst (2004)
+    c_rand= float(nodedegree)/numnodes                  # c^tri_rand?
+    l_rand= math.log(numnodes)/math.log(nodedegree)    # approximation, see humphries & gurney (2008) eq 11
+    #l_rand= (math.log(numnodes)-0.5772)/(math.log(nodedegree)) + .5 # alternative ASPL from fronczak, fronczak & holyst (2004)
     s=(c_sm/c_rand)/(l_sm/l_rand)
     return s
 
@@ -454,7 +485,7 @@ def stepsToIRT(irts, beta=1.0, method="gamma", seed=None):
 
 # runs a batch of toy graphs. logging code needs to be cleaned up significantly
 def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile, start_seed=0, 
-             methods=['rw','invite','inviteirt','fe'],header=1,prior=0,jump=0.0):
+             methods=['rw','invite','inviteirt','fe'],header=1,prior=0,jump=0.0, debug="T"):
 
     if prior==1:
         prior=genPrior(numnodes, numlinks, probRewire)
@@ -525,13 +556,13 @@ def toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, 
                 # Find best graph! (and log time)
                 starttime=datetime.now()
                 if method == 'invitenoprior':        # temporary hack-- should separate methods and prior
-                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes, jump=jump)
+                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes, jump=jump, debug=debug)
                     print graphToHash(bestgraph,numnodes)
                 if method == 'invite':
-                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes, prior=prior, jump=jump)
+                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes, prior=prior, jump=jump, debug=debug)
                     print graphToHash(bestgraph,numnodes)
                 if method == 'inviteirt':
-                    bestgraph, bestval=findBestGraph(Xs, irts, jeff, beta, numnodes, prior=prior, jump=jump)
+                    bestgraph, bestval=findBestGraph(Xs, irts, jeff, beta, numnodes, prior=prior, jump=jump, debug=debug)
                     print graphToHash(bestgraph,numnodes)
                 if method == 'rw':
                     bestgraph=noHidden(Xs,numnodes)

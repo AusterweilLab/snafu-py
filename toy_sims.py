@@ -1,14 +1,7 @@
-import numpy as np
-import sys
-sys.path.append('./rw')
 import rw
-import math
-import random
-import networkx as nx
-import pygraphviz
 
 # PARAMETERS OF TOY SMALL-WORLD GRAPH
-numnodes=20                           # number of nodes in graph
+numnodes=50                           # number of nodes in graph
 numlinks=4                            # initial number of edges per node (must be even)
 probRewire=.3                         # probability of re-wiring an edge
 numedges=numnodes*(numlinks/2)        # number of edges in graph
@@ -21,9 +14,11 @@ beta=(1/1.1)                            # for gamma distribution when generating
 
 # WRITE DATA
 numgraphs=10                         # number of toy graphs to generate/reconstruct
-outfile='test_case_prior.csv'
+outfile='test_case_prior2.csv'
+header=1
 
 # optionally, pass a methods argument
 # default is methods=['fe','rw','invite','inviteirt'] 
-for numx in range(3,50):
-    rw.toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile,start_seed=1,methods=['rw','invitenoprior','invite'],prior=1,header=1, jump=0.05)
+for numx in range(3,15):
+    rw.toyBatch(numgraphs, numnodes, numlinks, probRewire, numx, trim, jeff, beta, outfile,start_seed=1,methods=['rw','invitenoprior','invite'],prior=1,header=header)
+    header=0
