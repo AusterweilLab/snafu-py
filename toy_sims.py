@@ -28,7 +28,8 @@ toydata=rw.Toydata({
         'numx': 3,
         'trim': .7,
         'jump': 0.0,
-        'jumptype': "uniform"})
+        'jumptype': "uniform"
+        'start': "stationary"})
 
 irtinfo=rw.Irtinfo({
         'irttype': "gamma",

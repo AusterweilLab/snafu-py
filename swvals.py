@@ -23,11 +23,11 @@ with open('test_case_prior2.csv','r') as fh:
         numx=str(line[7])
         
         outfile.write(numx + ',')
-        outfile.write(str(math.log(evalPrior(rw.smallworld(tg),prior))) + ',')
-        outfile.write(str(math.log(evalPrior(rw.smallworld(nrw),prior))) + ',')
-        outfile.write(str(math.log(evalPrior(rw.smallworld(uinp),prior))) + ',')
-        outfile.write(str(math.log(evalPrior(rw.smallworld(uip),prior))))
-        print evalPrior(rw.smallworld(tg))[0]
+        outfile.write(str(math.log(rw.evalPrior(rw.smallworld(tg),prior))) + ',')
+        outfile.write(str(math.log(rw.evalPrior(rw.smallworld(nrw),prior))) + ',')
+        outfile.write(str(math.log(rw.evalPrior(rw.smallworld(uinp),prior))) + ',')
+        outfile.write(str(math.log(rw.evalPrior(rw.smallworld(uip),prior))))
+        print rw.evalPrior(rw.smallworld(tg),prior)
         outfile.write('\n')
 
 outfile.close()

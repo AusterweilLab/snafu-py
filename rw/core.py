@@ -43,7 +43,8 @@ def costSDT(graph, a):
     return [hit/2, miss/2, fa/2, cr/2]
 
 # returns a vector of how many hidden nodes to expect between each Xi for each X in Xs
-def expectedHidden(Xs, a, numnodes):
+def expectedHidden(Xs, a):
+    numnodes=len(a)
     expecteds=[]
     for x in Xs:
         expected=[]
@@ -155,22 +156,18 @@ def firstHits(walk):
 # generate a connected Watts-Strogatz small-world graph
 # (n,k,p) = (number of nodes, each node connected to k-nearest neighbors, probability of rewiring)
 # k has to be even, tries is number of attempts to make connected graph
-def genG(toygraphs, seed=None):
-    # unpack dict for convenience
-    graphtype=toygraphs['graphtype']
-    numnodes=toygraphs['numnodes']
-    numlinks=toygraphs['numlinks']
-    probRewire=toygraphs['probRewire']
-
-    if graphtype=="smallworld":
-        g=nx.connected_watts_strogatz_graph(numnodes,numlinks,probRewire,1000,seed) # networkx graph
+def genG(tg, seed=None):
+    if tg.graphtype=="smallworld":
+        g=nx.connected_watts_strogatz_graph(tg.numnodes,tg.numlinks,tg.probRewire,1000,seed) # networkx graph
         random.seed(randomseed)                               # bug in nx, random seed needs to be reset    
-        a=np.array(nx.adjacency_matrix(g).todense())          # adjacency matrix
-    elif graphtype=="random":                                 # erdos-renyi... TODO fix up
-        g=nx.erdos_renyi_graph(numnodes,probRewire)
+    elif tg.graphtype=="random":                                 # erdos-renyi... TODO fix up
+        g=nx.erdos_renyi_graph(tg.numnodes, tg.probRewire)
+    elif tg.graphtype=="steyvers":
+        g=genSteyvers(tg.numnodes, tg.numlinks)
     else:
         raise ValueError('Invalid or unspecified graphtype in toygraphs [genG]')
-    return g, np.array(a, dtype=np.int32)
+    a=nx.to_numpy_matrix(g)
+    return g, a
 
 def genSteyvers(n,m, tail=1):                          # tail allows m-1 "null" nodes in neighborhood of every node
     a=np.zeros((n,n))                                  # initialize matrix
@@ -191,7 +188,7 @@ def genSteyvers(n,m, tail=1):                          # tail allows m-1 "null" 
             if j != -1:
                 a[i,j]=1
                 a[j,i]=1
-    return a
+    return nx.to_networkx_graph(a)
 
 # only returns adjacency matrix, not nx graph
 def genGfromZ(walk, numnodes):
@@ -213,12 +210,15 @@ def genGraphs(numgraphs, theta, Xs, numnodes):
 # generate pdf of small-world metric based on W-S criteria
 # n <- # samples (larger n == better fidelity)
 # tries <- W-S parameter (number of tries to generate connected graph)
-def genPrior(toygraphs, n=10000, bins=100):
+def genPrior(tg, n=10000, bins=100):
     print "generating prior distribution..."
     sw=[]
     for i in range(n):
-        g=nx.connected_watts_strogatz_graph(toygraphs['numnodes'],toygraphs['numlinks'],toygraphs['probRewire'],tries=1000)
-        g=nx.to_numpy_matrix(g)
+        if tg.graphtype=="smallworld":
+            g=nx.connected_watts_strogatz_graph(tg.numnodes,tg.numlinks,tg.probRewire,tries=1000)
+            g=nx.to_numpy_matrix(g)
+        else: 
+            raise ValueError('Invalid graphtype used to generate prior [genPrior]')
         sw.append(smallworld(g))
     kde=scipy.stats.gaussian_kde(sw)
     binsize=(max(sw)-min(sw))/bins
@@ -235,24 +235,15 @@ def evalPrior(val, prior):
     return prob
 
 # return simulated data on graph g
-# if usr_irts==1, return irts (as steps)
-def genX(g,s=None,use_irts=0,seed=None,jump=0.0):
-    if s=="stationary":
-        a=np.array(nx.to_numpy_matrix(g))
-        t=a/sum(a).astype(float)
-        statdist=stationary(t)
-        s=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
-    if (jump < 0) or (jump > 1):
-        print "Error: jump parameter must be 0 <= j <= 1"
-    rwalk=random_walk(g,s,seed,jump=jump)
+# also return number of steps between first hits (to use for IRTs)
+def genX(g,td,seed=None):
+    rwalk=random_walk(g,td,seed)
     Xs=observed_walk(rwalk)
     
-    if use_irts==0:
-        return Xs
-    else:
-        fh=list(zip(*firstHits(rwalk))[1])
-        irts=[fh[i]-fh[i-1] for i in range(1,len(fh))]
-        return Xs, irts
+    fh=list(zip(*firstHits(rwalk))[1])
+    steps=[fh[i]-fh[i-1] for i in range(1,len(fh))]
+
+    return Xs, steps
 
 # generate random walk that results in observed x
 def genZfromX(x, theta):
@@ -299,7 +290,7 @@ def path_from_walk(walk):
 
 # probability of observing Xs, including irts
 #@profile
-def probX(Xs, a, jump=0.0, irtinfo={}, irts=[], maxlen=20, mattype="link", prior=0, jumptype="uniform"):
+def probX(Xs, a, td, ii, irts=[], maxlen=20, mattype="link", prior=0):
 
     numnodes=len(a)
 
@@ -349,8 +340,8 @@ def probX(Xs, a, jump=0.0, irtinfo={}, irts=[], maxlen=20, mattype="link", prior
                 irt=irts[xnum][curpos-1]
 
                 # precompute for small speedup
-                if irttype=="gamma":
-                    logbeta=math.log(irtinfo['beta'])
+                if ii.irttype=="gamma":
+                    logbeta=math.log(ii.beta)
                     logirt=math.log(irt)
 
                 for r in range(1,maxlen):
@@ -362,13 +353,11 @@ def probX(Xs, a, jump=0.0, irtinfo={}, irts=[], maxlen=20, mattype="link", prior
 
                     # much faster than using scipy.stats.gamma.pdf
 
-                    if irttype=="gamma":
-                        log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-irtinfo['beta']*irt # r=alpha. probability of observing irt at r steps
-                    if irttype=="exgauss":
-                        tau=.5
-                        sig=.5
+                    if ii.irttype=="gamma":
+                        log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-ii.beta*irt # r=alpha. probability of observing irt at r steps
+                    if ii.irttype=="exgauss":
                         # same as math.log(exgauss(irt,r,sig,tau)) but avoids underflow
-                        log_dist=math.log(tau/2.0)+(tau/2.0)*(2.0*r+tau*(sig**2)-2*irt)+math.log(math.erfc((r+tau*(sig**2)-irt)/(math.sqrt(2)*sig)))
+                        log_dist=math.log(ii.tau/2.0)+(ii.tau/2.0)*(2.0*r+ii.tau*(ii.sig**2)-2*irt)+math.log(math.erfc((r+ii.tau*(ii.sig**2)-irt)/(math.sqrt(2)*ii.sig)))
 
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
                         flist.append(log_dist*(1-irt_weight)+irt_weight*math.log(innersum))
@@ -391,7 +380,7 @@ def probX(Xs, a, jump=0.0, irtinfo={}, irts=[], maxlen=20, mattype="link", prior
                 prob.append(B[absorbingindex,startindex])
 
             # if there's an impossible transition and no jumping, return immediately
-            if (prob[-1]==0.0) and (jump == 0.0):
+            if (prob[-1]==0.0) and (td.jump == 0.0):
                 return -np.inf
 
         probs.append(prob)
@@ -400,9 +389,9 @@ def probX(Xs, a, jump=0.0, irtinfo={}, irts=[], maxlen=20, mattype="link", prior
     for i in range(len(probs)):               # loop through all lists
         for jnum, j in enumerate(probs[i]): # loop through all items
             if jnum != 0:                   # exlcuding first item (don't jump to first item!)
-                if jumptype=="uniform":
-                    jumpval=float(jump)/numnodes           # uniform jumping
-                elif jumptype=="stationary":
+                if td.jumptype=="uniform":
+                    jumpval=float(td.jump)/numnodes           # uniform jumping
+                elif td.jumptype=="stationary":
                     jumpval=statdist(Xs[i][jnum])          # stationary probability jumping
                 else:
                     raise ValueError('Invalid or unspecified jumptype [probX]')
@@ -412,7 +401,7 @@ def probX(Xs, a, jump=0.0, irtinfo={}, irts=[], maxlen=20, mattype="link", prior
                     else:
                         probs[i][jnum]=jumpval       # if no RW transition, jump to any node in the network uniformly
                 else:
-                    probs[i][jnum]=jumpval + (1-jump)*j   # else normalize existing probability and add jumping probability
+                    probs[i][jnum]=jumpval + (1-td.jump)*j   # else normalize existing probability and add jumping probability
                 
     for i in range(len(probs)):
         probs[i]=sum([math.log(j) for j in probs[i]])
@@ -426,22 +415,32 @@ def probX(Xs, a, jump=0.0, irtinfo={}, irts=[], maxlen=20, mattype="link", prior
     return probs
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
-def random_walk(g,start=None,seed=None,jump=0.0,jumptype="uniform"):
+def random_walk(g,td,seed=None):
     myrandom=random.Random(seed)
-    if start is None:
+
+    if (td.start=="stationary") or (td.jumptype=="stationary"):
+        a=np.array(nx.to_numpy_matrix(g))
+        t=a/sum(a).astype(float)
+        statdist=stationary(t)
+        statdist=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
+    
+    if td.start=="stationary":
+        start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution
+    elif td.start=="uniform":
         start=myrandom.choice(nx.nodes(g))      # choose starting point uniformly
-    elif isinstance(start,scipy.stats._distn_infrastructure.rv_discrete):
-        start=start.rvs(random_state=seed)      # choose starting point from stationary distribution
 
     walk=[]
     unused_nodes=set(nx.nodes(g))
     unused_nodes.remove(start)
     first=start
     while len(unused_nodes) > 0:
-        if myrandom.random() > jump:
+        if myrandom.random() > td.jump:
             second=myrandom.choice([x for x in nx.all_neighbors(g,first)]) # follow random edge
         else:
-            second=myrandom.choice(nx.nodes(g))          # jump uniformly
+            if td.jumptype=="stationary":
+                second=statdist.rvs(random_state=seed)       # jump based on statdist
+            elif td.jumptype=="uniform":
+                second=myrandom.choice(nx.nodes(g))          # jump uniformly
         walk.append((first,second))
         if second in unused_nodes:
             unused_nodes.remove(second)
@@ -482,15 +481,15 @@ def stationary(t,method="unweighted"):
         return np.real(eigen/sum(eigen))
 
 # generates fake IRTs from # of steps in a random walk, using gamma distribution
-def stepsToIRT(irts, beta=1.0, method="gamma", seed=None):
+def stepsToIRT(irts, ii, seed=None):
     myrandom=np.random.RandomState(seed)        # to generate the same IRTs each time
     new_irts=[]
     for irtlist in irts:
-        if method=="gamma":
-            newlist=[myrandom.gamma(irt, (1.0/beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
-        if method=="exgauss":
-            sig=0.5
-            tau=0.5
+        if ii.irttype=="gamma":
+            newlist=[myrandom.gamma(irt, (1.0/ii.beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
+        if ii.irttype=="exgauss":
+            ii.sig=0.5
+            ii.tau=0.5
             newlist=[rand_exg(irt, 0.5, (1/0.5)) for irt in irtlist]  # ex-gaussian
         new_irts.append(newlist)
     return new_irts
@@ -549,7 +548,7 @@ def toyBatch(toygraphs, toydata, outfile, irtinfo={}, start_seed=0,
 
         numedges=nx.number_of_edges(g)
 
-        [Xs,steps]=zip(*[genX(g, s="stationary",seed=x_seed+i,use_irts=1,jump=jump) for i in range(numx)])
+        [Xs,steps]=zip(*[genX(g, toydata, seed=x_seed+i) for i in range(numx)])
         Xs=list(Xs)
         steps=list(steps)
         
