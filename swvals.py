@@ -2,9 +2,14 @@ import rw
 import math
 
 # double check number of nodes is correct
-prior=rw.genPrior(50,4,.3)      # same vals used in generating test_case_prior.csv
+graph=rw.Toygraphs({'graphtype': "smallworld",
+                   'numnodes':50,
+                   'numlinks': 4,
+                   'probRewire': .3})
 
-outfile=open('swvals2.csv','w')
+prior=rw.genPrior(graph)      # same vals used in generating test_case_prior.csv
+
+outfile=open('swvals3.csv','w')
 
 with open('test_case_prior2.csv','r') as fh:
     next(fh) # skip header row
@@ -18,11 +23,11 @@ with open('test_case_prior2.csv','r') as fh:
         numx=str(line[7])
         
         outfile.write(numx + ',')
-        outfile.write(str(math.log(prior(rw.smallworld(tg))[0])) + ',')
-        outfile.write(str(math.log(prior(rw.smallworld(nrw))[0])) + ',')
-        outfile.write(str(math.log(prior(rw.smallworld(uinp))[0])) + ',')
-        outfile.write(str(math.log(prior(rw.smallworld(uip))[0])))
-        print prior(rw.smallworld(tg))[0]
+        outfile.write(str(math.log(evalPrior(rw.smallworld(tg),prior))) + ',')
+        outfile.write(str(math.log(evalPrior(rw.smallworld(nrw),prior))) + ',')
+        outfile.write(str(math.log(evalPrior(rw.smallworld(uinp),prior))) + ',')
+        outfile.write(str(math.log(evalPrior(rw.smallworld(uip),prior))))
+        print evalPrior(rw.smallworld(tg))[0]
         outfile.write('\n')
 
 outfile.close()
