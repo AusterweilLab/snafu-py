@@ -1,7 +1,12 @@
 # helper function generate flast lists from nested lists
-
+# modified from http://stackoverflow.com/a/952952/353278
+# flattens list of list one level only, preserving non-list items
+# flattens type list and type np.ndarray, nothing else (on purpose)
 def flatten_list(l):
-    return [item for sublist in l for item in sublist]
+    import numpy as np
+    l1=[item for sublist in l if isinstance(sublist,list) or isinstance(sublist,np.ndarray) for item in sublist]
+    l=l1+[item for item in l if not isinstance(item,list) and not isinstance(item,np.ndarray)]
+    return l
 
 # log trick given list of log-likelihoods **UNUSED
 def logTrick(loglist):
@@ -21,6 +26,15 @@ def maxn(items,n):
             maxs.sort(reverse=True)
             maxs= maxs[:n]
     return maxs
+
+# modified from ExGUtils package by Daniel Gamermann <gamermann@gmail.com>
+def rand_exg(irt, sigma, lambd):
+    import random, math
+    tau=(1.0/lambd)
+    nexp = -tau*math.log(1.-random.random())
+    ngau = random.gauss(irt, sigma)
+    return nexp + ngau
+
 
 # http://stackoverflow.com/a/32107024/353278
 # use dot notation on dicts for convenience

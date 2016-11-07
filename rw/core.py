@@ -8,16 +8,13 @@ import scipy.stats
 from numpy.linalg import inv
 from itertools import *
 from datetime import datetime
-#from ExGUtils.stats import *
-#from ExGUtils.exgauss import *
 
 # sibling packages
 from io import *
 from helper import *
+from structs import *
 
-# TODO: unit tests
-# TODO: reset random seed after each method
-# TODO: print num changes, cost for each toy network
+# TODO: random seed stuff
 
 # Set the random seed to allow search process to be replicable. Untested.
 # Currently needed because search procedure is inconsistent
@@ -41,6 +38,15 @@ def costSDT(graph, a):
     miss=len(Gnolinks)-cr
     cr=cr-len(a)            # don't count node self-transitions as correct rejections
     return [hit/2, miss/2, fa/2, cr/2]
+
+# calculate P(SW_graph|graph type) using pdf generated from genPrior
+def evalPrior(val, prior):
+    # unpack dict for convenience
+    kde=prior['kde']
+    binsize=prior['binsize']
+
+    prob=kde.integrate_box_1d(val-(binsize/2.0),val+(binsize/2.0))
+    return prob
 
 # returns a vector of how many hidden nodes to expect between each Xi for each X in Xs
 def expectedHidden(Xs, a):
@@ -71,25 +77,18 @@ def expectedHidden(Xs, a):
         expecteds.append(expected)        
     return expecteds
 
-def findBestGraph(Xs, irts=[], irtinfo={}, numnodes=0, tolerance=1500, prior=0, startingpoint="naiverw", jump=0.0, debug="T"):
+def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug="T"):
     random.seed(randomseed)     # for replicability
-   
-    # free parameters
-    prob_overlap=.8     # probability a link connecting nodes in multiple graphs
-    prob_multi=.8       # probability of selecting an additional link
-
-    if numnodes==0:         # unless specified (because Xs are trimmed and dont cover all nodes)
-        numnodes=len(set(flatten_list(Xs)))
 
     converge = 0        # when converge >= tolerance, declare the graph converged.
 
     # find a good starting graph using naive RW
-    if startingpoint=="windowgraph":
+    if fitinfo.start=="windowgraph":
         graph=windowGraph(Xs,numnodes)
-    else:
+    elif fitinfo.start=="naiverw":
         graph=noHidden(Xs,numnodes)
 
-    best_ll=probX(Xs,graph,irts=irts,irtinfo=irtinfo,jump=jump,prior=prior)   # LL of best graph found
+    best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
 
     # items in at least 2 lists. links between these nodes are more likely to affect P(G)
     # http://stackoverflow.com/q/2116286/353278
@@ -98,11 +97,11 @@ def findBestGraph(Xs, irts=[], irtinfo={}, numnodes=0, tolerance=1500, prior=0, 
     combos=list(combinations(overlap,2))    # all possible links btw overlapping nodes
     firstedges=[(x[0], x[1]) for x in Xs]
 
-    while converge < tolerance:
+    while converge < fitinfo.tolerance:
         
         links=[]        # links to toggle in candidate graph
         while True:     # emulates do-while loop (ugly)
-            if (random.random() <= prob_overlap) and (len(combos) > 0):      # choose link from combos most of the time 
+            if (random.random() <= fitinfo.prob_overlap) and (len(combos) > 0):      # choose link from combos most of the time 
                 link=random.choice(combos)                              # as long as combos isn't empty
             else:                                    # sometimes choose a link at random
                 link=(0,0)
@@ -110,7 +109,7 @@ def findBestGraph(Xs, irts=[], irtinfo={}, numnodes=0, tolerance=1500, prior=0, 
                 while (link[0]==link[1]) or (link in firstedges) or (link[::-1] in firstedges): 
                     link=(int(math.floor(random.random()*numnodes)),int(math.floor(random.random()*numnodes)))
             links.append(link)
-            if random.random() <= prob_multi:
+            if random.random() <= fitinfo.prob_multi:
                 break
 
         # toggle links
@@ -118,10 +117,9 @@ def findBestGraph(Xs, irts=[], irtinfo={}, numnodes=0, tolerance=1500, prior=0, 
             graph[link[0],link[1]] = 1 - graph[link[0],link[1]] 
             graph[link[1],link[0]] = 1 - graph[link[1],link[0]]
 
-        graph_ll=probX(Xs,graph,irts=irts,irtinfo=irtinfo,jump=jump,prior=prior)
+        graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
         
-        if debug=="T":
-            print "ORIG: ", best_ll, " NEW: ", graph_ll
+        if debug=="T": print "ORIG: ", best_ll, " NEW: ", graph_ll
 
         # if graph is better than current graph, accept it
         if (graph_ll > best_ll):
@@ -157,38 +155,16 @@ def firstHits(walk):
 # (n,k,p) = (number of nodes, each node connected to k-nearest neighbors, probability of rewiring)
 # k has to be even, tries is number of attempts to make connected graph
 def genG(tg, seed=None):
-    if tg.graphtype=="smallworld":
-        g=nx.connected_watts_strogatz_graph(tg.numnodes,tg.numlinks,tg.probRewire,1000,seed) # networkx graph
-        random.seed(randomseed)                               # bug in nx, random seed needs to be reset    
-    elif tg.graphtype=="random":                                 # erdos-renyi... TODO fix up
-        g=nx.erdos_renyi_graph(tg.numnodes, tg.probRewire)
+    if tg.graphtype=="wattsstrogatz":
+        g=nx.connected_watts_strogatz_graph(tg.numnodes,tg.numlinks,tg.prob_rewire,1000,seed) # networkx graph
+    elif tg.graphtype=="random":                               
+        g=nx.erdos_renyi_graph(tg.numnodes, tg.prob_rewire)
     elif tg.graphtype=="steyvers":
         g=genSteyvers(tg.numnodes, tg.numlinks)
-    else:
-        raise ValueError('Invalid or unspecified graphtype in toygraphs [genG]')
-    a=nx.to_numpy_matrix(g)
+    
+    random.seed(randomseed)                               # bug in nx, random seed needs to be reset    
+    a=np.array(nx.to_numpy_matrix(g)).astype(int)
     return g, a
-
-def genSteyvers(n,m, tail=1):                          # tail allows m-1 "null" nodes in neighborhood of every node
-    a=np.zeros((n,n))                                  # initialize matrix
-    for i in range(m):                                 # complete m x m graph
-        for j in range(m):
-            if i!= j:
-                a[i,j]=1
-    for i in range(m,n):                               # for the rest of nodes, preferentially attach
-        nodeprob=sum(a)/sum(sum(a))                    # choose node to differentiate with this probability distribution
-        diffnode=np.random.choice(n,p=nodeprob)    # node to differentiate
-        h=list(np.where(a[diffnode])[0]) + [diffnode]  # neighborhood of diffnode
-        if tail==1:
-            h=h + [-1]*(m-1)
-        #hprob=sum(a[:,h])/sum(sum(a[:,h]))                 # attach proportional to node degree?
-        #tolink=np.random.choice(h,m,replace=False,p=hprob)
-        tolink=np.random.choice(h,m,replace=False)          # or attach randomly
-        for j in tolink:
-            if j != -1:
-                a[i,j]=1
-                a[j,i]=1
-    return nx.to_networkx_graph(a)
 
 # only returns adjacency matrix, not nx graph
 def genGfromZ(walk, numnodes):
@@ -214,25 +190,38 @@ def genPrior(tg, n=10000, bins=100):
     print "generating prior distribution..."
     sw=[]
     for i in range(n):
-        if tg.graphtype=="smallworld":
-            g=nx.connected_watts_strogatz_graph(tg.numnodes,tg.numlinks,tg.probRewire,tries=1000)
+        if tg.graphtype=="wattsstrogatz":
+            g=nx.connected_watts_strogatz_graph(tg.numnodes,tg.numlinks,tg.prob_rewire,tries=1000)
             g=nx.to_numpy_matrix(g)
-        else: 
-            raise ValueError('Invalid graphtype used to generate prior [genPrior]')
+        if tg.graphtype=="steyvers":
+            g=genSteyvers(tg.numnodes, tg.numlinks)
+
         sw.append(smallworld(g))
     kde=scipy.stats.gaussian_kde(sw)
     binsize=(max(sw)-min(sw))/bins
     print "...done"
     return {'kde': kde, 'binsize': binsize}
 
-# calculate P(SW_graph|graph type) using pdf generated from genPrior
-def evalPrior(val, prior):
-    # unpack dict for convenience
-    kde=prior['kde']
-    binsize=prior['binsize']
-
-    prob=kde.integrate_box_1d(val-(binsize/2.0),val+(binsize/2.0))
-    return prob
+def genSteyvers(n,m, tail=1):                          # tail allows m-1 "null" nodes in neighborhood of every node
+    a=np.zeros((n,n))                                  # initialize matrix
+    for i in range(m):                                 # complete m x m graph
+        for j in range(m):
+            if i!= j:
+                a[i,j]=1
+    for i in range(m,n):                               # for the rest of nodes, preferentially attach
+        nodeprob=sum(a)/sum(sum(a))                    # choose node to differentiate with this probability distribution
+        diffnode=np.random.choice(n,p=nodeprob)    # node to differentiate
+        h=list(np.where(a[diffnode])[0]) + [diffnode]  # neighborhood of diffnode
+        if tail==1:
+            h=h + [-1]*(m-1)
+        #hprob=sum(a[:,h])/sum(sum(a[:,h]))                 # attach proportional to node degree?
+        #tolink=np.random.choice(h,m,replace=False,p=hprob)
+        tolink=np.random.choice(h,m,replace=False)          # or attach randomly
+        for j in tolink:
+            if j != -1:
+                a[i,j]=1
+                a[j,i]=1
+    return nx.to_networkx_graph(a)
 
 # return simulated data on graph g
 # also return number of steps between first hits (to use for IRTs)
@@ -288,34 +277,30 @@ def path_from_walk(walk):
     path.append(walk[-1][1]) # second element from last tuple
     return path
 
-# probability of observing Xs, including irts
+# probability of observing Xs, including irts and prior
 #@profile
-def probX(Xs, a, td, ii, irts=[], maxlen=20, mattype="link", prior=0):
-
+def probX(Xs, a, td, irts=Irts({}), prior=0):
     numnodes=len(a)
-
-    # unpack some dict values for convenience
-    if irtinfo:
-        irt_weight=irtinfo['irt_weight']
-        irttype=irtinfo['irttype']
 
     #random.seed(randomseed)             # bug in nx, random seed needs to be reset    
     probs=[] 
 
     # generate transition matrix (from: column, to: row) if given link matrix
-    if mattype=="link":
+    if np.issubdtype(a[0,0],int):           # if first item is int, they're all ints (i.e., link matrix)
         t=a/sum(a.astype(float))            # will throw warning if a node is inaccessible
-    else:
+    else:                                   # otherwise we have a transition or weighted matrix
         t=a
 
     statdist=stationary(t)
     
     for xnum, x in enumerate(Xs):
         prob=[]
-        prob.append(statdist[x[0]])      # probability of X_1
+        if td.start=="stationary":
+            prob.append(statdist[x[0]])      # probability of X_1
+        elif td.start=="uniform":
+            prob.append(1.0/numnodes)
 
         # if impossible starting point, return immediately
-        # TODO: check/ shouldn't this be under for curpos loop? does it make a difference (in terms of speed)?
         if prob[-1]==0.0:
             return -np.inf
         
@@ -327,8 +312,8 @@ def probX(Xs, a, td, ii, irts=[], maxlen=20, mattype="link", prior=0):
             notdeleted=np.array([i for i in range(numnodes) if i not in deletedlist])
            
             Q=t[notdeleted[:, None],notdeleted]
-                
-            if (len(irts) > 0) and (len(irtinfo) > 0): # use this method only when passing IRTs with weight < 1
+
+            if (len(irts.data) > 0) and (irts.irt_weight < 1): # use this method only when passing IRTs with weight < 1
                 startindex = startindex-sum([startindex > i for i in deletedlist])
                 # same as startindex==sorted(x[:curpos]).index(x[curpos-1])... less readable, maybe more efficient?
                 
@@ -337,14 +322,14 @@ def probX(Xs, a, td, ii, irts=[], maxlen=20, mattype="link", prior=0):
                 newQ=np.zeros(numcols)  # init to Q^0, for when r=1 (using only one row for efficiency)
                 newQ[startindex]=1.0
 
-                irt=irts[xnum][curpos-1]
+                irt=irts.data[xnum][curpos-1]
 
                 # precompute for small speedup
-                if ii.irttype=="gamma":
-                    logbeta=math.log(ii.beta)
+                if irts.irttype=="gamma":
+                    logbeta=math.log(irts.beta)
                     logirt=math.log(irt)
 
-                for r in range(1,maxlen):
+                for r in range(1,irts.rcutoff):
                     innersum=0
                     for k in range(numcols):
                         num1=newQ[k]                        # probability of being at node k in r-1 steps
@@ -353,14 +338,13 @@ def probX(Xs, a, td, ii, irts=[], maxlen=20, mattype="link", prior=0):
 
                     # much faster than using scipy.stats.gamma.pdf
 
-                    if ii.irttype=="gamma":
-                        log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-ii.beta*irt # r=alpha. probability of observing irt at r steps
-                    if ii.irttype=="exgauss":
-                        # same as math.log(exgauss(irt,r,sig,tau)) but avoids underflow
-                        log_dist=math.log(ii.tau/2.0)+(ii.tau/2.0)*(2.0*r+ii.tau*(ii.sig**2)-2*irt)+math.log(math.erfc((r+ii.tau*(ii.sig**2)-irt)/(math.sqrt(2)*ii.sig)))
+                    if irts.irttype=="gamma":
+                        log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.beta*irt # r=alpha. probability of observing irt at r steps
+                    if irts.irttype=="exgauss":
+                        log_dist=math.log(irts.lambd/2.0)+(irts.lambd/2.0)*(2.0*r+irts.lambd*(irts.sigma**2)-2*irt)+math.log(math.erfc((r+irts.lambd*(irts.sigma**2)-irt)/(math.sqrt(2)*irts.sigma)))
 
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
-                        flist.append(log_dist*(1-irt_weight)+irt_weight*math.log(innersum))
+                        flist.append(log_dist*(1-irts.irt_weight)+irts.irt_weight*math.log(innersum))
                     newQ=np.inner(newQ,Q)     # raise power by one
 
                 f=sum([math.e**i for i in flist])
@@ -393,8 +377,6 @@ def probX(Xs, a, td, ii, irts=[], maxlen=20, mattype="link", prior=0):
                     jumpval=float(td.jump)/numnodes           # uniform jumping
                 elif td.jumptype=="stationary":
                     jumpval=statdist(Xs[i][jnum])          # stationary probability jumping
-                else:
-                    raise ValueError('Invalid or unspecified jumptype [probX]')
                 if j==0.0:
                     if jumpval==0.0:
                         return -np.inf               # no RW transition and no jump probability!
@@ -410,7 +392,11 @@ def probX(Xs, a, td, ii, irts=[], maxlen=20, mattype="link", prior=0):
     # inclue prior?
     if prior:
         sw=smallworld(a)
-        probs=probs + math.log(evalPrior(sw, prior))
+        priorprob = evalPrior(sw,prior)
+        if priorprob == 0.0:
+            return -np.inf
+        else:
+            probs=probs + math.log(priorprob)
 
     return probs
 
@@ -481,41 +467,42 @@ def stationary(t,method="unweighted"):
         return np.real(eigen/sum(eigen))
 
 # generates fake IRTs from # of steps in a random walk, using gamma distribution
-def stepsToIRT(irts, ii, seed=None):
+def stepsToIRT(irts, seed=None):
     myrandom=np.random.RandomState(seed)        # to generate the same IRTs each time
     new_irts=[]
-    for irtlist in irts:
-        if ii.irttype=="gamma":
-            newlist=[myrandom.gamma(irt, (1.0/ii.beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
-        if ii.irttype=="exgauss":
-            ii.sig=0.5
-            ii.tau=0.5
-            newlist=[rand_exg(irt, 0.5, (1/0.5)) for irt in irtlist]  # ex-gaussian
+    for irtlist in irts.data:
+        if irts.irttype=="gamma":
+            newlist=[myrandom.gamma(irt, (1.0/irts.beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
+        if irts.irttype=="exgauss":
+            newlist=[rand_exg(irt, irts.sigma, irts.lambd) for irt in irtlist] 
         new_irts.append(newlist)
     return new_irts
 
 # runs a batch of toy graphs. logging code needs to be cleaned up significantly
-def toyBatch(toygraphs, toydata, outfile, irtinfo={}, start_seed=0,
-             methods=['rw','invite','inviteirt','fe'],header=1,prior=0, debug="T"):
-
-    # unpack some dict values for convenience
-    exec ','.join(toygraphs) + ', = toygraphs.values()'
-    exec ','.join(toydata) + ', = toydata.values()'
-    exec ','.join(irtinfo) + ', = irtinfo.values()'
-
-    if prior==1:
-        prior=genPrior(toygraphs)
+def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
+             methods=['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior'],header=1,debug="F"):
 
     # break out of function if using unknown method
     for method in methods:
-        if method not in ['rw','invite','inviteirt','fe','invitenoprior']:
-            print "ERROR: Trying to fit graph with unknown method: ", method
-            raise
+        if method not in ['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior']:
+            raise ValueError('ERROR: Trying to fit graph with unknown method: ', method)
+
+    # flag if using a prior method
+    if ('uinvite_prior' in methods) or ('uinvite_irt_prior' in methods): use_prior=1
+    else: use_prior=0
+
+    # flag if using an IRT method
+    if ('uinvite_irt' in methods) or ('uinvite_irt_prior' in methods): use_irt=1
+    else: use_irt=0
+
+    if use_prior:
+        prior=genPrior(tg)
 
     # stuff to write to file
-    globalvals=['irt_weight','beta','numnodes','numlinks','probRewire',
-                'numedges','graph_seed','numx','trim','x_seed','toynetwork','truegraphval']  # same across all methods
-    methodvals=['cost','time','bestgraph','hit','miss','fa','cr','bestval']     # differ per method
+    globalvals=['irts.irt_weight','irts.beta','tg.numnodes','tg.numlinks','tg.prob_rewire',
+                'numedges','graph_seed','td.numx','td.trim','x_seed','truegraph','truegraphll',
+                'truegraphll_prior','truegraphll_irt','truegraphll_irt_prior']  # same across all methods
+    methodvals=['cost','time','bestgraph','hit','miss','fa','cr','ll']     # differ per method
 
     f=open(outfile,'a', 0)                # write/append to file with no buffering
     if header==1:
@@ -537,88 +524,105 @@ def toyBatch(toygraphs, toydata, outfile, irtinfo={}, start_seed=0,
 
     # how many graphs to run?
     seed_param=start_seed
-    last_seed=start_seed+toygraphs['numgraphs']
+    last_seed=start_seed+tg.numgraphs
 
     while seed_param < last_seed:
-        graph_seed=seed_param
-        x_seed=seed_param
 
-        # generate toy data
-        g,a=genG(toygraphs,seed=graph_seed)
+        # generate toy graph and data
+        # give up if it's hard to generate data that cover full graph
+        tries=0
+        while True:
+            graph_seed=seed_param
+            x_seed=seed_param
+
+            # generate toy data
+            g,a=genG(tg,seed=graph_seed)
+           
+            [Xs,irts.data]=zip(*[genX(g, td, seed=x_seed+i) for i in range(td.numx)])
+            Xs=list(Xs)
+            irts.data=list(irts.data)
+            [Xs,irts.data,alter_graph]=trimX(td.trim,Xs,irts.data)      # trim data when necessary
+
+            # generate IRTs if using IRT model
+            if use_irt: irts.data=stepsToIRT(irts, seed=x_seed)
+            
+            if alter_graph==0:                      # only use data that covers the entire graph
+                break
+            else:
+                tries=tries+1
+                seed_param = seed_param + 1
+                last_seed = last_seed + 1    # if data is unusable (doesn't cover whole graph), add another seed
+                if tries >= 100:
+                    raise ValueError("Data doesn't cover full graph... Increase 'trim' or 'numx' (or change graph)")
 
         numedges=nx.number_of_edges(g)
-
-        [Xs,steps]=zip(*[genX(g, toydata, seed=x_seed+i) for i in range(numx)])
-        Xs=list(Xs)
-        steps=list(steps)
+        truegraph=graphToHash(a,tg.numnodes)  # to write to file
         
-        toynetwork=graphToHash(a,numnodes)  # to write to file
-        truegraphval=probX(Xs, a, jump=jump, prior=prior)
+        # true graph LL
+        truegraphll=probX(Xs, a, td)
+        if use_prior: truegraphll_prior=probX(Xs, a, td, prior=prior)
+        else: truegraphll_prior="n/a"
+        if use_irt: truegraphll_irt=probX(Xs, a, td, irts=irts)
+        else: truegraphll_irt="n/a"
+        if use_prior and use_irt: truegraphll_irt_prior=probX(Xs, a, td, prior=prior, irts=irts)
+        else: truegraphll_irt_prior="n/a"
 
-        # generate IRTs if using IRT model
-        irts=[]
-        if 'inviteirt' in methods:
-            irts=stepsToIRT(steps, beta, seed=x_seed)
-
-        # trim data when necessary
-        [Xs,irts,alter_graph]=trimX(toydata['trim'],Xs,irts,g)
-        
-        if alter_graph==0:      # only use data that covers entire graph (only a problem when trimming data)
-            for method in methods:
-                print "SEED: ", seed_param, "method: ", method
-                
-                # Find best graph! (and log time)
-                starttime=datetime.now()
-                if method == 'invitenoprior':        # temporary hack-- should separate methods and prior
-                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes, jump=jump, debug=debug)
-                    print graphToHash(bestgraph,numnodes)
-                if method == 'invite':
-                    bestgraph, bestval=findBestGraph(Xs, numnodes=numnodes, prior=prior, jump=jump, debug=debug)
-                    print graphToHash(bestgraph,numnodes)
-                if method == 'inviteirt':
-                    bestgraph, bestval=findBestGraph(Xs, irts, numnodes=numnodes, prior=prior, jump=jump, irtinfo=irtinfo, debug=debug)
-                    print graphToHash(bestgraph,numnodes)
-                if method == 'rw':
-                    bestgraph=noHidden(Xs,numnodes)
-                    bestval=probX(Xs, bestgraph, jump=jump)
-                if method == 'fe':
-                    bestgraph=firstEdge(Xs,numnodes)
-                    bestval=probX(Xs, bestgraph, jump=jump)
-                elapsedtime=str(datetime.now()-starttime)
-                print elapsedtime
-        
-                # compute SDT
-                hit, miss, fa, cr = costSDT(bestgraph,a)
-
-                # Record cost, time elapsed, LL of best graph, hash of best graph, and SDT measures
-                data[method]['cost'].append(cost(bestgraph,a))
-                data[method]['time'].append(elapsedtime)
-                data[method]['bestval'].append(bestval)
-                data[method]['bestgraph'].append(graphToHash(bestgraph,numnodes))
-                data[method]['hit'].append(hit)
-                data[method]['miss'].append(miss)
-                data[method]['fa'].append(fa)
-                data[method]['cr'].append(cr)
+        for method in methods:
+            if debug=="T": print "SEED: ", seed_param, "method: ", method
+            
+            # Find best graph! (and log time)
+            starttime=datetime.now()
+            if method == 'uinvite': 
+                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, debug=debug, fitinfo=fitinfo)
+                if debug=="T": print graphToHash(bestgraph,tg.numnodes)
+            if method == 'uinvite_prior':
+                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, prior=prior, debug=debug, fitinfo=fitinfo)
+                if debug=="T": print graphToHash(bestgraph,tg.numnodes)
+            if method == 'uinvite_irt':
+                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, debug=debug, fitinfo=fitinfo)
+                if debug=="T": print graphToHash(bestgraph,tg.numnodes)
+            if method == 'uinvite_irt_prior':
+                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo)
+                if debug=="T": print graphToHash(bestgraph,tg.numnodes)
+            if method == 'rw':
+                bestgraph=noHidden(Xs,tg.numnodes)
+                ll=probX(Xs, bestgraph, td)
+            if method == 'fe':
+                bestgraph=firstEdge(Xs,tg.numnodes)
+                ll=probX(Xs, bestgraph, td)
+            elapsedtime=str(datetime.now()-starttime)
+            if debug=="T": print elapsedtime
     
-            # log stuff here
-            if outfile != '':
-                towrite=[str(eval(i)) for i in globalvals]
-                f.write(','.join(towrite))
-                for method in methods:
-                    for val in methodvals:
-                        f.write(','+str(data[method][val][-1]))
-                f.write('\n')
-        else:
-            last_seed = last_seed + 1       # if data is unusable (doesn't cover whole graph), add another seed
+            # compute SDT
+            hit, miss, fa, cr = costSDT(bestgraph,a)
+
+            # Record cost, time elapsed, LL of best graph, hash of best graph, and SDT measures
+            data[method]['cost'].append(cost(bestgraph,a))
+            data[method]['time'].append(elapsedtime)
+            data[method]['ll'].append(ll)
+            data[method]['bestgraph'].append(graphToHash(bestgraph,tg.numnodes))
+            data[method]['hit'].append(hit)
+            data[method]['miss'].append(miss)
+            data[method]['fa'].append(fa)
+            data[method]['cr'].append(cr)
+
+        # log stuff here
+        towrite=[str(eval(i)) for i in globalvals]
+        f.write(','.join(towrite))
+        for method in methods:
+            for val in methodvals:
+                f.write(','+str(data[method][val][-1]))
+        f.write('\n')
+
         seed_param = seed_param + 1
     f.close()
 
 # trim Xs to proportion of graph size, the trim graph to remove any nodes that weren't hit
 # used to simulate human data that doesn't cover the whole graph every time
-def trimX(prop, Xs, steps, g):
-    numnodes=g.number_of_nodes()
+def trimX(trimprop, Xs, steps):
+    numnodes=len(Xs[0])             # since Xs haven't been trimmed, we know list covers full graph
     alter_graph_size=0              # report if graph size changes-- may result in disconnected graph!
-    numtrim=int(round(numnodes*prop))
+    numtrim=int(round(numnodes*trimprop))
     Xs=[i[0:numtrim] for i in Xs]
     steps=[i[0:(numtrim-1)] for i in steps]
     for i in range(numnodes):
@@ -643,7 +647,7 @@ def windowGraph(Xs, numnodes, windowsize=2):
         return graph                            # same as naive RW if windowsize=1
     for x in Xs:                                # for each list
         for pos in range(len(x)):               # for each item in list
-            for i in range(2,windowsize+1):      # for each window size
+            for i in range(2,windowsize+1):     # for each window size
                 if pos+i < len(x):
                     graph[x[pos],x[pos+i]]=1
                     graph[x[pos+i],x[pos]]=1
