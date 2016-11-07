@@ -6,7 +6,7 @@ header=1
 toygraphs=rw.Toygraphs({
         'numgraphs': 10,
         'graphtype': "steyvers",
-        'numnodes': 10,
+        'numnodes': 160,
         'numlinks': 6,
         'prob_rewire': .3})
 
@@ -15,7 +15,7 @@ toydata=rw.Toydata({
         'trim': .7,
         'jump': [0.0, 0.05],
         'jumptype': "stationary",
-        'start': "stationary"})
+        'startX': "stationary"})
 
 irts=rw.Irts({
         'data': [],
@@ -26,7 +26,7 @@ irts=rw.Irts({
 
 fitinfo=rw.Fitinfo({
         'tolerance': 1500,
-        'start': "naiverw",
+        'startGraph': "naiverw",
         'prob_multi': .8,
         'prob_overlap': .8})
 

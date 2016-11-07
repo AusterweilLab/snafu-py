@@ -18,8 +18,8 @@ def Toydata(toydata):
         toydata['jump'] = 0.0           # no jumping in data by default
     if 'jumptype' not in tdkeys:
         toydata['jumptype']="uniform"   # or stationary
-    if 'start' not in tdkeys:
-        toydata['start']="uniform"      # or stationary
+    if 'startX' not in tdkeys:
+        toydata['startX']="uniform"      # or stationary
     if 'numx' not in tdkeys:
         raise ValueError("Must specify 'numx' in toydata!")
     
@@ -94,8 +94,8 @@ def Fitinfo(fitinfo):
     
     if 'tolerance' not in fitkeys:
         fitinfo['tolerance']=1500
-    if 'start' not in fitkeys:              # or "windowgraph"
-        fitinfo['start']="naiverw"
+    if 'startGraph' not in fitkeys:         # or "windowgraph"
+        fitinfo['startGraph']="naiverw"
     if 'prob_multi' not in fitkeys:         # probability of selecting an additional link
         fitinfo['prob_multi']=.8
     if 'prob_overlap' not in fitkeys:       # probability a link connecting nodes in multiple graphs

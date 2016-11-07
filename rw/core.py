@@ -107,9 +107,9 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
     converge = 0        # when converge >= tolerance, declare the graph converged.
 
     # find a good starting graph using naive RW
-    if fitinfo.start=="windowgraph":
+    if fitinfo.startGraph=="windowgraph":
         graph=windowGraph(Xs,numnodes)
-    elif fitinfo.start=="naiverw":
+    elif fitinfo.startGraph=="naiverw":
         graph=noHidden(Xs,numnodes)
 
     best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
@@ -315,14 +315,14 @@ def probX(Xs, a, td, irts=Irts({}), prior=0):
     else:                                   # otherwise we have a transition or weighted matrix
         t=a
 
-    if (td.jumptype=="stationary") or (td.start=="stationary"):
+    if (td.jumptype=="stationary") or (td.startX=="stationary"):
         statdist=stationary(t)
     
     for xnum, x in enumerate(Xs):
         prob=[]
-        if td.start=="stationary":
+        if td.startX=="stationary":
             prob.append(statdist[x[0]])      # probability of X_1
-        elif td.start=="uniform":
+        elif td.startX=="uniform":
             prob.append(1.0/numnodes)
 
         # if impossible starting point, return immediately
@@ -422,15 +422,15 @@ def probX(Xs, a, td, irts=Irts({}), prior=0):
 def random_walk(g,td,seed=None):
     myrandom=random.Random(seed)
 
-    if (td.start=="stationary") or (td.jumptype=="stationary"):
+    if (td.startX=="stationary") or (td.jumptype=="stationary"):
         a=np.array(nx.to_numpy_matrix(g))
         t=a/sum(a).astype(float)
         statdist=stationary(t)
         statdist=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
     
-    if td.start=="stationary":
+    if td.startX=="stationary":
         start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution
-    elif td.start=="uniform":
+    elif td.startX=="uniform":
         start=myrandom.choice(nx.nodes(g))      # choose starting point uniformly
 
     walk=[]
@@ -517,15 +517,19 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         prior=genPrior(tg)
 
     # stuff to write to file
-    globalvals=['irts.irt_weight','irts.beta','tg.numnodes','tg.numlinks','tg.prob_rewire',
-                'numedges','graph_seed','td.numx','td.trim','x_seed','truegraph','truegraphll',
-                'truegraphll_prior','truegraphll_irt','truegraphll_irt_prior']  # same across all methods
+    # more vals to write to file
+    globalvals=['numedges','graph_seed','x_seed','truegraph','truegraphll', 'truegraphll_prior','truegraphll_irt',
+                'truegraphll_irt_prior']  # same across all methods
     methodvals=['cost','time','bestgraph','hit','miss','fa','cr','ll']     # differ per method
 
     f=open(outfile,'a', 0)                # write/append to file with no buffering
     if header==1:
-        f.write(','.join(globalvals))
-        f.write(',')
+        irtvals=irts.keys()
+        irtvals.remove('data')          # don't write IRT data
+        f.write(','.join(tg.keys())+',')
+        f.write(','.join(td.keys())+',')
+        f.write(','.join(irtvals)+',')
+        f.write(','.join(globalvals)+',')
         for methodnum, method in enumerate(methods):
             towrite=[i+'_'+method for i in methodvals]
             f.write(','.join(towrite))
@@ -625,7 +629,10 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
             data[method]['cr'].append(cr)
 
         # log stuff here
-        towrite=[str(eval(i)) for i in globalvals]
+        towrite=[str(tg[i]) for i in tg.keys()]
+        towrite=towrite+[str(td[i]) for i in td.keys()]
+        towrite=towrite+[str(irts[i]) for i in irts.keys() if i != 'data']  # don't write IRT data
+        towrite=towrite+[str(eval(i)) for i in globalvals]
         f.write(','.join(towrite))
         for method in methods:
             for val in methodvals:
