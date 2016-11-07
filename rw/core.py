@@ -20,6 +20,30 @@ from structs import *
 # Currently needed because search procedure is inconsistent
 randomseed=None
 
+# mix U-INVITE with random jumping model
+def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
+    if (td.jumptype=="uniform") and (numnodes==None):
+        raise ValueError("Must specify 'numnodes' when jumptype is uniform [addJumps]")
+    if (td.jumptype=="stationary") and ((statdist==None) or (Xs==None)):
+        raise ValueError("Must specify 'statdist' and 'Xs' when jumptype is stationary [addJumps]")
+
+    for i in range(len(probs)):                              # loop through all lists
+        for jnum, j in enumerate(probs[i]):                  # loop through all items
+            if jnum != 0:                                    # exlcuding first item (don't jump to first item!)
+                if td.jumptype=="uniform":
+                    jumpval=float(td.jump)/numnodes          # uniform jumping
+                elif td.jumptype=="stationary":
+                    jumpval=statdist[Xs[i][jnum]]            # stationary probability jumping
+                if j==0.0:
+                    if jumpval==0.0:
+                        return -np.inf                       # no RW transition and no jump probability!
+                    else:
+                        probs[i][jnum]=jumpval               # if no RW transition, jump to any node in the network uniformly
+                else:
+                    probs[i][jnum]=jumpval + (1-td.jump)*j   # else normalize existing probability and add jumping probability
+
+    return probs
+
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
 def cost(graph,a):
@@ -291,7 +315,8 @@ def probX(Xs, a, td, irts=Irts({}), prior=0):
     else:                                   # otherwise we have a transition or weighted matrix
         t=a
 
-    statdist=stationary(t)
+    if (td.jumptype=="stationary") or (td.start=="stationary"):
+        statdist=stationary(t)
     
     for xnum, x in enumerate(Xs):
         prob=[]
@@ -370,21 +395,14 @@ def probX(Xs, a, td, irts=Irts({}), prior=0):
         probs.append(prob)
 
     # adjust for jumping probability
-    for i in range(len(probs)):               # loop through all lists
-        for jnum, j in enumerate(probs[i]): # loop through all items
-            if jnum != 0:                   # exlcuding first item (don't jump to first item!)
-                if td.jumptype=="uniform":
-                    jumpval=float(td.jump)/numnodes           # uniform jumping
-                elif td.jumptype=="stationary":
-                    jumpval=statdist(Xs[i][jnum])          # stationary probability jumping
-                if j==0.0:
-                    if jumpval==0.0:
-                        return -np.inf               # no RW transition and no jump probability!
-                    else:
-                        probs[i][jnum]=jumpval       # if no RW transition, jump to any node in the network uniformly
-                else:
-                    probs[i][jnum]=jumpval + (1-td.jump)*j   # else normalize existing probability and add jumping probability
-                
+    if td.jumptype=="uniform":
+        probs=addJumps(probs, td, numnodes=numnodes)
+    elif td.jumptype=="stationary":
+        probs=addJumps(probs, td, statdist=statdist, Xs=Xs)
+    if probs==-np.inf:
+        return -np.inf
+
+    # total U-INVITE probability
     for i in range(len(probs)):
         probs[i]=sum([math.log(j) for j in probs[i]])
     probs=sum(probs)
@@ -552,7 +570,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
                 tries=tries+1
                 seed_param = seed_param + 1
                 last_seed = last_seed + 1    # if data is unusable (doesn't cover whole graph), add another seed
-                if tries >= 100:
+                if tries >= 1000:
                     raise ValueError("Data doesn't cover full graph... Increase 'trim' or 'numx' (or change graph)")
 
         numedges=nx.number_of_edges(g)

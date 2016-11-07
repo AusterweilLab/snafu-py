@@ -22,10 +22,8 @@ def Toydata(toydata):
         toydata['start']="uniform"      # or stationary
     if 'numx' not in tdkeys:
         raise ValueError("Must specify 'numx' in toydata!")
-    if isinstance(toydata,dict):
-        toydata=dotdict(toydata)
     
-    return toydata
+    return dotdict(toydata)
 
 def Toygraphs(toygraphs):
     tgkeys=toygraphs.keys()
