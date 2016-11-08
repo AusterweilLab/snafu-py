@@ -578,6 +578,8 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
                     raise ValueError("Data doesn't cover full graph... Increase 'trim' or 'numx' (or change graph)")
 
         numedges=nx.number_of_edges(g)
+        import sys                                      # TODO: need a better solution
+        sys.setrecursionlimit(10000)
         truegraph=graphToHash(a,tg.numnodes)  # to write to file
         
         # true graph LL

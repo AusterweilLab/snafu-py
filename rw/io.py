@@ -41,11 +41,11 @@ def drawG(g,Xs=[],labels={},save=False,display=True):
         plt.show()
 
 # helper function converts binary adjacency matrix to base 36 string for easy storage in CSV
-# binary -> int -> base36
+# binary -> int -> base62
 def graphToHash(a,numnodes):
-    def baseN(num,b,numerals="0123456789abcdefghijklmnopqrstuvwxyz"):
+    def baseN(num,b,numerals="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"):
         return ((num == 0) and numerals[0]) or (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
-    return str(numnodes) + '!' + baseN(int(''.join([str(i) for i in flatten_list(a)]),2), 36)
+    return str(numnodes) + '!' + baseN(int(''.join([str(i) for i in flatten_list(a)]),2), 62)
 
 # see graphToHash function
 def hashToGraph(graphhash):
