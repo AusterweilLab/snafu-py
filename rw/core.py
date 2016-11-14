@@ -578,9 +578,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
                     raise ValueError("Data doesn't cover full graph... Increase 'trim' or 'numx' (or change graph)")
 
         numedges=nx.number_of_edges(g)
-        import sys                                      # TODO: need a better solution
-        sys.setrecursionlimit(10000)
-        truegraph=graphToHash(a,tg.numnodes)  # to write to file
+        truegraph=nx.generate_sparse6(g)  # to write to file
         
         # true graph LL
         truegraphll=probX(Xs, a, td)
@@ -598,16 +596,12 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
             starttime=datetime.now()
             if method == 'uinvite': 
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, debug=debug, fitinfo=fitinfo)
-                if debug=="T": print graphToHash(bestgraph,tg.numnodes)
             if method == 'uinvite_prior':
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, prior=prior, debug=debug, fitinfo=fitinfo)
-                if debug=="T": print graphToHash(bestgraph,tg.numnodes)
             if method == 'uinvite_irt':
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, debug=debug, fitinfo=fitinfo)
-                if debug=="T": print graphToHash(bestgraph,tg.numnodes)
             if method == 'uinvite_irt_prior':
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo)
-                if debug=="T": print graphToHash(bestgraph,tg.numnodes)
             if method == 'rw':
                 bestgraph=noHidden(Xs,tg.numnodes)
                 ll=probX(Xs, bestgraph, td)
@@ -615,7 +609,9 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
                 bestgraph=firstEdge(Xs,tg.numnodes)
                 ll=probX(Xs, bestgraph, td)
             elapsedtime=str(datetime.now()-starttime)
-            if debug=="T": print elapsedtime
+            if debug=="T": 
+                print elapsedtime
+                print nx.generate_sparse6(nx.to_networkx_graph(bestgraph))
     
             # compute SDT
             hit, miss, fa, cr = costSDT(bestgraph,a)
@@ -624,7 +620,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
             data[method]['cost'].append(cost(bestgraph,a))
             data[method]['time'].append(elapsedtime)
             data[method]['ll'].append(ll)
-            data[method]['bestgraph'].append(graphToHash(bestgraph,tg.numnodes))
+            data[method]['bestgraph'].append(nx.generate_sparse6(nx.to_networkx_graph(bestgraph)))
             data[method]['hit'].append(hit)
             data[method]['miss'].append(miss)
             data[method]['fa'].append(fa)
