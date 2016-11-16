@@ -10,7 +10,6 @@ from itertools import *
 from datetime import datetime
 
 # sibling packages
-from io import *
 from helper import *
 from structs import *
 
@@ -102,6 +101,14 @@ def expectedHidden(Xs, a):
     return expecteds
 
 def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug="T"):
+    
+    # toggle links back, should be faster than making graph copy
+    def resetGraph(graph,links):
+        for link in links:
+            graph[link[0],link[1]] = 1 - graph[link[0],link[1]]
+            graph[link[1],link[0]] = 1 - graph[link[1],link[0]] 
+        return graph
+        
     random.seed(randomseed)     # for replicability
 
     converge = 0        # when converge >= tolerance, declare the graph converged.
@@ -120,6 +127,9 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
     overlap=list(overlap)
     combos=list(combinations(overlap,2))    # all possible links btw overlapping nodes
     firstedges=[(x[0], x[1]) for x in Xs]
+    freshcombos=list(combos) #JZ
+    graphstried=[nx.generate_sparse6(nx.to_networkx_graph(graph),header=False)]
+    
 
     while converge < fitinfo.tolerance:
         
@@ -127,6 +137,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
         while True:     # emulates do-while loop (ugly)
             if (random.random() <= fitinfo.prob_overlap) and (len(combos) > 0):      # choose link from combos most of the time 
                 link=random.choice(combos)                              # as long as combos isn't empty
+                combos.remove(link) #JZ
             else:                                    # sometimes choose a link at random
                 link=(0,0)
                 # avoid self-transition, avoid first edges (for efficiency only, since FE are required to produce data)
@@ -141,22 +152,24 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
             graph[link[0],link[1]] = 1 - graph[link[0],link[1]] 
             graph[link[1],link[0]] = 1 - graph[link[1],link[0]]
 
-        graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
-        
-        if debug=="T": print "ORIG: ", best_ll, " NEW: ", graph_ll
+        graphhash=nx.generate_sparse6(nx.to_networkx_graph(graph),header=False)
 
-        # if graph is better than current graph, accept it
-        if (graph_ll > best_ll):
-            # for debugging
-            #print "GRAPH: ", graph_ll, "BEST: ", best_ll
-            best_ll = graph_ll
-            converge = 0          # reset convergence criterion only if new graph is better than BEST graph
+        if graphhash not in graphstried:
+            graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
+            if debug=="T": print "ORIG: ", best_ll, " NEW: ", graph_ll
+
+            # if graph is better than current graph, accept it
+            if (graph_ll > best_ll):
+                best_ll = graph_ll
+                converge = 0          # reset convergence criterion only if new graph is better than BEST graph
+                combos=list(freshcombos) #JZ
+            else:
+                converge += 1
+                graph=resetGraph(graph, links)
+            graphstried.append(graphhash)      # mark graph as tried
         else:
-            converge += 1
-            # toggle links back, should be faster than making graph copy
-            for link in links:
-                graph[link[0],link[1]] = 1 - graph[link[0],link[1]]
-                graph[link[1],link[0]] = 1 - graph[link[1],link[0]] 
+            graph=resetGraph(graph, links)
+        
     return graph, best_ll
 
 def firstEdge(Xs, numnodes):
@@ -303,7 +316,7 @@ def path_from_walk(walk):
 
 # probability of observing Xs, including irts and prior
 #@profile
-def probX(Xs, a, td, irts=Irts({}), prior=0):
+def probX(Xs, a, td, irts=Irts({}), prior=0, returnmat=0):
     numnodes=len(a)
 
     #random.seed(randomseed)             # bug in nx, random seed needs to be reset    
@@ -401,6 +414,10 @@ def probX(Xs, a, td, irts=Irts({}), prior=0):
         probs=addJumps(probs, td, statdist=statdist, Xs=Xs)
     if probs==-np.inf:
         return -np.inf
+
+    # if you want the full matrix instead
+    if returnmat:
+        return probs
 
     # total U-INVITE probability
     for i in range(len(probs)):
@@ -518,8 +535,8 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
     # stuff to write to file
     # more vals to write to file
-    globalvals=['numedges','graph_seed','x_seed','truegraph','truegraphll', 'truegraphll_prior','truegraphll_irt',
-                'truegraphll_irt_prior']  # same across all methods
+    globalvals=['numedges','graph_seed','x_seed','truegraph','ll_tg', 'll_tg_prior','ll_tg_irt',
+                'll_tg_irt_prior']  # same across all methods
     methodvals=['cost','time','bestgraph','hit','miss','fa','cr','ll']     # differ per method
 
     f=open(outfile,'a', 0)                # write/append to file with no buffering
@@ -581,13 +598,13 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         truegraph=nx.generate_sparse6(g)  # to write to file
         
         # true graph LL
-        truegraphll=probX(Xs, a, td)
-        if use_prior: truegraphll_prior=probX(Xs, a, td, prior=prior)
-        else: truegraphll_prior="n/a"
-        if use_irt: truegraphll_irt=probX(Xs, a, td, irts=irts)
-        else: truegraphll_irt="n/a"
-        if use_prior and use_irt: truegraphll_irt_prior=probX(Xs, a, td, prior=prior, irts=irts)
-        else: truegraphll_irt_prior="n/a"
+        ll_tg=probX(Xs, a, td)
+        if use_prior: ll_tg_prior=probX(Xs, a, td, prior=prior)
+        else: ll_tg_prior=""
+        if use_irt: ll_tg_irt=probX(Xs, a, td, irts=irts)
+        else: ll_tg_irt=""
+        if use_prior and use_irt: ll_tg_irt_prior=probX(Xs, a, td, prior=prior, irts=irts)
+        else: ll_tg_irt_prior=""
 
         for method in methods:
             if debug=="T": print "SEED: ", seed_param, "method: ", method

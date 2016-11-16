@@ -14,32 +14,6 @@ except: print "Warning: Failed to import matplotlib"
 # sibling functions
 from helper import *
 
-# write graph to GraphViz file (.dot)
-def drawDot(g, filename, labels={}):
-    if type(g) == np.ndarray:
-        g=nx.to_networkx_graph(g)
-    if labels != {}:
-        nx.relabel_nodes(g, labels, copy=False)
-    nx.drawing.write_dot(g, filename)
-
-# draw graph
-def drawG(g,Xs=[],labels={},save=False,display=True):
-    if type(g) == np.ndarray:
-        g=nx.to_networkx_graph(g)
-    nx.relabel_nodes(g, labels, copy=False)
-    #pos=nx.spring_layout(g, scale=5.0)
-    pos = nx.graphviz_layout(g, prog="fdp")
-    nx.draw_networkx(g,pos,node_size=1000)
-#    for node in range(numnodes):                    # if the above doesn't work
-#        plt.annotate(str(node), xy=pos[node])       # here's a workaround
-    if Xs != []:
-        plt.title(Xs)
-    plt.axis('off')
-    if save==True:
-        plt.savefig('temp.png')                      # need to parameterize
-    if display==True:
-        plt.show()
-
 # ** DEPRECATED
 # helper function converts binary adjacency matrix to base 36 string for easy storage in CSV
 # binary -> int -> base62

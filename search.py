@@ -1,4 +1,6 @@
 import rw
+import matplotlib.pyplot as plt
+import numpy as np
 
 outfile='tmp.csv'
 header=1
@@ -30,8 +32,16 @@ fitinfo=rw.Fitinfo({
         'prob_multi': 1.0,
         'prob_overlap': 0.5})
 
-# optionally, pass a methods argument
-# default is methods=['fe','rw','uinvite','uinvite_irt'] 
-for td in toydata:
-    rw.toyBatch(toygraphs, td, outfile, irts=irts, start_seed=1,methods=['uinvite'],header=header,debug="F")
-    header=0
+x_seed=1
+graph_seed=1
+td=toydata[0]
+
+g,a=rw.genG(toygraphs,seed=graph_seed)
+                                                                   
+[Xs,irts.data]=zip(*[rw.genX(g, td, seed=x_seed+i) for i in range(td.numx)])
+Xs=list(Xs)
+irts.data=list(irts.data)
+[Xs,irts.data,alter_graph]=rw.trimX(td.trim,Xs,irts.data)      # trim data when necessary
+
+rw.drawMat(a,cmap=plt.cm.BuGn)
+rw.drawMatChange(Xs, a, td, (0,1), keep=1)  # e.g.
