@@ -6,14 +6,14 @@ header=1
 toygraphs=rw.Toygraphs({
         'numgraphs': 10,
         'graphtype': "steyvers",
-        'numnodes': 30,
+        'numnodes': 160,
         'numlinks': 6,
         'prob_rewire': .3})
 
 toydata=rw.Toydata({
-        'numx': range(5,25),
+        'numx': [20],
         'trim': .7,
-        'jump': [0.0, 0.05],
+        'jump': 0.0,
         'jumptype': "stationary",
         'startX': "stationary"})
 

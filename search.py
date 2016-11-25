@@ -15,9 +15,9 @@ toygraphs=rw.Toygraphs({
 toydata=rw.Toydata({
         'numx': range(5,25),
         'trim': .7,
-        'jump': [0.0, 0.05],
-        'jumptype': "stationary",
-        'startX': "stationary"})
+        'jump': 0.0,
+        'jumptype': "uniform",
+        'startX': "uniform"})
 
 irts=rw.Irts({
         'data': [],
@@ -44,4 +44,4 @@ irts.data=list(irts.data)
 [Xs,irts.data,alter_graph]=rw.trimX(td.trim,Xs,irts.data)      # trim data when necessary
 
 rw.drawMat(a,cmap=plt.cm.BuGn)
-rw.drawMatChange(Xs, a, td, (0,1), keep=1)  # e.g.
+newmat=rw.drawMatChange(Xs, a, td, (0,1), keep=0)  # e.g.

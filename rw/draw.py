@@ -31,18 +31,38 @@ def drawG(g,Xs=[],labels={},save=False,display=True):
     if display==True:
         plt.show()
 
-def drawMat(mat,mat2=0,cmap=plt.cm.ocean):
+def drawMat(mat,mat2=0,cmap=plt.cm.ocean, v=(-0.03, 0.03)):
     if mat2:
         mat=np.array(mat2)-np.array(mat)
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
     ax.set_aspect('equal')
-    plt.imshow(mat, interpolation='nearest', cmap=cmap)
+    plt.imshow(mat, interpolation='nearest', cmap=cmap, vmin=v[0], vmax=v[1])
     plt.colorbar()
     plt.ion()
     plt.show()
     return
 
+# plot all possible edge changes
+def checkAll(Xs, a, td):
+    op=probX(Xs, a, td)
+    mat=np.zeros((len(a),len(a)))
+    for i in range(len(a)):
+        for j in range(len(a)):
+            print i, j
+            if j>=i:
+                a[i,j] = 1-a[i,j]
+                a[j,i] = 1-a[j,i]
+                p=probX(Xs, a, td)
+                a[i,j] = 1-a[i,j]
+                a[j,i] = 1-a[j,i]
+                mat[i,j]=p-op
+                mat[j,i]=mat[i,j]
+    # draw
+    vmax=max([max(i) for i in mat])
+    vmin=min([min([j for j in i if j!=-np.inf]) for i in mat])
+    drawMat(mat,v=(vmin,vmax))
+    return mat
 
 #drawMatChange(Xs, a, td, (5,10))
 def drawMatChange(Xs, a, td, link, cmap=plt.cm.bwr, keep=0, binary=0):
@@ -74,6 +94,7 @@ def drawMatChange(Xs, a, td, link, cmap=plt.cm.bwr, keep=0, binary=0):
     plt.imshow(newmat, interpolation='nearest', cmap=cmap, vmin=-0.03, vmax=0.03)
     plt.colorbar()
     plt.ion()
+    plt.title(str(link))
     plt.show()
     sum1=sum([sum(i) for i in mat1])
     sum2=sum([sum(i) for i in mat2])
@@ -84,4 +105,4 @@ def drawMatChange(Xs, a, td, link, cmap=plt.cm.bwr, keep=0, binary=0):
     if (not keep) or ((keep) and (sum1 >= sum2)):
         a[link[0],link[1]] = 1-a[link[0],link[1]] # back to orig
         a[link[1],link[0]] = 1-a[link[1],link[0]]
-    return
+    return newmat

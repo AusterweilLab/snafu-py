@@ -66,21 +66,21 @@ def Irts(irts):
 
     if 'irt_weight' not in irtkeys:
         irts['irt_weight'] = 0.9
-        warnings.warn("Using default IRT weight of 0.9")
+        #warnings.warn("Using default IRT weight of 0.9")
     else:
         if (irts['irt_weight'] > 1.0) or (irts['irt_weight'] < 0.0):
             raise ValueError('IRT weight must be between 0.0 and 1.0')
     if irts['irttype'] == "gamma":
         if 'beta' not in irtkeys:
             irts['beta'] = (1/1.1)
-            warnings.warn("Using default beta (Gamma IRT) weight of "+str(irts['beta']))
+            #warnings.warn("Using default beta (Gamma IRT) weight of "+str(irts['beta']))
     if irts['irttype'] == "exgauss":
         if 'lambd' not in irtkeys:
             irts['lambd'] = 0.5
-            warnings.warn("Using default lambd (Ex-Gaussian IRT) weight of "+str(irts['lambd']))
+            #warnings.warn("Using default lambd (Ex-Gaussian IRT) weight of "+str(irts['lambd']))
         if 'sigma' not in irtkeys:
             irts['sigma'] = 0.5
-            warnings.warn("Using default sigma (Ex-Gaussian IRT) weight of "+str(irts['sigma']))
+            #warnings.warn("Using default sigma (Ex-Gaussian IRT) weight of "+str(irts['sigma']))
 
     return dotdict(irts)
 

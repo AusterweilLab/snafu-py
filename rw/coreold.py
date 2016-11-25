@@ -1,5 +1,3 @@
-from __future__ import division
-
 import networkx as nx
 import numpy as np
 import random
@@ -28,17 +26,20 @@ def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
     if (td.jumptype=="stationary") and ((statdist==None) or (Xs==None)):
         raise ValueError("Must specify 'statdist' and 'Xs' when jumptype is stationary [addJumps]")
 
-    if td.jumptype=="uniform":
-        jumpval=float(td.jump)/numnodes                      # uniform jumping
-    
-    for l in range(len(probs)):                              # loop through all lists (l)
-        for inum, i in enumerate(probs[l][1:]):              # loop through all items (i) excluding first (don't jump to item 1)
-            if td.jumptype=="stationary":
-                jumpval=statdist[Xs[l][inum]]            # stationary probability jumping
-            else:
-                probs[l][inum]=jumpval + (1-td.jump)*i   # else normalize existing probability and add jumping probability
-                if probs[l][inum] == 0.0:                # if item can't be reached by RW or jumping...
-                    return -np.inf
+    for i in range(len(probs)):                              # loop through all lists
+        for jnum, j in enumerate(probs[i]):                  # loop through all items
+            if jnum != 0:                                    # exlcuding first item (don't jump to first item!)
+                if td.jumptype=="uniform":
+                    jumpval=float(td.jump)/numnodes          # uniform jumping
+                elif td.jumptype=="stationary":
+                    jumpval=statdist[Xs[i][jnum]]            # stationary probability jumping
+                if j==0.0:
+                    if jumpval==0.0:
+                        return -np.inf                       # no RW transition and no jump probability!
+                    else:
+                        probs[i][jnum]=jumpval               # if no RW transition, jump to any node in the network uniformly
+                else:
+                    probs[i][jnum]=jumpval + (1-td.jump)*j   # else normalize existing probability and add jumping probability
 
     return probs
 
@@ -100,166 +101,75 @@ def expectedHidden(Xs, a):
     return expecteds
 
 def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug="T"):
-   
-    # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
-    # i.e., an edge between i and any item in nn forms a triangle
-    def neighborsofneighbors(i, nxg):
-        nn=[]                                   # neighbors of neighbors (nn)
-        n=list(nx.all_neighbors(nxg,i))
-        for j in n:
-            nn=nn+list(nx.all_neighbors(nxg,j))
-        nn=list(set(nn))
-        for k in n:
-            if k in nn:
-                nn.remove(k)
-        return nn
-        
+    
     # toggle links back, should be faster than making graph copy
-    def swapEdges(graph,links):
+    def resetGraph(graph,links):
         for link in links:
             graph[link[0],link[1]] = 1 - graph[link[0],link[1]]
             graph[link[1],link[0]] = 1 - graph[link[1],link[0]] 
         return graph
         
-    def pruneEdges(graph, vmin=1, vmaj=0, best_ll=None, limit=None):
-        if best_ll == None:
-            best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
-        edges = zip(*np.where(graph==1))
-        random.shuffle(edges)
-        numchanges=0
-        print "Pruning", str(vmaj) + "." + str(vmin), "... ", (len(edges)/2)-len(firstedges), "possible:",
-        for edge in edges[:limit]:
-            if (edge[0] < edge[1]) and (edge not in firstedges) and (edge[::-1] not in firstedges):
-                graph=swapEdges(graph, [edge])
-                graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
-                if best_ll > graph_ll:
-                    graph=swapEdges(graph,[edge])
-                else:
-                    best_ll = graph_ll
-                    numchanges += 1
-        print numchanges, " changes"
-        if numchanges > 0:
-            graph, best_ll = pruneEdges(graph, vmin=(vmin+1), vmaj=vmaj, best_ll=best_ll)
-        return graph, best_ll
-
-    def addTriangles(graph, vmin=1, vmaj=0, best_ll=None, limit=None):
-        if best_ll == None:
-            best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
-        nxg=nx.to_networkx_graph(graph)
-        numchanges=0
-        edges=[]
-
-        # generate list of possible edges to add (edges that form triangles)
-        for i in range(len(graph)):
-            nn=neighborsofneighbors(i, nxg)
-            edges = edges + zip([i]*len(nn),nn)
-        random.shuffle(edges)
-
-        print "Adding triangles", str(vmaj) + "." + str(vmin), "... ", (len(edges)/2), "possible:",
-        
-        for edge in edges[:limit]:
-            if (edge[0] < edge[1]):
-                graph=swapEdges(graph, [edge])
-                graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
-                if best_ll > graph_ll:
-                    graph=swapEdges(graph,[edge])
-                else:
-                    best_ll = graph_ll
-                    numchanges += 1
-        print numchanges, " changes"
-        if numchanges > 0:
-            graph, best_ll = addTriangles(graph, vmin=(vmin+1), vmaj=vmaj)
-        return graph, best_ll
-
-    def pivot(graph, vmin=1, vmaj=0, best_ll=None, limit=None):
-        print "Adding other edges", str(vmaj) + "." + str(vmin), "... ",
-        
-        if best_ll == None:
-            best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
-        nxg=nx.to_networkx_graph(graph)
-        numchanges=0
-
-        # list of a node's non-neighbors (non-edges) that don't form triangles
-        nonneighbors=dict()
-        for i in range(numnodes):
-            nn=neighborsofneighbors(i, nxg)
-            # non-neighbors that DON'T form triangles 
-            nonneighbors[i]=[j for j in range(numnodes) if j not in nx.all_neighbors(nxg,i) and j not in nn] 
-
-        count=[0.0]*numnodes
-        avg=[-np.inf]*numnodes
-        finishednodes=0
-
-        while finishednodes < numnodes:
-            maxval=max(avg)
-            bestnodes=[i for i, j in enumerate(avg) if j == maxval]
-            node1=random.choice(bestnodes)
-
-            if len(nonneighbors[node1]) > 0:
-                node2=random.choice(nonneighbors[node1])
-                edge=(node1, node2)
-                graph=swapEdges(graph,[edge])
-                graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
-                if best_ll > graph_ll:
-                    graph=swapEdges(graph,[edge])
-                else:
-                    best_ll = graph_ll
-                    numchanges += 1
-                nonneighbors[node1].remove(node2)   # remove edge from possible choices
-                nonneighbors[node2].remove(node1)
-           
-                # increment even if graph prob = -np.inf for implicit penalty
-                #print graph_ll, "\t", edge
-                count[node1] += 1
-                count[node2] += 1
-                if graph_ll != -np.inf:
-                    if avg[node1] == -np.inf:
-                        avg[node1] = graph_ll
-                    else:
-                        avg[node1] = avg[node1] * ((count[node1]-1)/count[node1]) + (1.0/count[node1]) * graph_ll
-                    if avg[node2] == -np.inf:
-                        avg[node2] = graph_ll
-                    else:
-                        avg[node2] = avg[node2] * ((count[node2]-1)/count[node2]) + (1.0/count[node2]) * graph_ll
-            else:   # no edges on this node left to try!
-                avg[node1]=-np.inf      # so we don't try it again...
-                finishednodes += 1
-
-        print numchanges, " changes"
-        if numchanges > 0:
-            graph, best_ll = pivot(graph, vmin=(vmin+1), vmaj=vmaj)
-
-        return graph, best_ll
-
     random.seed(randomseed)     # for replicability
+
     converge = 0        # when converge >= tolerance, declare the graph converged.
-    firstedges=[(x[0], x[1]) for x in Xs]
-    
+
     # find a good starting graph using naive RW
     if fitinfo.startGraph=="windowgraph":
         graph=windowGraph(Xs,numnodes)
     elif fitinfo.startGraph=="naiverw":
         graph=noHidden(Xs,numnodes)
-  
-    def phases(graph, best_ll, vmaj, escape):
-        vmaj += 1
-        graph, best_ll = pruneEdges(graph, best_ll=best_ll, vmaj=vmaj)
-        old_ll=best_ll
-        graph, best_ll = addTriangles(graph, best_ll=best_ll, vmaj=vmaj)
-        if best_ll > old_ll:
-            phases(graph, best_ll, vmaj, escape)
-            escape=1
-        if escape != 1:
-            old_ll=best_ll
-            graph, best_ll = pivot(graph, best_ll=best_ll, vmaj=vmaj)
-            if best_ll > old_ll:
-                phases(graph, best_ll, vmaj, escape)
-        return graph
 
-    vmaj=0
     best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
-    graph=phases(graph, best_ll, vmaj, 0)
 
+    # items in at least 2 lists. links between these nodes are more likely to affect P(G)
+    # http://stackoverflow.com/q/2116286/353278
+    overlap=reduce(set.union, (starmap(set.intersection, combinations(map(set, Xs), 2))))
+    overlap=list(overlap)
+    combos=list(combinations(overlap,2))    # all possible links btw overlapping nodes
+    firstedges=[(x[0], x[1]) for x in Xs]
+    freshcombos=list(combos) #JZ
+    graphstried=[nx.generate_sparse6(nx.to_networkx_graph(graph),header=False)]
+    
+
+    while converge < fitinfo.tolerance:
+        
+        links=[]        # links to toggle in candidate graph
+        while True:     # emulates do-while loop (ugly)
+            if (random.random() <= fitinfo.prob_overlap) and (len(combos) > 0):      # choose link from combos most of the time 
+                link=random.choice(combos)                              # as long as combos isn't empty
+                combos.remove(link) #JZ
+            else:                                    # sometimes choose a link at random
+                link=(0,0)
+                # avoid self-transition, avoid first edges (for efficiency only, since FE are required to produce data)
+                while (link[0]==link[1]) or (link in firstedges) or (link[::-1] in firstedges): 
+                    link=(int(math.floor(random.random()*numnodes)),int(math.floor(random.random()*numnodes)))
+            links.append(link)
+            if random.random() <= fitinfo.prob_multi:
+                break
+
+        # toggle links
+        for link in links:
+            graph[link[0],link[1]] = 1 - graph[link[0],link[1]] 
+            graph[link[1],link[0]] = 1 - graph[link[1],link[0]]
+
+        graphhash=nx.generate_sparse6(nx.to_networkx_graph(graph),header=False)
+
+        if graphhash not in graphstried:
+            graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
+            if debug=="T": print "ORIG: ", best_ll, " NEW: ", graph_ll
+
+            # if graph is better than current graph, accept it
+            if (graph_ll > best_ll):
+                best_ll = graph_ll
+                converge = 0          # reset convergence criterion only if new graph is better than BEST graph
+                combos=list(freshcombos) #JZ
+            else:
+                converge += 1
+                graph=resetGraph(graph, links)
+            graphstried.append(graphhash)      # mark graph as tried
+        else:
+            graph=resetGraph(graph, links)
+        
     return graph, best_ll
 
 def firstEdge(Xs, numnodes):
@@ -498,15 +408,14 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, returnmat=0):
         probs.append(prob)
 
     # adjust for jumping probability
-    if td.jump > 0.0:
-        if td.jumptype=="uniform":
-            probs=addJumps(probs, td, numnodes=numnodes)
-        elif td.jumptype=="stationary":
-            probs=addJumps(probs, td, statdist=statdist, Xs=Xs)
-        if probs==-np.inf:
-            return -np.inf
+    if td.jumptype=="uniform":
+        probs=addJumps(probs, td, numnodes=numnodes)
+    elif td.jumptype=="stationary":
+        probs=addJumps(probs, td, statdist=statdist, Xs=Xs)
+    if probs==-np.inf:
+        return -np.inf
 
-    # if you want the full matrix instead (without prior)
+    # if you want the full matrix instead
     if returnmat:
         return probs
 
@@ -660,15 +569,14 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
         # generate toy graph and data
         # give up if it's hard to generate data that cover full graph
-
-        # generate toy data
-        graph_seed=seed_param
-        g,a=genG(tg,seed=graph_seed)
-
         tries=0
         while True:
+            graph_seed=seed_param
             x_seed=seed_param
 
+            # generate toy data
+            g,a=genG(tg,seed=graph_seed)
+           
             [Xs,irts.data]=zip(*[genX(g, td, seed=x_seed+i) for i in range(td.numx)])
             Xs=list(Xs)
             irts.data=list(irts.data)
@@ -676,6 +584,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
             # generate IRTs if using IRT model
             if use_irt: irts.data=stepsToIRT(irts, seed=x_seed)
+            
             if alter_graph==0:                      # only use data that covers the entire graph
                 break
             else:
@@ -687,6 +596,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
         numedges=nx.number_of_edges(g)
         truegraph=nx.generate_sparse6(g)  # to write to file
+        
         # true graph LL
         ll_tg=probX(Xs, a, td)
         if use_prior: ll_tg_prior=probX(Xs, a, td, prior=prior)
