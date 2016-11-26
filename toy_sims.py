@@ -4,7 +4,7 @@ outfile='tmp.csv'
 header=1
 
 toygraphs=rw.Toygraphs({
-        'numgraphs': 10,
+        'numgraphs': 1,
         'graphtype': "steyvers",
         'numnodes': 160,
         'numlinks': 6,
@@ -27,11 +27,13 @@ irts=rw.Irts({
 fitinfo=rw.Fitinfo({
         'tolerance': 1500,
         'startGraph': "naiverw",
-        'prob_multi': 1.0,
-        'prob_overlap': 0.5})
+        'prune_limit': 100,
+        'triangle_limit': 100,
+        'other_limit': 100})
 
 # optionally, pass a methods argument
 # default is methods=['fe','rw','uinvite','uinvite_irt'] 
+
 for td in toydata:
     rw.toyBatch(toygraphs, td, outfile, irts=irts, start_seed=1,methods=['uinvite'],header=header,debug="F")
     header=0

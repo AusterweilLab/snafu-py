@@ -3,6 +3,7 @@
 
 import warnings
 from helper import *
+import numpy as np
 
 def Toydata(toydata):
     tdkeys=toydata.keys()
@@ -96,10 +97,12 @@ def Fitinfo(fitinfo):
         fitinfo['tolerance']=1500
     if 'startGraph' not in fitkeys:         # or "windowgraph"
         fitinfo['startGraph']="naiverw"
-    if 'prob_multi' not in fitkeys:         # probability of selecting an additional link
-        fitinfo['prob_multi']=.8
-    if 'prob_overlap' not in fitkeys:       # probability a link connecting nodes in multiple graphs
-        fitinfo['prob_overlap']=.8
+    if 'prune_limit' not in fitkeys:
+        fitinfo['prune_limit']=np.inf
+    if 'triangle_limit' not in fitkeys:
+        fitinfo['triangle_limit']=np.inf
+    if 'other_limit' not in fitkeys:
+        fitinfo['other_limit']=np.inf
     if 'rcutoff' not in fitkeys:
         fitinfo['rcutoff']=20
 

@@ -6,6 +6,7 @@ import random
 import operator
 import math
 import scipy.stats
+import sys
 
 from numpy.linalg import inv
 from itertools import *
@@ -109,9 +110,10 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
         for j in n:
             nn=nn+list(nx.all_neighbors(nxg,j))
         nn=list(set(nn))
-        for k in n:
+        for k in n:             # remove neighbors
             if k in nn:
                 nn.remove(k)
+        nn.remove(i)    # remove self
         return nn
         
     # toggle links back, should be faster than making graph copy
@@ -121,92 +123,125 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
             graph[link[1],link[0]] = 1 - graph[link[1],link[0]] 
         return graph
         
-    def pruneEdges(graph, vmin=1, vmaj=0, best_ll=None, limit=None):
-        if best_ll == None:
-            best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
-        edges = zip(*np.where(graph==1))
-        random.shuffle(edges)
-        numchanges=0
-        print "Pruning", str(vmaj) + "." + str(vmin), "... ", (len(edges)/2)-len(firstedges), "possible:",
-        for edge in edges[:limit]:
-            if (edge[0] < edge[1]) and (edge not in firstedges) and (edge[::-1] not in firstedges):
-                graph=swapEdges(graph, [edge])
-                graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
-                if best_ll > graph_ll:
-                    graph=swapEdges(graph,[edge])
-                else:
-                    best_ll = graph_ll
-                    numchanges += 1
-        print numchanges, " changes"
-        if numchanges > 0:
-            graph, best_ll = pruneEdges(graph, vmin=(vmin+1), vmaj=vmaj, best_ll=best_ll)
-        return graph, best_ll
+    #def pruneEdges(graph, vmin=1, vmaj=0, best_ll=None, limit=None):
+    #    if best_ll == None:
+    #        best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
+    #    edges = zip(*np.where(graph==1))
+    #    random.shuffle(edges)
+    #    numchanges=0
+    #    print "Pruning", str(vmaj) + "." + str(vmin), "... ", (len(edges)/2)-len(firstedges), "possible:",
+    #    for edge in edges[:limit]:
+    #        if (edge[0] < edge[1]) and (edge not in firstedges) and (edge[::-1] not in firstedges):
+    #            graph=swapEdges(graph, [edge])
+    #            graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
+    #            if best_ll > graph_ll:
+    #                graph=swapEdges(graph,[edge])
+    #            else:
+    #                best_ll = graph_ll
+    #                numchanges += 1
+    #    print numchanges, " changes"
+    #    if numchanges > 0:
+    #        graph, best_ll = pruneEdges(graph, vmin=(vmin+1), vmaj=vmaj, best_ll=best_ll)
+    #    return graph, best_ll
 
-    def addTriangles(graph, vmin=1, vmaj=0, best_ll=None, limit=None):
+    #def addTriangles(graph, vmin=1, vmaj=0, best_ll=None, limit=None):
+    #    if best_ll == None:
+    #        best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
+    #    nxg=nx.to_networkx_graph(graph)
+    #    numchanges=0
+    #    edges=[]
+
+    #    # generate list of possible edges to add (edges that form triangles)
+    #    for i in range(len(graph)):
+    #        nn=neighborsofneighbors(i, nxg)
+    #        edges = edges + zip([i]*len(nn),nn)
+    #    random.shuffle(edges)
+
+    #    print "Adding triangles", str(vmaj) + "." + str(vmin), "... ", (len(edges)/2), "possible:",
+    #    
+    #    for edge in edges[:limit]:
+    #        if (edge[0] < edge[1]):
+    #            graph=swapEdges(graph, [edge])
+    #            graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
+    #            if best_ll > graph_ll:
+    #                graph=swapEdges(graph,[edge])
+    #            else:
+    #                best_ll = graph_ll
+    #                numchanges += 1
+    #    print numchanges, " changes"
+    #    if numchanges > 0:
+    #        graph, best_ll = addTriangles(graph, vmin=(vmin+1), vmaj=vmaj)
+    #    return graph, best_ll
+
+    def pivot(graph, vmin=1, vmaj=0, best_ll=None, limit=np.inf, method=""):
+      
+        numchanges=0     # number of changes in single pivot() call
+
         if best_ll == None:
             best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
         nxg=nx.to_networkx_graph(graph)
-        numchanges=0
-        edges=[]
 
-        # generate list of possible edges to add (edges that form triangles)
-        for i in range(len(graph)):
-            nn=neighborsofneighbors(i, nxg)
-            edges = edges + zip([i]*len(nn),nn)
-        random.shuffle(edges)
-
-        print "Adding triangles", str(vmaj) + "." + str(vmin), "... ", (len(edges)/2), "possible:",
+        # generate dict where v[i] is a list of nodes where (i, v[i]) is an existing edge in the graph
+        if method=="prune":
+            print "Pruning", str(vmaj) + "." + str(vmin), "... ", # (len(edges)/2)-len(firstedges), "possible:",
+            sys.stdout.flush()
+            listofedges=np.where(graph==1)
+            v=dict()
+            for i in range(numnodes):
+                v[i]=[]
+            for i, j in enumerate(listofedges[0]):
+                v[j].append(listofedges[1][i])
         
-        for edge in edges[:limit]:
-            if (edge[0] < edge[1]):
-                graph=swapEdges(graph, [edge])
-                graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
-                if best_ll > graph_ll:
-                    graph=swapEdges(graph,[edge])
-                else:
-                    best_ll = graph_ll
-                    numchanges += 1
-        print numchanges, " changes"
-        if numchanges > 0:
-            graph, best_ll = addTriangles(graph, vmin=(vmin+1), vmaj=vmaj)
-        return graph, best_ll
-
-    def pivot(graph, vmin=1, vmaj=0, best_ll=None, limit=None):
-        print "Adding other edges", str(vmaj) + "." + str(vmin), "... ",
+        # generate dict where v[i] is a list of nodes where (i, v[i]) would form a new triangle
+        if method=="triangles":
+            print "Adding triangles", str(vmaj) + "." + str(vmin), "... ", # (len(edges)/2), "possible:",
+            sys.stdout.flush()
+            nn=dict()
+            for i in range(len(graph)):
+                nn[i]=neighborsofneighbors(i, nxg)
+            v=nn
         
-        if best_ll == None:
-            best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
-        nxg=nx.to_networkx_graph(graph)
-        numchanges=0
-
-        # list of a node's non-neighbors (non-edges) that don't form triangles
-        nonneighbors=dict()
-        for i in range(numnodes):
-            nn=neighborsofneighbors(i, nxg)
-            # non-neighbors that DON'T form triangles 
-            nonneighbors[i]=[j for j in range(numnodes) if j not in nx.all_neighbors(nxg,i) and j not in nn] 
+        # generate dict where v[i] is a list of nodes where (i, v[i]) is NOT an existing an edge and does NOT form a triangle
+        if method=="nonneighbors":
+            # list of a node's non-neighbors (non-edges) that don't form triangles
+            print "Adding other edges", str(vmaj) + "." + str(vmin), "... ",
+            sys.stdout.flush()
+            nonneighbors=dict()
+            for i in range(numnodes):
+                nn=neighborsofneighbors(i, nxg)
+                # non-neighbors that DON'T form triangles 
+                nonneighbors[i]=[j for j in range(numnodes) if j not in nx.all_neighbors(nxg,i) and j not in nn] 
+                nonneighbors[i].remove(i) # also remove self
+            v=nonneighbors
 
         count=[0.0]*numnodes
         avg=[-np.inf]*numnodes
         finishednodes=0
+        loopcount=0
 
-        while finishednodes < numnodes:
-            maxval=max(avg)
-            bestnodes=[i for i, j in enumerate(avg) if j == maxval]
+        while (finishednodes < numnodes) and (loopcount < limit):
+            loopcount += 1          # number of failures before giving up on this pahse
+            maxval=max(avg)             
+            bestnodes=[i for i, j in enumerate(avg) if j == maxval]  # most promising nodes based on avg logprob of edges with each node as vertex
             node1=random.choice(bestnodes)
 
-            if len(nonneighbors[node1]) > 0:
-                node2=random.choice(nonneighbors[node1])
+            if len(v[node1]) > 0:
+                node2=random.choice(v[node1])
                 edge=(node1, node2)
                 graph=swapEdges(graph,[edge])
                 graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
                 if best_ll > graph_ll:
                     graph=swapEdges(graph,[edge])
+                    print "o",
+                    sys.stdout.flush()
                 else:
                     best_ll = graph_ll
                     numchanges += 1
-                nonneighbors[node1].remove(node2)   # remove edge from possible choices
-                nonneighbors[node2].remove(node1)
+                    print "x",
+                    sys.stdout.flush()
+                    loopcount = 0
+                v[node1].remove(node2)   # remove edge from possible choices
+                v[node2].remove(node1)
            
                 # increment even if graph prob = -np.inf for implicit penalty
                 #print graph_ll, "\t", edge
@@ -226,13 +261,16 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
                 finishednodes += 1
 
         print numchanges, " changes"
-        if numchanges > 0:
-            graph, best_ll = pivot(graph, vmin=(vmin+1), vmaj=vmaj)
 
-        return graph, best_ll
+        if numchanges > 0:
+            graph, best_ll, newchanges = pivot(graph, vmin=(vmin+1), vmaj=vmaj, method=method, best_ll=best_ll)
+            totalchanges = numchanges + newchanges       # cumulative number of changes from recursive pivot() calls
+        else:
+            totalchanges = 0
+
+        return graph, best_ll, totalchanges
 
     random.seed(randomseed)     # for replicability
-    converge = 0        # when converge >= tolerance, declare the graph converged.
     firstedges=[(x[0], x[1]) for x in Xs]
     
     # find a good starting graph using naive RW
@@ -241,24 +279,24 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
     elif fitinfo.startGraph=="naiverw":
         graph=noHidden(Xs,numnodes)
   
-    def phases(graph, best_ll, vmaj, escape):
+    def phases(graph, best_ll, vmaj):
         vmaj += 1
-        graph, best_ll = pruneEdges(graph, best_ll=best_ll, vmaj=vmaj)
-        old_ll=best_ll
-        graph, best_ll = addTriangles(graph, best_ll=best_ll, vmaj=vmaj)
-        if best_ll > old_ll:
-            phases(graph, best_ll, vmaj, escape)
-            escape=1
-        if escape != 1:
-            old_ll=best_ll
-            graph, best_ll = pivot(graph, best_ll=best_ll, vmaj=vmaj)
-            if best_ll > old_ll:
-                phases(graph, best_ll, vmaj, escape)
+        
+        graph, best_ll, numchanges = pivot(graph, best_ll=best_ll, vmaj=vmaj, method="prune", limit=fitinfo.prune_limit)
+        graph, best_ll, numchanges = pivot(graph, best_ll=best_ll, vmaj=vmaj, method="triangles", limit=fitinfo.triangle_limit)
+       
+        if numchanges == 0: # if through triangle phases with no changes, check remaining nodes
+            graph, best_ll, numchanges = pivot(graph, best_ll=best_ll, vmaj=vmaj, method="nonneighbors", limit=fitinfo.other_limit)
+            if numchanges > 0:      # if changes in final phase, restart with pruning
+                graph=phases(graph, best_ll, vmaj)
+        else:               # else start over at pruning phase
+            graph=phases(graph, best_ll, vmaj)
+      
         return graph
 
     vmaj=0
     best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
-    graph=phases(graph, best_ll, vmaj, 0)
+    graph=phases(graph, best_ll, vmaj)
 
     return graph, best_ll
 
