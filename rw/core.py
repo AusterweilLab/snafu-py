@@ -123,56 +123,6 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
             graph[link[1],link[0]] = 1 - graph[link[1],link[0]] 
         return graph
         
-    #def pruneEdges(graph, vmin=1, vmaj=0, best_ll=None, limit=None):
-    #    if best_ll == None:
-    #        best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
-    #    edges = zip(*np.where(graph==1))
-    #    random.shuffle(edges)
-    #    numchanges=0
-    #    print "Pruning", str(vmaj) + "." + str(vmin), "... ", (len(edges)/2)-len(firstedges), "possible:",
-    #    for edge in edges[:limit]:
-    #        if (edge[0] < edge[1]) and (edge not in firstedges) and (edge[::-1] not in firstedges):
-    #            graph=swapEdges(graph, [edge])
-    #            graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
-    #            if best_ll > graph_ll:
-    #                graph=swapEdges(graph,[edge])
-    #            else:
-    #                best_ll = graph_ll
-    #                numchanges += 1
-    #    print numchanges, " changes"
-    #    if numchanges > 0:
-    #        graph, best_ll = pruneEdges(graph, vmin=(vmin+1), vmaj=vmaj, best_ll=best_ll)
-    #    return graph, best_ll
-
-    #def addTriangles(graph, vmin=1, vmaj=0, best_ll=None, limit=None):
-    #    if best_ll == None:
-    #        best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
-    #    nxg=nx.to_networkx_graph(graph)
-    #    numchanges=0
-    #    edges=[]
-
-    #    # generate list of possible edges to add (edges that form triangles)
-    #    for i in range(len(graph)):
-    #        nn=neighborsofneighbors(i, nxg)
-    #        edges = edges + zip([i]*len(nn),nn)
-    #    random.shuffle(edges)
-
-    #    print "Adding triangles", str(vmaj) + "." + str(vmin), "... ", (len(edges)/2), "possible:",
-    #    
-    #    for edge in edges[:limit]:
-    #        if (edge[0] < edge[1]):
-    #            graph=swapEdges(graph, [edge])
-    #            graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
-    #            if best_ll > graph_ll:
-    #                graph=swapEdges(graph,[edge])
-    #            else:
-    #                best_ll = graph_ll
-    #                numchanges += 1
-    #    print numchanges, " changes"
-    #    if numchanges > 0:
-    #        graph, best_ll = addTriangles(graph, vmin=(vmin+1), vmaj=vmaj)
-    #    return graph, best_ll
-
     def pivot(graph, vmin=1, vmaj=0, best_ll=None, limit=np.inf, method=""):
       
         numchanges=0     # number of changes in single pivot() call
@@ -189,8 +139,11 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
             v=dict()
             for i in range(numnodes):
                 v[i]=[]
-            for i, j in enumerate(listofedges[0]):
-                v[j].append(listofedges[1][i])
+            for i in zip(*listofedges):
+                if ((i[0], i[1]) not in firstedges) and ((i[1], i[0]) not in firstedges): # don't flip first edges (FE)!
+                    v[i[0]].append(i[1])
+                else:
+                    print "FIRST EDGE!"
         
         # generate dict where v[i] is a list of nodes where (i, v[i]) would form a new triangle
         if method=="triangles":
@@ -270,15 +223,6 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
 
         return graph, best_ll, totalchanges
 
-    random.seed(randomseed)     # for replicability
-    firstedges=[(x[0], x[1]) for x in Xs]
-    
-    # find a good starting graph using naive RW
-    if fitinfo.startGraph=="windowgraph":
-        graph=windowGraph(Xs,numnodes)
-    elif fitinfo.startGraph=="naiverw":
-        graph=noHidden(Xs,numnodes)
-  
     def phases(graph, best_ll, vmaj):
         vmaj += 1
         
@@ -294,6 +238,15 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
       
         return graph
 
+    random.seed(randomseed)     # for replicability
+    firstedges=[(x[0], x[1]) for x in Xs]
+    
+    # find a good starting graph using naive RW
+    if fitinfo.startGraph=="windowgraph":
+        graph=windowGraph(Xs,numnodes)
+    elif fitinfo.startGraph=="naiverw":
+        graph=noHidden(Xs,numnodes)
+  
     vmaj=0
     best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
     graph=phases(graph, best_ll, vmaj)
