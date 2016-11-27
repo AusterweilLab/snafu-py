@@ -1,0 +1,153 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/bin/node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   '-g',
+1 verbose cli   'pomd' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.35
+4 verbose cache add [ 'pomd', null ]
+5 verbose cache add name=undefined spec="pomd" args=["pomd",null]
+6 verbose parsed url { protocol: null,
+6 verbose parsed url   slashes: null,
+6 verbose parsed url   auth: null,
+6 verbose parsed url   host: null,
+6 verbose parsed url   port: null,
+6 verbose parsed url   hostname: null,
+6 verbose parsed url   hash: null,
+6 verbose parsed url   search: null,
+6 verbose parsed url   query: null,
+6 verbose parsed url   pathname: 'pomd',
+6 verbose parsed url   path: 'pomd',
+6 verbose parsed url   href: 'pomd' }
+7 silly lockFile 865615b9-pomd pomd
+8 verbose lock pomd /Users/jcz/.npm/865615b9-pomd.lock
+9 silly lockFile 865615b9-pomd pomd
+10 silly lockFile 865615b9-pomd pomd
+11 verbose addNamed [ 'pomd', '' ]
+12 verbose addNamed [ null, '*' ]
+13 silly lockFile c19a43a2-pomd pomd@
+14 verbose lock pomd@ /Users/jcz/.npm/c19a43a2-pomd.lock
+15 silly addNameRange { name: 'pomd', range: '*', hasData: false }
+16 verbose request where is /pomd
+17 verbose request registry https://registry.npmjs.org/
+18 verbose request id 28e91404dcf33ccb
+19 verbose url raw /pomd
+20 verbose url resolving [ 'https://registry.npmjs.org/', './pomd' ]
+21 verbose url resolved https://registry.npmjs.org/pomd
+22 verbose request where is https://registry.npmjs.org/pomd
+23 info trying registry request attempt 1 at 09:51:45
+24 http GET https://registry.npmjs.org/pomd
+25 http 200 https://registry.npmjs.org/pomd
+26 silly registry.get cb [ 200,
+26 silly registry.get   { server: 'nginx/1.10.1',
+26 silly registry.get     'content-type': 'application/json',
+26 silly registry.get     'last-modified': 'Fri, 11 Nov 2016 07:28:27 GMT',
+26 silly registry.get     etag: 'W/"5825731b-1091"',
+26 silly registry.get     'content-encoding': 'gzip',
+26 silly registry.get     'cache-control': 'max-age=300',
+26 silly registry.get     'content-length': '1448',
+26 silly registry.get     'accept-ranges': 'bytes',
+26 silly registry.get     date: 'Sat, 26 Nov 2016 14:51:46 GMT',
+26 silly registry.get     via: '1.1 varnish',
+26 silly registry.get     age: '0',
+26 silly registry.get     connection: 'keep-alive',
+26 silly registry.get     'x-served-by': 'cache-jfk8143-JFK',
+26 silly registry.get     'x-cache': 'MISS',
+26 silly registry.get     'x-cache-hits': '0',
+26 silly registry.get     'x-timer': 'S1480171906.308170,VS0,VE7',
+26 silly registry.get     vary: 'Accept-Encoding' } ]
+27 silly addNameRange number 2 { name: 'pomd', range: '*', hasData: true }
+28 silly addNameRange versions [ 'pomd', [ '1.0.0', '1.0.1' ] ]
+29 verbose addNamed [ 'pomd', '1.0.1' ]
+30 verbose addNamed [ '1.0.1', '1.0.1' ]
+31 silly lockFile ff41b888-pomd-1-0-1 pomd@1.0.1
+32 verbose lock pomd@1.0.1 /Users/jcz/.npm/ff41b888-pomd-1-0-1.lock
+33 silly lockFile c7ee3d91-ry-npmjs-org-pomd-pomd-1-0-1-tgz https://registry.npmjs.org/pomd/-/pomd-1.0.1.tgz
+34 verbose lock https://registry.npmjs.org/pomd/-/pomd-1.0.1.tgz /Users/jcz/.npm/c7ee3d91-ry-npmjs-org-pomd-pomd-1-0-1-tgz.lock
+35 verbose addRemoteTarball [ 'https://registry.npmjs.org/pomd/-/pomd-1.0.1.tgz',
+35 verbose addRemoteTarball   '912cf0f6af5855127068375cef5e0ee6bf6b8b9f' ]
+36 info retry fetch attempt 1 at 09:51:46
+37 verbose fetch to= /var/folders/hp/q1wv9pwd2fg6b4nyn4tfq30c0000gq/T/npm-15928-s4gJdd3X/registry.npmjs.org/pomd/-/pomd-1.0.1.tgz
+38 http GET https://registry.npmjs.org/pomd/-/pomd-1.0.1.tgz
+39 http 200 https://registry.npmjs.org/pomd/-/pomd-1.0.1.tgz
+40 silly lockFile c7ee3d91-ry-npmjs-org-pomd-pomd-1-0-1-tgz https://registry.npmjs.org/pomd/-/pomd-1.0.1.tgz
+41 silly lockFile c7ee3d91-ry-npmjs-org-pomd-pomd-1-0-1-tgz https://registry.npmjs.org/pomd/-/pomd-1.0.1.tgz
+42 silly lockFile ff41b888-pomd-1-0-1 pomd@1.0.1
+43 silly lockFile ff41b888-pomd-1-0-1 pomd@1.0.1
+44 silly lockFile c19a43a2-pomd pomd@
+45 silly lockFile c19a43a2-pomd pomd@
+46 silly resolved [ { name: 'pomd',
+46 silly resolved     version: '1.0.1',
+46 silly resolved     description: 'Just a good old cli based Pomodoro timer with native notifactions',
+46 silly resolved     main: 'index.js',
+46 silly resolved     repository:
+46 silly resolved      { url: 'git+https://github.com/mightyCrow/pomd.git',
+46 silly resolved        type: 'git' },
+46 silly resolved     scripts: { start: 'node .', lint: 'standard --fix' },
+46 silly resolved     bin: { pomd: './index.js' },
+46 silly resolved     files: [ 'index.js' ],
+46 silly resolved     author: { name: 'Tiaan', email: 'tiaanduplessis@hotmail.com' },
+46 silly resolved     license: 'MIT',
+46 silly resolved     dependencies:
+46 silly resolved      { 'node-notifier': '^4.6.1',
+46 silly resolved        timrjs: '^0.8.0',
+46 silly resolved        'update-notifier': '^1.0.2',
+46 silly resolved        vorpal: '^1.11.4' },
+46 silly resolved     devDependencies: { standard: '^8.5.0' },
+46 silly resolved     gitHead: '442bacb1f89b29351e78c607affccbf28371c183',
+46 silly resolved     bugs: { url: 'https://github.com/mightyCrow/pomd/issues' },
+46 silly resolved     homepage: 'https://github.com/mightyCrow/pomd#readme',
+46 silly resolved     _id: 'pomd@1.0.1',
+46 silly resolved     _shasum: '912cf0f6af5855127068375cef5e0ee6bf6b8b9f',
+46 silly resolved     _from: 'pomd@',
+46 silly resolved     _npmVersion: '3.10.9',
+46 silly resolved     _nodeVersion: '7.0.0',
+46 silly resolved     _npmUser: { name: 'mightycrow', email: 'tiaanduplessis@hotmail.com' },
+46 silly resolved     dist:
+46 silly resolved      { shasum: '912cf0f6af5855127068375cef5e0ee6bf6b8b9f',
+46 silly resolved        tarball: 'https://registry.npmjs.org/pomd/-/pomd-1.0.1.tgz' },
+46 silly resolved     maintainers: [ [Object] ],
+46 silly resolved     _npmOperationalInternal:
+46 silly resolved      { host: 'packages-18-east.internal.npmjs.com',
+46 silly resolved        tmp: 'tmp/pomd-1.0.1.tgz_1478849307300_0.08391032158397138' },
+46 silly resolved     directories: {},
+46 silly resolved     _resolved: 'https://registry.npmjs.org/pomd/-/pomd-1.0.1.tgz' } ]
+47 info install pomd@1.0.1 into /usr/local/lib
+48 info installOne pomd@1.0.1
+49 verbose lib/node_modules/pomd unbuild
+50 verbose tar unpack /Users/jcz/.npm/pomd/1.0.1/package.tgz
+51 silly lockFile b0442ff2--usr-local-lib-node-modules-pomd tar:///usr/local/lib/node_modules/pomd
+52 verbose lock tar:///usr/local/lib/node_modules/pomd /Users/jcz/.npm/b0442ff2--usr-local-lib-node-modules-pomd.lock
+53 silly lockFile 5248abad-s-jcz-npm-pomd-1-0-1-package-tgz tar:///Users/jcz/.npm/pomd/1.0.1/package.tgz
+54 verbose lock tar:///Users/jcz/.npm/pomd/1.0.1/package.tgz /Users/jcz/.npm/5248abad-s-jcz-npm-pomd-1-0-1-package-tgz.lock
+55 silly gunzTarPerm modes [ '755', '644' ]
+56 error Error: EACCES, mkdir '/usr/local/lib/node_modules/pomd'
+56 error  { [Error: EACCES, mkdir '/usr/local/lib/node_modules/pomd']
+56 error   errno: 3,
+56 error   code: 'EACCES',
+56 error   path: '/usr/local/lib/node_modules/pomd',
+56 error   fstream_type: 'Directory',
+56 error   fstream_path: '/usr/local/lib/node_modules/pomd',
+56 error   fstream_class: 'DirWriter',
+56 error   fstream_stack:
+56 error    [ '/usr/local/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23',
+56 error      '/usr/local/lib/node_modules/npm/node_modules/mkdirp/index.js:46:53',
+56 error      'Object.oncomplete (fs.js:108:15)' ] }
+57 error Please try running this command again as root/Administrator.
+58 error System Darwin 13.4.0
+59 error command "/usr/local/bin/node" "/usr/local/bin/npm" "install" "-g" "pomd"
+60 error cwd /Users/jcz/Dropbox/projects/rw
+61 error node -v v0.10.35
+62 error npm -v 1.4.28
+63 error path /usr/local/lib/node_modules/pomd
+64 error fstream_path /usr/local/lib/node_modules/pomd
+65 error fstream_type Directory
+66 error fstream_class DirWriter
+67 error code EACCES
+68 error errno 3
+69 error stack Error: EACCES, mkdir '/usr/local/lib/node_modules/pomd'
+70 error fstream_stack /usr/local/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23
+70 error fstream_stack /usr/local/lib/node_modules/npm/node_modules/mkdirp/index.js:46:53
+70 error fstream_stack Object.oncomplete (fs.js:108:15)
+71 verbose exit [ 3, true ]

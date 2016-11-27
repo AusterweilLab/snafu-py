@@ -6,12 +6,12 @@ header=1
 toygraphs=rw.Toygraphs({
         'numgraphs': 1,
         'graphtype': "steyvers",
-        'numnodes': 30,
+        'numnodes': 60,
         'numlinks': 6,
         'prob_rewire': .3})
 
 toydata=rw.Toydata({
-        'numx': [20],
+        'numx': [10],
         'trim': .7,
         'jump': 0.0,
         'jumptype': "stationary",
@@ -35,5 +35,9 @@ fitinfo=rw.Fitinfo({
 # default is methods=['fe','rw','uinvite','uinvite_irt'] 
 
 for td in toydata:
-    rw.toyBatch(toygraphs, td, outfile, irts=irts, start_seed=1,methods=['uinvite'],header=header,debug="F")
+    rw.toyBatch(toygraphs, td, outfile, irts=irts, start_seed=1,methods=['uinvite'],header=header,debug="T")
     header=0
+
+
+# 160 nodes 5 lists (trim .7) 1:05:14.006897
+# 160 nodes 3 lists (trim .7) 0:39:54.803221

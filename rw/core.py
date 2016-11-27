@@ -7,6 +7,7 @@ import operator
 import math
 import scipy.stats
 import sys
+import copy
 
 from numpy.linalg import inv
 from itertools import *
@@ -30,16 +31,15 @@ def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
         raise ValueError("Must specify 'statdist' and 'Xs' when jumptype is stationary [addJumps]")
 
     if td.jumptype=="uniform":
-        jumpval=float(td.jump)/numnodes                      # uniform jumping
+        jumpprob=float(td.jump)/numnodes                      # uniform jumping
     
     for l in range(len(probs)):                              # loop through all lists (l)
         for inum, i in enumerate(probs[l][1:]):              # loop through all items (i) excluding first (don't jump to item 1)
             if td.jumptype=="stationary":
-                jumpval=statdist[Xs[l][inum]]            # stationary probability jumping
-            else:
-                probs[l][inum]=jumpval + (1-td.jump)*i   # else normalize existing probability and add jumping probability
-                if probs[l][inum] == 0.0:                # if item can't be reached by RW or jumping...
-                    return -np.inf
+                jumpprob=statdist[Xs[l][inum]]                # stationary probability jumping
+            probs[l][inum]=jumpprob + (1-td.jump)*i       # else normalize existing probability and add jumping probability
+            if probs[l][inum] == 0.0:                    # if item can't be reached by RW or jumping...
+                return -np.inf
 
     return probs
 
@@ -100,10 +100,12 @@ def expectedHidden(Xs, a):
         expecteds.append(expected)        
     return expecteds
 
+#@profile
 def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug="T"):
    
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
     # i.e., an edge between i and any item in nn forms a triangle
+    #@profile
     def neighborsofneighbors(i, nxg):
         nn=[]                                   # neighbors of neighbors (nn)
         n=list(nx.all_neighbors(nxg,i))
@@ -117,18 +119,21 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
         return nn
         
     # toggle links back, should be faster than making graph copy
+    #@profile
     def swapEdges(graph,links):
         for link in links:
             graph[link[0],link[1]] = 1 - graph[link[0],link[1]]
             graph[link[1],link[0]] = 1 - graph[link[1],link[0]] 
         return graph
         
-    def pivot(graph, vmin=1, vmaj=0, best_ll=None, limit=np.inf, method=""):
+    #@timer
+    #@profile
+    def pivot(graph, vmin=1, vmaj=0, best_ll=None, probmat=None, limit=np.inf, method=""):
       
         numchanges=0     # number of changes in single pivot() call
 
-        if best_ll == None:
-            best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
+        if (best_ll == None) or (probmat == None):
+            best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
         nxg=nx.to_networkx_graph(graph)
 
         # generate dict where v[i] is a list of nodes where (i, v[i]) is an existing edge in the graph
@@ -142,8 +147,6 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
             for i in zip(*listofedges):
                 if ((i[0], i[1]) not in firstedges) and ((i[1], i[0]) not in firstedges): # don't flip first edges (FE)!
                     v[i[0]].append(i[1])
-                else:
-                    print "FIRST EDGE!"
         
         # generate dict where v[i] is a list of nodes where (i, v[i]) would form a new triangle
         if method=="triangles":
@@ -182,15 +185,16 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
                 node2=random.choice(v[node1])
                 edge=(node1, node2)
                 graph=swapEdges(graph,[edge])
-                graph_ll=probX(Xs,graph,td,irts=irts,prior=prior)
+                graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=probmat,changed=[node1,node2])
                 if best_ll > graph_ll:
                     graph=swapEdges(graph,[edge])
-                    print "o",
+                    #print "o",
                     sys.stdout.flush()
                 else:
                     best_ll = graph_ll
+                    probmat = newprobmat
                     numchanges += 1
-                    print "x",
+                    #print "x",
                     sys.stdout.flush()
                     loopcount = 0
                 v[node1].remove(node2)   # remove edge from possible choices
@@ -216,25 +220,26 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
         print numchanges, " changes"
 
         if numchanges > 0:
-            graph, best_ll, newchanges = pivot(graph, vmin=(vmin+1), vmaj=vmaj, method=method, best_ll=best_ll)
+            graph, best_ll, probmat, newchanges = pivot(graph, vmin=(vmin+1), vmaj=vmaj, method=method, best_ll=best_ll, probmat=probmat)
             totalchanges = numchanges + newchanges       # cumulative number of changes from recursive pivot() calls
         else:
             totalchanges = 0
 
-        return graph, best_ll, totalchanges
+        return graph, best_ll, probmat, totalchanges
 
-    def phases(graph, best_ll, vmaj):
+    #@profile
+    def phases(graph, best_ll, probmat, vmaj):
         vmaj += 1
         
-        graph, best_ll, numchanges = pivot(graph, best_ll=best_ll, vmaj=vmaj, method="prune", limit=fitinfo.prune_limit)
-        graph, best_ll, numchanges = pivot(graph, best_ll=best_ll, vmaj=vmaj, method="triangles", limit=fitinfo.triangle_limit)
+        graph, best_ll, probmat, numchanges = pivot(graph, best_ll=best_ll, vmaj=vmaj, method="prune", limit=fitinfo.prune_limit, probmat=probmat)
+        graph, best_ll, probmat, numchanges = pivot(graph, best_ll=best_ll, vmaj=vmaj, method="triangles", limit=fitinfo.triangle_limit, probmat=probmat)
        
         if numchanges == 0: # if through triangle phases with no changes, check remaining nodes
-            graph, best_ll, numchanges = pivot(graph, best_ll=best_ll, vmaj=vmaj, method="nonneighbors", limit=fitinfo.other_limit)
+            graph, best_ll, probmat, numchanges = pivot(graph, best_ll=best_ll, vmaj=vmaj, method="nonneighbors", limit=fitinfo.other_limit, probmat=probmat)
             if numchanges > 0:      # if changes in final phase, restart with pruning
-                graph=phases(graph, best_ll, vmaj)
+                graph=phases(graph, best_ll, probmat, vmaj)
         else:               # else start over at pruning phase
-            graph=phases(graph, best_ll, vmaj)
+            graph=phases(graph, best_ll, probmat, vmaj)
       
         return graph
 
@@ -248,8 +253,8 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
         graph=noHidden(Xs,numnodes)
   
     vmaj=0
-    best_ll=probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
-    graph=phases(graph, best_ll, vmaj)
+    best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
+    graph=phases(graph, best_ll, probmat, vmaj)
 
     return graph, best_ll
 
@@ -397,7 +402,9 @@ def path_from_walk(walk):
 
 # probability of observing Xs, including irts and prior
 #@profile
-def probX(Xs, a, td, irts=Irts({}), prior=0, returnmat=0):
+@nogc
+def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
+    #gc.disable()
     numnodes=len(a)
 
     #random.seed(randomseed)             # bug in nx, random seed needs to be reset    
@@ -411,7 +418,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, returnmat=0):
 
     if (td.jumptype=="stationary") or (td.startX=="stationary"):
         statdist=stationary(t)
-    
+
     for xnum, x in enumerate(Xs):
         prob=[]
         if td.startX=="stationary":
@@ -421,24 +428,36 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, returnmat=0):
 
         # if impossible starting point, return immediately
         if prob[-1]==0.0:
-            return -np.inf
+            return -np.inf, -np.inf
         
+        # optimize? pre-compute and pass to function
         notinx=[i for i in range(numnodes) if i not in x]        # nodes not in trimmed X
 
+        lenchanged=len(changed)
+        if (lenchanged > 0) and isinstance(origmat,list):    # if updating prob. matrix based on specific link changes
+            update=0            # reset for each list
+
         for curpos in range(1,len(x)):
+            if (lenchanged > 0) and isinstance(origmat,list):
+                if update==0:   # first check if probability needs to be updated (only AFTER first changed node has been reached
+                    if (Xs[xnum][curpos-1] in changed):
+                        update=1
+                if update==0:   # if not, take probability from old matrix
+                    prob.append(origmat[xnum][curpos])
+                    continue
             startindex=x[curpos-1]
-            deletedlist=sorted(x[curpos:]+notinx,reverse=True)
+            deletedlist=sorted(x[curpos:]+notinx,reverse=True)  # optimize? sort each list once and remove items
             notdeleted=np.array([i for i in range(numnodes) if i not in deletedlist])
            
             Q=t[notdeleted[:, None],notdeleted]
 
             if (len(irts.data) > 0) and (irts.irt_weight < 1): # use this method only when passing IRTs with weight < 1
                 startindex = startindex-sum([startindex > i for i in deletedlist])
-                # same as startindex==sorted(x[:curpos]).index(x[curpos-1])... less readable, maybe more efficient?
+                # same as startindex=sorted(x[:curpos]).index(x[curpos-1])... less readable, maybe more efficient?
                 
                 numcols=len(Q)
                 flist=[]
-                newQ=np.zeros(numcols)  # init to Q^0, for when r=1 (using only one row for efficiency)
+                newQ=np.zeros(numcols)  # init to Q^0, for when r=1 (using only one: row for efficiency)
                 newQ[startindex]=1.0
 
                 irt=irts.data[xnum][curpos-1]
@@ -456,7 +475,6 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, returnmat=0):
                         innersum=innersum+(num1*num2)
 
                     # much faster than using scipy.stats.gamma.pdf
-
                     if irts.irttype=="gamma":
                         log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.beta*irt # r=alpha. probability of observing irt at r steps
                     if irts.irttype=="exgauss":
@@ -469,22 +487,22 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, returnmat=0):
                 f=sum([math.e**i for i in flist])
                 prob.append(f)           # probability of x_(t-1) to X_t
             else:                        # if no IRTs, use standard INVITE
-                I=np.identity(len(Q))
-                reg=(1+1e-10)             # nuisance parameter to prevent errors; can also use pinv, but that's much slower
+                I=np.identity(len(Q))    # optimize? how?/c.inde
+                reg=(1+1e-10)            # nuisance parameter to prevent errors; can also use pinv, but that's much slower
                 N=inv(I*reg-Q)
-                
-                r=np.array(sorted(x[curpos:]))
+               
+                r=sorted(x[curpos:])
                 c=sorted(x[:curpos])
-                R=t[r[:,None],c]
+                R=t[np.array(r)[:,None],c]
 
-                B=np.dot(R,N)
-                startindex=sorted(x[:curpos]).index(x[curpos-1])
-                absorbingindex=sorted(x[curpos:]).index(x[curpos])
+                B = np.dot(R,N)
+                startindex = c.index(x[curpos-1])
+                absorbingindex = r.index(x[curpos])
                 prob.append(B[absorbingindex,startindex])
 
             # if there's an impossible transition and no jumping, return immediately
             if (prob[-1]==0.0) and (td.jump == 0.0):
-                return -np.inf
+                return -np.inf, -np.inf
 
         probs.append(prob)
 
@@ -495,27 +513,21 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, returnmat=0):
         elif td.jumptype=="stationary":
             probs=addJumps(probs, td, statdist=statdist, Xs=Xs)
         if probs==-np.inf:
-            return -np.inf
+            return -np.inf, -np.inf
 
-    # if you want the full matrix instead (without prior)
-    if returnmat:
-        return probs
-
-    # total U-INVITE probability
-    for i in range(len(probs)):
-        probs[i]=sum([math.log(j) for j in probs[i]])
-    probs=sum(probs)
+    # total ll of graph
+    ll=sum([sum([math.log(j) for j in probs[i]]) for i in range(len(probs))])
 
     # inclue prior?
     if prior:
         sw=smallworld(a)
         priorprob = evalPrior(sw,prior)
         if priorprob == 0.0:
-            return -np.inf
+            return -np.inf, -np.inf
         else:
-            probs=probs + math.log(priorprob)
+            ll=ll + math.log(priorprob)
 
-    return probs
+    return ll, probs
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g,td,seed=None):
@@ -679,12 +691,12 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         numedges=nx.number_of_edges(g)
         truegraph=nx.generate_sparse6(g)  # to write to file
         # true graph LL
-        ll_tg=probX(Xs, a, td)
-        if use_prior: ll_tg_prior=probX(Xs, a, td, prior=prior)
+        ll_tg=probX(Xs, a, td)[0]
+        if use_prior: ll_tg_prior=probX(Xs, a, td, prior=prior)[0]
         else: ll_tg_prior=""
-        if use_irt: ll_tg_irt=probX(Xs, a, td, irts=irts)
+        if use_irt: ll_tg_irt=probX(Xs, a, td, irts=irts)[0]
         else: ll_tg_irt=""
-        if use_prior and use_irt: ll_tg_irt_prior=probX(Xs, a, td, prior=prior, irts=irts)
+        if use_prior and use_irt: ll_tg_irt_prior=probX(Xs, a, td, prior=prior, irts=irts)[0]
         else: ll_tg_irt_prior=""
 
         for method in methods:
@@ -702,10 +714,10 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo)
             if method == 'rw':
                 bestgraph=noHidden(Xs,tg.numnodes)
-                ll=probX(Xs, bestgraph, td)
+                ll=probX(Xs, bestgraph, td)[0]
             if method == 'fe':
                 bestgraph=firstEdge(Xs,tg.numnodes)
-                ll=probX(Xs, bestgraph, td)
+                ll=probX(Xs, bestgraph, td)[0]
             elapsedtime=str(datetime.now()-starttime)
             if debug=="T": 
                 print elapsedtime
