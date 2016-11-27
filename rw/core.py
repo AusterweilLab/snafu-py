@@ -8,6 +8,7 @@ import math
 import scipy.stats
 import sys
 import copy
+import csv
 
 from numpy.linalg import inv
 from itertools import *
@@ -129,7 +130,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
     #@timer
     #@profile
     def pivot(graph, vmin=1, vmaj=0, best_ll=None, probmat=None, limit=np.inf, method=""):
-      
+        record=[method] 
         numchanges=0     # number of changes in single pivot() call
 
         if (best_ll == None) or (probmat == None):
@@ -187,15 +188,17 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
                 graph=swapEdges(graph,[edge])
                 graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=probmat,changed=[node1,node2])
                 if best_ll > graph_ll:
+                    record.append(graph_ll)
                     graph=swapEdges(graph,[edge])
                     #print "o",
-                    sys.stdout.flush()
+                    #sys.stdout.flush()
                 else:
+                    record.append(-graph_ll)
                     best_ll = graph_ll
                     probmat = newprobmat
                     numchanges += 1
                     #print "x",
-                    sys.stdout.flush()
+                    #sys.stdout.flush()
                     loopcount = 0
                 v[node1].remove(node2)   # remove edge from possible choices
                 v[node2].remove(node1)
@@ -217,7 +220,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
                 avg[node1]=-np.inf      # so we don't try it again...
                 finishednodes += 1
 
-        print numchanges, " changes"
+        print numchanges, "changes"
 
         if numchanges > 0:
             graph, best_ll, probmat, newchanges = pivot(graph, vmin=(vmin+1), vmaj=vmaj, method=method, best_ll=best_ll, probmat=probmat)
@@ -225,9 +228,9 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
         else:
             totalchanges = 0
 
+        records.append(record)
         return graph, best_ll, probmat, totalchanges
 
-    #@profile
     def phases(graph, best_ll, probmat, vmaj):
         vmaj += 1
         
@@ -254,7 +257,12 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
   
     vmaj=0
     best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
+    records=[]
     graph=phases(graph, best_ll, probmat, vmaj)
+    f=open('records.csv','w')
+    wr=csv.writer(f)
+    for record in records:
+        wr.writerow(record)
 
     return graph, best_ll
 

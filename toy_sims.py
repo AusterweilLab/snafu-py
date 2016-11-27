@@ -6,7 +6,7 @@ header=1
 toygraphs=rw.Toygraphs({
         'numgraphs': 1,
         'graphtype': "steyvers",
-        'numnodes': 60,
+        'numnodes': 30,
         'numlinks': 6,
         'prob_rewire': .3})
 
