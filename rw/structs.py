@@ -93,8 +93,6 @@ def Fitinfo(fitinfo):
         if isinstance(fitinfo[i],list):
             return flatten_list([Fitinfo(dict(fitinfo, **{i: j})) for j in fitinfo[i]])
     
-    if 'tolerance' not in fitkeys:
-        fitinfo['tolerance']=1500
     if 'startGraph' not in fitkeys:         # or "windowgraph"
         fitinfo['startGraph']="naiverw"
     if 'prune_limit' not in fitkeys:

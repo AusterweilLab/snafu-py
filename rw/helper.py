@@ -75,10 +75,11 @@ def nogc(fun):
 
 # modified from ExGUtils package by Daniel Gamermann <gamermann@gmail.com>
 def rand_exg(irt, sigma, lambd):
-    import random, math
+    import math
+    import numpy as np
     tau=(1.0/lambd)
-    nexp = -tau*math.log(1.-random.random())
-    ngau = random.gauss(irt, sigma)
+    nexp = -tau*math.log(1.-np.random.random())
+    ngau = np.random.normal(irt, sigma)
     return nexp + ngau
 
 # decorator; prints elapsed time for function call

@@ -1,0 +1,34 @@
+---
+title: Graph fitting
+output: pdf_document
+---
+
+```{r global_options, include=FALSE}
+    knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+               echo=FALSE, warning=FALSE, message=FALSE, dpi=300)
+    library(ggplot2)
+    library(data.table)
+```
+
+```{r, fig.height=3}
+    methodnames<-c("Prune","Triangles","Other")
+    dat <- readLines('records.csv')
+    for (linenum in 1:length(dat)) {
+        l1 <- strsplit(dat[linenum],split=",")
+        method<-as.numeric(l1[[1]][1])+1
+
+        l2 <- unlist(lapply(l1[[1]][c(2:length(l1[[1]]))], function(i) { if (i=="-inf") { NA } else { as.numeric(i) } }))
+        
+        # list of changes that successfully improved the graph (signed + in data)
+        changed<-unlist(lapply(l2,function(i) { if ((i<0) || is.na(i)) { FALSE } else { TRUE }}))
+
+        # re-sign all data to be negative
+        l2 <- -abs(l2)
+
+        plotdat<-data.table(x=seq(length(l2)), y=l2, changed=changed)
+        p<-ggplot(plotdat,aes(x=x,y=y)) + geom_point(aes(color=changed)) + geom_line() + ylab("LL") + xlab("") + ggtitle(methodnames[method]) + theme(legend.position="none")
+        print(p)
+    }
+```
+
+

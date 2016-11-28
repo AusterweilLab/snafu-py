@@ -1,8 +1,8 @@
 from __future__ import division
 
+import multiprocessing as mp
 import networkx as nx
 import numpy as np
-import random
 import operator
 import math
 import scipy.stats
@@ -19,10 +19,6 @@ from helper import *
 from structs import *
 
 # TODO: random seed stuff
-
-# Set the random seed to allow search process to be replicable. Untested.
-# Currently needed because search procedure is inconsistent
-randomseed=None
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -138,7 +134,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
         nxg=nx.to_networkx_graph(graph)
 
         # generate dict where v[i] is a list of nodes where (i, v[i]) is an existing edge in the graph
-        if method=="prune":
+        if (method=="prune") or (method==0):
             print "Pruning", str(vmaj) + "." + str(vmin), "... ", # (len(edges)/2)-len(firstedges), "possible:",
             sys.stdout.flush()
             listofedges=np.where(graph==1)
@@ -150,7 +146,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
                     v[i[0]].append(i[1])
         
         # generate dict where v[i] is a list of nodes where (i, v[i]) would form a new triangle
-        if method=="triangles":
+        if (method=="triangles") or (method==1):
             print "Adding triangles", str(vmaj) + "." + str(vmin), "... ", # (len(edges)/2), "possible:",
             sys.stdout.flush()
             nn=dict()
@@ -159,7 +155,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
             v=nn
         
         # generate dict where v[i] is a list of nodes where (i, v[i]) is NOT an existing an edge and does NOT form a triangle
-        if method=="nonneighbors":
+        if (method=="nonneighbors") or (method==2):
             # list of a node's non-neighbors (non-edges) that don't form triangles
             print "Adding other edges", str(vmaj) + "." + str(vmin), "... ",
             sys.stdout.flush()
@@ -180,31 +176,31 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
             loopcount += 1          # number of failures before giving up on this pahse
             maxval=max(avg)             
             bestnodes=[i for i, j in enumerate(avg) if j == maxval]  # most promising nodes based on avg logprob of edges with each node as vertex
-            node1=random.choice(bestnodes)
+            node1=np.random.choice(bestnodes)
 
             if len(v[node1]) > 0:
-                node2=random.choice(v[node1])
+                n2avg=[avg[i] for i in v[node1]]
+                maxval=max(n2avg)
+                bestnodes=[v[node1][i] for i, j in enumerate(n2avg) if j == maxval]
+                #node2=np.random.choice(v[node1])
+                node2=np.random.choice(bestnodes)
+
                 edge=(node1, node2)
                 graph=swapEdges(graph,[edge])
                 graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=probmat,changed=[node1,node2])
                 if best_ll > graph_ll:
                     record.append(graph_ll)
                     graph=swapEdges(graph,[edge])
-                    #print "o",
-                    #sys.stdout.flush()
                 else:
                     record.append(-graph_ll)
                     best_ll = graph_ll
                     probmat = newprobmat
                     numchanges += 1
-                    #print "x",
-                    #sys.stdout.flush()
                     loopcount = 0
                 v[node1].remove(node2)   # remove edge from possible choices
                 v[node2].remove(node1)
            
                 # increment even if graph prob = -np.inf for implicit penalty
-                #print graph_ll, "\t", edge
                 count[node1] += 1
                 count[node2] += 1
                 if graph_ll != -np.inf:
@@ -216,37 +212,38 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
                         avg[node2] = graph_ll
                     else:
                         avg[node2] = avg[node2] * ((count[node2]-1)/count[node2]) + (1.0/count[node2]) * graph_ll
-            else:   # no edges on this node left to try!
+            else:                       # no edges on this node left to try!
                 avg[node1]=-np.inf      # so we don't try it again...
                 finishednodes += 1
 
         print numchanges, "changes"
 
-        if numchanges > 0:
-            graph, best_ll, probmat, newchanges = pivot(graph, vmin=(vmin+1), vmaj=vmaj, method=method, best_ll=best_ll, probmat=probmat)
-            totalchanges = numchanges + newchanges       # cumulative number of changes from recursive pivot() calls
-        else:
-            totalchanges = 0
-
         records.append(record)
-        return graph, best_ll, probmat, totalchanges
+        return graph, best_ll, probmat, numchanges
 
-    def phases(graph, best_ll, probmat, vmaj):
-        vmaj += 1
-        
-        graph, best_ll, probmat, numchanges = pivot(graph, best_ll=best_ll, vmaj=vmaj, method="prune", limit=fitinfo.prune_limit, probmat=probmat)
-        graph, best_ll, probmat, numchanges = pivot(graph, best_ll=best_ll, vmaj=vmaj, method="triangles", limit=fitinfo.triangle_limit, probmat=probmat)
-       
-        if numchanges == 0: # if through triangle phases with no changes, check remaining nodes
-            graph, best_ll, probmat, numchanges = pivot(graph, best_ll=best_ll, vmaj=vmaj, method="nonneighbors", limit=fitinfo.other_limit, probmat=probmat)
-            if numchanges > 0:      # if changes in final phase, restart with pruning
-                graph=phases(graph, best_ll, probmat, vmaj)
-        else:               # else start over at pruning phase
-            graph=phases(graph, best_ll, probmat, vmaj)
-      
+    def phases(graph, best_ll, probmat):
+        complete=[0,0,0]
+        vmaj=0
+        vmin=1
+        while sum(complete) < 3:
+            phasenum=complete.index(0)
+            if phasenum==0: limit=fitinfo.prune_limit
+            if phasenum==1: limit=fitinfo.triangle_limit
+            if phasenum==2: limit=fitinfo.other_limit
+            if (phasenum==0) and (vmin==1): vmaj += 1
+
+            graph, best_ll, probmat, numchanges = pivot(graph, best_ll=best_ll, vmaj=vmaj, vmin=vmin, method=phasenum, limit=limit, probmat=probmat)
+            if numchanges > 0:
+                vmin += 1
+            else:
+                if (vmin==1): complete[phasenum]=1
+                if (phasenum==0) and (vmin>1): complete=[1,0,0]
+                if (phasenum==1) and (vmin>1): complete=[0,1,0]
+                if (phasenum==2) and (vmin>1): complete=[0,0,1]
+                vmin=1
+
         return graph
 
-    random.seed(randomseed)     # for replicability
     firstedges=[(x[0], x[1]) for x in Xs]
     
     # find a good starting graph using naive RW
@@ -255,10 +252,9 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
     elif fitinfo.startGraph=="naiverw":
         graph=noHidden(Xs,numnodes)
   
-    vmaj=0
     best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
     records=[]
-    graph=phases(graph, best_ll, probmat, vmaj)
+    graph=phases(graph, best_ll, probmat)
     f=open('records.csv','w')
     wr=csv.writer(f)
     for record in records:
@@ -289,11 +285,10 @@ def genG(tg, seed=None):
     if tg.graphtype=="wattsstrogatz":
         g=nx.connected_watts_strogatz_graph(tg.numnodes,tg.numlinks,tg.prob_rewire,1000,seed) # networkx graph
     elif tg.graphtype=="random":                               
-        g=nx.erdos_renyi_graph(tg.numnodes, tg.prob_rewire)
+        g=nx.erdos_renyi_graph(tg.numnodes, tg.prob_rewire,seed)
     elif tg.graphtype=="steyvers":
         g=genSteyvers(tg.numnodes, tg.numlinks)
     
-    random.seed(randomseed)                               # bug in nx, random seed needs to be reset    
     a=np.array(nx.to_numpy_matrix(g)).astype(int)
     return g, a
 
@@ -341,7 +336,7 @@ def genSteyvers(n,m, tail=1):                          # tail allows m-1 "null" 
                 a[i,j]=1
     for i in range(m,n):                               # for the rest of nodes, preferentially attach
         nodeprob=sum(a)/sum(sum(a))                    # choose node to differentiate with this probability distribution
-        diffnode=np.random.choice(n,p=nodeprob)    # node to differentiate
+        diffnode=np.random.choice(n,p=nodeprob)        # node to differentiate
         h=list(np.where(a[diffnode])[0]) + [diffnode]  # neighborhood of diffnode
         if tail==1:
             h=h + [-1]*(m-1)
@@ -375,11 +370,11 @@ def genZfromX(x, theta):
     path.append(x2.pop())
 
     while len(x2) > 0:
-        if random.random() < theta:     # might want to set random seed for replicability?
+        if np.random.random() < theta:     # might want to set random seed for replicability?
             # add random hidden node
             possibles=set(path) # choose equally from previously visited nodes
             possibles.discard(path[-1]) # but exclude last node (node cant link to itself)
-            path.append(random.choice(list(possibles)))
+            path.append(np.random.choice(list(possibles)))
         else:
             # first hit!
             path.append(x2.pop())
@@ -415,7 +410,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
     #gc.disable()
     numnodes=len(a)
 
-    #random.seed(randomseed)             # bug in nx, random seed needs to be reset    
+    #np.random.seed(randomseed)             # bug in nx, random seed needs to be reset    
     probs=[] 
 
     # generate transition matrix (from: column, to: row) if given link matrix
@@ -539,7 +534,6 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g,td,seed=None):
-    myrandom=random.Random(seed)
 
     if (td.startX=="stationary") or (td.jumptype=="stationary"):
         a=np.array(nx.to_numpy_matrix(g))
@@ -550,20 +544,20 @@ def random_walk(g,td,seed=None):
     if td.startX=="stationary":
         start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution
     elif td.startX=="uniform":
-        start=myrandom.choice(nx.nodes(g))      # choose starting point uniformly
+        start=np.random.choice(nx.nodes(g))      # choose starting point uniformly
 
     walk=[]
     unused_nodes=set(nx.nodes(g))
     unused_nodes.remove(start)
     first=start
     while len(unused_nodes) > 0:
-        if myrandom.random() > td.jump:
-            second=myrandom.choice([x for x in nx.all_neighbors(g,first)]) # follow random edge
+        if np.random.random() > td.jump:
+            second=np.random.choice([x for x in nx.all_neighbors(g,first)]) # follow random edge
         else:
             if td.jumptype=="stationary":
                 second=statdist.rvs(random_state=seed)       # jump based on statdist
             elif td.jumptype=="uniform":
-                second=myrandom.choice(nx.nodes(g))          # jump uniformly
+                second=np.random.choice(nx.nodes(g))          # jump uniformly
         walk.append((first,second))
         if second in unused_nodes:
             unused_nodes.remove(second)
@@ -605,11 +599,11 @@ def stationary(t,method="unweighted"):
 
 # generates fake IRTs from # of steps in a random walk, using gamma distribution
 def stepsToIRT(irts, seed=None):
-    myrandom=np.random.RandomState(seed)        # to generate the same IRTs each time
+    np.random.RandomState(seed)        # to generate the same IRTs each time
     new_irts=[]
     for irtlist in irts.data:
         if irts.irttype=="gamma":
-            newlist=[myrandom.gamma(irt, (1.0/irts.beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
+            newlist=[np.random.gamma(irt, (1.0/irts.beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
         if irts.irttype=="exgauss":
             newlist=[rand_exg(irt, irts.sigma, irts.lambd) for irt in irtlist] 
         new_irts.append(newlist)
@@ -618,6 +612,7 @@ def stepsToIRT(irts, seed=None):
 # runs a batch of toy graphs. logging code needs to be cleaned up significantly
 def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
              methods=['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior'],header=1,debug="F"):
+    np.random.seed(start_seed)
 
     # break out of function if using unknown method
     for method in methods:
@@ -687,6 +682,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
             # generate IRTs if using IRT model
             if use_irt: irts.data=stepsToIRT(irts, seed=x_seed)
+
             if alter_graph==0:                      # only use data that covers the entire graph
                 break
             else:
@@ -729,6 +725,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
             elapsedtime=str(datetime.now()-starttime)
             if debug=="T": 
                 print elapsedtime
+                print "COST: ", cost(bestgraph,a)
                 print nx.generate_sparse6(nx.to_networkx_graph(bestgraph))
     
             # compute SDT

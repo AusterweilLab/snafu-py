@@ -1,4 +1,5 @@
 import rw
+import numpy as np
 
 outfile='tmp.csv'
 header=1
@@ -6,7 +7,7 @@ header=1
 toygraphs=rw.Toygraphs({
         'numgraphs': 1,
         'graphtype': "steyvers",
-        'numnodes': 30,
+        'numnodes': 100,
         'numlinks': 6,
         'prob_rewire': .3})
 
@@ -19,13 +20,12 @@ toydata=rw.Toydata({
 
 irts=rw.Irts({
         'data': [],
-        'irttype': "gamma",
+        'irttype': "exgauss",
         'beta': (1/1.1),
         'irt_weight': 0.9,
         'rcutoff': 20})
 
 fitinfo=rw.Fitinfo({
-        'tolerance': 1500,
         'startGraph': "naiverw",
         'prune_limit': 100,
         'triangle_limit': 100,
@@ -35,7 +35,7 @@ fitinfo=rw.Fitinfo({
 # default is methods=['fe','rw','uinvite','uinvite_irt'] 
 
 for td in toydata:
-    rw.toyBatch(toygraphs, td, outfile, irts=irts, start_seed=1,methods=['uinvite'],header=header,debug="T")
+    rw.toyBatch(toygraphs, td, outfile, irts=irts, fitinfo=fitinfo, start_seed=1, methods=['uinvite_prior'],header=header,debug="T")
     header=0
 
 
