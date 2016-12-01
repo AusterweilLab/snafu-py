@@ -1,13 +1,16 @@
-import rw
 import numpy as np
+
+import pyximport; pyximport.install(setup_args={"include_dirs":np.get_include()})
+import rw
+
 
 outfile='tmp.csv'
 header=1
 
 toygraphs=rw.Toygraphs({
-        'numgraphs': 50,
+        'numgraphs': 1,
         'graphtype': "steyvers",
-        'numnodes': 50,
+        'numnodes': 30,
         'numlinks': 6,
         'prob_rewire': .3})
 
@@ -28,16 +31,15 @@ irts=rw.Irts({
 fitinfo=rw.Fitinfo({
         'startGraph': "naiverw",
         'followtype': "avg",
-        'recorddir': 'records/',
-        'prune_limit': 100,
-        'triangle_limit': 100,
-        'other_limit': 100})
+        'prune_limit': np.inf,
+        'triangle_limit': np.inf,
+        'other_limit': np.inf})
 
 # optionally, pass a methods argument
 # methods=['fe','rw','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior'] 
 
 for td in toydata:
-    rw.toyBatch(toygraphs, td, outfile, irts=irts, fitinfo=fitinfo, start_seed=1, methods=['uinvite','rw'],header=header,debug="T")
+    rw.toyBatch(toygraphs, td, outfile, irts=irts, fitinfo=fitinfo, start_seed=2, methods=['uinvite'],header=header,debug="T")
     header=0
 
 # with limit=np.inf

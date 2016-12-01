@@ -18,12 +18,11 @@ from datetime import datetime
 from helper import *
 from structs import *
 
+print "NOT CYTHON!"
 
 # TODO: make recording optional
-    # write toy params to record file
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
-
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -200,21 +199,21 @@ def pivot2(graph, Xs, td, irts=Irts({}), prior=0, vmin=1, vmaj=0, best_ll=None, 
     return graph, best_ll, probmat, numchanges
 
 #@profile
-def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug="T", recordname="records.csv"):
+def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug="T"):
     
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
     # i.e., an edge between i and any item in nn forms a triangle
     #@profile
     def neighborsofneighbors(i, nxg):
-        nn=[]                                       # neighbors of neighbors (nn)
+        nn=[]                                   # neighbors of neighbors (nn)
         n=list(nx.all_neighbors(nxg,i))
         for j in n:
             nn=nn+list(nx.all_neighbors(nxg,j))
         nn=list(set(nn))
-        for k in n:                                 # remove neighbors
+        for k in n:             # remove neighbors
             if k in nn:
                 nn.remove(k)
-        nn.remove(i)                                # remove self
+        nn.remove(i)    # remove self
         return nn
         
     # toggle links back, should be faster than making graph copy
@@ -315,7 +314,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
                 # increment even if graph prob = -np.inf for implicit penalty
                 count[node1] += 1
                 count[node2] += 1
-                if (graph_ll != -np.inf) and (fitinfo.followtype != "random"):
+                if graph_ll != -np.inf:
                     if avg[node1] == -np.inf:
                         avg[node1] = graph_ll
                     else:
@@ -362,7 +361,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
         return graph
     
     def phases(graph, best_ll, probmat):
-        complete=[0,0,0]         # marks which phases are complete
+        complete=[0,0,0]
         vmaj=0
         vmin=1
         while sum(complete) < 3:
@@ -395,7 +394,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
     best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
     records=[]
     graph=phases(graph, best_ll, probmat) # JZ change back to phases
-    f=open(fitinfo.recorddir+recordname,'w')
+    f=open('records.csv','w')
     wr=csv.writer(f)
     for record in records:
         wr.writerow(record)
@@ -563,14 +562,16 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
         statdist=stationary(t)
 
     for xnum, x in enumerate(Xs):
-        prob=[]
+        #prob=[]
+        lenx=len(x)
+        prob=np.empty(lenx, dtype=np.float)
         if td.startX=="stationary":
-            prob.append(statdist[x[0]])      # probability of X_1
+            prob[0]=statdist[x[0]]      # probability of X_1
         elif td.startX=="uniform":
-            prob.append(1.0/numnodes)
+            prob[0]=(1.0/numnodes)
 
         # if impossible starting point, return immediately
-        if prob[-1]==0.0:
+        if prob[0]==0.0:
             return -np.inf, -np.inf
         
         # optimize? pre-compute and pass to function
@@ -586,7 +587,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                     if (Xs[xnum][curpos-1] in changed):
                         update=1
                 if update==0:   # if not, take probability from old matrix
-                    prob.append(origmat[xnum][curpos])
+                    prob[curpos]=origmat[xnum][curpos]
                     continue
             startindex=x[curpos-1]
             deletedlist=sorted(x[curpos:]+notinx,reverse=True)  # optimize? sort each list once and remove items
@@ -641,13 +642,13 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                 B = np.dot(R,N)
                 startindex = c.index(x[curpos-1])
                 absorbingindex = r.index(x[curpos])
-                prob.append(B[absorbingindex,startindex])
+                prob[curpos]=B[absorbingindex,startindex]
 
             # if there's an impossible transition and no jumping, return immediately
-            if (prob[-1]==0.0) and (td.jump == 0.0):
+            if (prob[curpos]==0.0) and (td.jump == 0.0):
                 return -np.inf, -np.inf
 
-        probs.append(prob)
+        probs.append(list(prob))
 
     # adjust for jumping probability
     if td.jump > 0.0:
@@ -844,19 +845,18 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         else: ll_tg_irt_prior=""
 
         for method in methods:
-            recordname="record_"+str(graph_seed)+"_"+str(x_seed)+"_"+method+".csv"
             if debug=="T": print "SEED: ", seed_param, "method: ", method
             
             # Find best graph! (and log time)
             starttime=datetime.now()
             if method == 'uinvite': 
-                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, debug=debug, fitinfo=fitinfo, recordname=recordname)
+                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, debug=debug, fitinfo=fitinfo)
             if method == 'uinvite_prior':
-                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
+                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, prior=prior, debug=debug, fitinfo=fitinfo)
             if method == 'uinvite_irt':
-                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, debug=debug, fitinfo=fitinfo, recordname=recordname)
+                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, debug=debug, fitinfo=fitinfo)
             if method == 'uinvite_irt_prior':
-                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
+                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo)
             if method == 'rw':
                 bestgraph=noHidden(Xs,tg.numnodes)
                 ll=probX(Xs, bestgraph, td)[0]
@@ -885,8 +885,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         # log stuff here
         towrite=[str(tg[i]) for i in tg.keys()]
         towrite=towrite+[str(td[i]) for i in td.keys()]
-        towrite=towrite+[str(irts[i]) for i in irts.keys() if i != 'data']  # write Irts except IRT data
-        towrite=towrite+[str(fi[i]) for i in fitinfo.keys()]
+        towrite=towrite+[str(irts[i]) for i in irts.keys() if i != 'data']  # don't write IRT data
         towrite=towrite+[str(eval(i)) for i in globalvals]
         f.write(','.join(towrite))
         for method in methods:

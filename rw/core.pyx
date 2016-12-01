@@ -18,12 +18,14 @@ from datetime import datetime
 from helper import *
 from structs import *
 
+print "CYTHON!"
+cimport numpy as np
+DTYPE=np.float
+ctypedef np.float_t DTYPE_t
 
 # TODO: make recording optional
-    # write toy params to record file
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
-
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -200,21 +202,21 @@ def pivot2(graph, Xs, td, irts=Irts({}), prior=0, vmin=1, vmaj=0, best_ll=None, 
     return graph, best_ll, probmat, numchanges
 
 #@profile
-def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug="T", recordname="records.csv"):
+def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug="T"):
     
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
     # i.e., an edge between i and any item in nn forms a triangle
     #@profile
     def neighborsofneighbors(i, nxg):
-        nn=[]                                       # neighbors of neighbors (nn)
+        nn=[]                                   # neighbors of neighbors (nn)
         n=list(nx.all_neighbors(nxg,i))
         for j in n:
             nn=nn+list(nx.all_neighbors(nxg,j))
         nn=list(set(nn))
-        for k in n:                                 # remove neighbors
+        for k in n:             # remove neighbors
             if k in nn:
                 nn.remove(k)
-        nn.remove(i)                                # remove self
+        nn.remove(i)    # remove self
         return nn
         
     # toggle links back, should be faster than making graph copy
@@ -315,7 +317,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
                 # increment even if graph prob = -np.inf for implicit penalty
                 count[node1] += 1
                 count[node2] += 1
-                if (graph_ll != -np.inf) and (fitinfo.followtype != "random"):
+                if graph_ll != -np.inf:
                     if avg[node1] == -np.inf:
                         avg[node1] = graph_ll
                     else:
@@ -362,7 +364,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
         return graph
     
     def phases(graph, best_ll, probmat):
-        complete=[0,0,0]         # marks which phases are complete
+        complete=[0,0,0]
         vmaj=0
         vmin=1
         while sum(complete) < 3:
@@ -395,7 +397,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
     best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
     records=[]
     graph=phases(graph, best_ll, probmat) # JZ change back to phases
-    f=open(fitinfo.recorddir+recordname,'w')
+    f=open('records.csv','w')
     wr=csv.writer(f)
     for record in records:
         wr.writerow(record)
@@ -546,12 +548,31 @@ def path_from_walk(walk):
 # probability of observing Xs, including irts and prior
 #@profile
 @nogc
-def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
-    #gc.disable()
+def probX(list Xs, np.ndarray a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
+    cdef list x
+    cdef int xnum
+    cdef int curpos
+    cdef np.ndarray[double, ndim=2] t
+    cdef np.ndarray[double, ndim=2] Q
+    cdef np.ndarray[double, ndim=2] I
+    cdef np.ndarray N
+    cdef np.ndarray R
+    cdef np.ndarray B
+    cdef list probs
+    cdef list prob
+    cdef int numnodes
+    cdef list notinx
+    cdef int lenchanged
+    cdef int startindex
+    cdef int absorbingindex
+    cdef list deletedlist
+    cdef int update
+    cdef np.ndarray[long, ndim=1] notdeleted
+
     numnodes=len(a)
 
     #np.random.seed(randomseed)             # bug in nx, random seed needs to be reset    
-    probs=[]
+    probs=[] 
 
     # generate transition matrix (from: column, to: row) if given link matrix
     if np.issubdtype(a[0,0],int):           # if first item is int, they're all ints (i.e., link matrix)
@@ -707,7 +728,7 @@ def random_walk(g,td,seed=None):
 # return small world statistic of a graph
 # returns metric of largest component if disconnected
 def smallworld(a):
-    if isinstance(a,np.ndarray):
+    if isinstance(a,np.array):
         g_sm=nx.from_numpy_matrix(a)    # if matrix is passed, convert to networkx
     else:
         g_sm = a                        # else assume networkx graph was passed
@@ -844,19 +865,18 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         else: ll_tg_irt_prior=""
 
         for method in methods:
-            recordname="record_"+str(graph_seed)+"_"+str(x_seed)+"_"+method+".csv"
             if debug=="T": print "SEED: ", seed_param, "method: ", method
             
             # Find best graph! (and log time)
             starttime=datetime.now()
             if method == 'uinvite': 
-                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, debug=debug, fitinfo=fitinfo, recordname=recordname)
+                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, debug=debug, fitinfo=fitinfo)
             if method == 'uinvite_prior':
-                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
+                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, prior=prior, debug=debug, fitinfo=fitinfo)
             if method == 'uinvite_irt':
-                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, debug=debug, fitinfo=fitinfo, recordname=recordname)
+                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, debug=debug, fitinfo=fitinfo)
             if method == 'uinvite_irt_prior':
-                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
+                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo)
             if method == 'rw':
                 bestgraph=noHidden(Xs,tg.numnodes)
                 ll=probX(Xs, bestgraph, td)[0]
@@ -885,8 +905,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         # log stuff here
         towrite=[str(tg[i]) for i in tg.keys()]
         towrite=towrite+[str(td[i]) for i in td.keys()]
-        towrite=towrite+[str(irts[i]) for i in irts.keys() if i != 'data']  # write Irts except IRT data
-        towrite=towrite+[str(fi[i]) for i in fitinfo.keys()]
+        towrite=towrite+[str(irts[i]) for i in irts.keys() if i != 'data']  # don't write IRT data
         towrite=towrite+[str(eval(i)) for i in globalvals]
         f.write(','.join(towrite))
         for method in methods:

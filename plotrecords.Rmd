@@ -8,10 +8,12 @@ output: pdf_document
                echo=FALSE, warning=FALSE, message=FALSE, dpi=300)
     library(ggplot2)
     library(data.table)
+    library(zoo)
 ```
 
 ```{r, fig.height=3}
     methodnames<-c("Prune","Triangles","Other")
+    movavgwindow<-20
     dat <- readLines('records.csv')
     for (linenum in 1:length(dat)) {
         l1 <- strsplit(dat[linenum],split=",")
@@ -21,12 +23,15 @@ output: pdf_document
         
         # list of changes that successfully improved the graph (signed + in data)
         changed<-unlist(lapply(l2,function(i) { if ((i<0) || is.na(i)) { FALSE } else { TRUE }}))
-
         # re-sign all data to be negative
         l2 <- -abs(l2)
 
-        plotdat<-data.table(x=seq(length(l2)), y=l2, changed=changed)
+        movavg<-rollapply(l2,movavgwindow,function(i) { mean(i, na.rm=T) },fill=NA)
+        
+        plotdat<-data.table(x=seq(length(l2)), y=l2, changed=changed, ma=movavg)
         p<-ggplot(plotdat,aes(x=x,y=y)) + geom_point(aes(color=changed)) + geom_line() + ylab("LL") + xlab("") + ggtitle(methodnames[method]) + theme(legend.position="none")
+        #+ geom_line(aes(seq(length(l2)),ma),color="seagreen4")
+        #+ geom_smooth(method = "lm", se = FALSE)
         print(p)
     }
 ```
