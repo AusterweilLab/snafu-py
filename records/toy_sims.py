@@ -1,13 +1,13 @@
 import rw
 import numpy as np
 
-outfile='log.csv'
+outfile='log_uinvite_avg_limit100.csv'
 header=1
 
 toygraphs=rw.Toygraphs({
-        'numgraphs': 10,
+        'numgraphs': 1,
         'graphtype': "steyvers",
-        'numnodes': 30,
+        'numnodes': 50,
         'numlinks': 6,
         'prob_rewire': .3})
 
@@ -27,7 +27,7 @@ irts=rw.Irts({
 
 fitinfo=rw.Fitinfo({
         'startGraph': "naiverw",
-        'followtype': "avg", 
+        'followtype': "avg",
         'recorddir': "records/",
         'prune_limit': 100,
         'triangle_limit': 100,
@@ -37,9 +37,8 @@ fitinfo=rw.Fitinfo({
 # methods=['fe','rw','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior'] 
 
 for td in toydata:
-    for fi in fitinfo:
-        rw.toyBatch(toygraphs, td, outfile, irts=irts, fitinfo=fi, start_seed=2, methods=['uinvite'],header=header,debug="T")
-        header=0
+    rw.toyBatch(toygraphs, td, outfile, irts=irts, fitinfo=fitinfo, start_seed=2, methods=['uinvite'],header=header,debug="T")
+    header=0
 
 # with limit=np.inf
 # 160 nodes 5 lists (trim .7) 1:05:14.006897

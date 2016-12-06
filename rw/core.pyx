@@ -2,7 +2,6 @@ from __future__ import division
 
 import multiprocessing as mp
 import networkx as nx
-import numpy as np
 import operator
 import math
 import scipy.stats
@@ -19,9 +18,11 @@ from helper import *
 from structs import *
 
 print "CYTHON!"
+import cython
+
 cimport numpy as np
-DTYPE=np.float
-ctypedef np.float_t DTYPE_t
+cfloat=np.float
+ctypedef np.float_t cfloat_t
 
 # TODO: make recording optional
 # TODO: when doing same phase twice in a row, don't re-try same failures
@@ -548,25 +549,18 @@ def path_from_walk(walk):
 # probability of observing Xs, including irts and prior
 #@profile
 @nogc
-def probX(list Xs, np.ndarray a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
-    cdef list x
-    cdef int xnum
-    cdef int curpos
-    cdef np.ndarray[double, ndim=2] t
-    cdef np.ndarray[double, ndim=2] Q
-    cdef np.ndarray[double, ndim=2] I
-    cdef np.ndarray N
-    cdef np.ndarray R
-    cdef np.ndarray B
-    cdef list probs
-    cdef list prob
-    cdef int numnodes
-    cdef list notinx
-    cdef int lenchanged
-    cdef int startindex
-    cdef int absorbingindex
-    cdef list deletedlist
-    cdef int update
+@cython.boundscheck(False) # compiler directive
+@cython.wraparound(False) # compiler directive
+def probX(list Xs, np.ndarray[long, ndim=2] a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
+    cdef list probs, prob, notinx, deletedlist, x
+    cdef int xnum, curpos, numnodes, lenchanged, startindex, absorbingindex, update, i
+    cdef np.ndarray[cfloat_t, ndim=2] t
+    
+    cdef np.ndarray[cfloat_t, ndim=2] Q
+    cdef np.ndarray[cfloat_t, ndim=2] I
+    cdef np.ndarray[cfloat_t, ndim=2] N
+    cdef np.ndarray[cfloat_t, ndim=2] R
+    cdef np.ndarray[cfloat_t, ndim=2] B
     cdef np.ndarray[long, ndim=1] notdeleted
 
     numnodes=len(a)
@@ -574,11 +568,7 @@ def probX(list Xs, np.ndarray a, td, irts=Irts({}), prior=0, origmat=None, chang
     #np.random.seed(randomseed)             # bug in nx, random seed needs to be reset    
     probs=[] 
 
-    # generate transition matrix (from: column, to: row) if given link matrix
-    if np.issubdtype(a[0,0],int):           # if first item is int, they're all ints (i.e., link matrix)
-        t=a/sum(a.astype(float))            # will throw warning if a node is inaccessible
-    else:                                   # otherwise we have a transition or weighted matrix
-        t=a
+    t=a/sum(a)            # will throw warning if a node is inaccessible
 
     if (td.jumptype=="stationary") or (td.startX=="stationary"):
         statdist=stationary(t)
@@ -591,7 +581,7 @@ def probX(list Xs, np.ndarray a, td, irts=Irts({}), prior=0, origmat=None, chang
             prob.append(1.0/numnodes)
 
         # if impossible starting point, return immediately
-        if prob[-1]==0.0:
+        if prob[0]==0.0:
             return -np.inf, -np.inf
         
         # optimize? pre-compute and pass to function
@@ -665,7 +655,7 @@ def probX(list Xs, np.ndarray a, td, irts=Irts({}), prior=0, origmat=None, chang
                 prob.append(B[absorbingindex,startindex])
 
             # if there's an impossible transition and no jumping, return immediately
-            if (prob[-1]==0.0) and (td.jump == 0.0):
+            if (prob[curpos]==0.0) and (td.jump == 0.0):
                 return -np.inf, -np.inf
 
         probs.append(prob)
