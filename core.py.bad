@@ -567,8 +567,8 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
         statdist=stationary(t)
 
     for xnum, x in enumerate(Xs):
-        x2=np.array(x)  #JZ
-        t2=t[x2[:,None],x2] #JZ
+        x=np.array(x)
+        t2=t[x[:,None],x]
         prob=[]
         if td.startX=="stationary":
             prob.append(statdist[x[0]])      # probability of X_1
@@ -578,10 +578,10 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
         # if impossible starting point, return immediately
         if prob[-1]==0.0:
             return -np.inf, (x[0])
-
+        
         lenchanged=len(changed)
         if (lenchanged > 0) and isinstance(origmat,list):    # if updating prob. matrix based on specific link changes
-            update=0                                         # reset for each list
+            update=0            # reset for each list
 
         for curpos in range(1,len(x)):
             if (lenchanged > 0) and isinstance(origmat,list):
@@ -591,7 +591,10 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                 if update==0:   # if not, take probability from old matrix
                     prob.append(origmat[xnum][curpos])
                     continue
-            Q=t2[:curpos,:curpos]
+            deletedlist=sorted(x[curpos:]+notinx,reverse=True)  # optimize? sort each list once and remove items
+            notdeleted=np.array([i for i in range(numnodes) if i not in deletedlist])
+           
+            Q=t[notdeleted[:, None],notdeleted]
 
             if (len(irts.data) > 0) and (irts.irt_weight < 1): # use this method only when passing IRTs with weight < 1
                 startindex = startindex-sum([startindex > i for i in deletedlist])
@@ -629,13 +632,20 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                 f=sum([math.e**i for i in flist])
                 prob.append(f)           # probability of x_(t-1) to X_t
             else:                        # if no IRTs, use standard INVITE
-                I=identmat[:len(Q),:len(Q)]
+                I=identmat[0:len(Q),0:len(Q)]
                 N=inv(I-Q)
-
-                R=t2[curpos:,:curpos]
+               
+                r=sorted(x[curpos:])
+                c=sorted(x[:curpos])
+                R=t[np.array(r)[:,None],c]
 
                 B = np.dot(R,N)
-                prob.append(B[0,-1])
+                startindex = c.index(x[curpos-1])
+                absorbingindex = r.index(x[curpos])
+                prob.append(B[absorbingindex,startindex])
+                if B[absorbingindex,startindex] < 0:
+                    print N
+                    raise
 
             # if there's an impossible transition and no jumping, return immediately
             if (prob[-1]==0.0) and (td.jump == 0.0):

@@ -389,7 +389,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
     
     # find a good starting graph using naive RW
     if fitinfo.startGraph=="windowgraph":
-        graph=windowGraph(Xs,numnodes)
+        graph=windowGraph(Xs,numnodes,td=td,valid=1)
     elif fitinfo.startGraph=="naiverw":
         graph=noHidden(Xs,numnodes)
   
@@ -548,8 +548,10 @@ def path_from_walk(walk):
 #@profile
 @nogc
 def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
-    #gc.disable()
     numnodes=len(a)
+    identmat=np.identity(numnodes)          # pre-compute for tiny speed-up (only for non-IRT)
+    reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv, but that's much slower
+    identmat=identmat * reg
 
     #np.random.seed(randomseed)             # bug in nx, random seed needs to be reset    
     probs=[]
@@ -559,6 +561,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
         t=a/sum(a.astype(float))            # will throw warning if a node is inaccessible
     else:                                   # otherwise we have a transition or weighted matrix
         t=a
+        print "WARNING: Treating matrix as transition matrix in probX()!"
 
     if (td.jumptype=="stationary") or (td.startX=="stationary"):
         statdist=stationary(t)
@@ -572,7 +575,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
 
         # if impossible starting point, return immediately
         if prob[-1]==0.0:
-            return -np.inf, -np.inf
+            return -np.inf, (x[0])
         
         # optimize? pre-compute and pass to function
         notinx=[i for i in range(numnodes) if i not in x]        # nodes not in trimmed X
@@ -631,9 +634,8 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                 f=sum([math.e**i for i in flist])
                 prob.append(f)           # probability of x_(t-1) to X_t
             else:                        # if no IRTs, use standard INVITE
-                I=np.identity(len(Q))    # optimize? how?/c.inde
-                reg=(1+1e-10)            # nuisance parameter to prevent errors; can also use pinv, but that's much slower
-                N=inv(I*reg-Q)
+                I=identmat[0:len(Q),0:len(Q)]
+                N=inv(I-Q)
                
                 r=sorted(x[curpos:])
                 c=sorted(x[:curpos])
@@ -643,10 +645,13 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                 startindex = c.index(x[curpos-1])
                 absorbingindex = r.index(x[curpos])
                 prob.append(B[absorbingindex,startindex])
+                if B[absorbingindex,startindex] < 0:
+                    print N
+                    raise
 
             # if there's an impossible transition and no jumping, return immediately
             if (prob[-1]==0.0) and (td.jump == 0.0):
-                return -np.inf, -np.inf
+                return -np.inf, (x[curpos-1], x[curpos])
 
         probs.append(prob)
 
@@ -657,7 +662,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
         elif td.jumptype=="stationary":
             probs=addJumps(probs, td, statdist=statdist, Xs=Xs)
         if probs==-np.inf:
-            return -np.inf, -np.inf
+            return -np.inf, "jumping"
 
     # total ll of graph
     ll=sum([sum([math.log(j) for j in probs[i]]) for i in range(len(probs))])
@@ -667,7 +672,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
         sw=smallworld(a)
         priorprob = evalPrior(sw,prior)
         if priorprob == 0.0:
-            return -np.inf, -np.inf
+            return -np.inf, "prior"
         else:
             ll=ll + math.log(priorprob)
 
@@ -757,7 +762,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
     # break out of function if using unknown method
     for method in methods:
-        if method not in ['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior']:
+        if method not in ['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior','window']:
             raise ValueError('ERROR: Trying to fit graph with unknown method: ', method)
 
     # flag if using a prior method
@@ -861,11 +866,15 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
                 print cc, ll                
             if method == 'uinvite_irt_prior':
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
+            if method == 'window':  #TODO: pass parameters
+                bestgraph=windowGraph(Xs, tg.numnodes)
+                ll=probX(Xs, bestgraph, td)[0]
+                print ll
             if method == 'rw':
-                bestgraph=noHidden(Xs,tg.numnodes)
+                bestgraph=noHidden(Xs, tg.numnodes)
                 ll=probX(Xs, bestgraph, td)[0]
             if method == 'fe':
-                bestgraph=firstEdge(Xs,tg.numnodes)
+                bestgraph=firstEdge(Xs, tg.numnodes)
                 ll=probX(Xs, bestgraph, td)[0]
             elapsedtime=str(datetime.now()-starttime)
             if debug=="T": 
@@ -921,21 +930,74 @@ def walk_from_path(path):
         walk.append((path[i],path[i+1])) 
     return walk
 
-# incomplete
-def windowGraph(Xs, numnodes, windowsize=2):
-    if windowsize < 1:
-        print "Error in windowGraph(): windowsize must be >= 1"
+# w = window size; two items appear within +/- w steps of each other (where w=1 means adjacent items)
+# f = filter frequency; if two items don't fall within the same window more than f times, then no edge is inferred
+# c = confidence interval; retain the edge if there is a <= c probability that two items occur within the same window n times by chance alone
+# valid=(0,1); ensures that graph can produce data using censored RW.
+#              potentially a lot more computationally intensive, but could produce better fit
+def windowGraph(Xs, numnodes, w=2, f=2, c=0.05, valid=0, td=0):
+    if valid and td==0:
+        raise('Need to pass Toydata when generating \'valid\' windowGraph()')
+
+    if c<1:
+        from statsmodels.stats.proportion import proportion_confint as pci
+
+    if w < 1:
+        print "Error in windowGraph(): w must be >= 1"
         return
-    graph = genGraphs(1, 0, Xs, numnodes)[0]    # start with naive RW
-    if windowsize==1:
-        return graph                            # same as naive RW if windowsize=1
-    for x in Xs:                                # for each list
-        for pos in range(len(x)):               # for each item in list
-            for i in range(2,windowsize+1):     # for each window size
-                if pos+i < len(x):
-                    graph[x[pos],x[pos+i]]=1
-                    graph[x[pos+i],x[pos]]=1
-                if pos-i >= 0:
-                    graph[x[pos],x[pos-i]]=1
-                    graph[x[pos-i],x[pos]]=1
+
+    graph=np.zeros((numnodes, numnodes)).astype(int)         # empty graph
+
+    # frequency of co-occurrences within window (w)
+    for x in Xs:                                             # for each list
+        for pos in range(len(x)):                            # for each item in list
+            for i in range(1, w+1):                          # for each window size
+                if pos+i<len(x):
+                    graph[x[pos],x[pos+i]] += 1
+                    graph[x[pos+i],x[pos]] += 1
+
+    # exclude edges with co-occurrences less than frequency (f) and binarize
+    # but first save co-occurence frequencies
+    cooccur = np.copy(graph)
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            if graph[i, j] < f:
+                graph[i, j] = 0
+            else:
+                graph[i, j] = 1
+
+    # check if co-occurrences are due to chance
+    if c<1:
+        setXs=[list(set(x)) for x in Xs]                    # unique nodes in each list
+        flatX=flatten_list(setXs)                           # flattened
+        xfreq=[flatX.count(i) for i in range(numnodes)]     # number of lists each item appears in (at least once)
+        listofedges=zip(*np.nonzero(graph))                 # list of edges in graph to check
+        numlists=float(len(Xs))
+        meanlistlength=np.mean([len(x) for x in Xs])
+    
+        # Goni et al. (2011), eq. 10
+        p_adj = (2.0/(meanlistlength*(meanlistlength-1))) * ((w*meanlistlength) - ((w*(w+1))/2.0))
+        for i,j in listofedges:
+            p_linked = (xfreq[i]/numlists) * (xfreq[j]/numlists) * p_adj
+            ci=pci(cooccur[i,j],numlists,method="beta")[0] # lower bound of Clopper-Pearson binomial CI
+            if p_linked >= ci:                             # if co-occurrence could be due to chance, remove edge
+                graph[i,j]=0
+                graph[j,i]=0
+
+    if valid:
+        # add direct edges when transition is impossible
+        check=probX(Xs, graph, td)
+        while check[0] == -np.inf:
+            if isinstance(check[1],int):
+                listnum=[x[0] for x in Xs].index(check[1]) # find list that begins with disconnected item
+                graph[check[1],Xs[listnum][1]] = 1      # add edge between first and second item to ensure connectedness
+                graph[Xs[listnum][1],check[1]] = 1
+            elif isinstance(check[1],tuple):
+                graph[check[1][0], check[1][1]] = 1
+                graph[check[1][1], check[1][0]] = 1
+            else:
+                raise ValueErrror('Unexpected error from windowGraph()')
+            check=probX(Xs, graph, td)
+
+                
     return graph

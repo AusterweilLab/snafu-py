@@ -5,7 +5,7 @@ outfile='log.csv'
 header=1
 
 toygraphs=rw.Toygraphs({
-        'numgraphs': 10,
+        'numgraphs': 1,
         'graphtype': "steyvers",
         'numnodes': 30,
         'numlinks': 6,
@@ -37,9 +37,8 @@ fitinfo=rw.Fitinfo({
 # methods=['fe','rw','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior'] 
 
 for td in toydata:
-    for fi in fitinfo:
-        rw.toyBatch(toygraphs, td, outfile, irts=irts, fitinfo=fi, start_seed=2, methods=['uinvite'],header=header,debug="T")
-        header=0
+    rw.toyBatch(toygraphs, td, outfile, irts=irts, fitinfo=fitinfo, start_seed=2, methods=['uinvite'],header=header,debug="T")
+    header=0
 
 # with limit=np.inf
 # 160 nodes 5 lists (trim .7) 1:05:14.006897
