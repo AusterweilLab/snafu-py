@@ -24,7 +24,6 @@ from structs import *
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
 # TODO: pass method name to findbestgraph, eliminate some branching
-# TODO: rollback and fix uinvite_irt
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -52,7 +51,6 @@ def cost(graph,a):
     return sum(sum(np.array(abs(graph-a))))/2
 
 # graph=estimated graph, a=target/comparison graph
-# speed should be improved for large graphs if possible
 def costSDT(graph, a):
     hit=0; miss=0; fa=0; cr=0
     check=(graph==a)
@@ -83,28 +81,16 @@ def evalPrior(val, prior):
 def expectedHidden(Xs, a):
     numnodes=len(a)
     expecteds=[]
+    t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
     for x in Xs:
+        x2=np.array(x)
+        t2=t[x2[:,None],x2]                  # re-arrange transition matrix to be in list order
         expected=[]
         for curpos in range(1,len(x)):
-            t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
-            Q=np.copy(t)
-             
-            notinx=[]       # nodes not in trimmed X
-            for i in range(numnodes):
-                if i not in x:
-                    notinx.append(i)
-            
-            startindex=x[curpos-1]
-
-            deleted=0
-            for i in sorted(x[curpos:]+notinx,reverse=True):   # to form Q matrix
-                if i < startindex:
-                    deleted += 1
-                Q=np.delete(Q,i,0) # delete row
-                Q=np.delete(Q,i,1) # delete column
-            I=np.identity(len(Q))
+            Q=t2[:curpos,:curpos]
+            I=np.identity(len(Q))*(1+1e-10)
             N=inv(I-Q)
-            expected.append(sum(N[:,startindex-deleted]))
+            expected.append(sum(N[:,curpos-1])) # TODO double check it's not [curpos-1,:]
         expecteds.append(expected)        
     return expecteds
 
@@ -751,7 +737,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
     # break out of function if using unknown method
     for method in methods:
-        if method not in ['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior','window']:
+        if method not in ['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior','windowgraph']:
             raise ValueError('ERROR: Trying to fit graph with unknown method: ', method)
 
     # flag if using a prior method
@@ -855,7 +841,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
                 print cc, ll                
             if method == 'uinvite_irt_prior':
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
-            if method == 'window':  #TODO: pass parameters
+            if method == 'windowgraph':  #TODO: pass parameters
                 bestgraph=windowGraph(Xs, tg.numnodes)
                 ll=probX(Xs, bestgraph, td)[0]
                 print ll
@@ -870,10 +856,9 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
                 print elapsedtime
                 print "COST: ", cost(bestgraph,a)
                 print nx.generate_sparse6(nx.to_networkx_graph(bestgraph),header=False)
-    
+
             # compute SDT
             hit, miss, fa, cr = costSDT(bestgraph,a)
-            print hit, miss, fa, cr
 
             # Record cost, time elapsed, LL of best graph, hash of best graph, and SDT measures
             data[method]['cost'].append(cost(bestgraph,a))
