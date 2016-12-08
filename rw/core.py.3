@@ -1,4 +1,4 @@
-from __future__ import division
+
 
 import multiprocessing as mp
 import networkx as nx
@@ -15,8 +15,9 @@ from itertools import *
 from datetime import datetime
 
 # sibling packages
-from helper import *
-from structs import *
+from .helper import *
+from .structs import *
+from functools import reduce
 
 
 # TODO: make recording optional
@@ -53,22 +54,17 @@ def cost(graph,a):
 
 # graph=estimated graph, a=target/comparison graph
 # speed should be improved for large graphs if possible
-def costSDT(graph, a):
-    hit=0; miss=0; fa=0; cr=0
-    check=(graph==a)
-    for rnum, r in enumerate(a):
-        for cnum, c in enumerate(r[:rnum]):
-            if check[rnum,cnum]==True:
-                if a[rnum,cnum]==1:
-                    hit += 1
-                else:
-                    cr += 1
-            else:
-                if a[rnum,cnum]==1:
-                    miss += 1
-                else:
-                    fa += 1
-    return [hit, miss, fa, cr]
+def costSDT(graph, a):          
+    Alinks=list(zip(*np.where(a==1)))
+    Glinks=list(zip(*np.where(graph==1)))
+    Anolinks=list(zip(*np.where(a==0)))
+    Gnolinks=list(zip(*np.where(graph==0)))
+    hit=sum([i in Alinks for i in Glinks])
+    fa=len(Glinks)-hit
+    cr=sum([i in Anolinks for i in Gnolinks])
+    miss=len(Gnolinks)-cr
+    cr=cr-len(a)            # don't count node self-transitions as correct rejections
+    return [hit/2, miss/2, fa/2, cr/2]
 
 # calculate P(SW_graph|graph type) using pdf generated from genPrior
 def evalPrior(val, prior):
@@ -243,7 +239,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
 
         # generate dict where v[i] is a list of nodes where (i, v[i]) is an existing edge in the graph
         if (method=="prune") or (method==0):
-            print "Pruning", str(vmaj) + "." + str(vmin), "... ", # (len(edges)/2)-len(firstedges), "possible:",
+            print("Pruning", str(vmaj) + "." + str(vmin), "... ", end=' ') # (len(edges)/2)-len(firstedges), "possible:",
             sys.stdout.flush()
             listofedges=np.where(graph==1)
             v=dict()
@@ -255,7 +251,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
         
         # generate dict where v[i] is a list of nodes where (i, v[i]) would form a new triangle
         if (method=="triangles") or (method==1):
-            print "Adding triangles", str(vmaj) + "." + str(vmin), "... ", # (len(edges)/2), "possible:",
+            print("Adding triangles", str(vmaj) + "." + str(vmin), "... ", end=' ') # (len(edges)/2), "possible:",
             sys.stdout.flush()
             nn=dict()
             for i in range(len(graph)):
@@ -265,7 +261,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
         # generate dict where v[i] is a list of nodes where (i, v[i]) is NOT an existing an edge and does NOT form a triangle
         if (method=="nonneighbors") or (method==2):
             # list of a node's non-neighbors (non-edges) that don't form triangles
-            print "Adding other edges", str(vmaj) + "." + str(vmin), "... ",
+            print("Adding other edges", str(vmaj) + "." + str(vmin), "... ", end=' ')
             sys.stdout.flush()
             nonneighbors=dict()
             for i in range(numnodes):
@@ -340,7 +336,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
                 avg[node1]=-np.inf      # so we don't try it again...
                 finishednodes += 1
 
-        print numchanges, "changes"
+        print(numchanges, "changes")
 
         records.append(record)
         return graph, best_ll, probmat, numchanges
@@ -422,7 +418,7 @@ def firstHits(walk):
     path=path_from_walk(walk)
     for i in observed_walk(walk):
         firsthit.append(path.index(i))
-    return zip(observed_walk(walk),firsthit)
+    return list(zip(observed_walk(walk),firsthit))
 
 # generate a connected Watts-Strogatz small-world graph
 # (n,k,p) = (number of nodes, each node connected to k-nearest neighbors, probability of rewiring)
@@ -459,7 +455,7 @@ def genGraphs(numgraphs, theta, Xs, numnodes):
 # n <- # samples (larger n == better fidelity)
 # tries <- W-S parameter (number of tries to generate connected graph)
 def genPrior(tg, n=10000, bins=100):
-    print "generating prior distribution..."
+    print("generating prior distribution...")
     sw=[]
     for i in range(n):
         if tg.graphtype=="wattsstrogatz":
@@ -471,7 +467,7 @@ def genPrior(tg, n=10000, bins=100):
         sw.append(smallworld(g))
     kde=scipy.stats.gaussian_kde(sw)
     binsize=(max(sw)-min(sw))/bins
-    print "...done"
+    print("...done")
     return {'kde': kde, 'binsize': binsize}
 
 def genSteyvers(n,m, tail=1):                          # tail allows m-1 "null" nodes in neighborhood of every node
@@ -501,7 +497,7 @@ def genX(g,td,seed=None):
     rwalk=random_walk(g,td,seed)
     Xs=observed_walk(rwalk)
     
-    fh=list(zip(*firstHits(rwalk))[1])
+    fh=list(zip(*firstHits(rwalk)))[1]
     steps=[fh[i]-fh[i-1] for i in range(1,len(fh))]
 
     return Xs, steps
@@ -545,7 +541,7 @@ def observed_walk(walk):
 
 # flat list from tuple walk
 def path_from_walk(walk):
-    path=list(zip(*walk)[0]) # first element from each tuple
+    path=list(list(zip(*walk))[0]) # first element from each tuple
     path.append(walk[-1][1]) # second element from last tuple
     return path
 
@@ -565,7 +561,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
         t=a/sum(a.astype(float))            # will throw warning if a node is inaccessible
     else:                                   # otherwise we have a transition or weighted matrix
         t=a
-        print "WARNING: Treating matrix as transition matrix in probX()!"
+        print("WARNING: Treating matrix as transition matrix in probX()!")
 
     if (td.jumptype=="stationary") or (td.startX=="stationary"):
         statdist=stationary(t)
@@ -674,7 +670,7 @@ def random_walk(g,td,seed=None):
         a=np.array(nx.to_numpy_matrix(g))
         t=a/sum(a).astype(float)
         statdist=stationary(t)
-        statdist=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
+        statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))
     
     if td.startX=="stationary":
         start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution
@@ -771,14 +767,14 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
                 'll_tg_irt_prior']  # same across all methods
     methodvals=['cost','time','bestgraph','hit','miss','fa','cr','ll']     # differ per method
 
-    f=open(outfile,'a', 0)                # write/append to file with no buffering
+    f=open(outfile,'a')                # write/append to file with no buffering
     if header==1:
-        irtvals=irts.keys()
+        irtvals=list(irts.keys())
         irtvals.remove('data')          # don't write IRT data
-        f.write(','.join(tg.keys())+',')
-        f.write(','.join(td.keys())+',')
+        f.write(','.join(list(tg.keys()))+',')
+        f.write(','.join(list(td.keys()))+',')
         f.write(','.join(irtvals)+',')
-        f.write(','.join(fitinfo.keys())+',')
+        f.write(','.join(list(fitinfo.keys()))+',')
         f.write(','.join(globalvals)+',')
         for methodnum, method in enumerate(methods):
             towrite=[i+'_'+method for i in methodvals]
@@ -811,7 +807,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         while True:
             x_seed=seed_param
 
-            [Xs,irts.data]=zip(*[genX(g, td, seed=x_seed+i) for i in range(td.numx)])
+            [Xs,irts.data]=list(zip(*[genX(g, td, seed=x_seed+i) for i in range(td.numx)]))
             Xs=list(Xs)
             irts.data=list(irts.data)
             [Xs,irts.data,alter_graph]=trimX(td.trim,Xs,irts.data)      # trim data when necessary
@@ -830,7 +826,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
         numedges=nx.number_of_edges(g)
         truegraph=nx.generate_sparse6(g,header=False)  # to write to file
-        # true graph LL -- ugly code
+        # true graph LL
         ll_tg=probX(Xs, a, td)[0]
         if use_prior: ll_tg_prior=probX(Xs, a, td, prior=prior)[0]
         else: ll_tg_prior=""
@@ -841,7 +837,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
         for method in methods:
             recordname="record_"+str(graph_seed)+"_"+str(x_seed)+"_"+method+".csv"
-            if debug=="T": print "SEED: ", seed_param, "method: ", method
+            if debug=="T": print("SEED: ", seed_param, "method: ", method)
             
             # Find best graph! (and log time)
             starttime=datetime.now()
@@ -852,13 +848,13 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
             if method == 'uinvite_irt':
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, debug=debug, fitinfo=fitinfo, recordname=recordname)
                 cc=cost(bestgraph,a)
-                print cc, ll                
+                print(cc, ll)                
             if method == 'uinvite_irt_prior':
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
             if method == 'window':  #TODO: pass parameters
                 bestgraph=windowGraph(Xs, tg.numnodes)
                 ll=probX(Xs, bestgraph, td)[0]
-                print ll
+                print(ll)
             if method == 'rw':
                 bestgraph=noHidden(Xs, tg.numnodes)
                 ll=probX(Xs, bestgraph, td)[0]
@@ -867,13 +863,12 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
                 ll=probX(Xs, bestgraph, td)[0]
             elapsedtime=str(datetime.now()-starttime)
             if debug=="T": 
-                print elapsedtime
-                print "COST: ", cost(bestgraph,a)
-                print nx.generate_sparse6(nx.to_networkx_graph(bestgraph),header=False)
+                print(elapsedtime)
+                print("COST: ", cost(bestgraph,a))
+                print(nx.generate_sparse6(nx.to_networkx_graph(bestgraph),header=False))
     
             # compute SDT
             hit, miss, fa, cr = costSDT(bestgraph,a)
-            print hit, miss, fa, cr
 
             # Record cost, time elapsed, LL of best graph, hash of best graph, and SDT measures
             data[method]['cost'].append(cost(bestgraph,a))
@@ -886,11 +881,12 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
             data[method]['cr'].append(cr)
 
         # log stuff here
-        towrite=[str(tg[i]) for i in tg.keys()]
-        towrite=towrite+[str(td[i]) for i in td.keys()]
-        towrite=towrite+[str(irts[i]) for i in irts.keys() if i != 'data']  # write Irts except IRT data
-        towrite=towrite+[str(fitinfo[i]) for i in fitinfo.keys()]
-        towrite=towrite+[str(eval(i)) for i in globalvals]
+        towrite=[str(tg[i]) for i in list(tg.keys())]
+        towrite=towrite+[str(td[i]) for i in list(td.keys())]
+        towrite=towrite+[str(irts[i]) for i in list(irts.keys()) if i != 'data']  # write Irts except IRT data
+        towrite=towrite+[str(fitinfo[i]) for i in list(fitinfo.keys())]
+        for i in globalvals:
+            towrite.append(str(eval(i)))
         f.write(','.join(towrite))
         for method in methods:
             for val in methodvals:
@@ -927,13 +923,13 @@ def walk_from_path(path):
 #              potentially a lot more computationally intensive, but could produce better fit
 def windowGraph(Xs, numnodes, w=2, f=2, c=0.05, valid=0, td=0):
     if valid and td==0:
-        raise ValueError('Need to pass Toydata when generating \'valid\' windowGraph()')
+        raise('Need to pass Toydata when generating \'valid\' windowGraph()')
 
     if c<1:
         from statsmodels.stats.proportion import proportion_confint as pci
 
     if w < 1:
-        print "Error in windowGraph(): w must be >= 1"
+        print("Error in windowGraph(): w must be >= 1")
         return
 
     graph=np.zeros((numnodes, numnodes)).astype(int)         # empty graph
@@ -961,7 +957,7 @@ def windowGraph(Xs, numnodes, w=2, f=2, c=0.05, valid=0, td=0):
         setXs=[list(set(x)) for x in Xs]                    # unique nodes in each list
         flatX=flatten_list(setXs)                           # flattened
         xfreq=[flatX.count(i) for i in range(numnodes)]     # number of lists each item appears in (at least once)
-        listofedges=zip(*np.nonzero(graph))                 # list of edges in graph to check
+        listofedges=list(zip(*np.nonzero(graph)))                 # list of edges in graph to check
         numlists=float(len(Xs))
         meanlistlength=np.mean([len(x) for x in Xs])
     

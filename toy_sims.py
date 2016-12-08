@@ -7,16 +7,16 @@ header=1
 toygraphs=rw.Toygraphs({
         'numgraphs': 1,
         'graphtype': "steyvers",
-        'numnodes': 30,
+        'numnodes': 160,
         'numlinks': 6,
         'prob_rewire': .3})
 
 toydata=rw.Toydata({
-        'numx': [10],
+        'numx': [5],
         'trim': .7,
         'jump': 0.0,
         'jumptype': "stationary",
-        'startX': "stationary"})
+        'startX': "uniform"})
 
 irts=rw.Irts({
         'data': [],
@@ -26,7 +26,7 @@ irts=rw.Irts({
         'rcutoff': 20})
 
 fitinfo=rw.Fitinfo({
-        'startGraph': "naiverw",
+        'startGraph': "windowgraph",
         'followtype': "avg", 
         'recorddir': "records/",
         'prune_limit': 100,
@@ -34,10 +34,10 @@ fitinfo=rw.Fitinfo({
         'other_limit': 100})
 
 # optionally, pass a methods argument
-# methods=['fe','rw','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior'] 
+# methods=['fe','rw','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior','window'] 
 
 for td in toydata:
-    rw.toyBatch(toygraphs, td, outfile, irts=irts, fitinfo=fitinfo, start_seed=2, methods=['uinvite_irt'],header=header,debug="T")
+    rw.toyBatch(toygraphs, td, outfile, irts=irts, fitinfo=fitinfo, start_seed=12, methods=['window'],header=header,debug="T")
     header=0
 
 # with limit=np.inf

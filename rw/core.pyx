@@ -23,16 +23,12 @@ import cython           # my preferred method: `easycython core.pyx`;
 cimport numpy as np     # then run scripts as usual. (delete core.so to use Python version)
 from libc.stdlib cimport malloc, free
 
-cfloat=np.float
-ctypedef np.float_t cfloat_t
-
-
 # TODO: make recording optional
     # write toy params to record file
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
-# TODO: implement thresholding model (threshold by % of lists, or by % of nodes to be removed - rem 1, rem 2, etc.)
 # TODO: pass method name to findbestgraph, eliminate some branching
+# TODO: rollback and fix uinvite_irt
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -556,44 +552,52 @@ def path_from_walk(walk):
 #@profile
 @nogc
 @cython.boundscheck(False) # compiler directive
-#@cython.wraparound(False) # compiler directive
-def probX(list Xs, np.ndarray a, td, irts=Irts({}), prior=0, origmat=None, list changed=[]):
-    #cdef np.float_t *prob = <np.float_t *>malloc(numprobs*sizeof(float)) # free?
-    #cdef int pos = 0
-    #cdef double *t2 = <double *>malloc(numprobs*sizeof(double))
+@cython.wraparound(False) # compiler directives
+@cython.initializedcheck(False) # compiler directives
+@cython.cdivision(True) # compiler directives
+def probX(list Xs, np.ndarray a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
+    cdef np.ndarray prob, x2
     cdef int xnum, curpos, numnodes, lenchanged, update, i
     cdef double[:,:] t2, Q, N, R, B
-    cdef list prob, probs
+    cdef list probs, x
     cdef double reg
     cdef double[:] statdist
-
+    
     numnodes=len(a)
     reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv, but that's much slower
-    identmat=np.identity(numnodes)* reg     # pre-compute for tiny speed-up (only for non-IRT)
+    identmat=np.identity(numnodes) * reg    # pre-compute for tiny speed-up (only for non-IRT)
 
     #np.random.seed(randomseed)             # bug in nx, random seed needs to be reset    
     probs=[]
 
     # generate transition matrix (from: column, to: row) if given link matrix
-    t=a/sum(a)
+    if np.issubdtype(a[0,0],int):           # if first item is int, they're all ints (i.e., link matrix)
+        t=a/sum(a.astype(float))            # will throw warning if a node is inaccessible
+    else:                                   # otherwise we have a transition or weighted matrix
+        t=a
+        print "WARNING: Treating matrix as transition matrix in probX()!"
 
     if (td.jumptype=="stationary") or (td.startX=="stationary"):
         statdist=stationary(t)
 
+    lenchanged=len(changed)
     for xnum, x in enumerate(Xs):
-        x2=np.array(x)  #JZ
-        t2=t[x2[:,None],x2] #JZ
-        prob=[]
+        x2=np.array(x)
+        t2=t[x2[:,None],x2]                  # re-arrange transition matrix to be in list order
+        #prob=[]
+        prob=np.empty(len(x))
         if td.startX=="stationary":
-            prob.append(statdist[x[0]])      # probability of X_1
+            prob[0]=statdist[x[0]]
+            #prob.append(statdist[x[0]])      # probability of X_1
         elif td.startX=="uniform":
+            prob[0]=1.0/numnodes
             prob.append(1.0/numnodes)
 
         # if impossible starting point, return immediately
-        if prob[-1]==0.0:
+        #if prob[-1]==0.0:
+        if prob[0]==0.0:
             return -np.inf, (x[0])
 
-        lenchanged=len(changed)
         if (lenchanged > 0) and isinstance(origmat,list):    # if updating prob. matrix based on specific link changes
             update=0                                         # reset for each list
 
@@ -603,18 +607,16 @@ def probX(list Xs, np.ndarray a, td, irts=Irts({}), prior=0, origmat=None, list 
                     if (Xs[xnum][curpos-1] in changed):
                         update=1
                 if update==0:   # if not, take probability from old matrix
-                    prob.append(origmat[xnum][curpos])
+                    #prob.append(origmat[xnum][curpos])
+                    prob[curpos]=origmat[xnum][curpos]
                     continue
             Q=t2[:curpos,:curpos]
 
             if (len(irts.data) > 0) and (irts.irt_weight < 1): # use this method only when passing IRTs with weight < 1
-                #startindex = startindex-sum([startindex > i for i in deletedlist])
-                startindex=sorted(x[:curpos]).index(x[curpos-1])
-                
                 numcols=len(Q)
                 flist=[]
                 newQ=np.zeros(numcols)  # init to Q^0, for when r=1 (using only one: row for efficiency)
-                newQ[startindex]=1.0
+                newQ[curpos-1]=1.0
 
                 irt=irts.data[xnum][curpos-1]
 
@@ -626,8 +628,8 @@ def probX(list Xs, np.ndarray a, td, irts=Irts({}), prior=0, origmat=None, list 
                 for r in range(1,irts.rcutoff):
                     innersum=0
                     for k in range(numcols):
-                        num1=newQ[k]                        # probability of being at node k in r-1 steps
-                        num2=t[x[curpos],notdeleted[k]]     # probability transitioning from k to absorbing node    
+                        num1=newQ[k]                         # probability of being at node k in r-1 steps
+                        num2=t2[curpos,k]                    # probability transitioning from k to absorbing node    
                         innersum=innersum+(num1*num2)
 
                     # much faster than using scipy.stats.gamma.pdf
@@ -649,10 +651,12 @@ def probX(list Xs, np.ndarray a, td, irts=Irts({}), prior=0, origmat=None, list 
                 R=t2[curpos:,:curpos]
 
                 B = np.dot(R,N)
-                prob.append(B[0,curpos-1])
+                #prob.append(B[0,curpos-1])
+                prob[curpos]=B[0,curpos-1]
 
             # if there's an impossible transition and no jumping, return immediately
-            if (prob[-1]==0.0) and (td.jump == 0.0):
+            #if (prob[-1]==0.0) and (td.jump == 0.0):
+            if (prob[curpos]==0.0) and (td.jump == 0.0):
                 return -np.inf, (x[curpos-1], x[curpos])
 
         probs.append(prob)
