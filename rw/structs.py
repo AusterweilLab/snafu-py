@@ -65,6 +65,9 @@ def Irts(irts):
         else:
             irts['irttype']="none"
 
+    if 'rcutoff' not in irtkeys:
+        irts['rcutoff']=20
+
     if 'irt_weight' not in irtkeys:
         irts['irt_weight'] = 0.9
         #warnings.warn("Using default IRT weight of 0.9")
@@ -101,8 +104,6 @@ def Fitinfo(fitinfo):
         fitinfo['triangle_limit']=np.inf
     if 'other_limit' not in fitkeys:
         fitinfo['other_limit']=np.inf
-    if 'rcutoff' not in fitkeys:
-        fitinfo['rcutoff']=20
 
     return dotdict(fitinfo)
 

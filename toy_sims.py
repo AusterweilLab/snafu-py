@@ -12,7 +12,7 @@ toygraphs=rw.Toygraphs({
         'prob_rewire': .3})
 
 toydata=rw.Toydata({
-        'numx': [25],
+        'numx': range(5,10),
         'trim': .7,
         'jump': 0.0,
         'jumptype': "stationary",
@@ -25,6 +25,7 @@ irts=rw.Irts({
         'irt_weight': 0.9,
         'rcutoff': 20})
 
+#TODO: add window params (w, f, c); add threshold method shortcut
 fitinfo=rw.Fitinfo({
         'startGraph': "naiverw",
         'followtype': "avg", 
@@ -34,13 +35,8 @@ fitinfo=rw.Fitinfo({
         'other_limit': 100})
 
 # optionally, pass a methods argument
-# methods=['fe','rw','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior','window'] 
+# methods=['fe','rw','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior','windowgraph','windowgraph_valid'] 
 
 for td in toydata:
-    rw.toyBatch(toygraphs, td, outfile, irts=irts, fitinfo=fitinfo, start_seed=17, methods=['uinvite'],header=header,debug="T")
+    rw.toyBatch(toygraphs, td, outfile, irts=irts, fitinfo=fitinfo, start_seed=1, methods=['uinvite'],header=header,debug="T")
     header=0
-
-# with limit=np.inf
-# 160 nodes 5 lists (trim .7) 1:05:14.006897
-# 160 nodes 3 lists (trim .7) 0:39:54.803221
-# 100 nodes 15 lists (t7) 0:54:02.743266

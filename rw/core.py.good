@@ -447,7 +447,7 @@ def genGraphs(numgraphs, theta, Xs, numnodes):
 # generate pdf of small-world metric based on W-S criteria
 # n <- # samples (larger n == better fidelity)
 # tries <- W-S parameter (number of tries to generate connected graph)
-def genPrior(tg, n=10000, bins=100):        #TODO: put n param in fitinfo
+def genPrior(tg, n=10000, bins=100):
     print "generating prior distribution..."
     sw=[]
     for i in range(n):
@@ -744,7 +744,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
     # break out of function if using unknown method
     for method in methods:
-        if method not in ['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior','windowgraph','windowgraph_valid']:
+        if method not in ['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior','windowgraph']:
             raise ValueError('ERROR: Trying to fit graph with unknown method: ', method)
 
     # flag if using a prior method
@@ -759,18 +759,33 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         prior=genPrior(tg)
 
     # stuff to write to file
-    globalvals=['numedges','graph_seed','x_seed','truegraph','ll_tg']      # same across all methods, updates with each seed
-    methodvals=['method','cost','ll','time','bestgraph','hit','miss','fa','cr','ll']     # differ per method
+    # more vals to write to file
+    globalvals=['numedges','graph_seed','x_seed','truegraph','ll_tg', 'll_tg_prior','ll_tg_irt',
+                'll_tg_irt_prior']  # same across all methods
+    methodvals=['cost','time','bestgraph','hit','miss','fa','cr','ll']     # differ per method
 
     f=open(outfile,'a', 0)                # write/append to file with no buffering
     if header==1:
-        objs=[tg, td, irts, fitinfo]
-        header_towrite=[str(i) for var in objs for i in var.keys() if i!='data'] + globalvals + methodvals
-        f.write(','.join(header_towrite) + '\n')
-
-    # write all parameters to file except irts.data (too long for csv file! if they're toy irts, they can be re-generated from seed)
-    objs=[tg, td, irts, fitinfo]
-    params_towrite=[str(var[i]) for var in objs for i in var.keys() if i!='data']
+        irtvals=irts.keys()
+        irtvals.remove('data')          # don't write IRT data
+        f.write(','.join(tg.keys())+',')
+        f.write(','.join(td.keys())+',')
+        f.write(','.join(irtvals)+',')
+        f.write(','.join(fitinfo.keys())+',')
+        f.write(','.join(globalvals)+',')
+        for methodnum, method in enumerate(methods):
+            towrite=[i+'_'+method for i in methodvals]
+            f.write(','.join(towrite))
+            if methodnum != (len(methods)-1):   # if not the last method, add a comma
+                f.write(',')
+        f.write('\n')
+ 
+    # store all data in dict to write to file later
+    data={}
+    for method in methods:
+        data[method]={}
+        for val in methodvals:
+            data[method][val]=[]
 
     # how many graphs to run?
     seed_param=start_seed
@@ -785,7 +800,6 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         graph_seed=seed_param
         g,a=genG(tg,seed=graph_seed)
 
-        # ugly code -- who writes this shit? oh wait, it's me
         tries=0
         while True:
             x_seed=seed_param
@@ -809,33 +823,35 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
         numedges=nx.number_of_edges(g)
         truegraph=nx.generate_sparse6(g,header=False)  # to write to file
+        # true graph LL -- ugly code
+        ll_tg=probX(Xs, a, td)[0]
+        if use_prior: ll_tg_prior=probX(Xs, a, td, prior=prior)[0]
+        else: ll_tg_prior=""
+        if use_irt: ll_tg_irt=probX(Xs, a, td, irts=irts)[0]
+        else: ll_tg_irt=""
+        if use_prior and use_irt: ll_tg_irt_prior=probX(Xs, a, td, prior=prior, irts=irts)[0]
+        else: ll_tg_irt_prior=""
 
         for method in methods:
-            
             recordname="record_"+str(graph_seed)+"_"+str(x_seed)+"_"+method+".csv"
             if debug=="T": print "SEED: ", seed_param, "method: ", method
             
             # Find best graph! (and log time)
-            ll_tg=""        # only record TG LL for U-INVITE models; otherwise it's ambiguous whether it's using IRT/prior/etc
             starttime=datetime.now()
             if method == 'uinvite': 
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, debug=debug, fitinfo=fitinfo, recordname=recordname)
-                ll_tg=probX(Xs, a, td)[0]
             if method == 'uinvite_prior':
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
-                ll_tg=probX(Xs, a, td, prior=prior)[0]
             if method == 'uinvite_irt':
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, debug=debug, fitinfo=fitinfo, recordname=recordname)
-                ll_tg=probX(Xs, a, td, irts=irts)[0]
+                cc=cost(bestgraph,a)
+                print cc, ll                
             if method == 'uinvite_irt_prior':
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
-                ll_tg=probX(Xs, a, td, prior=prior, irts=irts)[0]
             if method == 'windowgraph':  #TODO: pass parameters
                 bestgraph=windowGraph(Xs, tg.numnodes)
                 ll=probX(Xs, bestgraph, td)[0]
-            if method == 'windowgraph_valid':
-                bestgraph=windowGraph(Xs, tg.numnodes,td=td,valid=1)
-                ll=probX(Xs, bestgraph, td)[0]
+                print ll
             if method == 'rw':
                 bestgraph=noHidden(Xs, tg.numnodes)
                 ll=probX(Xs, bestgraph, td)[0]
@@ -848,18 +864,30 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
                 print "COST: ", cost(bestgraph,a)
                 print nx.generate_sparse6(nx.to_networkx_graph(bestgraph),header=False)
 
-            # Record cost, time elapsed, LL of best graph, hash of best graph, and SDT measures
-            graphcost=cost(bestgraph,a)
+            # compute SDT
             hit, miss, fa, cr = costSDT(bestgraph,a)
-            graphhash=nx.generate_sparse6(nx.to_networkx_graph(bestgraph),header=False)
 
-            global_towrite=[str(i) for i in [numedges, graph_seed, x_seed, truegraph, ll_tg]]
-            method_towrite=[str(i) for i in [method, graphcost, ll, elapsedtime, graphhash, hit, miss, fa, cr]]
+            # Record cost, time elapsed, LL of best graph, hash of best graph, and SDT measures
+            data[method]['cost'].append(cost(bestgraph,a))
+            data[method]['time'].append(elapsedtime)
+            data[method]['ll'].append(ll)
+            data[method]['bestgraph'].append(nx.generate_sparse6(nx.to_networkx_graph(bestgraph),header=False))
+            data[method]['hit'].append(hit)
+            data[method]['miss'].append(miss)
+            data[method]['fa'].append(fa)
+            data[method]['cr'].append(cr)
 
-            # log stuff here
-            f.write(','.join(params_towrite) + ',')
-            f.write(','.join(global_towrite) + ',')
-            f.write(','.join(method_towrite) + '\n')
+        # log stuff here
+        towrite=[str(tg[i]) for i in tg.keys()]
+        towrite=towrite+[str(td[i]) for i in td.keys()]
+        towrite=towrite+[str(irts[i]) for i in irts.keys() if i != 'data']  # write Irts except IRT data
+        towrite=towrite+[str(fitinfo[i]) for i in fitinfo.keys()]
+        towrite=towrite+[str(eval(i)) for i in globalvals]
+        f.write(','.join(towrite))
+        for method in methods:
+            for val in methodvals:
+                f.write(','+str(data[method][val][-1]))
+        f.write('\n')
 
         seed_param = seed_param + 1
     f.close()
