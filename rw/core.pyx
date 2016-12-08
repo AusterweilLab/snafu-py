@@ -33,7 +33,6 @@ ctypedef np.float_t cfloat_t
     # (pass dict of failures, don't try if numchanges==0)
 # TODO: implement thresholding model (threshold by % of lists, or by % of nodes to be removed - rem 1, rem 2, etc.)
 # TODO: pass method name to findbestgraph, eliminate some branching
-# TODO: re-arrange t at start of each list, use basic indexing on Q and R
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -556,60 +555,47 @@ def path_from_walk(walk):
 # probability of observing Xs, including irts and prior
 #@profile
 @nogc
-#@cython.boundscheck(False) # compiler directive
+@cython.boundscheck(False) # compiler directive
 #@cython.wraparound(False) # compiler directive
-def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
-    
-    #cdef list probs, prob, x, notinx, notdeleted, deletedlist
-    #cdef int xnum, curpos, numnodes, lenchanged, startindex, absorbingindex, update, i
-    #cdef np.ndarray[cfloat_t, ndim=2] t
-    #cdef np.ndarray[cfloat_t, ndim=2] Q
-    #cdef np.ndarray[cfloat_t, ndim=2] I
-    #cdef np.ndarray[cfloat_t, ndim=2] N
-    #cdef np.ndarray[cfloat_t, ndim=2] R
-    #cdef np.ndarray[cfloat_t, ndim=2] B
-    #cdef np.ndarray[short, ndim=1] notdeleted
-    #cdef np.ndarray[short, ndim=1] deletedlist
-    
-    numprobs=sum([len(x) for x in Xs])
-    cdef np.float_t *prob = <np.float_t *>malloc(numprobs*sizeof(float)) # free?
-    cdef int pos = 0
-    cdef float[:,:] t, Q, N, R, B
+def probX(list Xs, np.ndarray a, td, irts=Irts({}), prior=0, origmat=None, list changed=[]):
+    #cdef np.float_t *prob = <np.float_t *>malloc(numprobs*sizeof(float)) # free?
+    #cdef int pos = 0
+    #cdef double *t2 = <double *>malloc(numprobs*sizeof(double))
+    cdef int xnum, curpos, numnodes, lenchanged, update, i
+    cdef double[:,:] t2, Q, N, R, B
+    cdef list prob, probs
+    cdef double reg
+    cdef double[:] statdist
 
     numnodes=len(a)
-    identmat=np.identity(numnodes)    # optimize? how?/c.inde
+    reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv, but that's much slower
+    identmat=np.identity(numnodes)* reg     # pre-compute for tiny speed-up (only for non-IRT)
 
     #np.random.seed(randomseed)             # bug in nx, random seed needs to be reset    
-    #probs=[]
+    probs=[]
 
     # generate transition matrix (from: column, to: row) if given link matrix
-    if np.issubdtype(a[0,0],int):           # if first item is int, they're all ints (i.e., link matrix)
-        t=a/sum(a.astype(float))            # will throw warning if a node is inaccessible
-    else:                                   # otherwise we have a transition or weighted matrix
-        t=a
-        print "WARNING: Treating matrix as transition matrix in probX()!"
+    t=a/sum(a)
 
     if (td.jumptype=="stationary") or (td.startX=="stationary"):
         statdist=stationary(t)
 
     for xnum, x in enumerate(Xs):
-        #prob=[]
+        x2=np.array(x)  #JZ
+        t2=t[x2[:,None],x2] #JZ
+        prob=[]
         if td.startX=="stationary":
-            prob[pos]=statdist[x[0]]      # probability of X_1
+            prob.append(statdist[x[0]])      # probability of X_1
         elif td.startX=="uniform":
-            prob[pos]=(1.0/numnodes)
-        pos += 1
+            prob.append(1.0/numnodes)
 
         # if impossible starting point, return immediately
-        if prob[pos]==0.0:
+        if prob[-1]==0.0:
             return -np.inf, (x[0])
-        
-        # optimize? pre-compute and pass to function
-        notinx=[i for i in range(numnodes) if i not in x]        # nodes not in trimmed X
 
         lenchanged=len(changed)
         if (lenchanged > 0) and isinstance(origmat,list):    # if updating prob. matrix based on specific link changes
-            update=0            # reset for each list
+            update=0                                         # reset for each list
 
         for curpos in range(1,len(x)):
             if (lenchanged > 0) and isinstance(origmat,list):
@@ -617,17 +603,13 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                     if (Xs[xnum][curpos-1] in changed):
                         update=1
                 if update==0:   # if not, take probability from old matrix
-                    prob[pos] = origmat[xnum][curpos]
+                    prob.append(origmat[xnum][curpos])
                     continue
-            startindex=x[curpos-1]
-            deletedlist=sorted(x[curpos:]+notinx,reverse=True)  # optimize? sort each list once and remove items
-            notdeleted=np.array([i for i in range(numnodes) if i not in deletedlist])
-           
-            Q=t[notdeleted[:, None],notdeleted]
+            Q=t2[:curpos,:curpos]
 
             if (len(irts.data) > 0) and (irts.irt_weight < 1): # use this method only when passing IRTs with weight < 1
-                startindex = startindex-sum([startindex > i for i in deletedlist])
-                # same as startindex=sorted(x[:curpos]).index(x[curpos-1])... less readable, maybe more efficient?
+                #startindex = startindex-sum([startindex > i for i in deletedlist])
+                startindex=sorted(x[:curpos]).index(x[curpos-1])
                 
                 numcols=len(Q)
                 flist=[]
@@ -659,39 +641,33 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                     newQ=np.inner(newQ,Q)     # raise power by one
 
                 f=sum([math.e**i for i in flist])
-                prob[pos]=f           # probability of x_(t-1) to X_t
+                prob.append(f)           # probability of x_(t-1) to X_t
             else:                        # if no IRTs, use standard INVITE
-                I=identmat[0:len(Q),0:len(Q)]
-                reg=(1+1e-10)            # nuisance parameter to prevent errors; can also use pinv, but that's much slower
-                N=inv(I*reg-Q)
-               
-                r=sorted(x[curpos:])
-                c=sorted(x[:curpos])
-                R=t[np.array(r)[:,None],c]
+                I=identmat[:len(Q),:len(Q)]
+                N=inv(I-Q)
+
+                R=t2[curpos:,:curpos]
 
                 B = np.dot(R,N)
-                startindex = c.index(x[curpos-1])
-                absorbingindex = r.index(x[curpos])
-                prob[pos]=B[absorbingindex,startindex]
+                prob.append(B[0,curpos-1])
 
             # if there's an impossible transition and no jumping, return immediately
-            if (prob[pos]==0.0) and (td.jump == 0.0):
+            if (prob[-1]==0.0) and (td.jump == 0.0):
                 return -np.inf, (x[curpos-1], x[curpos])
-            pos += 1
+
+        probs.append(prob)
 
     # adjust for jumping probability
-    #if td.jump > 0.0:
-    #    if td.jumptype=="uniform":
-    #        probs=addJumps(probs, td, numnodes=numnodes)
-    #    elif td.jumptype=="stationary":
-    #        probs=addJumps(probs, td, statdist=statdist, Xs=Xs)
-    #    if probs==-np.inf:
-    #        return -np.inf, "jumping"
+    if td.jump > 0.0:
+        if td.jumptype=="uniform":
+            probs=addJumps(probs, td, numnodes=numnodes)
+        elif td.jumptype=="stationary":
+            probs=addJumps(probs, td, statdist=statdist, Xs=Xs)
+        if probs==-np.inf:
+            return -np.inf, "jumping"
 
     # total ll of graph
-    ll=0
-    for i in range(numprobs):
-        ll += math.log(prob[i])
+    ll=sum([sum([math.log(j) for j in probs[i]]) for i in range(len(probs))])
 
     # inclue prior?
     if prior:
@@ -702,10 +678,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
         else:
             ll=ll + math.log(priorprob)
 
-    lenx=len(Xs[0])
-    #retprob=np.asarray(<np.float_t[:21, :15]> prob)
-    free(prob)
-    return ll, 0
+    return ll, probs
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g,td,seed=None):

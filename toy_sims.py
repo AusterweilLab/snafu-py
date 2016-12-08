@@ -12,7 +12,7 @@ toygraphs=rw.Toygraphs({
         'prob_rewire': .3})
 
 toydata=rw.Toydata({
-        'numx': [15],
+        'numx': [10],
         'trim': .7,
         'jump': 0.0,
         'jumptype': "stationary",
@@ -37,7 +37,7 @@ fitinfo=rw.Fitinfo({
 # methods=['fe','rw','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior'] 
 
 for td in toydata:
-    rw.toyBatch(toygraphs, td, outfile, irts=irts, fitinfo=fitinfo, start_seed=2, methods=['uinvite'],header=header,debug="T")
+    rw.toyBatch(toygraphs, td, outfile, irts=irts, fitinfo=fitinfo, start_seed=2, methods=['uinvite_irt'],header=header,debug="T")
     header=0
 
 # with limit=np.inf

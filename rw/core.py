@@ -23,8 +23,8 @@ from structs import *
     # write toy params to record file
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
-# TODO: implement thresholding model (threshold by % of lists, or by % of nodes to be removed - rem 1, rem 2, etc.)
 # TODO: pass method name to findbestgraph, eliminate some branching
+# TODO: rollback and fix uinvite_irt
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -546,12 +546,11 @@ def path_from_walk(walk):
 
 # probability of observing Xs, including irts and prior
 #@profile
-@nogc
+#@nogc
 def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
     numnodes=len(a)
-    identmat=np.identity(numnodes)          # pre-compute for tiny speed-up (only for non-IRT)
     reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv, but that's much slower
-    identmat=identmat * reg
+    identmat=np.identity(numnodes) * reg    # pre-compute for tiny speed-up (only for non-IRT)
 
     #np.random.seed(randomseed)             # bug in nx, random seed needs to be reset    
     probs=[]
@@ -566,9 +565,10 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
     if (td.jumptype=="stationary") or (td.startX=="stationary"):
         statdist=stationary(t)
 
+    lenchanged=len(changed)
     for xnum, x in enumerate(Xs):
-        x2=np.array(x)  #JZ
-        t2=t[x2[:,None],x2] #JZ
+        x2=np.array(x)
+        t2=t[x2[:,None],x2]
         prob=[]
         if td.startX=="stationary":
             prob.append(statdist[x[0]])      # probability of X_1
@@ -579,7 +579,6 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
         if prob[-1]==0.0:
             return -np.inf, (x[0])
 
-        lenchanged=len(changed)
         if (lenchanged > 0) and isinstance(origmat,list):    # if updating prob. matrix based on specific link changes
             update=0                                         # reset for each list
 
@@ -594,13 +593,10 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
             Q=t2[:curpos,:curpos]
 
             if (len(irts.data) > 0) and (irts.irt_weight < 1): # use this method only when passing IRTs with weight < 1
-                startindex = startindex-sum([startindex > i for i in deletedlist])
-                # same as startindex=sorted(x[:curpos]).index(x[curpos-1])... less readable, maybe more efficient?
-                
                 numcols=len(Q)
                 flist=[]
                 newQ=np.zeros(numcols)  # init to Q^0, for when r=1 (using only one: row for efficiency)
-                newQ[startindex]=1.0
+                newQ[curpos-1]=1.0
 
                 irt=irts.data[xnum][curpos-1]
 
@@ -612,8 +608,8 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                 for r in range(1,irts.rcutoff):
                     innersum=0
                     for k in range(numcols):
-                        num1=newQ[k]                        # probability of being at node k in r-1 steps
-                        num2=t[x[curpos],notdeleted[k]]     # probability transitioning from k to absorbing node    
+                        num1=newQ[k]                         # probability of being at node k in r-1 steps
+                        num2=t2[curpos,k]                    # probability transitioning from k to absorbing node    
                         innersum=innersum+(num1*num2)
 
                     # much faster than using scipy.stats.gamma.pdf
@@ -635,7 +631,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                 R=t2[curpos:,:curpos]
 
                 B = np.dot(R,N)
-                prob.append(B[0,-1])
+                prob.append(B[0,curpos-1])
 
             # if there's an impossible transition and no jumping, return immediately
             if (prob[-1]==0.0) and (td.jump == 0.0):
