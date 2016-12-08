@@ -7,16 +7,16 @@ header=1
 toygraphs=rw.Toygraphs({
         'numgraphs': 1,
         'graphtype': "steyvers",
-        'numnodes': 100,
+        'numnodes': 50,
         'numlinks': 6,
         'prob_rewire': .3})
 
 toydata=rw.Toydata({
-        'numx': [15],
+        'numx': [25],
         'trim': .7,
         'jump': 0.0,
         'jumptype': "stationary",
-        'startX': "uniform"})
+        'startX': "stationary"})
 
 irts=rw.Irts({
         'data': [],
