@@ -81,16 +81,17 @@ def evalPrior(val, prior):
 def expectedHidden(Xs, a):
     numnodes=len(a)
     expecteds=[]
-    t=a/sum(a.astype(float))            # transition matrix (from: column, to: row)
+    t=a/sum(a.astype(float))                      # transition matrix (from: column, to: row)
+    identmat=np.identity(numnodes) * (1+1e-10)    # pre-compute for tiny speed-up
     for x in Xs:
         x2=np.array(x)
-        t2=t[x2[:,None],x2]                  # re-arrange transition matrix to be in list order
+        t2=t[x2[:,None],x2]                       # re-arrange transition matrix to be in list order
         expected=[]
         for curpos in range(1,len(x)):
             Q=t2[:curpos,:curpos]
-            I=np.identity(len(Q))*(1+1e-10)
+            I=identmat[:len(Q),:len(Q)]
             N=inv(I-Q)
-            expected.append(sum(N[:,curpos-1])) # TODO double check it's not [curpos-1,:]
+            expected.append(sum(N[:,curpos-1]))
         expecteds.append(expected)        
     return expecteds
 
@@ -541,7 +542,7 @@ def path_from_walk(walk):
 def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
     numnodes=len(a)
     reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv, but that's much slower
-    identmat=np.identity(numnodes) * reg    # pre-compute for tiny speed-up (only for non-IRT)
+    identmat=np.identity(numnodes) #* reg    # pre-compute for tiny speed-up (only for non-IRT)
 
     #np.random.seed(randomseed)             # bug in nx, random seed needs to be reset    
     probs=[]
@@ -617,12 +618,16 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                 prob.append(f)           # probability of x_(t-1) to X_t
             else:                        # if no IRTs, use standard INVITE
                 I=identmat[:len(Q),:len(Q)]
-                N=inv(I-Q)
-
-                R=t2[curpos:,:curpos]
-
-                B = np.dot(R,N)
-                prob.append(B[0,curpos-1])
+                R=t2[curpos,:curpos]
+                N=np.linalg.solve(I-Q,I[-1])
+                B=np.dot(R,N)
+                prob.append(B)
+                
+                # alternative/original using matrix inverse
+                #R=t2[curpos:,:curpos]
+                #N=inv(I-Q)
+                #B=np.dot(R,N)                
+                #prob.append(B[0,curpos-1])
 
             # if there's an impossible transition and no jumping, return immediately
             if (prob[-1]==0.0) and (td.jump == 0.0):
