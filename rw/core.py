@@ -82,7 +82,7 @@ def expectedHidden(Xs, a):
     numnodes=len(a)
     expecteds=[]
     t=a/sum(a.astype(float))                      # transition matrix (from: column, to: row)
-    identmat=np.identity(numnodes) #* (1+1e-10)    # pre-compute for tiny speed-up
+    identmat=np.identity(numnodes) * (1+1e-10)    # pre-compute for tiny speed-up
     for x in Xs:
         x2=np.array(x)
         t2=t[x2[:,None],x2]                       # re-arrange transition matrix to be in list order
@@ -544,7 +544,7 @@ def path_from_walk(walk):
 def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
     numnodes=len(a)
     reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv, but that's much slower
-    identmat=np.identity(numnodes) #* reg    # pre-compute for tiny speed-up (only for non-IRT)
+    identmat=np.identity(numnodes) * reg    # pre-compute for tiny speed-up (only for non-IRT)
 
     #np.random.seed(randomseed)             # bug in nx, random seed needs to be reset    
     probs=[]
