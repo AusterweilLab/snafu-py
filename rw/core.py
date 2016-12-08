@@ -82,7 +82,7 @@ def expectedHidden(Xs, a):
     numnodes=len(a)
     expecteds=[]
     t=a/sum(a.astype(float))                      # transition matrix (from: column, to: row)
-    identmat=np.identity(numnodes) * (1+1e-10)    # pre-compute for tiny speed-up
+    identmat=np.identity(numnodes) #* (1+1e-10)    # pre-compute for tiny speed-up
     for x in Xs:
         x2=np.array(x)
         t2=t[x2[:,None],x2]                       # re-arrange transition matrix to be in list order
@@ -90,8 +90,10 @@ def expectedHidden(Xs, a):
         for curpos in range(1,len(x)):
             Q=t2[:curpos,:curpos]
             I=identmat[:len(Q),:len(Q)]
-            N=inv(I-Q)
-            expected.append(sum(N[:,curpos-1]))
+            N=np.linalg.solve(I-Q,I[-1])
+            expected.append(sum(N))
+            #N=inv(I-Q)         # old way, a little slower
+            #expected.append(sum(N[:,curpos-1]))
         expecteds.append(expected)        
     return expecteds
 
