@@ -760,7 +760,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
     # stuff to write to file
     globalvals=['numedges','graph_seed','x_seed','truegraph','ll_tg']      # same across all methods, updates with each seed
-    methodvals=['method','cost','ll','time','bestgraph','hit','miss','fa','cr','ll']     # differ per method
+    methodvals=['method','cost','ll','time','bestgraph','hit','miss','fa','cr']     # differ per method
 
     f=open(outfile,'a', 0)                # write/append to file with no buffering
     if header==1:
