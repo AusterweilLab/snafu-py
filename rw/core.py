@@ -33,14 +33,14 @@ def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
         raise ValueError("Must specify 'statdist' and 'Xs' when jumptype is stationary [addJumps]")
 
     if td.jumptype=="uniform":
-        jumpprob=float(td.jump)/numnodes                      # uniform jumping
+        jumpprob=float(td.jump)/numnodes                     # uniform jumping
     
     for l in range(len(probs)):                              # loop through all lists (l)
         for inum, i in enumerate(probs[l][1:]):              # loop through all items (i) excluding first (don't jump to item 1)
             if td.jumptype=="stationary":
-                jumpprob=statdist[Xs[l][inum]]                # stationary probability jumping
-            probs[l][inum]=jumpprob + (1-td.jump)*i       # else normalize existing probability and add jumping probability
-            if probs[l][inum] == 0.0:                    # if item can't be reached by RW or jumping...
+                jumpprob=statdist[Xs[l][inum]]               # stationary probability jumping
+            probs[l][inum]=jumpprob + (1-td.jump)*i          # else normalize existing probability and add jumping probability
+            if probs[l][inum] == 0.0:                        # if item can't be reached by RW or jumping...
                 return -np.inf
 
     return probs
@@ -389,7 +389,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
   
     best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
     records=[]
-    graph, best_ll = phases(graph, best_ll, probmat) # JZ change back to phases
+    graph, best_ll = phases(graph, best_ll, probmat)
     f=open(fitinfo.recorddir+recordname,'w')
     wr=csv.writer(f)
     for record in records:
@@ -542,14 +542,15 @@ def path_from_walk(walk):
 #@profile
 #@nogc
 def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
+    
     numnodes=len(a)
     reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv, but that's much slower
     identmat=np.identity(numnodes) * reg    # pre-compute for tiny speed-up (only for non-IRT)
 
-    #np.random.seed(randomseed)             # bug in nx, random seed needs to be reset    
     probs=[]
 
     # generate transition matrix (from: column, to: row) if given link matrix
+
     if np.issubdtype(a[0,0],int):           # if first item is int, they're all ints (i.e., link matrix)
         t=a/sum(a.astype(float))            # will throw warning if a node is inaccessible
     else:                                   # otherwise we have a transition or weighted matrix
@@ -559,13 +560,12 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
     if (td.jumptype=="stationary") or (td.startX=="stationary"):
         statdist=stationary(t)
 
-    lenchanged=len(changed)
     for xnum, x in enumerate(Xs):
         x2=np.array(x)
-        t2=t[x2[:,None],x2]                  # re-arrange transition matrix to be in list order
+        t2=t[x2[:,None],x2]                                        # re-arrange transition matrix to be in list order
         prob=[]
         if td.startX=="stationary":
-            prob.append(statdist[x[0]])      # probability of X_1
+            prob.append(statdist[x[0]])                            # probability of X_1
         elif td.startX=="uniform":
             prob.append(1.0/numnodes)
 
@@ -573,24 +573,24 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
         if prob[-1]==0.0:
             return -np.inf, (x[0])
 
-        if (lenchanged > 0) and isinstance(origmat,list):    # if updating prob. matrix based on specific link changes
-            update=0                                         # reset for each list
+        if (len(changed) > 0) and isinstance(origmat,list):        # if updating prob. matrix based on specific link changes
+            update=0                                               # reset for each list
 
         for curpos in range(1,len(x)):
-            if (lenchanged > 0) and isinstance(origmat,list):
-                if update==0:   # first check if probability needs to be updated (only AFTER first changed node has been reached
-                    if (Xs[xnum][curpos-1] in changed):
+            if (len(changed) > 0) and isinstance(origmat,list):
+                if update==0:                                      # first check if probability needs to be updated
+                    if (Xs[xnum][curpos-1] in changed):            # (only AFTER first changed node has been reached)
                         update=1
-                if update==0:   # if not, take probability from old matrix
-                    prob.append(origmat[xnum][curpos])
-                    continue
+                    else:                                          # if not, take probability from old matrix
+                        prob.append(origmat[xnum][curpos])
+                        continue
             Q=t2[:curpos,:curpos]
 
-            if (len(irts.data) > 0) and (irts.irt_weight < 1): # use this method only when passing IRTs with weight < 1
+            if (len(irts.data) > 0) and (irts.irt_weight < 1):     # use this method only when passing IRTs with weight < 1
                 numcols=len(Q)
                 flist=[]
-                newQ=np.zeros(numcols)  # init to Q^0, for when r=1 (using only one: row for efficiency)
-                newQ[curpos-1]=1.0
+                newQ=np.zeros(numcols)                             # init to Q^0, for when r=1
+                newQ[curpos-1]=1.0                                 # (using only one: row for efficiency)
 
                 irt=irts.data[xnum][curpos-1]
 
@@ -602,8 +602,8 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                 for r in range(1,irts.rcutoff):
                     innersum=0
                     for k in range(numcols):
-                        num1=newQ[k]                         # probability of being at node k in r-1 steps
-                        num2=t2[curpos,k]                    # probability transitioning from k to absorbing node    
+                        num1=newQ[k]                               # probability of being at node k in r-1 steps
+                        num2=t2[curpos,k]                          # probability transitioning from k to absorbing node    
                         innersum=innersum+(num1*num2)
 
                     # much faster than using scipy.stats.gamma.pdf
@@ -614,11 +614,12 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
 
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
                         flist.append(log_dist*(1-irts.irt_weight)+irts.irt_weight*math.log(innersum))
-                    newQ=np.inner(newQ,Q)     # raise power by one
+
+                    newQ=np.inner(newQ,Q)                          # raise power by one
 
                 f=sum([math.e**i for i in flist])
-                prob.append(f)           # probability of x_(t-1) to X_t
-            else:                        # if no IRTs, use standard INVITE
+                prob.append(f)                                     # probability of x_(t-1) to X_t
+            else:                                                  # if no IRTs, use standard INVITE
                 I=identmat[:len(Q),:len(Q)]
                 R=t2[curpos,:curpos]
                 N=np.linalg.solve(I-Q,I[-1])

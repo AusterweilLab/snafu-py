@@ -12,7 +12,7 @@ toygraphs=rw.Toygraphs({
         'prob_rewire': .3})
 
 toydata=rw.Toydata({
-        'numx': range(5,10),
+        'numx': [30],
         'trim': .7,
         'jump': 0.0,
         'jumptype': "stationary",
@@ -27,8 +27,8 @@ irts=rw.Irts({
 
 #TODO: add window params (w, f, c); add threshold method shortcut
 fitinfo=rw.Fitinfo({
-        'startGraph': "naiverw",
-        'followtype': "avg", 
+        'startGraph': "windowgraph",
+        'followtype': "max", 
         'recorddir': "records/",
         'prune_limit': 100,
         'triangle_limit': 100,
