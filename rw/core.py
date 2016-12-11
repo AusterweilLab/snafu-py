@@ -870,7 +870,12 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 def trimX(trimprop, Xs, steps):
     numnodes=len(Xs[0])             # since Xs haven't been trimmed, we know list covers full graph
     alter_graph_size=0              # report if graph size changes-- may result in disconnected graph!
-    numtrim=int(round(numnodes*trimprop))
+
+    if trimprop <= 1:
+        numtrim=int(round(numnodes*trimprop))       # if <=1, paramater is proportion of a list
+    else:
+        numtrim=trimprop                            # else, parameter is length of a list
+
     Xs=[i[0:numtrim] for i in Xs]
     steps=[i[0:(numtrim-1)] for i in steps]
     for i in range(numnodes):
