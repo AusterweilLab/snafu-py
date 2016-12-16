@@ -37,14 +37,15 @@ def hashToGraph(graphhash):
 # so far only uses first two columns (node1 and node2), can't use another column to filter rows
 # only makes symmetric (undirected) graph
 # not optimized
-def read_csv(fh):
+def read_csv(fh,cols=(0,1)):
     fh=open(fh,'r')
     items={}
     idx=0
     biglist=[]
     for line in fh:
         line=line.rstrip()
-        twoitems=line.split(',')[0:2]
+        linesplit=line.split(',')
+        twoitems=[linesplit[cols[0]],linesplit[cols[1]]]
         biglist.append(twoitems)
         for item in twoitems:
             if item not in items.values():
@@ -90,6 +91,7 @@ def readX(subj,category,filepath):
     return Xs, items, irts, numnodes
 
 def write_csv(gs, fh, subj="NA"):
+    import networkx as nx
     fh=open(fh,'w',0)
     if isinstance(gs,nx.classes.graph.Graph):       # write nx graph
         edges=set(flatten_list([gs.edges()]))

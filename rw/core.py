@@ -1,6 +1,7 @@
 from __future__ import division
 
 import multiprocessing as mp
+import pickle
 import networkx as nx
 import numpy as np
 import operator
@@ -19,6 +20,9 @@ from helper import *
 from structs import *
 
 
+# TODO: move trimval to genX for convenience and speed (no need to generate RW covering entire graph)
+    # move numx to genX too?
+# TODO: error?? ValueError: list.remove(x): x not in list -- with small graphs i think
 # TODO: make recording optional
     # write toy params to record file
 # TODO: when doing same phase twice in a row, don't re-try same failures
@@ -383,7 +387,7 @@ def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0,
     
     # find a good starting graph using naive RW
     if fitinfo.startGraph=="windowgraph":
-        graph=windowGraph(Xs,numnodes,td=td,valid=1)
+        graph=windowGraph(Xs,numnodes,td=td,valid=1, fitinfo=fitinfo)
     elif fitinfo.startGraph=="naiverw":
         graph=noHidden(Xs,numnodes)
   
@@ -447,21 +451,43 @@ def genGraphs(numgraphs, theta, Xs, numnodes):
 # generate pdf of small-world metric based on W-S criteria
 # n <- # samples (larger n == better fidelity)
 # tries <- W-S parameter (number of tries to generate connected graph)
-def genPrior(tg, n=10000, bins=100):        #TODO: put n param in fitinfo
-    print "generating prior distribution..."
-    sw=[]
-    for i in range(n):
-        if tg.graphtype=="wattsstrogatz":
-            g=nx.connected_watts_strogatz_graph(tg.numnodes,tg.numlinks,tg.prob_rewire,tries=1000)
-            g=nx.to_numpy_matrix(g)
-        if tg.graphtype=="steyvers":
-            g=genSteyvers(tg.numnodes, tg.numlinks)
+# forcenew <- if 1, don't use cached prior
+def genPrior(tg, n, bins=100, forcenew=0):
 
-        sw.append(smallworld(g))
-    kde=scipy.stats.gaussian_kde(sw)
-    binsize=(max(sw)-min(sw))/bins
-    print "...done"
-    return {'kde': kde, 'binsize': binsize}
+    # filename for prior
+    if tg.graphtype=="steyvers":
+        filename = "steyvers_" + str(tg.numnodes) + "_" + str(tg.numlinks) + ".prior"
+    if tg.graphtype=="wattsstrogatz":
+        filename = "wattsstrogatz_" + str(tg.numnodes) + "_" + str(tg.numlinks) + "_" + str(tg.prob_rewire) + ".prior"
+    
+    def newPrior():
+        print "generating prior distribution..."
+        sw=[]
+        for i in range(n):
+            if tg.graphtype=="wattsstrogatz":
+                g=nx.connected_watts_strogatz_graph(tg.numnodes,tg.numlinks,tg.prob_rewire,tries=1000)
+                g=nx.to_numpy_matrix(g)
+            if tg.graphtype=="steyvers":
+                g=genSteyvers(tg.numnodes, tg.numlinks)
+            sw.append(smallworld(g))
+        kde=scipy.stats.gaussian_kde(sw)
+        binsize=(max(sw)-min(sw))/bins
+        print "...done"
+        prior={'kde': kde, 'binsize': binsize}
+        with open('./priors/' + filename,'wb') as fh:
+            pickle.dump(prior,fh)
+        return prior
+
+    if forcenew==0:                                                 # use cached prior when available
+        try:                                                        # check if cached prior exist
+            with open('./priors/' + filename,'r') as fh:
+                prior=pickle.load(fh)
+            print "Retrieving cached prior..."
+        except:
+            prior=newPrior()
+    else:                                                            # don't use cached prior
+        prior=newPrior()
+    return prior
 
 def genSteyvers(n,m, tail=1):                          # tail allows m-1 "null" nodes in neighborhood of every node
     a=np.zeros((n,n))                                  # initialize matrix
@@ -745,7 +771,8 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
     # break out of function if using unknown method
     for method in methods:
-        if method not in ['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior','windowgraph','windowgraph_valid']:
+        if method not in ['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior','windowgraph',
+                          'windowgraph_valid','threshold','threshold_valid']:
             raise ValueError('ERROR: Trying to fit graph with unknown method: ', method)
 
     # flag if using a prior method
@@ -757,7 +784,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
     else: use_irt=0
 
     if use_prior:
-        prior=genPrior(tg)
+        prior=genPrior(tg, fitinfo.prior_samplesize)
 
     # stuff to write to file
     globalvals=['numedges','graph_seed','x_seed','truegraph','ll_tg']      # same across all methods, updates with each seed
@@ -831,11 +858,17 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
             if method == 'uinvite_irt_prior':
                 bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
                 ll_tg=probX(Xs, a, td, prior=prior, irts=irts)[0]
-            if method == 'windowgraph':  #TODO: pass parameters
-                bestgraph=windowGraph(Xs, tg.numnodes)
+            if method == 'windowgraph':
+                bestgraph=windowGraph(Xs, tg.numnodes, fitinfo=fitinfo)
                 ll=probX(Xs, bestgraph, td)[0]
             if method == 'windowgraph_valid':
-                bestgraph=windowGraph(Xs, tg.numnodes,td=td,valid=1)
+                bestgraph=windowGraph(Xs, tg.numnodes, td=td, valid=1, fitinfo=fitinfo)
+                ll=probX(Xs, bestgraph, td)[0]
+            if method=='threshold':
+                bestgraph=windowGraph(Xs, tg.numnodes, fitinfo=fitinfo, c=1)
+                ll=probX(Xs, bestgraph, td)[0]
+            if method=='threshold_valid':
+                bestgraph=windowGraph(Xs, tg.numnodes, td=td, valid=1, fitinfo=fitinfo, c=1)
                 ll=probX(Xs, bestgraph, td)[0]
             if method == 'rw':
                 bestgraph=noHidden(Xs, tg.numnodes)
@@ -894,8 +927,13 @@ def walk_from_path(path):
 # f = filter frequency; if two items don't fall within the same window more than f times, then no edge is inferred
 # c = confidence interval; retain the edge if there is a <= c probability that two items occur within the same window n times by chance alone
 # valid=(0,1); ensures that graph can produce data using censored RW.
-#              potentially a lot more computationally intensive, but could produce better fit
-def windowGraph(Xs, numnodes, w=2, f=2, c=0.05, valid=0, td=0):
+def windowGraph(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=0, td=0):
+    w=fitinfo.windowgraph_size
+    f=fitinfo.windowgraph_threshold
+    
+    if f<1:                 # if <1 treat as proportion of total lists; if >1 treat as absolute # of lists
+        f=int(round(len(Xs)*f))
+
     if valid and td==0:
         raise ValueError('Need to pass Toydata when generating \'valid\' windowGraph()')
 
@@ -939,7 +977,7 @@ def windowGraph(Xs, numnodes, w=2, f=2, c=0.05, valid=0, td=0):
         p_adj = (2.0/(meanlistlength*(meanlistlength-1))) * ((w*meanlistlength) - ((w*(w+1))/2.0))
         for i,j in listofedges:
             p_linked = (xfreq[i]/numlists) * (xfreq[j]/numlists) * p_adj
-            ci=pci(cooccur[i,j],numlists,method="beta")[0] # lower bound of Clopper-Pearson binomial CI
+            ci=pci(cooccur[i,j],numlists,alpha=c,method="beta")[0] # lower bound of Clopper-Pearson binomial CI
             if p_linked >= ci:                             # if co-occurrence could be due to chance, remove edge
                 graph[i,j]=0
                 graph[j,i]=0

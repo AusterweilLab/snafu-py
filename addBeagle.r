@@ -4,7 +4,7 @@ library(data.table)
 allsubs<-c("S101","S102","S103","S104","S105","S106","S107","S108","S109","S110","S111","S112","S113","S114","S115","S116","S117","S118","S119","S120")
 
 # human data
-#humans<-fread('animals_1500.csv')
+humans<-fread('s2015.csv')
 setkey(humans,subj)
 
 # MATLAB files
@@ -93,15 +93,13 @@ humans[,beaglediff:=beagle-beaglerand]
 sameCats()
 catRand()
 
-# BEAGLE test: INVITE vs IRT5
-t.test(humans[invite==0 & irt5==1,mean(beaglediff,na.rm=T),by=subj][,V1])  # adds quality links!
-t.test(humans[invite==1 & irt5==0,mean(beaglediff,na.rm=T),by=subj][,V1])  # removes quality links :(
-t.test(humans[invite==1 & irt5==0,mean(beaglediff,na.rm=T),by=subj][,V1],humans[invite==0 & irt5==1,mean(beaglediff,na.rm=T),by=subj][,V1]) # added links are better than removed links, but not significantly
+# BEAGLE test: INVITE vs IRT
+t.test(humans[uinvite==0 & irt==1,mean(beaglediff,na.rm=T),by=subj][,V1])  # adds quality links!
+t.test(humans[uinvite==1 & irt==0,mean(beaglediff,na.rm=T),by=subj][,V1])  # removes quality links :(
+t.test(humans[uinvite==1 & irt==0,mean(beaglediff,na.rm=T),by=subj][,V1],humans[uinvite==0 & irt==1,mean(beaglediff,na.rm=T),by=subj][,V1])
 
-# Troyer test: INVITE vs IRT5
-# IRT9 > INVITE > RW > IRT5
-# only significant test is EVERYTHING > IRT5
-t.test(humans[invite==1,mean(sharecat,na.rm=T),keyby=subj][,V1],humans[irt5==1,mean(sharecat,na.rm=T),keyby=subj][,V1],paired=T)
+# Troyer test: INVITE vs IRT
+t.test(humans[uinvite==1,mean(sharecat,na.rm=T),keyby=subj][,V1],humans[irt==1,mean(sharecat,na.rm=T),keyby=subj][,V1],paired=T)
 
 
 

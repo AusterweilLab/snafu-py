@@ -8,7 +8,7 @@ dat[,timetaken:=parse_date_time(time,c("hms"))]
 
 followtypedat<-dat[startGraph=="windowgraph" & method=="uinvite" & triangle_limit==100]
 ggplot(followtypedat[,.(cost=mean(cost)),keyby=.(numx,followtype)],aes(x=numx,y=cost,color=followtype)) + geom_line() + ylim(0,165)
-ggplot(followtypedat[,.(timetaken=mean(timetaken)),keyby=.(numx,followtype)],aes(x=numx,y=timetaken,color=followtype)) + geom_line() + ylim(0,2)
+ggplot(followtypedat[,.(timetaken=mean(timetaken)),keyby=.(numx,followtype)],aes(x=numx,y=timetaken,color=followtype)) + geom_line()
 
 limitdat<-dat[startGraph=="windowgraph" & method=="uinvite" & followtype=="avg"]
 ggplot(limitdat[,.(cost=mean(cost)),keyby=.(numx,triangle_limit)],aes(x=numx,y=cost,color=factor(triangle_limit))) + geom_line() + ylim(0,165)
