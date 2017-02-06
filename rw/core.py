@@ -101,103 +101,6 @@ def expectedHidden(Xs, a):
         expecteds.append(expected)        
     return expecteds
 
-# won't work with dotdict
-#def pivot2(graph, Xs, td, irts=Irts({}), prior=0, vmin=1, vmaj=0, best_ll=None, probmat=None, limit=np.inf, method=""):
-#    record=[method] 
-#    numchanges=0     # number of changes in single pivot() call
-#
-#    if (best_ll == None) or (probmat == None):
-#        best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
-#    nxg=nx.to_networkx_graph(graph)
-#
-#    # generate dict where v[i] is a list of nodes where (i, v[i]) is an existing edge in the graph
-#    if (method=="prune") or (method==0):
-#        print "Pruning", str(vmaj) + "." + str(vmin), "... ", # (len(edges)/2)-len(firstedges), "possible:",
-#        sys.stdout.flush()
-#        listofedges=np.where(graph==1)
-#        v=dict()
-#        for i in range(numnodes):
-#            v[i]=[]
-#        for i in zip(*listofedges):
-#            if ((i[0], i[1]) not in firstedges) and ((i[1], i[0]) not in firstedges): # don't flip first edges (FE)!
-#                v[i[0]].append(i[1])
-#    
-#    # generate dict where v[i] is a list of nodes where (i, v[i]) would form a new triangle
-#    if (method=="triangles") or (method==1):
-#        print "Adding triangles", str(vmaj) + "." + str(vmin), "... ", # (len(edges)/2), "possible:",
-#        sys.stdout.flush()
-#        nn=dict()
-#        for i in range(len(graph)):
-#            nn[i]=neighborsofneighbors(i, nxg)
-#        v=nn
-#    
-#    # generate dict where v[i] is a list of nodes where (i, v[i]) is NOT an existing an edge and does NOT form a triangle
-#    if (method=="nonneighbors") or (method==2):
-#        # list of a node's non-neighbors (non-edges) that don't form triangles
-#        print "Adding other edges", str(vmaj) + "." + str(vmin), "... ",
-#        sys.stdout.flush()
-#        nonneighbors=dict()
-#        for i in range(numnodes):
-#            nn=neighborsofneighbors(i, nxg)
-#            # non-neighbors that DON'T form triangles 
-#            nonneighbors[i]=[j for j in range(numnodes) if j not in nx.all_neighbors(nxg,i) and j not in nn] 
-#            nonneighbors[i].remove(i) # also remove self
-#        v=nonneighbors
-#
-#    count=[0.0]*numnodes
-#    avg=[-np.inf]*numnodes
-#    finishednodes=0
-#    loopcount=0
-#
-#    while (finishednodes < numnodes) and (loopcount < limit):
-#        loopcount += 1          # number of failures before giving up on this pahse
-#        maxval=max(avg)             
-#        bestnodes=[i for i, j in enumerate(avg) if j == maxval]  # most promising nodes based on avg logprob of edges with each node as vertex
-#        node1=np.random.choice(bestnodes)
-#
-#        if len(v[node1]) > 0:
-#            n2avg=[avg[i] for i in v[node1]]
-#            maxval=max(n2avg)
-#            bestnodes=[v[node1][i] for i, j in enumerate(n2avg) if j == maxval]
-#            #node2=np.random.choice(v[node1])
-#            node2=np.random.choice(bestnodes)
-#
-#            edge=(node1, node2)
-#            graph=swapEdges(graph,[edge])
-#            graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=probmat,changed=[node1,node2])
-#            if best_ll > graph_ll:
-#                record.append(graph_ll)
-#                graph=swapEdges(graph,[edge])
-#            else:
-#                record.append(-graph_ll)
-#                best_ll = graph_ll
-#                probmat = newprobmat
-#                numchanges += 1
-#                loopcount = 0
-#            v[node1].remove(node2)   # remove edge from possible choices
-#            v[node2].remove(node1)
-#       
-#            # increment even if graph prob = -np.inf for implicit penalty
-#            count[node1] += 1
-#            count[node2] += 1
-#            if graph_ll != -np.inf:
-#                if avg[node1] == -np.inf:
-#                    avg[node1] = graph_ll
-#                else:
-#                    avg[node1] = avg[node1] * ((count[node1]-1)/count[node1]) + (1.0/count[node1]) * graph_ll
-#                if avg[node2] == -np.inf:
-#                    avg[node2] = graph_ll
-#                else:
-#                    avg[node2] = avg[node2] * ((count[node2]-1)/count[node2]) + (1.0/count[node2]) * graph_ll
-#        else:                       # no edges on this node left to try!
-#            avg[node1]=-np.inf      # so we don't try it again...
-#            finishednodes += 1
-#
-#    print numchanges, "changes"
-#
-#    records.append(record)
-#    return graph, best_ll, probmat, numchanges
-
 #@profile
 def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug="T", recordname="records.csv"):
     
@@ -337,26 +240,6 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
 
         records.append(record)
         return graph, best_ll, probmat, numchanges
-
-    #def phases_pool(graph, best_ll, probmat):
-    #    complete=[0,0,0]
-    #    vmaj=0
-    #    vmin=1
-    #    p=mp.Pool(5)
-    #    #while sum(complete) < 3:
-    #    phasenum=complete.index(0)
-    #    if phasenum==0: limit=fitinfo.prune_limit
-    #    if phasenum==1: limit=fitinfo.triangle_limit
-    #    if phasenum==2: limit=fitinfo.other_limit
-    #    if (phasenum==0) and (vmin==1): vmaj += 1
-    #    result_list=[]
-    #    print graph
-    #    #for i in range(5):
-    #    qq=p.apply_async(pivot2, (graph, Xs, td, ), {'irts': irts, 'prior': prior, 'best_ll': best_ll, 'vmaj': vmaj, 'vmin': vmin, 'method': phasenum, 'limit': limit}, callback=result_list.append)
-    #    qq.get()
-    #    p.close()
-    #    p.join()
-    #    print result_list
 
     #    return graph
     
