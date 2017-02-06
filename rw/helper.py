@@ -33,6 +33,11 @@ class dotdict(dict):
         super(Map, self).__delitem__(key)
         del self.__dict__[key]
 
+# from http://locallyoptimal.com/blog/2013/01/20/elegant-n-gram-generation-in-python/
+# generate list of ngrams
+def find_ngrams(input_list, n):
+    return zip(*[input_list[i:] for i in range(n)])
+
 # helper function generate flast lists from nested lists
 # modified from http://stackoverflow.com/a/952952/353278
 # flattens list of list one level only, preserving non-list items
@@ -73,6 +78,13 @@ def nogc(fun):
         return returnval
     return gcwrapper
 
+# take list of lists in number/node and translate back to items using dictionary (e.g., 1->dog, 2->cat)
+def numToItemLabel(data, items):
+    for lnum, l in enumerate(data):
+        for inum, i in enumerate(l):
+            data[lnum][inum]=items[i]
+    return data
+
 # modified from ExGUtils package by Daniel Gamermann <gamermann@gmail.com>
 def rand_exg(irt, sigma, lambd):
     import math
@@ -92,4 +104,3 @@ def timer(fun):
         print(elapsedtime)
         return returnval
     return timerwrapper
-    

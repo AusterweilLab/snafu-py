@@ -7,10 +7,6 @@
 import textwrap
 import numpy as np
 
-# package not very necessary and a cause of trouble on many machines
-try: import matplotlib.pyplot as plt
-except: print "Warning: Failed to import matplotlib"
-
 # sibling functions
 from helper import *
 
@@ -34,29 +30,50 @@ def hashToGraph(graphhash):
     mat=np.array([map(int, s) for s in arrs])
     return mat
 
-# so far only uses first two columns (node1 and node2), can't use another column to filter rows
-# only makes symmetric (undirected) graph
-# not optimized
-def read_csv(fh,cols=(0,1)):
+# reads in graph from CSV
+# row order not preserved; not optimized
+def read_csv(fh,cols=(0,1),header=0,filters={},undirected=1):
     fh=open(fh,'r')
     items={}
     idx=0
     biglist=[]
+
+    if header:
+        headerrow=fh.readline().split(',')
+        cols=(headerrow.index(cols[0]),headerrow.index(cols[1]))
+        filterrows={}
+        for i in filters.keys():
+            filterrows[headerrow.index(i)]=filters[i]
+    else:
+        filterrows={}
+
     for line in fh:
         line=line.rstrip()
         linesplit=line.split(',')
         twoitems=[linesplit[cols[0]],linesplit[cols[1]]]
+       
+        skiprow=0
+        for i in filterrows:
+            if linesplit[i]!=filterrows[i]:
+                skiprow=1
+        if skiprow==1:
+            continue
+        
         biglist.append(twoitems)
         for item in twoitems:
             if item not in items.values():
                 items[idx]=item
                 idx += 1
+
     graph=np.zeros((len(items),len(items)))
+
     for twoitems in biglist:
         idx1=items.values().index(twoitems[0])
         idx2=items.values().index(twoitems[1])
         graph[idx1,idx2]=1
-        graph[idx2,idx1]=1
+        if undirected:
+            graph[idx2,idx1]=1
+
     return graph, items
 
 # read Xs in from user files

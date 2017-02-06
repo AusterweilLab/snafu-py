@@ -1,10 +1,11 @@
 library(R.matlab)
 library(data.table)
 
-allsubs<-c("S101","S102","S103","S104","S105","S106","S107","S108","S109","S110","S111","S112","S113","S114","S115","S116","S117","S118","S119","S120")
+#allsubs<-c("S101","S102","S103","S104","S105","S106","S107","S108","S109","S110","S111","S112","S113","S114","S115","S116","S117","S118","S119","S120")
+allsubs<-c("S1","S2","S3","S4","S5","S7","S8","S9","S10","S11","S12","S13")
 
 # human data
-humans<-fread('s2015.csv')
+humans<-fread('s2016.csv')
 setkey(humans,subj)
 
 # MATLAB files
@@ -26,10 +27,10 @@ checkBeagle <- function(word1,word2) {
 loadBEAGLEvals <- function() {
     beaglevals<-c()
     for (i in seq(nrow(humans))) {
-        link1<-toupper(humans[i,link1])
-        link2<-toupper(humans[i,link2])
-        idx1<-match(link1,lbls)
-        idx2<-match(link2,lbls)
+        node1<-toupper(humans[i,node1])
+        node2<-toupper(humans[i,node2])
+        idx1<-match(node1,lbls)
+        idx2<-match(node2,lbls)
 
         if (is.na(idx1) | is.na(idx2)) {
             beaglevals<-c(beaglevals,NA)
@@ -45,10 +46,10 @@ loadBEAGLEvals <- function() {
 sameCats <- function() {
     catvals<-c()
     for (i in seq(nrow(humans))) {
-        link1<-toupper(humans[i,link1])
-        link2<-toupper(humans[i,link2])
-        idx1<-match(link1,lbls)
-        idx2<-match(link2,lbls)
+        node1<-toupper(humans[i,node1])
+        node2<-toupper(humans[i,node2])
+        idx1<-match(node1,lbls)
+        idx2<-match(node2,lbls)
         sharecat<-any(cats[idx1,]>0 & cats[idx2,]>0)
         catvals<-c(catvals,sharecat)
     }
@@ -58,7 +59,7 @@ sameCats <- function() {
 # Find avg BEAGLE value of all possible link combos (per participant)
 beagleRand <- function() {
     for (sb in unique(humans[,subj])) {
-        nodes<-unique(c(humans[sb,][,link1],humans[sb,][,link2]))
+        nodes<-unique(c(humans[sb,][,node1],humans[sb,][,node2]))
         nodeidx<-unlist(lapply(nodes, function(node) { match(toupper(node),lbls) }))
         nodeidx<-nodeidx[!is.na(nodeidx)]
         combos<-combn(nodeidx,2)
@@ -73,7 +74,7 @@ beagleRand <- function() {
 # probability of two random nodes in graph sharing a category
 catRand <- function() {
     for (sb in unique(humans[,subj])) {
-        nodes<-unique(c(humans[sb,][,link1],humans[sb,][,link2]))
+        nodes<-unique(c(humans[sb,][,node1],humans[sb,][,node2]))
         nodeidx<-unlist(lapply(nodes, function(node) { match(toupper(node),lbls) }))
         nodeidx<-nodeidx[!is.na(nodeidx)]
         combos<-combn(nodeidx,2)

@@ -20,14 +20,14 @@ from helper import *
 from structs import *
 
 
-# TODO: move trimval to genX for convenience and speed (no need to generate RW covering entire graph)
-    # move numx to genX too?
+# TODO: double check genX trimval and numx changes working properly
 # TODO: error?? ValueError: list.remove(x): x not in list -- with small graphs i think
 # TODO: make recording optional
     # write toy params to record file
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
 # TODO: pass method name to findbestgraph, eliminate some branching
+# TODO: hide priming vector from output file
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -199,7 +199,7 @@ def expectedHidden(Xs, a):
 #    return graph, best_ll, probmat, numchanges
 
 #@profile
-def findBestGraph(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug="T", recordname="records.csv"):
+def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug="T", recordname="records.csv"):
     
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
     # i.e., an edge between i and any item in nn forms a triangle
@@ -513,11 +513,26 @@ def genSteyvers(n,m, tail=1):                          # tail allows m-1 "null" 
 # return simulated data on graph g
 # also return number of steps between first hits (to use for IRTs)
 def genX(g,td,seed=None):
-    rwalk=random_walk(g,td,seed)
-    Xs=observed_walk(rwalk)
-    
-    fh=list(zip(*firstHits(rwalk))[1])
-    steps=[fh[i]-fh[i-1] for i in range(1,len(fh))]
+    Xs=[]
+    steps=[]
+
+    for xnum in range(td.numx):
+        rwalk=random_walk(g,td,seed)
+        x=observed_walk(rwalk)
+        fh=list(zip(*firstHits(rwalk))[1])
+        step=[fh[i]-fh[i-1] for i in range(1,len(fh))]
+        Xs.append(x)
+        if td.priming > 0.0:
+            td.priming_vector=x[:]
+        steps.append(step)
+
+    if td.trim != 1.0:
+        numnodes=nx.number_of_nodes(g)
+        alter_graph_size=0
+        for i in range(numnodes):
+            if i not in set(flatten_list(Xs)):
+                alter_graph_size=1
+        return Xs, steps, alter_graph_size
 
     return Xs, steps
 
@@ -690,6 +705,13 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g,td,seed=None):
 
+    def jump():
+        if td.jumptype=="stationary":
+            second=statdist.rvs(random_state=seed)       # jump based on statdist
+        elif td.jumptype=="uniform":
+            second=np.random.choice(nx.nodes(g))         # jump uniformly
+        return second
+
     if (td.startX=="stationary") or (td.jumptype=="stationary"):
         a=np.array(nx.to_numpy_matrix(g))
         t=a/sum(a).astype(float)
@@ -699,23 +721,41 @@ def random_walk(g,td,seed=None):
     if td.startX=="stationary":
         start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution
     elif td.startX=="uniform":
-        start=np.random.choice(nx.nodes(g))      # choose starting point uniformly
+        start=np.random.choice(nx.nodes(g))        # choose starting point uniformly
+    elif td.startX[0]=="specific":
+        start=td.startX[1]
 
     walk=[]
     unused_nodes=set(nx.nodes(g))
     unused_nodes.remove(start)
     first=start
-    while len(unused_nodes) > 0:
-        if np.random.random() > td.jump:
-            second=np.random.choice([x for x in nx.all_neighbors(g,first)]) # follow random edge
-        else:
-            if td.jumptype=="stationary":
-                second=statdist.rvs(random_state=seed)       # jump based on statdist
-            elif td.jumptype=="uniform":
-                second=np.random.choice(nx.nodes(g))          # jump uniformly
+    
+    numnodes=nx.number_of_nodes(g)
+    if td.trim <= 1:
+        numtrim=int(round(numnodes*td.trim))       # if <=1, paramater is proportion of a list
+    else:
+        numtrim=td.trim                            # else, parameter is length of a list
+    num_unused = numnodes - numtrim
+
+    censoredcount=0                                # keep track of censored nodes and jump after td.jumponcensored censored nodes
+
+    while len(unused_nodes) > num_unused:
+
+        # jump after n censored nodes or with random probability (depending on parameters)
+        if (censoredcount == td.jumponcensored) or (np.random.random() < td.jump):
+            second=jump()
+        else:                                           # no jumping!
+            second=np.random.choice([x for x in nx.all_neighbors(g,first)]) # follow random edge (actual random walk!)
+            if (td.priming > 0.0) and (len(td.priming_vector) > 0):
+                if (first in td.priming_vector[:-1]) & (np.random.random() < td.priming):      
+                    idx=td.priming_vector.index(first)
+                    second=td.priming_vector[idx+1]          # overwrite RW... kinda janky
         walk.append((first,second))
         if second in unused_nodes:
             unused_nodes.remove(second)
+            censoredcount=0
+        else:
+            censoredcount += 1
         first=second
     return walk
 
@@ -818,10 +858,10 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         while True:
             x_seed=seed_param
 
-            [Xs,irts.data]=zip(*[genX(g, td, seed=x_seed+i) for i in range(td.numx)])
-            Xs=list(Xs)
-            irts.data=list(irts.data)
-            [Xs,irts.data,alter_graph]=trimX(td.trim,Xs,irts.data)      # trim data when necessary
+            Xs,irts.data=genX(g, td, seed=x_seed+i)
+            #Xs=list(Xs)
+            #irts.data=list(irts.data)
+            #[Xs,irts.data,alter_graph]=trimX(td.trim,Xs,irts.data)      # trim data when necessary
 
             # generate IRTs if using IRT model
             if use_irt: irts.data=stepsToIRT(irts, seed=x_seed)
@@ -847,16 +887,16 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
             ll_tg=""        # only record TG LL for U-INVITE models; otherwise it's ambiguous whether it's using IRT/prior/etc
             starttime=datetime.now()
             if method == 'uinvite': 
-                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, debug=debug, fitinfo=fitinfo, recordname=recordname)
+                bestgraph, ll=uinvite(Xs, td, tg.numnodes, debug=debug, fitinfo=fitinfo, recordname=recordname)
                 ll_tg=probX(Xs, a, td)[0]
             if method == 'uinvite_prior':
-                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
+                bestgraph, ll=uinvite(Xs, td, tg.numnodes, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
                 ll_tg=probX(Xs, a, td, prior=prior)[0]
             if method == 'uinvite_irt':
-                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, debug=debug, fitinfo=fitinfo, recordname=recordname)
+                bestgraph, ll=uinvite(Xs, td, tg.numnodes, irts=irts, debug=debug, fitinfo=fitinfo, recordname=recordname)
                 ll_tg=probX(Xs, a, td, irts=irts)[0]
             if method == 'uinvite_irt_prior':
-                bestgraph, ll=findBestGraph(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
+                bestgraph, ll=uinvite(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
                 ll_tg=probX(Xs, a, td, prior=prior, irts=irts)[0]
             if method == 'windowgraph':
                 bestgraph=windowGraph(Xs, tg.numnodes, fitinfo=fitinfo)

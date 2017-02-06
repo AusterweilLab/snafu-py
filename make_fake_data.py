@@ -1,75 +1,131 @@
+# some hard-coding for s2015!
+# trying to prove null + what's proper comparison model?
+
+from __future__ import division
+
 import networkx as nx
 import rw
 import numpy as np
-
-# length of fluency lists by subject (Brown, Spring 2015 data)
-listlengths=[[28,34,38], [18,22,28], [45,52,61],
-             [35,38,39], [14,20,24], [17,20,21],
-             [41,47,50], [41,38,47], [26,31,27],
-             [41,37,29], [15,19,16], [39,34,43],
-             [45,34,40], [39,37,43], [24,26,19], 
-             [32,35,41], [41,46,52], [29,33,28],
-             [30,29,24], [42,43,36]]
+import math
+import csv
 
 subs=['S101','S102','S103','S104','S105','S106','S107','S108','S109','S110',
       'S111','S112','S113','S114','S115','S116','S117','S118','S119','S120']
 
 toydata=rw.Toydata({
-        'numx': 3,
-        'trim': 1,
+        'numx': 1,
+        'trim': 1.0,
         'jump': 0.0,
         'jumptype': "stationary",
         'startX': "stationary"})
 
-fitinfo=rw.Fitinfo({
-        'startGraph': "windowgraph",
-        'windowgraph_size': 2,
-        'windowgraph_threshold': 2,
-        'followtype': "avg", 
-        'prior_samplesize': 10000,
-        'recorddir': "records/",
-        'prune_limit': 100,
-        'triangle_limit': 100,
-        'other_limit': 100})
+def numToAnimal(data, items):
+    for lnum, l in enumerate(data):
+        for inum, i in enumerate(l):
+            data[lnum][inum]=items[i]
+    return data
 
-irts=rw.Irts({
-        'data': [],
-        'irttype': "gamma",
-        'beta': (1/1.1), 
-        'irt_weight': 0.9,
-        'rcutoff': 20})
+def freqToProp(subj, freqs, bylist=0):
+    if bylist:
+        totalitems=len(listlengths[subj])
+    else:
+        totalitems=sum(listlengths[subj])
+        
+    for i in freqs:
+        freqs[i]=freqs[i]/totalitems
+    return freqs
+
+real_lists = './Spring2015/results_cleaned.csv'
+real_graphs = './Spring2015/s2015_combined.csv'
+
+## import real_ data
+real_data={}
+real_irts={}
+listlengths={}
+for subj in subs:
+    data, items, irts, numnodes=rw.readX(subj,"animals",real_lists)
+    listlengths[subj]=[len(x) for x in data]
+    data = numToAnimal(data, items)
+    real_data[subj]=data
+    real_irts[subj]=irts
+
+## generate fake_ data and irts yoked to real_ data
+numsets=100     # number of sets of fake data per SS
+fake_data={}
+fake_irts={}
 
 for subj in subs:
-    category="animals"
-    Xs, items, irts.data, numnodes=rw.readX(subj,category,'pooled.csv')
-    best_graph, bestval=rw.findBestGraph(Xs, toydata, numnodes, fitinfo=fitinfo)
-    best_rw=rw.noHidden(Xs, numnodes)
-    best_wg=rw.windowGraph(Xs, numnodes, td=toydata, valid=1, fitinfo=fitinfo)
-    g=nx.to_networkx_graph(best_graph)
-    g2=nx.to_networkx_graph(best_rw)
-    g3=nx.to_networkx_graph(best_wg)
-    nx.relabel_nodes(g, items, copy=False)
-    nx.relabel_nodes(g2, items, copy=False)
-    nx.relabel_nodes(g3, items, copy=False)
-    rw.write_csv([g, g2, g3],subj+".csv",subj) # write multiple graphs
-    
-    
-    
-     
+    graph, items = rw.read_csv(real_graphs,cols=('node1','node2'),header=1,
+                               filters={'subj': str(subj), 'uinvite': '1'})
+    graph=nx.from_numpy_matrix(graph)
+   
+    fake_data[subj]=[]
+    fake_irts[subj]=[]
+    for setnum in range(numsets):
+        dataset=[]
+        irtset=[]
+        for trimval in listlengths[subj]:
+            toydata.trim = trimval
+            print str(subj), str(toydata.trim)
+            [data,irts,alter_graph]=rw.genX(graph, toydata)
+            data=numToAnimal(data, items)[0]
+            dataset.append(data)
+            irtset.append(irts)
+        fake_data[subj].append(dataset)
+        fake_irts[subj].append(irtset)
 
-## generate fake data and irts yoked to real data
-#fakedata=[]
-#fakeirts=[]
-#for subj in listlengths:
-#    fakedata.append([])
-#    fakeirts.append([])
-#    for trimval in subj:
-#        [data,irts]=zip(*[rw.genX(usfg, toydata)])
-#        [data,irts,alter_graph]=rw.trimX(trimval,data,irts)      # trim data when necessary
-#        fakedata[-1].append(data[0])
-#        fakeirts[-1].append(irts[0])
-#
-#freqdata=[rw.freq_stat(i) for i in fakedata]
+
+real_freqs={}
+fake_freqs={}
+for subj in subs:
+    real_freqs[subj]=rw.freq(rw.flatten_list(real_data[subj]))
+    real_freqs[subj]=freqToProp(subj, real_freqs[subj])
+    fake_freqs[subj]=[]
+    for setnum in range(numsets):
+        data=rw.freq(rw.flatten_list(fake_data[subj][setnum]))
+        data=freqToProp(subj, data)
+        fake_freqs[subj].append(data)
+
+
+real_starts={}
+fake_starts={}
+for subj in subs:
+    real_starts[subj]=rw.freq(rw.flatten_list([i[0] for i in real_data[subj]]))
+    real_starts[subj]=freqToProp(subj, real_starts[subj], bylist=1)
+    for item in real_freqs[subj].keys():
+        if item not in real_starts[subj]:
+            real_starts[subj][item]=0.0
+    fake_starts[subj]=[]
+    for setnum in range(numsets):
+        data=rw.freq(rw.flatten_list([i[0] for i in fake_data[subj][setnum]]))
+        data=freqToProp(subj, data, bylist=1)
+        for item in real_freqs[subj].keys():
+            if item not in data:
+                data[item]=0.0
+        fake_starts[subj].append(data)
+
+diff_freqs={}
+diff_starts={}
+rmse_freqs={}
+rmse_starts={}
+
+with open('freqs.csv', 'wb') as csv_file:
+    writer = csv.writer(csv_file)
+    for subj in real_freqs.keys():
+        for key, value in real_freqs[subj].items():
+            writer.writerow([subj, 'real', 1, key, value])
+        for setnum in range(numsets):
+            for key, value in fake_freqs[subj][setnum].items():
+                writer.writerow([subj, 'fake', setnum, key, value])
+
+# dat2<-dat[,mean(freq),keyby=.(animal,subj,type)]
+#for subj in subs:
+#    diff_freqs[subj] = {key: real_freqs[subj][key] - fake_freqs[subj].get(key, 0) for key in real_freqs[subj].keys()}
+#    diff_starts[subj] = {key: real_starts[subj][key] - fake_starts[subj].get(key, 0) for key in real_starts[subj].keys()}
+#    rmse_freqs[subj] = math.sqrt(sum([i**2 for i in diff_freqs[subj].values()]))
+#    rmse_starts[subj] = math.sqrt(sum([i**2 for i in diff_starts[subj].values()]))
+#    
+       
 #freqs={1: [], 2: [], 3: []}
 #for i in freqdata:
 #    for numtimes in range(1,4):

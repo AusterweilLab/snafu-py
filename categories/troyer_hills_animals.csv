@@ -1,0 +1,633 @@
+African,aardvark
+African,antelope
+African,buffalo
+African,camel
+African,chameleon
+African,cheetah
+African,chimpanzee
+African,cobra
+African,duiker
+African,eland
+African,elephant
+African,gazelle
+African,genet
+African,giraffe
+African,gnu
+African,gorilla
+African,hippopotamus
+African,hyena
+African,impala
+African,jackal
+African,kongoni
+African,kudu
+African,lemur
+African,leopard
+African,lion
+African,lioness
+African,manatee
+African,meerkat
+African,mongoose
+African,monkey
+African,okapi
+African,oryx
+African,ostrich
+African,panther
+African,rhino
+African,rhinoceros
+African,steenbok
+African,tiger
+African,warthog
+African,wildebeest
+African,zebra
+UsedForFur,alpaca
+UsedForFur,beaver
+UsedForFur,chamois
+UsedForFur,chinchilla
+UsedForFur,ermine
+UsedForFur,fox
+UsedForFur,llama
+UsedForFur,mink
+UsedForFur,rabbit
+UsedForFur,sable
+UsedForFur,vicuna
+Arctic,arctic fox
+Arctic,auk
+Arctic,caribou
+Arctic,muskox
+Arctic,penguin
+Arctic,polar bear
+Arctic,reindeer
+Arctic,seal
+Arctic,walrus
+Arctic,woolly mammoth
+Australian,bandicoot
+Australian,devil
+Australian,dingo
+Australian,duckbill
+Australian,emu
+Australian,kangaroo
+Australian,kiwi
+Australian,koala
+Australian,possum
+Australian,platypus
+Australian,possum
+Australian,sugar glider
+Australian,tasmanian devil
+Australian,wallaby
+Australian,wallaroo
+Australian,wombat
+BeastsOfBurden,ass
+BeastsOfBurden,burro
+BeastsOfBurden,camel
+BeastsOfBurden,colt
+BeastsOfBurden,donkey
+BeastsOfBurden,dromedary
+BeastsOfBurden,horse
+BeastsOfBurden,llama
+BeastsOfBurden,mare
+BeastsOfBurden,mule
+BeastsOfBurden,mustang
+BeastsOfBurden,ox
+BeastsOfBurden,pony
+BeastsOfBurden,trotter
+BeastsOfBurden,yak
+Bird,albatross
+Bird,avian
+Bird,bird
+Bird,blackbird
+Bird,bluebird
+Bird,bluefooted booby
+Bird,bluegill
+Bird,bluejay
+Bird,bobolink
+Bird,booby
+Bird,bullfinch
+Bird,bunting
+Bird,buzzard
+Bird,canary
+Bird,cardinal
+Bird,chickadee
+Bird,chicken
+Bird,cock
+Bird,cockatiel
+Bird,cockatoo
+Bird,crow
+Bird,cuckoo
+Bird,dodo
+Bird,dove
+Bird,drake
+Bird,duck
+Bird,duckling
+Bird,eagle
+Bird,eaglet
+Bird,egret
+Bird,emu
+Bird,ewe
+Bird,falcon
+Bird,finch
+Bird,flamingo
+Bird,fowl
+Bird,gander
+Bird,goldfinch
+Bird,goshawk
+Bird,gosling
+Bird,grebe
+Bird,grouse
+Bird,gull
+Bird,harrier
+Bird,hawk
+Bird,heron
+Bird,hummingbird
+Bird,ibis
+Bird,jackdaw
+Bird,jay
+Bird,kingfisher
+Bird,kite
+Bird,kiwi
+Bird,lark
+Bird,loon
+Bird,macaw
+Bird,mallard
+Bird,merlin
+Bird,mockingbird
+Bird,mouse
+Bird,myna
+Bird,nightingale
+Bird,oriole
+Bird,osprey
+Bird,ostrich
+Bird,owl
+Bird,parakeet
+Bird,parrot
+Bird,partridge
+Bird,peacock
+Bird,pelican
+Bird,penguin
+Bird,peregrine
+Bird,pheasant
+Bird,pigeon
+Bird,quail
+Bird,quetzal
+Bird,raven
+Bird,rhea
+Bird,roadrunner
+Bird,robin
+Bird,seagull
+Bird,shrike
+Bird,songbird
+Bird,sparrow
+Bird,spoonbill
+Bird,starling
+Bird,stilt
+Bird,stork
+Bird,swallow
+Bird,swallowtail
+Bird,swan
+Bird,swift
+Bird,tanager
+Bird,thrush
+Bird,toucan
+Bird,trumpeter
+Bird,turkey
+Bird,vulture
+Bird,woodpecker
+Bird,wren
+Bovine,bison
+Bovine,buffalo
+Bovine,bullock
+Bovine,calf
+Bovine,cattle
+Bovine,cow
+Bovine,heifer
+Bovine,monitor
+Bovine,muskox
+Bovine,steer
+Bovine,water buffalo
+Bovine,yak
+Canine,akita
+Canine,black lab
+Canine,blood hound
+Canine,bulldog
+Canine,canine
+Canine,chihuahua
+Canine,coyote
+Canine,dachshund
+Canine,dalmatian
+Canine,dog
+Canine,fox
+Canine,golden retriever
+Canine,great dane
+Canine,greyhound
+Canine,harrier
+Canine,husky
+Canine,hyena
+Canine,jackal
+Canine,labrador retriever
+Canine,malamute
+Canine,pembroke welsh corgi
+Canine,poodle
+Canine,pug
+Canine,puggle
+Canine,pup
+Canine,shihtzu
+Canine,siberian husky
+Canine,terrier
+Canine,timber wolf
+Canine,wild dog
+Canine,wolf
+Deers,blacktailed deer
+Deers,buck
+Deers,caribou
+Deers,deer
+Deers,doe
+Deers,eland
+Deers,elk
+Deers,fawn
+Deers,gazelle
+Deers,gnu
+Deers,impala
+Deers,moose
+Deers,muledeer
+Deers,reindeer
+Deers,roe
+Deers,stag
+Deers,whitetailed deer
+Deers,wildebeest
+Farm,ass
+Farm,billygoat
+Farm,bronco
+Farm,bullock
+Farm,calf
+Farm,chick
+Farm,chicken
+Farm,cock
+Farm,colt
+Farm,cow
+Farm,donkey
+Farm,ferret
+Farm,foal
+Farm,goat
+Farm,heifer
+Farm,hen
+Farm,hog
+Farm,horse
+Farm,kid
+Farm,lamb
+Farm,mare
+Farm,miniature pony
+Farm,mule
+Farm,pig
+Farm,piglet
+Farm,pony
+Farm,potbellied pig
+Farm,ram
+Farm,rooster
+Farm,sheep
+Farm,snake
+Farm,sow
+Farm,spider
+Farm,stallion
+Farm,turkey
+Feline,bengal tiger
+Feline,bobcat
+Feline,bull
+Feline,cat
+Feline,cheetah
+Feline,cougar
+Feline,crane
+Feline,jaguar
+Feline,leopard
+Feline,liger
+Feline,lion
+Feline,lynx
+Feline,mountainlion
+Feline,ocelot
+Feline,panther
+Feline,puma
+Feline,siamese cat
+Feline,snow leopard
+Feline,snow
+Feline,lion
+Feline,tiger
+Feline,tomcat
+Feline,whitetiger
+Feline,wildcat
+Fish,angelfish
+Fish,arrowhead shark
+Fish,barracuda
+Fish,bass
+Fish,betta
+Fish,blowfish
+Fish,carp
+Fish,catfish
+Fish,clownfish
+Fish,cuttlefish
+Fish,fish
+Fish,flounder
+Fish,freshwater fish
+Fish,goldfish
+Fish,great white shark
+Fish,grenadier
+Fish,grouper
+Fish,grunt
+Fish,guppy
+Fish,herring
+Fish,jack
+Fish,koi
+Fish,lamprey
+Fish,mackerel
+Fish,mako shark
+Fish,minnow
+Fish,parrotfish
+Fish,pike
+Fish,pink salmon
+Fish,piranha
+Fish,rainbowfish
+Fish,salmon
+Fish,saltwater fish
+Fish,seabass
+Fish,shark
+Fish,shrimp
+Fish,smelt
+Fish,stickleback
+Fish,sturgeon
+Fish,swordfish
+Fish,tilapia
+Fish,trout
+Fish,tuna
+Fish,whale
+Fish,shark
+Insectivores,aardvark
+Insectivores,anteater
+Insectivores,armadillo
+Insectivores,bat
+Insectivores,echidna
+Insectivores,hedgehog
+Insectivores,mole
+Insectivores,shrew
+Insectivores,Insects: ant
+Insectivores,antlion
+Insectivores,aphid
+Insectivores,bee
+Insectivores,beetle
+Insectivores,blackwidow
+Insectivores,bug
+Insectivores,butterfly
+Insectivores,caterpillar
+Insectivores,centipede
+Insectivores,cicada
+Insectivores,cockroach
+Insectivores,cricket
+Insectivores,daddy long legs
+Insectivores,dolphin
+Insectivores,dragonfly
+Insectivores,earthworm
+Insectivores,flea
+Insectivores,fly
+Insectivores,gnat
+Insectivores,grasshopper
+Insectivores,grub
+Insectivores,honeybee
+Insectivores,hornet
+Insectivores,insect
+Insectivores,June beetle
+Insectivores,ladybug
+Insectivores,larva
+Insectivores,leafy
+Insectivores,louse
+Insectivores,maggot
+Insectivores,mealworm
+Insectivores,mite
+Insectivores,monarch butterfly
+Insectivores,mosquito
+Insectivores,moth
+Insectivores,pill bug
+Insectivores,praying mantis
+Insectivores,scorpion
+Insectivores,stick insect
+Insectivores,tarantula
+Insectivores,termite
+Insectivores,tick
+Insectivores,wasp
+Insectivores,worm
+Insectivores,yellow jacket
+NorthAmerican,badger
+NorthAmerican,bear
+NorthAmerican,beaver
+NorthAmerican,bighorn
+NorthAmerican,bison
+NorthAmerican,blackbear
+NorthAmerican,boar
+NorthAmerican,bobcat
+NorthAmerican,brown bear
+NorthAmerican,caribou
+NorthAmerican,chipmunk
+NorthAmerican,cougar
+NorthAmerican,cub
+NorthAmerican,deer
+NorthAmerican,elk
+NorthAmerican,fox
+NorthAmerican,grizzly bear
+NorthAmerican,kodiak
+NorthAmerican,bear
+NorthAmerican,moose
+NorthAmerican,mountain goat
+NorthAmerican,mountain lion
+NorthAmerican,puma
+NorthAmerican,rabbit
+NorthAmerican,raccoon
+NorthAmerican,skunk
+NorthAmerican,squirrel
+NorthAmerican,wolf
+Pets,budgie
+Pets,canary
+Pets,cat
+Pets,cockatiel
+Pets,cockatoo
+Pets,dog
+Pets,gerbil
+Pets,golden retriever
+Pets,goldfish
+Pets,guinea pig
+Pets,guppy
+Pets,hamster
+Pets,kitten
+Pets,labrador retriever
+Pets,malamute
+Pets,parakeet
+Pets,parrot
+Pets,poodle
+Pets,puppy
+Pets,rabbit
+Primates,ape
+Primates,baboon
+Primates,bonobo
+Primates,chimpanzee
+Primates,gibbon
+Primates,gorilla
+Primates,howler monkey
+Primates,human
+Primates,lemur
+Primates,loris
+Primates,marmoset
+Primates,monkey
+Primates,orangutan
+Primates,primates
+Primates,saki monkey
+Primates,shrew
+Primates,snow
+Primates,monkey
+Primates,spider monkey
+Primates,titi
+Rabbit,bunny
+Rabbit,coney
+Rabbit,hare
+Rabbit,jackrabbit
+Rabbit,rabbit
+ReptileAmphibian,adder
+ReptileAmphibian,alligator
+ReptileAmphibian,amphibian
+ReptileAmphibian,anaconda
+ReptileAmphibian,anole
+ReptileAmphibian,asp
+ReptileAmphibian,black
+ReptileAmphibian,mamba
+ReptileAmphibian,boa constrictor
+ReptileAmphibian,bullfrog
+ReptileAmphibian,caiman
+ReptileAmphibian,chameleon
+ReptileAmphibian,cobra
+ReptileAmphibian,crocodile
+ReptileAmphibian,diamondback
+ReptileAmphibian,dinosaur
+ReptileAmphibian,dragon
+ReptileAmphibian,frog
+ReptileAmphibian,gardensnake
+ReptileAmphibian,gecko
+ReptileAmphibian,godzilla
+ReptileAmphibian,iguana
+ReptileAmphibian,komododragon
+ReptileAmphibian,lizard
+ReptileAmphibian,moccasin
+ReptileAmphibian,newt
+ReptileAmphibian,python
+ReptileAmphibian,rattlesnake
+ReptileAmphibian,reptile
+ReptileAmphibian,salamander
+ReptileAmphibian,serpent
+ReptileAmphibian,snake
+ReptileAmphibian,toad
+ReptileAmphibian,tortoise
+ReptileAmphibian,tree frog
+ReptileAmphibian,turtle
+ReptileAmphibian,velociraptor
+ReptileAmphibian,viper
+ReptileAmphibian,watersnake
+Rodents,agouti
+Rodents,beaver
+Rodents,black squirrel
+Rodents,capybara
+Rodents,cavy
+Rodents,chinchilla
+Rodents,chipmunk
+Rodents,dormouse
+Rodents,flying squirrel
+Rodents,gerbil
+Rodents,golden marmot
+Rodents,gopher
+Rodents,groundhog
+Rodents,guinea pig
+Rodents,hamster
+Rodents,hedgehog
+Rodents,lemming
+Rodents,marmot
+Rodents,mole
+Rodents,mouse
+Rodents,muskrat
+Rodents,naked mole rat
+Rodents,porcupine
+Rodents,prairie dog
+Rodents,rat
+Rodents,rodent
+Rodents,shrew
+Rodents,squirrel
+Rodents,woodchuck
+Water,alga
+Water,alligator
+Water,anemone
+Water,axolotl
+Water,beaver
+Water,beluga
+Water,blue whale
+Water,boto
+Water,brine shrimp
+Water,clam
+Water,conch
+Water,coral
+Water,cowry
+Water,crab
+Water,crawfish
+Water,crayfish
+Water,dolphin
+Water,eel
+Water,elephant seal
+Water,fish
+Water,frog
+Water,goose
+Water,hammerhead shark
+Water,humpback whale
+Water,jellyfish
+Water,killer
+Water,whale
+Water,leech
+Water,limpet
+Water,lobster
+Water,manatee
+Water,mantaray
+Water,monster
+Water,muskrat
+Water,mussel
+Water,narwhal
+Water,nautilus
+Water,newt
+Water,octopus
+Water,orca
+Water,otter
+Water,oyster
+Water,penguin
+Water,platypus
+Water,porpoise
+Water,ray
+Water,salamander
+Water,sand dollar
+Water,scallop
+Water,seahorse
+Water,seal
+Water,sea lion
+Water,sea monkey
+Water,shark
+Water,slug
+Water,snail
+Water,sponge
+Water,squid
+Water,starfish
+Water,stingray
+Water,tadpole
+Water,toad
+Water,turtle
+Water,urchin
+Water,whale
+Weasels,badger
+Weasels,ferret
+Weasels,groundhog
+Weasels,marten
+Weasels,mink
+Weasels,mongoose
+Weasels,otter
+Weasels,polecat
+Weasels,sea
+Weasels,otter
+Weasels,skunk
+Weasels,stoat
+Weasels,weasel
+Weasels,wolverine
