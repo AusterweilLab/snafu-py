@@ -26,8 +26,10 @@ from structs import *
     # write toy params to record file
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
-# TODO: pass method name to findbestgraph, eliminate some branching
+# TODO: pass method name to findBestGraph, eliminate some branching
 # TODO: hide priming vector from output file
+# TODO: check priming vector model!! see if Xs generating from priming model converge to true network faster with priming parameters
+
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -47,6 +49,20 @@ def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
             if probs[l][inum] == 0.0:                        # if item can't be reached by RW or jumping...
                 return -np.inf
 
+    return probs
+
+# mix U-INVITE with priming model
+# code is confusing...
+def adjustPriming(probs, td, Xs):
+    for xnum, x in enumerate(Xs[1:]):         # start with 2nd list, don't forget to add +/-1 to xnum when indexing "Xs"
+        for inum, i in enumerate(x[:-1]):
+            if i in Xs[xnum][:-1]:            # implicit -1 on xnum indexing (refers to previous list)
+                # follow prime with P td.priming, follow RW with P (1-td.priming)
+                idx=Xs[xnum].index(i)
+                if Xs[xnum][idx+1]==Xs[xnum+1][inum+1]:
+                    probs[xnum+1][inum+1] = (probs[xnum+1][inum+1] * (1-td.priming)) + td.priming
+                else:
+                    probs[xnum+1][inum+1] = (probs[xnum+1][inum+1] * (1-td.priming))
     return probs
 
 # objective graph cost
@@ -409,15 +425,16 @@ def genX(g,td,seed=None):
             td.priming_vector=x[:]
         steps.append(step)
 
-    if td.trim != 1.0:
-        numnodes=nx.number_of_nodes(g)
-        alter_graph_size=0
-        for i in range(numnodes):
-            if i not in set(flatten_list(Xs)):
-                alter_graph_size=1
-        return Xs, steps, alter_graph_size
 
-    return Xs, steps
+    alter_graph_size=0
+    if td.trim != 1.0:
+        [Xs,steps,alter_graph]=trimX(td.trim,Xs,steps)      # trim data when necessary
+        numnodes=nx.number_of_nodes(g)
+        #for i in range(numnodes):
+        #    if i not in set(flatten_list(Xs)):
+        #        alter_graph_size=1
+
+    return Xs, steps, alter_graph_size
 
 # generate random walk that results in observed x
 def genZfromX(x, theta):
@@ -543,7 +560,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
 
                 f=sum([math.e**i for i in flist])
                 prob.append(f)                                     # probability of x_(t-1) to X_t
-            else:                                                  # if no IRTs, use standard INVITE
+            else:                                                  # if no IRTs, use standard U-INVITE
                 I=identmat[:len(Q),:len(Q)]
                 R=t2[curpos,:curpos]
                 N=np.linalg.solve(I-Q,I[-1])
@@ -570,6 +587,9 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
             probs=addJumps(probs, td, statdist=statdist, Xs=Xs)
         if probs==-np.inf:
             return -np.inf, "jumping"
+
+    if (td.priming > 0.0):
+        probs=adjustPriming(probs, td, Xs)
 
     # total ll of graph
     ll=sum([sum([math.log(j) for j in probs[i]]) for i in range(len(probs))])
@@ -741,7 +761,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         while True:
             x_seed=seed_param
 
-            Xs,irts.data=genX(g, td, seed=x_seed+i)
+            [Xs, irts.data, alter_graph]=genX(g, td, seed=x_seed)
             #Xs=list(Xs)
             #irts.data=list(irts.data)
             #[Xs,irts.data,alter_graph]=trimX(td.trim,Xs,irts.data)      # trim data when necessary
