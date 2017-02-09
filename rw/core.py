@@ -425,14 +425,12 @@ def genX(g,td,seed=None):
             td.priming_vector=x[:]
         steps.append(step)
 
-
     alter_graph_size=0
     if td.trim != 1.0:
-        [Xs,steps,alter_graph]=trimX(td.trim,Xs,steps)      # trim data when necessary
         numnodes=nx.number_of_nodes(g)
-        #for i in range(numnodes):
-        #    if i not in set(flatten_list(Xs)):
-        #        alter_graph_size=1
+        for i in range(numnodes):
+            if i not in set(flatten_list(Xs)):
+                alter_graph_size=1
 
     return Xs, steps, alter_graph_size
 
