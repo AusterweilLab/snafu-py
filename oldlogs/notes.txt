@@ -1,0 +1,2 @@
+log10.csv -- prior vs no prior on 160n/10x graph
+log12.csv -- followtype on 160n/10x graph

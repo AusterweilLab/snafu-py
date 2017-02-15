@@ -25,9 +25,9 @@ irts=rw.Irts({
         'irt_weight': 0.9,
         'rcutoff': 20})
 
-#TODO: add window params (w, f, c); add threshold method shortcut
+#TODO: add window params (c)?
 fitinfo=rw.Fitinfo({
-        'startGraph': "windowgraph",
+        'startGraph': "windowgraph_valid",
         'windowgraph_size': 2,
         'windowgraph_threshold': 2,
         'followtype': "avg", 

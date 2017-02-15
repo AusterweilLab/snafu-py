@@ -39,7 +39,7 @@ def read_csv(fh,cols=(0,1),header=0,filters={},undirected=1):
     biglist=[]
 
     if header:
-        headerrow=fh.readline().split(',')
+        headerrow=fh.readline().split('\n')[0].split(',')
         cols=(headerrow.index(cols[0]),headerrow.index(cols[1]))
         filterrows={}
         for i in filters.keys():

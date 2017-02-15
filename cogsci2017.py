@@ -69,7 +69,7 @@ numsets=100     # number of sets of fake data per SS
 fake_data={}
 fake_irts={}
 
-USFnet, USFanimals = rw.read_csv('USF_animal_subset.snet')
+USFnet, USFanimals = rw.read_csv('./snet/USF_animal_subset.snet')
 USFnet = nx.to_networkx_graph(USFnet)
 
 # methods: genX, frequency, cbdfs, sa

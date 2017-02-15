@@ -102,14 +102,17 @@ def Fitinfo(fitinfo):
         if isinstance(fitinfo[i],list):
             return flatten_list([Fitinfo(dict(fitinfo, **{i: j})) for j in fitinfo[i]])
     
-    if 'startGraph' not in fitkeys:         # or "windowgraph"
-        fitinfo['startGraph']="naiverw"
+    if 'startGraph' not in fitkeys:         # or "windowgraph_valid"
+        fitinfo['startGraph']="rw"
     if 'prune_limit' not in fitkeys:
         fitinfo['prune_limit']=np.inf
     if 'triangle_limit' not in fitkeys:
         fitinfo['triangle_limit']=np.inf
     if 'other_limit' not in fitkeys:
         fitinfo['other_limit']=np.inf
-
+    if 'windowgraph_size' not in fitkeys:
+        fitinfo['windowgraph_size'] = 2
+    if 'windowgraph_threshold' not in fitkeys:
+        fitinfo['windowgraph_threshold'] = 2
     return dotdict(fitinfo)
 

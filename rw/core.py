@@ -285,9 +285,9 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
     firstedges=[(x[0], x[1]) for x in Xs]
     
     # find a good starting graph using naive RW
-    if fitinfo.startGraph=="windowgraph":
+    if fitinfo.startGraph=="windowgraph_valid":
         graph=windowGraph(Xs,numnodes,td=td,valid=1, fitinfo=fitinfo)
-    elif fitinfo.startGraph=="naiverw":
+    elif fitinfo.startGraph=="rw":
         graph=noHidden(Xs,numnodes)
   
     best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
@@ -760,9 +760,6 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
             x_seed=seed_param
 
             [Xs, irts.data, alter_graph]=genX(g, td, seed=x_seed)
-            #Xs=list(Xs)
-            #irts.data=list(irts.data)
-            #[Xs,irts.data,alter_graph]=trimX(td.trim,Xs,irts.data)      # trim data when necessary
 
             # generate IRTs if using IRT model
             if use_irt: irts.data=stepsToIRT(irts, seed=x_seed)
@@ -839,6 +836,8 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         seed_param = seed_param + 1
     f.close()
 
+# ** this function is not really needed anymore since moving functionality to genX, 
+# ** but there may be some niche cases where needed...
 # trim Xs to proportion of graph size, the trim graph to remove any nodes that weren't hit
 # used to simulate human data that doesn't cover the whole graph every time
 def trimX(trimprop, Xs, steps):
