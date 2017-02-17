@@ -1,8 +1,10 @@
 import rw
 
 toydata=rw.Toydata({
-        'numx': range(3,51),
-        'priming': 0.5,
+        'numx': range(50,51),
+        'priming': 0.0,
+        'jump': 1.0,
+        'jumptype': "stationary",
         'startX': "stationary"})
 
 fitinfo=rw.Fitinfo({
@@ -14,11 +16,9 @@ fitinfo=rw.Fitinfo({
         'other_limit': 100})
 
 toygraph=rw.Toygraphs({
-        'numgraphs': 5,
         'graphtype': "steyvers",
-        'numnodes': 50,
-        'numlinks': 6,
-        'prob_rewire': .3})
+        'numnodes': 20,
+        'numlinks': 6})
 
 fh=open('priming_test.csv','w')
 
@@ -30,13 +30,14 @@ for td in toydata:
     g,a=rw.genG(toygraph,seed=seed)
     [Xs,irts,alter_graph]=rw.genX(g, td)
     bestgraph_priming, ll=rw.uinvite(Xs, td, toygraph.numnodes, fitinfo=fitinfo)
-
-    # fit best graph assuming no priming
-    td.priming=0.0
-    bestgraph_nopriming, ll=rw.uinvite(Xs, td, toygraph.numnodes, fitinfo=fitinfo)
-
     priming_cost=rw.cost(bestgraph_priming,a)
+    print priming_cost
+
+    td.jump=0.0
+    # fit best graph assuming no priming
+    bestgraph_nopriming, ll=rw.uinvite(Xs, td, toygraph.numnodes, fitinfo=fitinfo)
     nopriming_cost=rw.cost(bestgraph_nopriming,a)
+    print nopriming_cost
     
     line = str(seed) + "," + str(td.numx) + "," + str(priming_cost) + "," + str(nopriming_cost) + "\n"
     fh.write(line)

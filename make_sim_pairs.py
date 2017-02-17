@@ -45,8 +45,8 @@ for sub in subs:
     some=[i for i in some if i[0] > i[1]]
 
     # take a random sample of yes and no arrays (of len(some))
-    yesidx=np.random.choice(range(len(yes)),len(some))
-    noidx=np.random.choice(range(len(no)),len(some))
+    yesidx=np.random.choice(range(len(yes)),len(some),replace=False)
+    noidx=np.random.choice(range(len(no)),len(some),replace=False)
     yes=[yes[i] for i in yesidx]
     no=[no[i] for i in noidx]
     alls=(yes+no+some)

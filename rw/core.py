@@ -44,9 +44,11 @@ def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
     for l in range(len(probs)):                              # loop through all lists (l)
         for inum, i in enumerate(probs[l][1:]):              # loop through all items (i) excluding first (don't jump to item 1)
             if td.jumptype=="stationary":
-                jumpprob=statdist[Xs[l][inum]]               # stationary probability jumping
-            probs[l][inum]=jumpprob + (1-td.jump)*i          # else normalize existing probability and add jumping probability
-            if probs[l][inum] == 0.0:                        # if item can't be reached by RW or jumping...
+                jumpprob=statdist[Xs[l][inum+1]]             # stationary probability jumping
+                if math.isnan(jumpprob):                     # if node is disconnected, jumpprob is nan #JZ
+                    jumpprob=0.0
+            probs[l][inum+1]=jumpprob + (1-td.jump)*i          # else normalize existing probability and add jumping probability
+            if probs[l][inum+1] == 0.0:                        # if item can't be reached by RW or jumping...
                 return -np.inf
 
     return probs
@@ -54,11 +56,12 @@ def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
 # mix U-INVITE with priming model
 # code is confusing...
 def adjustPriming(probs, td, Xs):
-    for xnum, x in enumerate(Xs[1:]):         # start with 2nd list, don't forget to add +/-1 to xnum when indexing "Xs"
-        for inum, i in enumerate(x[:-1]):
+    for xnum, x in enumerate(Xs[1:]):         # start with 2nd list (first list cant be primed)
+        for inum, i in enumerate(x[:-1]):     # first item can't be primed
             if i in Xs[xnum][:-1]:            # implicit -1 on xnum indexing (refers to previous list)
                 # follow prime with P td.priming, follow RW with P (1-td.priming)
-                idx=Xs[xnum].index(i)
+                idx=Xs[xnum].index(i) # index of item in previous list
+                #print Xs[xnum+1][inum], Xs[xnum][idx]
                 if Xs[xnum][idx+1]==Xs[xnum+1][inum+1]:
                     probs[xnum+1][inum+1] = (probs[xnum+1][inum+1] * (1-td.priming)) + td.priming
                 else:
@@ -495,6 +498,8 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
     else:                                   # otherwise we have a transition or weighted matrix
         t=a
         print "WARNING: Treating matrix as transition matrix in probX()!"
+    
+    t=np.nan_to_num(t)                        # jumping/priming models can have nan in matrix, need to change to 0 #JZ
 
     if (td.jumptype=="stationary") or (td.startX=="stationary"):
         statdist=stationary(t)
@@ -563,6 +568,8 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                 R=t2[curpos,:curpos]
                 N=np.linalg.solve(I-Q,I[-1])
                 B=np.dot(R,N)
+                if math.isnan(B):
+                    B=0.0
                 prob.append(B)
                 
                 # alternative/original using matrix inverse
@@ -588,6 +595,9 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
 
     if (td.priming > 0.0):
         probs=adjustPriming(probs, td, Xs)
+
+    if 0.0 in flatten_list(probs):
+        print probs
 
     # total ll of graph
     ll=sum([sum([math.log(j) for j in probs[i]]) for i in range(len(probs))])
@@ -934,7 +944,7 @@ def windowGraph(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=0, td=0):
                 graph[check[1][0], check[1][1]] = 1
                 graph[check[1][1], check[1][0]] = 1
             else:
-                raise ValueErrror('Unexpected error from windowGraph()')
+                raise ValueError('Unexpected error from windowGraph()')
             check=probX(Xs, graph, td)
 
                 
