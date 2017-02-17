@@ -45,11 +45,11 @@ def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
         for inum, i in enumerate(probs[l][1:]):              # loop through all items (i) excluding first (don't jump to item 1)
             if td.jumptype=="stationary":
                 jumpprob=statdist[Xs[l][inum+1]]             # stationary probability jumping
-                if math.isnan(jumpprob):                     # if node is disconnected, jumpprob is nan #JZ
+                if math.isnan(jumpprob):                     # if node is disconnected, jumpprob is nan
                     jumpprob=0.0
-            probs[l][inum+1]=jumpprob + (1-td.jump)*i          # else normalize existing probability and add jumping probability
-            if probs[l][inum+1] == 0.0:                        # if item can't be reached by RW or jumping...
-                return -np.inf
+            probs[l][inum+1]=jumpprob + (1-td.jump)*i        # else normalize existing probability and add jumping probability
+            if probs[l][inum+1] == 0.0:                      # if item can't be reached by RW or jumping...
+                return -np.inf, (Xs[l][inum+1])
 
     return probs
 
@@ -289,7 +289,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
     
     # find a good starting graph using naive RW
     if fitinfo.startGraph=="windowgraph_valid":
-        graph=windowGraph(Xs,numnodes,td=td,valid=1, fitinfo=fitinfo)
+        graph=windowGraph(Xs, numnodes, td=td, valid=1, fitinfo=fitinfo)
     elif fitinfo.startGraph=="rw":
         graph=noHidden(Xs,numnodes)
   
@@ -499,7 +499,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
         t=a
         print "WARNING: Treating matrix as transition matrix in probX()!"
     
-    t=np.nan_to_num(t)                        # jumping/priming models can have nan in matrix, need to change to 0 #JZ
+    t=np.nan_to_num(t)                        # jumping/priming models can have nan in matrix, need to change to 0
 
     if (td.jumptype=="stationary") or (td.startX=="stationary"):
         statdist=stationary(t)
@@ -590,8 +590,8 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
             probs=addJumps(probs, td, numnodes=numnodes)
         elif td.jumptype=="stationary":
             probs=addJumps(probs, td, statdist=statdist, Xs=Xs)
-        if probs==-np.inf:
-            return -np.inf, "jumping"
+        if isinstance(probs,tuple):
+            return probs
 
     if (td.priming > 0.0):
         probs=adjustPriming(probs, td, Xs)
@@ -916,10 +916,10 @@ def windowGraph(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=0, td=0):
 
     # check if co-occurrences are due to chance
     if c<1:
-        setXs=[list(set(x)) for x in Xs]                    # unique nodes in each list
-        flatX=flatten_list(setXs)                           # flattened
-        xfreq=[flatX.count(i) for i in range(numnodes)]     # number of lists each item appears in (at least once)
-        listofedges=zip(*np.nonzero(graph))                 # list of edges in graph to check
+        setXs=[list(set(x)) for x in Xs]                              # unique nodes in each list
+        flatX=flatten_list(setXs)                                     # flattened
+        xfreq=[flatX.count(i) for i in range(numnodes)]               # number of lists each item appears in (at least once)
+        listofedges=zip(*np.nonzero(graph))                           # list of edges in graph to check
         numlists=float(len(Xs))
         meanlistlength=np.mean([len(x) for x in Xs])
     
@@ -927,8 +927,8 @@ def windowGraph(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=0, td=0):
         p_adj = (2.0/(meanlistlength*(meanlistlength-1))) * ((w*meanlistlength) - ((w*(w+1))/2.0))
         for i,j in listofedges:
             p_linked = (xfreq[i]/numlists) * (xfreq[j]/numlists) * p_adj
-            ci=pci(cooccur[i,j],numlists,alpha=c,method="beta")[0] # lower bound of Clopper-Pearson binomial CI
-            if p_linked >= ci:                             # if co-occurrence could be due to chance, remove edge
+            ci=pci(cooccur[i,j],numlists,alpha=c,method="beta")[0]    # lower bound of Clopper-Pearson binomial CI
+            if p_linked >= ci:                                        # if co-occurrence could be due to chance, remove edge
                 graph[i,j]=0
                 graph[j,i]=0
 
@@ -936,10 +936,21 @@ def windowGraph(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=0, td=0):
         # add direct edges when transition is impossible
         check=probX(Xs, graph, td)
         while check[0] == -np.inf:
-            if isinstance(check[1],int):
-                listnum=[x[0] for x in Xs].index(check[1]) # find list that begins with disconnected item
-                graph[check[1],Xs[listnum][1]] = 1      # add edge between first and second item to ensure connectedness
-                graph[Xs[listnum][1],check[1]] = 1
+            if isinstance(check[1],int):                                  # node is disconnected -- either initial item or jumping model
+                if td.jump==0.0:                                          # must be problem with initial item not reachable by stationary jumping
+                    listnum=[x[0] for x in Xs].index(check[1])            # find list with disconnected item
+                    graph[check[1],Xs[listnum][1]] = 1                    # add edge between first and second item to ensure connectedness
+                    graph[Xs[listnum][1],check[1]] = 1
+                else:
+                    for xnum, x in enumerate(Xs):                         # find list with disconnected item
+                        if check[1] in x:
+                            idx=x.index(check[1])
+                            if idx < (len(x)-1):                          # add edge between that item and next item in list (e.g., first-second)
+                                otheritem = x[idx+1]
+                            else:                                         # or, if last item in list, add edge to previous item
+                                otheritem = x[idx-1]
+                            graph[check[1],otheritem] = 1                 # do for all occurrences of item
+                            graph[otheritem,check[1]] = 1                     
             elif isinstance(check[1],tuple):
                 graph[check[1][0], check[1][1]] = 1
                 graph[check[1][1], check[1][0]] = 1

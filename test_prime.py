@@ -1,7 +1,7 @@
 import rw
 
 toydata=rw.Toydata({
-        'numx': range(50,51),
+        'numx': range(70,71),
         'priming': 0.0,
         'jump': 1.0,
         'jumptype': "stationary",
