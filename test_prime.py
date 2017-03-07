@@ -1,9 +1,10 @@
 import rw
 
 toydata=rw.Toydata({
-        'numx': range(70,71),
-        'priming': 0.0,
-        'jump': 1.0,
+        'numx': range(50,51),
+        'priming': 0.5,
+        'jump': 0.0,
+        'trim': 0.7,
         'jumptype': "stationary",
         'startX': "stationary"})
 
@@ -17,7 +18,7 @@ fitinfo=rw.Fitinfo({
 
 toygraph=rw.Toygraphs({
         'graphtype': "steyvers",
-        'numnodes': 20,
+        'numnodes': 50,
         'numlinks': 6})
 
 fh=open('priming_test.csv','w')
@@ -33,7 +34,7 @@ for td in toydata:
     priming_cost=rw.cost(bestgraph_priming,a)
     print priming_cost
 
-    td.jump=0.0
+    td.priming=0.0
     # fit best graph assuming no priming
     bestgraph_nopriming, ll=rw.uinvite(Xs, td, toygraph.numnodes, fitinfo=fitinfo)
     nopriming_cost=rw.cost(bestgraph_nopriming,a)

@@ -50,21 +50,22 @@ def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
             probs[l][inum+1]=jumpprob + (1-td.jump)*i        # else normalize existing probability and add jumping probability
             if probs[l][inum+1] == 0.0:                      # if item can't be reached by RW or jumping...
                 return -np.inf, (Xs[l][inum+1])
-
     return probs
 
 # mix U-INVITE with priming model
 # code is confusing...
 def adjustPriming(probs, td, Xs):
-    for xnum, x in enumerate(Xs[1:]):         # start with 2nd list (first list cant be primed)
-        for inum, i in enumerate(x[:-1]):     # first item can't be primed
-            if i in Xs[xnum][:-1]:            # implicit -1 on xnum indexing (refers to previous list)
+    for xnum, x in enumerate(Xs[1:]):         # check all items starting with 2nd list
+        for inum, i in enumerate(x[:-1]):     # except last item
+            if i in Xs[xnum][:-1]:            # is item in previous list? if so, prime next item
                 # follow prime with P td.priming, follow RW with P (1-td.priming)
                 idx=Xs[xnum].index(i) # index of item in previous list
-                #print Xs[xnum+1][inum], Xs[xnum][idx]
+                #print Xs[xnum][idx], Xs[xnum+1][inum], Xs[xnum][idx+1], Xs[xnum+1][inum+1],
                 if Xs[xnum][idx+1]==Xs[xnum+1][inum+1]:
+                    #print "primed"
                     probs[xnum+1][inum+1] = (probs[xnum+1][inum+1] * (1-td.priming)) + td.priming
                 else:
+                    #print "noprime"
                     probs[xnum+1][inum+1] = (probs[xnum+1][inum+1] * (1-td.priming))
     return probs
 
@@ -596,9 +597,6 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
     if (td.priming > 0.0):
         probs=adjustPriming(probs, td, Xs)
 
-    if 0.0 in flatten_list(probs):
-        print probs
-
     # total ll of graph
     ll=sum([sum([math.log(j) for j in probs[i]]) for i in range(len(probs))])
 
@@ -936,20 +934,20 @@ def windowGraph(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=0, td=0):
         # add direct edges when transition is impossible
         check=probX(Xs, graph, td)
         while check[0] == -np.inf:
-            if isinstance(check[1],int):                                  # node is disconnected -- either initial item or jumping model
-                if td.jump==0.0:                                          # must be problem with initial item not reachable by stationary jumping
-                    listnum=[x[0] for x in Xs].index(check[1])            # find list with disconnected item
-                    graph[check[1],Xs[listnum][1]] = 1                    # add edge between first and second item to ensure connectedness
+            if isinstance(check[1],int):                              # node is disconnected -- either initial item or jumping model
+                if td.jump==0.0:                                      # must be problem with initial item not reachable by stationary jumping
+                    listnum=[x[0] for x in Xs].index(check[1])        # find list with disconnected item
+                    graph[check[1],Xs[listnum][1]] = 1                # add edge between first and second item to ensure connectedness
                     graph[Xs[listnum][1],check[1]] = 1
                 else:
-                    for xnum, x in enumerate(Xs):                         # find list with disconnected item
+                    for xnum, x in enumerate(Xs):                     # find list with disconnected item
                         if check[1] in x:
                             idx=x.index(check[1])
-                            if idx < (len(x)-1):                          # add edge between that item and next item in list (e.g., first-second)
+                            if idx < (len(x)-1):                      # add edge between that item and next item in list (e.g., first-second)
                                 otheritem = x[idx+1]
-                            else:                                         # or, if last item in list, add edge to previous item
+                            else:                                     # or, if last item in list, add edge to previous item
                                 otheritem = x[idx-1]
-                            graph[check[1],otheritem] = 1                 # do for all occurrences of item
+                            graph[check[1],otheritem] = 1             # do for all occurrences of item
                             graph[otheritem,check[1]] = 1                     
             elif isinstance(check[1],tuple):
                 graph[check[1][0], check[1][1]] = 1

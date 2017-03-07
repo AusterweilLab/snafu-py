@@ -8,12 +8,18 @@ def avgClusterSize(clist):
         avglist.append(np.mean(l))
     return np.mean(avglist)
 
+def avgNumIntrusions(ilist):
+    if isinstance(ilist[0],list):
+        return np.mean([len(i) for i in ilist])
+    else:
+        return len(ilist)
+
 # given list of cluster lengths, compute average number of cluster switches of each list, then return avearge of that
 # also works on single list
 def avgNumClusterSwitches(clist):
     avgnum=[]
     for l in clist:
-        avgnum.append(len(l))
+        avgnum.append(len(l)-1)
     return np.mean(avgnum)
 
 # report average cluster size for list or nested lists
@@ -35,7 +41,8 @@ def clusterSize(l, scheme, clustertype='fluid'):
         else:
             newcats=set(item.split(';'))
             if 'unknown' in newcats:
-                print "Warning: Unknown category for item '", l[inum], "'. Add this item to your category labels or results may be incorrect!"
+                #print "Warning: Unknown category for item '", l[inum], "'. Add this item to your category labels or results may be incorrect!"
+                pass
             if newcats.isdisjoint(curcats) and firstitem != 1:      # end of cluster, append cluster length
                 csize.append(runlen)
                 runlen = 1
@@ -44,7 +51,7 @@ def clusterSize(l, scheme, clustertype='fluid'):
             
             if clustertype=="fluid":
                 curcats = newcats
-            elif clustertype=="rigid":
+            elif clustertype=="static":
                 curcats = (curcats & newcats)
                 if curcats==set([]):
                     curcats = newcats
@@ -85,9 +92,23 @@ def labelClusters(l, scheme):
                 labels.append("unknown")
     return labels
 
+def intrusions(l, scheme):
+    labels=labelClusters(l, scheme)
+    if isinstance(labels[0], list):
+        items=[]
+        for listnum, nested_list in enumerate(labels):
+            items.append([l[listnum][i] for i, j in enumerate(nested_list) if j=="unknown"])
+    else:
+        items = [l[i] for i, j in enumerate(labels) if j=="unknown"]
+    return items
+    
+def avgNumPerseverations(l):
+    return np.mean([len(i)-len(set(i)) for i in l])
+
+
 # ** UNTESTED // modified from usf_cogsci.py
 # avg num cluster types per list
 def numClusters(data):
-    numclusts_real=np.mean([len(set(rw.flatten_list([j.split(';') for j in i]))) for i in labelClusters(data,scheme)])
+    numclusts_real=np.mean([len(set(flatten_list([j.split(';') for j in i]))) for i in labelClusters(data,scheme)])
     return numclusts_real
 
