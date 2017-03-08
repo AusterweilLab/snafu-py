@@ -95,13 +95,20 @@ def labelClusters(l, scheme):
 def intrusions(l, scheme):
     labels=labelClusters(l, scheme)
     if isinstance(labels[0], list):
-        items=[]
+        intrusion_items=[]
         for listnum, nested_list in enumerate(labels):
-            items.append([l[listnum][i] for i, j in enumerate(nested_list) if j=="unknown"])
+            intrusion_items.append([l[listnum][i] for i, j in enumerate(nested_list) if j=="unknown"])
     else:
-        items = [l[i] for i, j in enumerate(labels) if j=="unknown"]
-    return items
+        intrusion_items = [l[i] for i, j in enumerate(labels) if j=="unknown"]
+    return intrusion_items
     
+def perseverations(l):
+    perseveration_items=[] 
+    for ls in l:
+        perseveration_items.append(list(set([item for item in ls if ls.count(item) > 1])))
+    return perseveration_items
+
+
 def avgNumPerseverations(l):
     return np.mean([len(i)-len(set(i)) for i in l])
 

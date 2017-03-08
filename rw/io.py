@@ -77,7 +77,7 @@ def read_csv(fh,cols=(0,1),header=0,filters={},undirected=1):
     return graph, items
 
 # read Xs in from user files
-def readX(subj,category,filepath):
+def readX(subj,category,filepath,ignorePerseverations=False):
     if type(subj) == str:
         subj=[subj]
     game=-1
@@ -101,7 +101,7 @@ def readX(subj,category,filepath):
                     items[idx]=item
                     idx += 1
                 itemval=items.values().index(item)
-                if itemval not in Xs[-1]:   # ignore any duplicates in same list resulting from spelling corrections
+                if (itemval not in Xs[-1]) or (not ignorePerseverations):   # ignore any duplicates in same list resulting from spelling corrections
                     Xs[-1].append(itemval)
                     irts[-1].append(int(irt)/1000.0)
     numnodes = len(items)
