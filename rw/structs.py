@@ -114,5 +114,7 @@ def Fitinfo(fitinfo):
         fitinfo['windowgraph_size'] = 2
     if 'windowgraph_threshold' not in fitkeys:
         fitinfo['windowgraph_threshold'] = 2
+    if 'record' not in fitkeys:
+        fitinfo['record'] = False
     return dotdict(fitinfo)
 

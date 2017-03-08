@@ -1,16 +1,17 @@
 import rw
 
 toydata=rw.Toydata({
-        'numx': range(50,51),
+        'numx': range(3,4),
         'priming': 0.5,
         'jump': 0.0,
-        'trim': 0.7,
+        'trim': 1.0,
         'jumptype': "stationary",
         'startX': "stationary"})
 
 fitinfo=rw.Fitinfo({
         'startGraph': "windowgraph_valid",
         'followtype': "avg", 
+        'record': False,
         'recorddir': "records/",
         'prune_limit': 100,
         'triangle_limit': 100,
@@ -29,7 +30,7 @@ for td in toydata:
     print "numx: ", td.numx
     # generate data with priming and fit best graph
     g,a=rw.genG(toygraph,seed=seed)
-    [Xs,irts,alter_graph]=rw.genX(g, td)
+    [Xs,irts,alter_graph]=rw.genX(g, td,seed=seed)
     bestgraph_priming, ll=rw.uinvite(Xs, td, toygraph.numnodes, fitinfo=fitinfo)
     priming_cost=rw.cost(bestgraph_priming,a)
     print priming_cost

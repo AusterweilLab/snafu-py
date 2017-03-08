@@ -122,7 +122,7 @@ def expectedHidden(Xs, a):
     return expecteds
 
 #@profile
-def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug="T", recordname="records.csv"):
+def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug=True, recordname="records.csv"):
     
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
     # i.e., an edge between i and any item in nn forms a triangle
@@ -159,7 +159,8 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
 
         # generate dict where v[i] is a list of nodes where (i, v[i]) is an existing edge in the graph
         if (method=="prune") or (method==0):
-            print "Pruning", str(vmaj) + "." + str(vmin), "... ", # (len(edges)/2)-len(firstedges), "possible:",
+            if debug:
+                print "Pruning", str(vmaj) + "." + str(vmin), "... ", # (len(edges)/2)-len(firstedges), "possible:",
             sys.stdout.flush()
             listofedges=np.where(graph==1)
             v=dict()
@@ -171,7 +172,8 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
         
         # generate dict where v[i] is a list of nodes where (i, v[i]) would form a new triangle
         if (method=="triangles") or (method==1):
-            print "Adding triangles", str(vmaj) + "." + str(vmin), "... ", # (len(edges)/2), "possible:",
+            if debug:
+                print "Adding triangles", str(vmaj) + "." + str(vmin), "... ", # (len(edges)/2), "possible:",
             sys.stdout.flush()
             nn=dict()
             for i in range(len(graph)):
@@ -181,7 +183,8 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
         # generate dict where v[i] is a list of nodes where (i, v[i]) is NOT an existing an edge and does NOT form a triangle
         if (method=="nonneighbors") or (method==2):
             # list of a node's non-neighbors (non-edges) that don't form triangles
-            print "Adding other edges", str(vmaj) + "." + str(vmin), "... ",
+            if debug:
+                print "Adding other edges", str(vmaj) + "." + str(vmin), "... ",
             sys.stdout.flush()
             nonneighbors=dict()
             for i in range(numnodes):
@@ -221,7 +224,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
 
                 edge=(node1, node2)
                 graph=swapEdges(graph,[edge])
-                graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=probmat,changed=[node1,node2])
+                graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=None,changed=[node1,node2]) # None to probmat JZ
                 if best_ll > graph_ll:
                     record.append(graph_ll)
                     graph=swapEdges(graph,[edge])
@@ -256,7 +259,8 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
                 avg[node1]=-np.inf      # so we don't try it again...
                 finishednodes += 1
 
-        print numchanges, "changes"
+        if debug:
+            print numchanges, "changes"
 
         records.append(record)
         return graph, best_ll, probmat, numchanges
@@ -297,10 +301,11 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
     best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
     records=[]
     graph, best_ll = phases(graph, best_ll, probmat)
-    f=open(fitinfo.recorddir+recordname,'w')
-    wr=csv.writer(f)
-    for record in records:
-        wr.writerow(record)
+    if fitinfo.record:
+        f=open(fitinfo.recorddir+recordname,'w')
+        wr=csv.writer(f)
+        for record in records:
+            wr.writerow(record)
 
     return graph, best_ll
 
@@ -715,7 +720,7 @@ def stepsToIRT(irts, seed=None):
 
 # runs a batch of toy graphs. logging code needs to be cleaned up significantly
 def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
-             methods=['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior'],header=1,debug="F"):
+             methods=['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior'],header=1,debug=False):
     np.random.seed(start_seed)
 
     # break out of function if using unknown method
@@ -787,7 +792,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
         for method in methods:
             
             recordname="record_"+str(graph_seed)+"_"+str(x_seed)+"_"+method+".csv"
-            if debug=="T": print "SEED: ", seed_param, "method: ", method
+            if debug: print "SEED: ", seed_param, "method: ", method
             
             # Find best graph! (and log time)
             ll_tg=""        # only record TG LL for U-INVITE models; otherwise it's ambiguous whether it's using IRT/prior/etc
@@ -823,7 +828,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
                 bestgraph=firstEdge(Xs, tg.numnodes)
                 ll=probX(Xs, bestgraph, td)[0]
             elapsedtime=str(datetime.now()-starttime)
-            if debug=="T": 
+            if debug: 
                 print elapsedtime
                 print "COST: ", cost(bestgraph,a)
                 print nx.generate_sparse6(nx.to_networkx_graph(bestgraph),header=False)
