@@ -67,6 +67,8 @@ def adjustPriming(probs, td, Xs):
                 else:
                     #print "noprime"
                     probs[xnum+1][inum+1] = (probs[xnum+1][inum+1] * (1-td.priming))
+                if probs[xnum+1][inum+1] == 0.0:
+                    return -np.inf, (Xs[xnum+1][inum+1])
     return probs
 
 # objective graph cost
@@ -137,7 +139,8 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
         for k in n:                                 # remove neighbors
             if k in nn:
                 nn.remove(k)
-        nn.remove(i)                                # remove self
+        if i in nn:
+            nn.remove(i)                            # remove self
         return nn
         
     # toggle links back, should be faster than making graph copy
@@ -300,7 +303,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
         graph=windowGraph(Xs, numnodes, td=td, valid=1, fitinfo=fitinfo)
     elif fitinfo.startGraph=="rw":
         graph=noHidden(Xs,numnodes)
-  
+
     best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
     records=[]
     graph, best_ll = phases(graph, best_ll, probmat)
@@ -589,8 +592,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                 #prob.append(B[0,curpos-1])
 
             # if there's an impossible transition and no jumping, return immediately
-            if (prob[-1]==0.0) and (td.jump == 0.0):
-                # JZ with priming, starting graph is invalid!
+            if (prob[-1]==0.0) and (td.jump == 0.0) and (td.priming == 0.0):
                 return -np.inf, (x[curpos-1], x[curpos])
 
         probs.append(prob)
@@ -603,14 +605,17 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
             probs=addJumps(probs, td, numnodes=numnodes)
         elif td.jumptype=="stationary":
             probs=addJumps(probs, td, statdist=statdist, Xs=Xs)
-        if isinstance(probs,tuple):
+        if isinstance(probs,tuple):         # impossible transition
             return probs
 
     if (td.priming > 0.0):
         probs=adjustPriming(probs, td, Xs)
+        if isinstance(probs,tuple):         # impossible transition
+            return probs
 
     # total ll of graph
     ll=sum([sum([math.log(j) for j in probs[i]]) for i in range(len(probs))])
+
 
     # inclue prior?
     if prior:
@@ -948,7 +953,7 @@ def windowGraph(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=0, td=0):
         check=probX(Xs, graph, td)
         while check[0] == -np.inf:
             if isinstance(check[1],int):                              # node is disconnected -- either initial item or jumping model
-                if td.jump==0.0:                                      # must be problem with initial item not reachable by stationary jumping
+                if (td.jump==0.0) and (td.priming==0.0):              # must be problem with initial item not reachable by stationary jumping
                     listnum=[x[0] for x in Xs].index(check[1])        # find list with disconnected item
                     graph[check[1],Xs[listnum][1]] = 1                # add edge between first and second item to ensure connectedness
                     graph[Xs[listnum][1],check[1]] = 1
