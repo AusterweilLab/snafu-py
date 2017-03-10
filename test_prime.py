@@ -1,7 +1,7 @@
 import rw
 
 toydata=rw.Toydata({
-        'numx': range(3,4),
+        'numx': range(50,51),
         'priming': 0.5,
         'jump': 0.0,
         'trim': 1.0,
@@ -24,20 +24,20 @@ toygraph=rw.Toygraphs({
 
 fh=open('priming_test.csv','w')
 
-seed=1
+seed=12
 
 for td in toydata:
     print "numx: ", td.numx
     # generate data with priming and fit best graph
     g,a=rw.genG(toygraph,seed=seed)
     [Xs,irts,alter_graph]=rw.genX(g, td,seed=seed)
-    bestgraph_priming, ll=rw.uinvite(Xs, td, toygraph.numnodes, fitinfo=fitinfo)
+    bestgraph_priming, ll=rw.uinvite(Xs, td, toygraph.numnodes, fitinfo=fitinfo, seed=seed)
     priming_cost=rw.cost(bestgraph_priming,a)
     print priming_cost
 
     td.priming=0.0
     # fit best graph assuming no priming
-    bestgraph_nopriming, ll=rw.uinvite(Xs, td, toygraph.numnodes, fitinfo=fitinfo)
+    bestgraph_nopriming, ll=rw.uinvite(Xs, td, toygraph.numnodes, fitinfo=fitinfo, seed=seed)
     nopriming_cost=rw.cost(bestgraph_nopriming,a)
     print nopriming_cost
     

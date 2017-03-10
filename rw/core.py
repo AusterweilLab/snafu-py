@@ -122,8 +122,9 @@ def expectedHidden(Xs, a):
     return expecteds
 
 #@profile
-def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug=True, recordname="records.csv"):
-    
+def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug=True, recordname="records.csv", seed=None):
+    nplocal=np.random.RandomState(seed) 
+
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
     # i.e., an edge between i and any item in nn forms a triangle
     #@profile
@@ -203,15 +204,15 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
             loopcount += 1          # number of failures before giving up on this pahse
             maxval=max(avg)             
             bestnodes=[i for i, j in enumerate(avg) if j == maxval]  # most promising nodes based on avg logprob of edges with each node as vertex
-            node1=np.random.choice(bestnodes)
+            node1=nplocal.choice(bestnodes)
 
             if len(v[node1]) > 0:
-                #node2=np.random.choice(v[node1]) # old
+                #node2=nplocal.choice(v[node1]) # old
                 
                 n2avg=[avg[i] for i in v[node1]]
                 maxval=max(n2avg)
                 bestnodes=[v[node1][i] for i, j in enumerate(n2avg) if j == maxval]
-                node2=np.random.choice(bestnodes)
+                node2=nplocal.choice(bestnodes)
                 
                 ## print for debugging
                 #for i,j in enumerate(avg):
@@ -224,7 +225,9 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
 
                 edge=(node1, node2)
                 graph=swapEdges(graph,[edge])
-                graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=None,changed=[node1,node2]) # None to probmat JZ
+
+                graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=probmat,changed=[node1,node2])
+
                 if best_ll > graph_ll:
                     record.append(graph_ll)
                     graph=swapEdges(graph,[edge])
@@ -334,7 +337,7 @@ def genG(tg, seed=None):
     elif tg.graphtype=="random":                               
         g=nx.erdos_renyi_graph(tg.numnodes, tg.prob_rewire,seed)
     elif tg.graphtype=="steyvers":
-        g=genSteyvers(tg.numnodes, tg.numlinks)
+        g=genSteyvers(tg.numnodes, tg.numlinks, seed=seed)
     
     a=np.array(nx.to_numpy_matrix(g)).astype(int)
     return g, a
@@ -397,7 +400,8 @@ def genPrior(tg, n, bins=100, forcenew=0):
         prior=newPrior()
     return prior
 
-def genSteyvers(n,m, tail=1):                          # tail allows m-1 "null" nodes in neighborhood of every node
+def genSteyvers(n,m, tail=1, seed=None):               # tail allows m-1 "null" nodes in neighborhood of every node
+    nplocal=np.random.RandomState(seed)
     a=np.zeros((n,n))                                  # initialize matrix
     for i in range(m):                                 # complete m x m graph
         for j in range(m):
@@ -405,13 +409,13 @@ def genSteyvers(n,m, tail=1):                          # tail allows m-1 "null" 
                 a[i,j]=1
     for i in range(m,n):                               # for the rest of nodes, preferentially attach
         nodeprob=sum(a)/sum(sum(a))                    # choose node to differentiate with this probability distribution
-        diffnode=np.random.choice(n,p=nodeprob)        # node to differentiate
+        diffnode=nplocal.choice(n,p=nodeprob)        # node to differentiate
         h=list(np.where(a[diffnode])[0]) + [diffnode]  # neighborhood of diffnode
         if tail==1:
             h=h + [-1]*(m-1)
         #hprob=sum(a[:,h])/sum(sum(a[:,h]))                 # attach proportional to node degree?
-        #tolink=np.random.choice(h,m,replace=False,p=hprob)
-        tolink=np.random.choice(h,m,replace=False)          # or attach randomly
+        #tolink=nplocal.choice(h,m,replace=False,p=hprob)
+        tolink=nplocal.choice(h,m,replace=False)          # or attach randomly
         for j in tolink:
             if j != -1:
                 a[i,j]=1
@@ -425,7 +429,7 @@ def genX(g,td,seed=None):
     steps=[]
 
     for xnum in range(td.numx):
-        rwalk=random_walk(g,td,seed)
+        rwalk=random_walk(g,td,seed+xnum)
         x=observed_walk(rwalk)
         fh=list(zip(*firstHits(rwalk))[1])
         step=[fh[i]-fh[i-1] for i in range(1,len(fh))]
@@ -586,9 +590,12 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
 
             # if there's an impossible transition and no jumping, return immediately
             if (prob[-1]==0.0) and (td.jump == 0.0):
+                # JZ with priming, starting graph is invalid!
                 return -np.inf, (x[curpos-1], x[curpos])
 
         probs.append(prob)
+
+    uinvite_probs = np.copy(probs)      # store only u-invite transition probabilities (the computationally hard stuff) to avoid recomputing
 
     # adjust for jumping probability
     if td.jump > 0.0:
@@ -614,16 +621,17 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
         else:
             ll=ll + math.log(priorprob)
 
-    return ll, probs
+    return ll, uinvite_probs
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g,td,seed=None):
+    nplocal=np.random.RandomState(seed)    
 
     def jump():
         if td.jumptype=="stationary":
             second=statdist.rvs(random_state=seed)       # jump based on statdist
         elif td.jumptype=="uniform":
-            second=np.random.choice(nx.nodes(g))         # jump uniformly
+            second=nplocal.choice(nx.nodes(g))         # jump uniformly
         return second
 
     if (td.startX=="stationary") or (td.jumptype=="stationary"):
@@ -635,7 +643,7 @@ def random_walk(g,td,seed=None):
     if td.startX=="stationary":
         start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution
     elif td.startX=="uniform":
-        start=np.random.choice(nx.nodes(g))        # choose starting point uniformly
+        start=nplocal.choice(nx.nodes(g))        # choose starting point uniformly
     elif td.startX[0]=="specific":
         start=td.startX[1]
 
@@ -656,12 +664,12 @@ def random_walk(g,td,seed=None):
     while len(unused_nodes) > num_unused:
 
         # jump after n censored nodes or with random probability (depending on parameters)
-        if (censoredcount == td.jumponcensored) or (np.random.random() < td.jump):
+        if (censoredcount == td.jumponcensored) or (nplocal.random_sample(1)[0] < td.jump):
             second=jump()
         else:                                           # no jumping!
-            second=np.random.choice([x for x in nx.all_neighbors(g,first)]) # follow random edge (actual random walk!)
+            second=nplocal.choice([x for x in nx.all_neighbors(g,first)]) # follow random edge (actual random walk!)
             if (td.priming > 0.0) and (len(td.priming_vector) > 0):
-                if (first in td.priming_vector[:-1]) & (np.random.random() < td.priming):      
+                if (first in td.priming_vector[:-1]) & (nplocal.random_sample(1)[0] < td.priming):      
                     idx=td.priming_vector.index(first)
                     second=td.priming_vector[idx+1]          # overwrite RW... kinda janky
         walk.append((first,second))
@@ -708,11 +716,11 @@ def stationary(t,method="unweighted"):
 
 # generates fake IRTs from # of steps in a random walk, using gamma distribution
 def stepsToIRT(irts, seed=None):
-    np.random.RandomState(seed)        # to generate the same IRTs each time
+    nplocal=np.random.RandomState(seed)        # to generate the same IRTs each time
     new_irts=[]
     for irtlist in irts.data:
         if irts.irttype=="gamma":
-            newlist=[np.random.gamma(irt, (1.0/irts.beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
+            newlist=[nplocal.gamma(irt, (1.0/irts.beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
         if irts.irttype=="exgauss":
             newlist=[rand_exg(irt, irts.sigma, irts.lambd) for irt in irtlist] 
         new_irts.append(newlist)
@@ -961,5 +969,4 @@ def windowGraph(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=0, td=0):
                 raise ValueError('Unexpected error from windowGraph()')
             check=probX(Xs, graph, td)
 
-                
     return graph
