@@ -9,7 +9,7 @@ toydata=rw.Toydata({
         'startX': "stationary"})
 
 fitinfo=rw.Fitinfo({
-        'startGraph': "rw",
+        'startGraph': "windowgraph_valid",
         'followtype': "avg", 
         'record': False,
         'recorddir': "records/",
