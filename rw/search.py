@@ -3,7 +3,6 @@ import networkx as nx
 import scipy
 import numpy as np
 from core import *
-
 #from helper import *
 
 # stochastic search through graph by node degree (proxy for frequency)
@@ -13,7 +12,6 @@ def nodeDegreeSearch(g, td):
         numtrim=int(round(numnodes*td.trim))       # if <=1, paramater is proportion of a list
     else:
         numtrim=td.trim                            # else, parameter is length of a list
-    
     
     # make list of nodes by frequency
     l=[]

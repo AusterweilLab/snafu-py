@@ -1,10 +1,10 @@
 import rw
 
 toydata=rw.Toydata({
-        'numx': range(20,21),
-        'priming': 0.5,
+        'numx': range(250,251),
+        'priming': 0.3,
         'jump': 0.0,
-        'trim': 1.0,
+        'trim': 0.7,
         'jumptype': "stationary",
         'startX': "stationary"})
 
