@@ -19,7 +19,7 @@ finalpairs=[]
 
 for sub in subs:
     # read in graphs
-    g1, items1 = rw.read_csv(fi,cols=('node1','node2'),header=1,filters={'subj': sub, 'u-invite': '1'},undirected=1)
+    g1, items1 = rw.read_csv(fi,cols=('node1','node2'),header=1,filters={'subj': sub, 'uinvite': '1'},undirected=1)
     g2, items2 = rw.read_csv(fi,cols=('node1','node2'),header=1,filters={'subj': sub, 'priming': '1'},undirected=1)
     g3, items3 = rw.read_csv(fi,cols=('node1','node2'),header=1,filters={'subj': sub, 'rw': '1'},undirected=1)
     g4, items4 = rw.read_csv(fi,cols=('node1','node2'),header=1,filters={'subj': sub, 'windowgraph': '1'},undirected=1)

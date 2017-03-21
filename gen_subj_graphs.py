@@ -45,7 +45,7 @@ irts=rw.Irts({
 for subj in subs:
     print subj
     category="animals"
-    Xs, items, irts.data, numnodes=rw.readX(subj,category,'./Spring2016/results_cleaned.csv',ignorePerseverations=True)
+    Xs, items, irts.data, numnodes=rw.readX(subj,category,'./Spring2015/results_cleaned.csv',ignorePerseverations=True)
     toydata.numx = len(Xs)
 
     # u-invite
@@ -63,7 +63,7 @@ for subj in subs:
     rw_graph=rw.noHidden(Xs, numnodes)
 
     # windowgraph
-    window_graph=rw.windowGraph(Xs, numnodes, td=toydata, valid=1, fitinfo=fitinfo)
+    window_graph=rw.windowGraph(Xs, numnodes, td=toydata, valid=0, fitinfo=fitinfo)
     
     # priming
     toydata.priming=0.5
