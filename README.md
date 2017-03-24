@@ -1,9 +1,5 @@
-# randomwalk
-Reconstruct a graph using first hits from a random walk on the graph
+# semnet
 
-- `/docs` contains descriptions of the functions in the `rw` package
-- `/exp` contains the experiment itself and some data parsing files
-- `/random` is random files
-- `/rw` is the core Python package which contains functions used to reconstruct graphs
-- `/toydata` is some data generated from toy networks
-- `/semanticnetwork` is the animal semantic network from Abbott, Austerweil et al. project
+This library contains many tools for analyzing semantic fluency data and estimating semantic networks from fluency data. Included is the U-INVITE method for constructing networks from semantic fluency data (Zemla, Kennett, Jun, & Austerweil, 2016).
+
+Documentation is sparse-- `import rw` in Python, and look through the functions in `/rw` (particularly `core.py`), or check out a sample file `gen_subj_graphs.py`. Better yet, e-mail me at zemla at wisc dot edu for help.
