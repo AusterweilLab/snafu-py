@@ -1,6 +1,5 @@
 from __future__ import division
 
-import multiprocessing as mp
 import pickle
 import networkx as nx
 import numpy as np
