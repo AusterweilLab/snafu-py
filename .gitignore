@@ -1,6 +1,2 @@
-/exp/results_cleaned.csv
-/exp/results_cleaned.bak
-/exp/logs
 *.swp
-/notes.txt
-
+records/*
