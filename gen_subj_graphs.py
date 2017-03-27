@@ -13,7 +13,7 @@ toydata=rw.Toydata({
         'trim': 1,
         'jump': 0.0,
         'jumptype': "stationary",
-        'priming': 0.5,
+        'priming': 0.0,
         'startX': "stationary"})
 
 fitinfo=rw.Fitinfo({
@@ -61,16 +61,18 @@ for subj in subs:
     # windowgraph
     window_graph=rw.windowGraph(Xs, numnodes, td=toydata, valid=0, fitinfo=fitinfo)
     
-    # priming
-    priming_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo)
-    
     # prior
     toygraphs.numnodes = numnodes
     prior=genPrior(toygraphs, fitinfo.prior_samplesize)
     prior_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, prior=prior)
 
-    # complete
+    # priming
+    toydata.priming = 0.5
+    priming_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo)
+
+    # complete (irts, prior,, priming)
     complete_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, prior=prior, irts=irts)
+    toydata.priming = 0.0 # reset priming
 
     g=nx.to_networkx_graph(uinvite_graph)
     g2=nx.to_networkx_graph(priming_graph)
