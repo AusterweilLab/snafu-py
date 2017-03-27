@@ -13,7 +13,7 @@ toydata=rw.Toydata({
         'trim': 1,
         'jump': 0.0,
         'jumptype': "stationary",
-        'priming': 0.0,
+        'priming': 0.5,
         'startX': "stationary"})
 
 fitinfo=rw.Fitinfo({
@@ -23,9 +23,10 @@ fitinfo=rw.Fitinfo({
         'followtype': "avg", 
         'prior_samplesize': 10000,
         'recorddir': "records/",
-        'prune_limit': 100,
-        'triangle_limit': 100,
-        'other_limit': 100})
+        'undirected': False,
+        'prune_limit': np.inf,
+        'triangle_limit': np.inf,
+        'other_limit': np.inf})
 
 toygraphs=rw.Toygraphs({
         'numgraphs': 1,
@@ -39,7 +40,7 @@ irts=rw.Irts({
         'irttype': "exgauss",
         'lambda': 0.721386887,
         'sigma': 6.58655566,
-        'irt_weight': 0.5,
+        'irt_weight': 0.95,
         'rcutoff': 20})
 
 for subj in subs:
@@ -51,13 +52,8 @@ for subj in subs:
     # u-invite
     uinvite_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo)
 
-    # irt5, irt9, irt95
-    irt5_graph, bestval=rw.uinvite(Xs, toydata, numnodes, irts=irts, fitinfo=fitinfo)
-    irts.irt_weight=0.9
-    irt9_graph, bestval=rw.uinvite(Xs, toydata, numnodes, irts=irts, fitinfo=fitinfo)
-    irts.irt_weight=0.95
+    # irt95
     irt95_graph, bestval=rw.uinvite(Xs, toydata, numnodes, irts=irts, fitinfo=fitinfo)
-    irts.irt_weight=0.5
 
     # rw
     rw_graph=rw.noHidden(Xs, numnodes)
@@ -66,23 +62,29 @@ for subj in subs:
     window_graph=rw.windowGraph(Xs, numnodes, td=toydata, valid=0, fitinfo=fitinfo)
     
     # priming
-    toydata.priming=0.5
     priming_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo)
-    toydata.priming = 0.0
     
+    # prior
+    toygraphs.numnodes = numnodes
+    prior=genPrior(toygraphs, fitinfo.prior_samplesize)
+    prior_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, prior=prior)
+
+    # complete
+    complete_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, prior=prior, irts=irts)
+
     g=nx.to_networkx_graph(uinvite_graph)
     g2=nx.to_networkx_graph(priming_graph)
     g3=nx.to_networkx_graph(rw_graph)
     g4=nx.to_networkx_graph(window_graph)
-    g5=nx.to_networkx_graph(irt5_graph)
-    g6=nx.to_networkx_graph(irt9_graph)
-    g7=nx.to_networkx_graph(irt95_graph)
+    g5=nx.to_networkx_graph(irt95_graph)
+    g6=nx.to_networkx_graph(prior_graph)
+    g7=nx.to_networkx_graph(complete_graph)
 
     nx.relabel_nodes(g, items, copy=False)
     nx.relabel_nodes(g2, items, copy=False)
     nx.relabel_nodes(g3, items, copy=False)
     nx.relabel_nodes(g4, items, copy=False)
-    nx.relabel_nodes(g5, items, copy=False)
+    nx.relabel_nodes(g4, items, copy=False)
     nx.relabel_nodes(g6, items, copy=False)
     nx.relabel_nodes(g7, items, copy=False)
 

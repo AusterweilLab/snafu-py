@@ -140,7 +140,8 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
     def swapEdges(graph,links):
         for link in links:
             graph[link[0],link[1]] = 1 - graph[link[0],link[1]]
-            graph[link[1],link[0]] = 1 - graph[link[1],link[0]] 
+            if fitinfo.undirected:
+                graph[link[1],link[0]] = 1 - graph[link[1],link[0]]
         return graph
         
     #@timer
@@ -208,15 +209,6 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
                 maxval=max(n2avg)
                 bestnodes=[v[node1][i] for i, j in enumerate(n2avg) if j == maxval]
                 node2=nplocal.choice(bestnodes)
-                
-                ## print for debugging
-                #for i,j in enumerate(avg):
-                #    print i, ": ", j
-                #print "---"
-                #for i,j in enumerate(n2avg):
-                #    print v[node1][i], ": ", j
-                #print node1, node2
-                #raw_input()
 
                 edge=(node1, node2)
                 graph=swapEdges(graph,[edge])
@@ -233,7 +225,8 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
                     numchanges += 1
                     loopcount = 0
                 v[node1].remove(node2)   # remove edge from possible choices
-                v[node2].remove(node1)
+                if fitinfo.undircted:
+                    v[node2].remove(node1)
            
                 # increment even if graph prob = -np.inf for implicit penalty
                 count[node1] += 1
@@ -488,7 +481,7 @@ def path_from_walk(walk):
 # probability of observing Xs, including irts and prior
 #@profile
 #@nogc
-def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
+def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[], forceCompute=False):
     
     numnodes=len(a)
     reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv, but that's much slower
@@ -519,7 +512,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
             prob.append(1.0/numnodes)
 
         # if impossible starting point, return immediately
-        if prob[-1]==0.0:
+        if (prob[-1]==0.0) and (not forceCompute):
             return -np.inf, (x[0], x[1])
 
         if (len(changed) > 0) and isinstance(origmat,list):        # if updating prob. matrix based on specific link changes
@@ -584,7 +577,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                 #prob.append(B[0,curpos-1])
 
             # if there's an impossible transition and no jumping/priming, return immediately
-            if (prob[-1]==0.0) and (td.jump == 0.0) and (td.priming == 0.0):
+            if (prob[-1]==0.0) and (td.jump == 0.0) and (td.priming == 0.0) and (not forceCompute):
                 return -np.inf, (x[curpos-1], x[curpos])
 
         probs.append(prob)
@@ -610,7 +603,10 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[]):
                 return -np.inf, (Xs[xnum][inum-1], Xs[xnum][inum])  # link to previous item otherwise
                 
     # total ll of graph
-    ll=sum([sum([math.log(j) for j in probs[i]]) for i in range(len(probs))])
+    try:
+        ll=sum([sum([math.log(j) for j in probs[i]]) for i in range(len(probs))])
+    except:
+        ll=-np.inf
 
     # inclue prior?
     if prior:
