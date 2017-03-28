@@ -111,16 +111,12 @@ def write_csv(gs, fh, subj="NA", directed=False):
     onezero={True: '1', False: '0'}        
     import networkx as nx
     fh=open(fh,'w',0)
-    #if directed:
-    #    if isinstance(gs,nx.classes.graph.Graph):
-    #
-    #
     if isinstance(gs,nx.classes.graph.Graph):       # write nx graph
         edges=set(flatten_list([gs.edges()]))
         for edge in edges:
             isdirected=""
             if directed:
-                isdirected=","+onezero[g.has_edge(edge[1],edge[0])]
+                isdirected="," + (onezero[(g.has_edge(edge[1],edge[0]) and g.has_edge(edge[1],edge[0]))])
             fh.write(subj    + "," +
                     edge[0]  + "," +
                     edge[1]  + 
@@ -130,10 +126,10 @@ def write_csv(gs, fh, subj="NA", directed=False):
         for edge in edges:
             edgelist=""
             for g in gs:
-                edgelist=edgelist+","+onezero[g.has_edge(edge[0],edge[1])]
+                edgelist=edgelist+"," + onezero[g.has_edge(edge[0],edge[1])]
             if directed:
                 for g in gs:
-                    edgelist=edgelist+","+onezero[g.has_edge(edge[1],edge[0])]
+                    edgelist=edgelist+"," + (onezero[(g.has_edge(edge[1],edge[0]) and g.has_edge(edge[1],edge[0]))])
             fh.write(subj    + "," +
                     edge[0]  + "," +
                     edge[1]  + 
