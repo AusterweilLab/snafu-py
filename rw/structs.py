@@ -102,8 +102,8 @@ def Fitinfo(fitinfo):
         if isinstance(fitinfo[i],list):
             return flatten_list([Fitinfo(dict(fitinfo, **{i: j})) for j in fitinfo[i]])
     
-    if 'undirected' not in fitkeys:
-        fitinfo['undirected'] = True
+    if 'directed' not in fitkeys:
+        fitinfo['directed'] = False
     if 'startGraph' not in fitkeys:
         fitinfo['startGraph'] = "windowgraph_valid"
     if 'prune_limit' not in fitkeys:

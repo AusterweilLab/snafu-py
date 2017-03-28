@@ -23,7 +23,7 @@ fitinfo=rw.Fitinfo({
         'followtype': "avg", 
         'prior_samplesize': 10000,
         'recorddir': "records/",
-        'undirected': False,
+        'directed': False,
         'prune_limit': np.inf,
         'triangle_limit': np.inf,
         'other_limit': np.inf})
@@ -63,7 +63,7 @@ for subj in subs:
     
     # prior
     toygraphs.numnodes = numnodes
-    prior=genPrior(toygraphs, fitinfo.prior_samplesize)
+    prior=rw.genPrior(toygraphs, fitinfo.prior_samplesize)
     prior_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, prior=prior)
 
     # priming
@@ -86,7 +86,7 @@ for subj in subs:
     nx.relabel_nodes(g2, items, copy=False)
     nx.relabel_nodes(g3, items, copy=False)
     nx.relabel_nodes(g4, items, copy=False)
-    nx.relabel_nodes(g4, items, copy=False)
+    nx.relabel_nodes(g5, items, copy=False)
     nx.relabel_nodes(g6, items, copy=False)
     nx.relabel_nodes(g7, items, copy=False)
 

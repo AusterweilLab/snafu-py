@@ -4,6 +4,10 @@ import networkx as nx
 import rw
 import numpy as np
 
+subs=['S101','S102','S103','S104','S105','S106','S107','S108','S109','S110',
+      'S111','S112','S113','S114','S115','S116','S117','S118','S119','S120']
+#subs=['S1','S2','S3','S4','S5','S7','S8','S9','S10','S11','S12','S13']
+
 toydata=rw.Toydata({
         'numx': 3,
         'trim': 1,
@@ -17,9 +21,9 @@ fitinfo=rw.Fitinfo({
         'windowgraph_size': 2,
         'windowgraph_threshold': 2,
         'followtype': "avg", 
-        'undirected': False,
         'prior_samplesize': 10000,
         'recorddir': "records/",
+        'directed': True,
         'prune_limit': np.inf,
         'triangle_limit': np.inf,
         'other_limit': np.inf})
@@ -36,29 +40,25 @@ irts=rw.Irts({
         'irttype': "exgauss",
         'lambda': 0.721386887,
         'sigma': 6.58655566,
-        'irt_weight': 0.5,
+        'irt_weight': 0.95,
         'rcutoff': 20})
 
-subj="S101"
-category="animals"
-Xs, items, irts.data, numnodes=rw.readX(subj,category,'./Spring2015/results_cleaned.csv',ignorePerseverations=True)
-toydata.numx = len(Xs)
+for subj in subs:
+    print subj
+    category="animals"
+    Xs, items, irts.data, numnodes=rw.readX(subj,category,'./Spring2015/results_cleaned.csv',ignorePerseverations=True)
+    toydata.numx = len(Xs)
 
-# u-invite
-uinvite_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo)
+    # rw
+    rw_graph=rw.noHidden(Xs, numnodes)
 
-orig=rw.probX(Xs, uinvite_graph, toydata)
+    # u-invite
+    directed_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo)
 
-for inum, i in enumerate(uinvite_graph):
-    for jnum, j in enumerate(i):
-        if uinvite_graph[inum,jnum]==1:
-            uinvite_graph[inum,jnum]=0
-            uinvite_graph[jnum,inum]=0
-            print rw.probX(Xs, uinvite_graph, toydata)[0]
-            uinvite_graph[inum,jnum]=1
-            uinvite_graph[jnum,inum]=1
+    g=nx.DiGraph(rw_graph)
+    g2=nx.DiGraph(directed_graph)
 
+    nx.relabel_nodes(g, items, copy=False)
+    nx.relabel_nodes(g2, items, copy=False)
 
-# most important edges -- if removal of edge creates impossible transition
-# quantify importance of edges -- mean difference in transition probabilities
-# directed network -> undirected
+    rw.write_csv([g, g2],subj+".csv",subj) # write multiple graphs

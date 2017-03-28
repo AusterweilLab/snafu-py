@@ -140,7 +140,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
     def swapEdges(graph,links):
         for link in links:
             graph[link[0],link[1]] = 1 - graph[link[0],link[1]]
-            if fitinfo.undirected:
+            if not fitinfo.directed:
                 graph[link[1],link[0]] = 1 - graph[link[1],link[0]]
         return graph
         
@@ -225,7 +225,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=0, debug
                     numchanges += 1
                     loopcount = 0
                 v[node1].remove(node2)   # remove edge from possible choices
-                if fitinfo.undircted:
+                if not fitinfo.directed:
                     v[node2].remove(node1)
            
                 # increment even if graph prob = -np.inf for implicit penalty
