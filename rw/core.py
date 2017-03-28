@@ -595,12 +595,13 @@ def probX(Xs, a, td, irts=Irts({}), prior=0, origmat=None, changed=[], forceComp
         probs=adjustPriming(probs, td, Xs)
 
     # check for impossible transitions after priming and jumping
-    for xnum, x in enumerate(probs):
-        for inum, i in enumerate(x):
-            if (i==0.0) and (inum==0):
-                return -np.inf, (Xs[xnum][inum], Xs[xnum][inum+1])  # link to next item when first item is unreachable
-            elif (i==0.0) and (inum > 0):
-                return -np.inf, (Xs[xnum][inum-1], Xs[xnum][inum])  # link to previous item otherwise
+    if not forceCompute:
+        for xnum, x in enumerate(probs):
+            for inum, i in enumerate(x):
+                if (i==0.0) and (inum==0):
+                    return -np.inf, (Xs[xnum][inum], Xs[xnum][inum+1])  # link to next item when first item is unreachable
+                elif (i==0.0) and (inum > 0):
+                    return -np.inf, (Xs[xnum][inum-1], Xs[xnum][inum])  # link to previous item otherwise
                 
     # total ll of graph
     try:

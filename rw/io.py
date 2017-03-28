@@ -107,7 +107,8 @@ def readX(subj,category,filepath,ignorePerseverations=False):
     numnodes = len(items)
     return Xs, items, irts, numnodes
 
-def write_csv(gs, fh, subj="NA", directed=False):
+# some sloppy code in here + extra_data doesn't work when passed list
+def write_csv(gs, fh, subj="NA", directed=False, extra_data={}):
     onezero={True: '1', False: '0'}        
     import networkx as nx
     fh=open(fh,'w',0)
@@ -117,10 +118,15 @@ def write_csv(gs, fh, subj="NA", directed=False):
             isdirected=""
             if directed:
                 isdirected="," + (onezero[(g.has_edge(edge[1],edge[0]) and g.has_edge(edge[1],edge[0]))])
+            extrainfo=""
+            if edge[0] in extra_data.keys():
+                if edge[1] in extra_data[edge[0]].keys():
+                    extrainfo=","+",".join([str(i) for i in extra_data[edge[0]][edge[1]]])
             fh.write(subj    + "," +
                     edge[0]  + "," +
                     edge[1]  + 
-                    isdirected + "\n")
+                    isdirected + 
+                    extrainfo + "\n")
     else:                                           # write matrix
         edges=set(flatten_list([gs[i].edges() for i in range(len(gs))]))
         for edge in edges:
@@ -129,7 +135,7 @@ def write_csv(gs, fh, subj="NA", directed=False):
                 edgelist=edgelist+"," + onezero[g.has_edge(edge[0],edge[1])]
             if directed:
                 for g in gs:
-                    edgelist=edgelist+"," + (onezero[(g.has_edge(edge[1],edge[0]) and g.has_edge(edge[1],edge[0]))])
+                    edgelist=edgelist + "," + (onezero[(g.has_edge(edge[1],edge[0]) and g.has_edge(edge[1],edge[0]))])
             fh.write(subj    + "," +
                     edge[0]  + "," +
                     edge[1]  + 
