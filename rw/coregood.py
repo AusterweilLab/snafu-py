@@ -131,7 +131,7 @@ def firstHits(walk):
         firsthit.append(path.index(i))
     return zip(observed_walk(walk),firsthit)
 
-def fullyConnected(numnodes):
+def fully_connected(numnodes):
     a=np.ones((numnodes,numnodes))
     for i in range(numnodes):
         a[i,i]=0.0
@@ -172,7 +172,7 @@ def genGraphs(numgraphs, theta, Xs, numnodes):
 # n <- # samples (larger n == better fidelity)
 # tries <- W-S parameter (number of tries to generate connected graph)
 # forcenew <- if 1, don't use cached prior
-def genSWPrior(tg, n, bins=100, forcenew=False):
+def genSWPrior(tg, n, bins=100, forcenew=0):
 
     # filename for prior
     if tg.graphtype=="steyvers":
@@ -198,7 +198,7 @@ def genSWPrior(tg, n, bins=100, forcenew=False):
             pickle.dump(prior,fh)
         return prior
 
-    if not forcenew:                                                 # use cached prior when available
+    if forcenew==0:                                                 # use cached prior when available
         try:                                                        # check if cached prior exist
             with open('./priors/' + filename,'r') as fh:
                 prior=pickle.load(fh)
@@ -798,13 +798,11 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
     
     # find a good starting graph using naive RW
     if fitinfo.startGraph=="windowgraph_valid":
-        graph=windowGraph(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
+        graph=windowGraph(Xs, numnodes, td=td, valid=1, fitinfo=fitinfo)
     elif fitinfo.startGraph=="rw":
         graph=noHidden(Xs,numnodes)
     elif fitinfo.startGraph=="fully_connected":
-        graph=fullyConnected(numnodes)
-    else:                                                         # assume a graph has been passed as a starting point
-        graph=np.copy(fitinfo.startGraph)
+        graph=fully_connected(numnodes)
 
     best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
     records=[]
@@ -827,8 +825,8 @@ def walk_from_path(path):
 # w = window size; two items appear within +/- w steps of each other (where w=1 means adjacent items)
 # f = filter frequency; if two items don't fall within the same window more than f times, then no edge is inferred
 # c = confidence interval; retain the edge if there is a <= c probability that two items occur within the same window n times by chance alone
-# valid (t/f) ensures that graph can produce data using censored RW.
-def windowGraph(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=0):
+# valid=(0,1); ensures that graph can produce data using censored RW.
+def windowGraph(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=0, td=0):
     w=fitinfo.windowgraph_size
     f=fitinfo.windowgraph_threshold
     

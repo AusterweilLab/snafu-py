@@ -17,7 +17,7 @@ toydata=rw.Toydata({
         'startX': "stationary"})
 
 fitinfo=rw.Fitinfo({
-        'startGraph': "fully_connected",
+        'startGraph': "windowgraph_valid",
         'windowgraph_size': 2,
         'windowgraph_threshold': 2,
         'followtype': "avg", 

@@ -11,6 +11,7 @@ import numpy as np
 from helper import *
 
 # ** DEPRECATED
+# ** use nx.generate_sparse6(nx.to_networkx_graph(graph),header=False) instead
 # helper function converts binary adjacency matrix to base 36 string for easy storage in CSV
 # binary -> int -> base62
 def graphToHash(a,numnodes):
