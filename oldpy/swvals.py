@@ -7,7 +7,7 @@ graph=rw.Toygraphs({'graphtype': "smallworld",
                    'numlinks': 4,
                    'probRewire': .3})
 
-prior=rw.genPrior(graph)      # same vals used in generating test_case_prior.csv
+prior=rw.genSWPrior(graph)      # same vals used in generating test_case_prior.csv
 
 outfile=open('swvals3.csv','w')
 
@@ -23,11 +23,11 @@ with open('test_case_prior2.csv','r') as fh:
         numx=str(line[7])
         
         outfile.write(numx + ',')
-        outfile.write(str(math.log(rw.evalPrior(rw.smallworld(tg),prior))) + ',')
-        outfile.write(str(math.log(rw.evalPrior(rw.smallworld(nrw),prior))) + ',')
-        outfile.write(str(math.log(rw.evalPrior(rw.smallworld(uinp),prior))) + ',')
-        outfile.write(str(math.log(rw.evalPrior(rw.smallworld(uip),prior))))
-        print rw.evalPrior(rw.smallworld(tg),prior)
+        outfile.write(str(math.log(rw.evalSWPrior(rw.smallworld(tg),prior))) + ',')
+        outfile.write(str(math.log(rw.evalSWPrior(rw.smallworld(nrw),prior))) + ',')
+        outfile.write(str(math.log(rw.evalSWPrior(rw.smallworld(uinp),prior))) + ',')
+        outfile.write(str(math.log(rw.evalSWPrior(rw.smallworld(uip),prior))))
+        print rw.evalSWPrior(rw.smallworld(tg),prior)
         outfile.write('\n')
 
 outfile.close()

@@ -3,13 +3,6 @@ import numpy as np
 import os, sys
 import networkx as nx
 
-# this should be in RW package
-def numToAnimal(data, items):
-    for lnum, l in enumerate(data):
-        for inum, i in enumerate(l):
-            data[lnum][inum]=items[i]
-    return data
-
 def list_subjects_and_categories(command):
     subjects=[]
     categories=[]
@@ -57,7 +50,7 @@ def data_properties(command):
         return filename
     command = command['data_parameters']
     Xs, items, irts, numnodes = rw.readX(command['subject'], command['category'], command['fullpath'])
-    Xs = numToAnimal(Xs, items)
+    Xs = rw.numToAnimal(Xs, items)
     cluster_sizes = rw.clusterSize(Xs, cluster_scheme_filename(command['cluster_scheme']), clustertype=command['cluster_type'])
     avg_cluster_size = rw.avgClusterSize(cluster_sizes)
     avg_num_cluster_switches = rw.avgNumClusterSwitches(cluster_sizes)

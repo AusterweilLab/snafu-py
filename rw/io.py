@@ -32,7 +32,7 @@ def hashToGraph(graphhash):
 
 # reads in graph from CSV
 # row order not preserved; not optimized
-def read_csv(fh,cols=(0,1),header=0,filters={},undirected=1):
+def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True):
     fh=open(fh,'r')
     items={}
     idx=0

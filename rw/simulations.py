@@ -22,7 +22,7 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
     else: use_irt=0
 
     if use_prior:
-        prior=genPrior(tg, fitinfo.prior_samplesize)
+        prior=genSWPrior(tg, fitinfo.prior_samplesize)
 
     # stuff to write to file
     globalvals=['numedges','graph_seed','x_seed','truegraph','ll_tg']      # same across all methods, updates with each seed

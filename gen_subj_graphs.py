@@ -17,7 +17,7 @@ toydata=rw.Toydata({
         'startX': "stationary"})
 
 fitinfo=rw.Fitinfo({
-        'startGraph': "windowgraph_valid",
+        'startGraph': "fully_connected",
         'windowgraph_size': 2,
         'windowgraph_threshold': 2,
         'followtype': "avg", 
@@ -63,7 +63,7 @@ for subj in subs:
     
     # prior
     toygraphs.numnodes = numnodes
-    prior=rw.genPrior(toygraphs, fitinfo.prior_samplesize)
+    prior=rw.genSWPrior(toygraphs, fitinfo.prior_samplesize)
     prior_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, prior=prior)
 
     # priming

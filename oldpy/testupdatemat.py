@@ -8,7 +8,7 @@ irts.data=list(irts.data)
 irts.data=rw.stepsToIRT(irts, seed=x_seed)
 
 import datetime
-prior=rw.genPrior(toygraphs)
+prior=rw.genSWPrior(toygraphs)
 
 p1, origmat=rw.probX(Xs, a, td, returnmat=1, irts=irts, prior=prior)
 a[11,20]=1-a[11,20]

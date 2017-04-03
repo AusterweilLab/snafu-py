@@ -27,7 +27,7 @@ prob_rewire=.3
 # two free parameters
 numlinks=4
 probRewire=.3
-prior=rw.genPrior(numnodes, numlinks, probRewire)
+prior=rw.genSWPrior(numnodes, numlinks, probRewire)
 
 # Find best graph!
 best_graph, bestval=rw.findBestGraph(Xs, irts=[], jeff=jeff, beta=beta, prior=prior) #JZ
