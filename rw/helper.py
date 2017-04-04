@@ -38,6 +38,7 @@ class dotdict(dict):
 def find_ngrams(input_list, n):
     return zip(*[input_list[i:] for i in range(n)])
 
+# modified from ExGUtils package by Daniel Gamermann <gamermann@gmail.com>
 # helper function generate flast lists from nested lists
 # modified from http://stackoverflow.com/a/952952/353278
 # flattens list of list one level only, preserving non-list items

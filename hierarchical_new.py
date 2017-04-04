@@ -47,16 +47,28 @@ graphs=[]
 items=[]
 Xs=[]
 numnodes=[]
+irts=[]
 
 # generate starting graphs
 for subj in subs:
     category="animals"
-    Xs, items, irts.data, numnodes=rw.readX(subj,category,'./Spring2015/results_cleaned.csv',ignorePerseverations=True)
-    items.append(items)
-    Xs.append(Xs)
-    numnodes.append(numnodes)
+    ss_Xs, ss_items, ss_irtdata, ss_numnodes=rw.readX(subj,category,'./Spring2015/results_cleaned.csv',ignorePerseverations=True)
+    
+    ss_irts=rw.Irts({
+        'data': [],
+        'irttype': "exgauss",
+        'lambda': 0.721386887,
+        'sigma': 6.58655566,
+        'irt_weight': 0.95,
+        'rcutoff': 20})
 
-graphs, priordict = hierarchicalUinvite(Xs, items, numnodes, toydata, fitinfo=Fitinfo({}), seed=None):
+    ss_irts.data = ss_irtdata
+    irts.append(ss_irts)
+    items.append(ss_items)
+    Xs.append(ss_Xs)
+    numnodes.append(ss_numnodes)
+
+graphs, priordict = rw.hierarchicalUinvite(Xs, items, numnodes, toydata, fitinfo=fitinfo, seed=None, irts=irts)
 
 for subj in subs:
     g=nx.to_networkx_graph(graphs[subj])

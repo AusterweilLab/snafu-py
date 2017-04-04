@@ -75,7 +75,7 @@ def Irts(irts):
         irts['rcutoff']=20
 
     if 'irt_weight' not in irtkeys:
-        irts['irt_weight'] = 0.9
+        irts['irt_weight'] = 1.0
         #warnings.warn("Using default IRT weight of 0.9")
     else:
         if (irts['irt_weight'] > 1.0) or (irts['irt_weight'] < 0.0):

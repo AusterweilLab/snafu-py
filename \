@@ -329,19 +329,14 @@ def evalGraphPrior(a, prior):
     probs = sum(probs)
     return probs
 
-def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({}), seed=None):
+def hierarchicalUinvite(Xs, items, numnodes, td, irts=Irts({}), fitinfo=Fitinfo({}), seed=None):
     nplocal=np.random.RandomState(seed) 
 
     # create ids for all subjects
     subs=range(len(Xs))
 
     if irts:
-        import ExGUtils.exgauss as exg
-        for sub in subs:
-            [mu, sig, tau, aa] = exg.fit_exgauss(flatten_list(irts[sub].data))
-            irts[sub].sigma = sig
-            irts[sub]['lambda'] = (1.0/tau)
-
+        if
     # find starting graphs
     graphs=[]
     for sub in subs:
@@ -365,8 +360,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
             fitinfo.startGraph = graphs[sub]
 
             # generate prior without participant's data, fit graph
-            #priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:])
-            priordict = genGraphPrior(graphs, items)
+            priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:])
             prior = (priordict, items[sub])
             if isinstance(irts, list):
                 uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub])
