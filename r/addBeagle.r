@@ -1,15 +1,15 @@
 library(R.matlab)
 library(data.table)
 
-#allsubs<-c("S101","S102","S103","S104","S105","S106","S107","S108","S109","S110","S111","S112","S113","S114","S115","S116","S117","S118","S119","S120")
-allsubs<-c("S1","S2","S3","S4","S5","S7","S8","S9","S10","S11","S12","S13")
+allsubs<-c("S101","S102","S103","S104","S105","S106","S107","S108","S109","S110","S111","S112","S113","S114","S115","S116","S117","S118","S119","S120")
+#allsubs<-c("S1","S2","S3","S4","S5","S7","S8","S9","S10","S11","S12","S13")
 
 # human data
-humans<-fread('s2016.csv')
+humans<-fread('Shier.csv')
 setkey(humans,subj)
 
 # MATLAB files
-rawmat<-readMat('BEAGLEdata.mat')
+rawmat<-readMat('snet/BEAGLEdata.mat')
 beagle<-rawmat[5]$BEAGLE.sim
 lbls<-rawmat[4]$BEAGLE.labels
 lbls<-unlist(lbls)

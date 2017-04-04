@@ -301,7 +301,7 @@ def genGraphPrior(graphs, items):
     # use beta distribution to convert to probabilities (of edge being present)
     for item1 in priordict:
         for item2 in priordict[item1]:
-            a, b = priordict[item1][item2]
+            a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
             priordict[item1][item2] = scipy.stats.beta.cdf(0.5, a, b)
     
     return priordict
@@ -329,6 +329,47 @@ def evalGraphPrior(a, prior):
     probs = sum(probs)
     return probs
 
+def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({}), seed=None):
+    nplocal=np.random.RandomState(seed) 
+
+    # create ids for all subjects
+    subs=range(len(Xs))
+
+    # find starting graphs
+    graphs=[]
+    for sub in subs:
+        if fitinfo.startGraph=="windowgraph_valid":
+            td.numx=len(Xs[sub])
+            graphs.append(windowGraph(Xs[sub], numnodes[sub], td=td, valid=True, fitinfo=fitinfo))
+        elif fitinfo.startGraph=="rw":
+            graphs.append(noHidden(Xs[sub],numnodes[sub]))
+        elif fitinfo.startGraph=="fully_connected":
+            graphs.append(fullyConnected(numnodes[sub]))
+        else:
+            graphs.append(np.copy(fitinfo.startGraph[sub]))
+
+    # cycle though participants
+    graphschanges=1
+    while graphschanges > 0:
+        graphschanges = 0
+        np.random.shuffle(subs)
+        for sub in subs:
+            td.numx = len(Xs[sub])
+            fitinfo.startGraph = graphs[sub]
+
+            # generate prior without participant's data, fit graph
+            priordict = rw.genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:])
+            prior = (priordict, items[sub])
+            if isinstance(irts, list):
+                uinvite_graph, bestval = rw.uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub])
+            else:
+                uinvite_graph, bestval = rw.uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior)
+
+        if not np.array_equal(uinvite_graph, graphs[sub]):
+            graphschanges += 1
+            graphs[sub] = uinvite_graph
+
+    return graphs, priordict
 
 # wrapper returns one graph with theta=0
 # aka draw edge between all observed nodes in all lists
