@@ -36,8 +36,8 @@ toygraphs=rw.Toygraphs({
 irts=rw.Irts({
         'data': [],
         'irttype': "exgauss",
-        'lambda': 0.721386887,
-        'sigma': 6.58655566,
+        'exgauss_lambda': 0.721386887,
+        'exgauss_sigma': 6.58655566,
         'irt_weight': 0.95,
         'rcutoff': 20})
 

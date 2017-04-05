@@ -51,9 +51,10 @@ def flatten_list(l):
 
 # log trick given list of log-likelihoods **UNUSED
 def logTrick(loglist):
+    import numpy as np
     logmax=max(loglist)
     loglist=[i-logmax for i in loglist]                     # log trick: subtract off the max
-    p=math.log(sum([math.e**i for i in loglist])) + logmax  # add it back on
+    p=np.log(sum([np.e**i for i in loglist])) + logmax  # add it back on
     return p
 
 # helper function grabs highest n items from list items **UNUSED
@@ -67,6 +68,27 @@ def maxn(items,n):
             maxs.sort(reverse=True)
             maxs= maxs[:n]
     return maxs
+
+# find best ex-gaussian parameters
+# port from R's retimes library, mexgauss function by Davide Massidda <davide.massidda@humandata.it>
+# returns [mu, sigma, lambda]
+def mexgauss(rts):
+    import numpy as np 
+    n = len(rts)
+    k = [np.nan, np.nan, np.nan]
+    start = [np.nan, np.nan, np.nan]
+    k[0] = np.mean(rts)
+    xdev = [rt - k[0] for rt in rts]
+    k[1] = sum([i**2 for i in xdev])/(n - 1.0)
+    k[2] = sum([i**3 for i in xdev])/(n - 1.0)
+    if (k[2] > 0):
+        start[2] = (k[2]/2.0)**(1/3.0)
+    else:
+        start[2] = 0.8 * np.std(rts)
+    start[1] = np.sqrt(abs(k[1] - start[2]**2))
+    start[0] = k[0] - start[2]
+    start[2] = (1.0/start[2])   # tau to lambda
+    return(start)
 
 # decorator; disables garbage collection before a function, enable gc after function completes
 # provides some speed-up for functions that have lots of unnecessary garbage collection (e.g., lots of list appends)
@@ -88,10 +110,9 @@ def numToItemLabel(data, items):
 
 # modified from ExGUtils package by Daniel Gamermann <gamermann@gmail.com>
 def rand_exg(irt, sigma, lambd):
-    import math
     import numpy as np
     tau=(1.0/lambd)
-    nexp = -tau*math.log(1.-np.random.random())
+    nexp = -tau*np.log(1.-np.random.random())
     ngau = np.random.normal(irt, sigma)
     return nexp + ngau
 

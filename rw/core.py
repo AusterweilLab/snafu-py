@@ -44,7 +44,7 @@ def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
         for inum, i in enumerate(probs[l][1:]):              # loop through all items (i) excluding first (don't jump to item 1)
             if td.jumptype=="stationary":
                 jumpprob=statdist[Xs[l][inum+1]]             # stationary probability jumping
-                if math.isnan(jumpprob):                     # if node is disconnected, jumpprob is nan
+                if np.isnan(jumpprob):                     # if node is disconnected, jumpprob is nan
                     jumpprob=0.0
             probs[l][inum+1]=jumpprob + (1-td.jump)*i        # else normalize existing probability and add jumping probability
     return probs
@@ -257,7 +257,7 @@ def genX(g,td,seed=None):
     return Xs, steps, alter_graph_size
 
 # generate random walk that results in observed x
-def genZfromX(x, theta):
+def genZfromX(x, theta, seed=None):
     nplocal=np.random.RandomState(seed)    
     
     x2=x[:]                  # make a local copy
@@ -327,7 +327,7 @@ def evalGraphPrior(a, prior):
                     prob = 0.5  # i.e., scipy.stats.beta.cdf(0.5, 1, 1) -- no information about edge
                 probs.append(prob)
     
-    probs = [math.log(prob) for prob in probs]      # multiplication probably results in underflow...
+    probs = [np.log(prob) for prob in probs]      # multiplication probably results in underflow...
     probs = sum(probs)
     return probs
 
@@ -338,11 +338,10 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     subs=range(len(Xs))
 
     if irts:
-        import ExGUtils.exgauss as exg
         for sub in subs:
-            [mu, sig, tau, aa] = exg.fit_exgauss(flatten_list(irts[sub].data))
-            irts[sub].sigma = sig
-            irts[sub]['lambda'] = (1.0/tau)
+            [mu, sig, lambd] = rw.mexgauss(flatten_list(irts[sub].data))
+            irts[sub].exgauss_sigma = sig
+            irts[sub].exgauss_lambda = lambd
 
     # find starting graphs
     graphs=[]
@@ -363,7 +362,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     while graphchanges > 0:
         if debug: print "Round: ", rnd
         graphchanges = 0
-        nplocal.random.shuffle(subs)
+        nplocal.shuffle(subs)
         for sub in subs:
             if debug: print "SS: ", sub
 
@@ -475,8 +474,8 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
 
                 # precompute for small speedup
                 if irts.irttype=="gamma":
-                    logbeta=math.log(irts.beta)
-                    logirt=math.log(irt)
+                    logbeta=np.log(irts.beta)
+                    logirt=np.log(irt)
 
                 for r in range(1,irts.rcutoff):
                     innersum=0
@@ -489,21 +488,21 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                     if irts.irttype=="gamma":
                         log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.beta*irt # r=alpha. probability of observing irt at r steps
                     if irts.irttype=="exgauss":
-                        log_dist=math.log(irts.lambd/2.0)+(irts.lambd/2.0)*(2.0*r+irts.lambd*(irts.sigma**2)-2*irt)+math.log(math.erfc((r+irts.lambd*(irts.sigma**2)-irt)/(math.sqrt(2)*irts.sigma)))
+                        log_dist=np.log(irts.exgauss_lambda/2.0)+(irts.exgauss_lambda/2.0)*(2.0*r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-2*irt)+np.log(np.erfc((r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-irt)/(np.sqrt(2)*irts.exgauss_sigma)))
 
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
-                        flist.append(log_dist*(1-irts.irt_weight)+irts.irt_weight*math.log(innersum))
+                        flist.append(log_dist*(1-irts.irt_weight)+irts.irt_weight*np.log(innersum))
 
                     newQ=np.inner(newQ,Q)                          # raise power by one
 
-                f=sum([math.e**i for i in flist])
+                f=sum([np.e**i for i in flist])
                 prob.append(f)                                     # probability of x_(t-1) to X_t
             else:                                                  # if no IRTs, use standard U-INVITE
                 I=identmat[:len(Q),:len(Q)]
                 R=t2[curpos,:curpos]
                 N=np.linalg.solve(I-Q,I[-1])
                 B=np.dot(R,N)
-                if math.isnan(B):
+                if np.isnan(B):
                     B=0.0
                 prob.append(B)
                 
@@ -542,7 +541,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                 
     # total ll of graph
     try:
-        ll=sum([sum([math.log(j) for j in probs[i]]) for i in range(len(probs))])
+        ll=sum([sum([np.log(j) for j in probs[i]]) for i in range(len(probs))])
     except:
         ll=-np.inf
 
@@ -557,7 +556,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
             if priorprob == 0.0:
                 return -np.inf, "prior"
             else:
-                ll = ll + math.log(priorprob)
+                ll = ll + np.log(priorprob)
 
     return ll, uinvite_probs
 
@@ -638,8 +637,8 @@ def smallworld(a):
     # c_rand same as edge density for a random graph? not sure if "-1" belongs in denominator, double check
     #c_rand= (numedges*2.0)/(numnodes*(numnodes-1))   # c^ws_rand?  
     c_rand= float(nodedegree)/numnodes                  # c^tri_rand?
-    l_rand= math.log(numnodes)/math.log(nodedegree)    # approximation, see humphries & gurney (2008) eq 11
-    #l_rand= (math.log(numnodes)-0.5772)/(math.log(nodedegree)) + .5 # alternative ASPL from fronczak, fronczak & holyst (2004)
+    l_rand= np.log(numnodes)/np.log(nodedegree)    # approximation, see humphries & gurney (2008) eq 11
+    #l_rand= (np.log(numnodes)-0.5772)/(np.log(nodedegree)) + .5 # alternative ASPL from fronczak, fronczak & holyst (2004)
     s=(c_sm/c_rand)/(l_sm/l_rand)
     return s
 
@@ -660,7 +659,7 @@ def stepsToIRT(irts, seed=None):
         if irts.irttype=="gamma":
             newlist=[nplocal.gamma(irt, (1.0/irts.beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
         if irts.irttype=="exgauss":
-            newlist=[rand_exg(irt, irts.sigma, irts.lambd) for irt in irtlist] 
+            newlist=[rand_exg(irt, irts.exgauss_sigma, irts.exgauss_lambda) for irt in irtlist] 
         new_irts.append(newlist)
     return new_irts
 

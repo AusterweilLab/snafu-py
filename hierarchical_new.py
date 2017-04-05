@@ -38,8 +38,8 @@ toygraphs=rw.Toygraphs({
 irts=rw.Irts({
         'data': [],
         'irttype': "exgauss",
-        'lambda': 0.721386887,
-        'sigma': 6.58655566,
+        'exgauss_lambda': 0.721386887,
+        'exgauss_sigma': 6.58655566,
         'irt_weight': 0.95,
         'rcutoff': 20})
 
@@ -57,8 +57,8 @@ for subj in subs:
     ss_irts=rw.Irts({
         'data': [],
         'irttype': "exgauss",
-        'lambda': 0.721386887,
-        'sigma': 6.58655566,
+        'exgauss_lambda': 0.721386887,
+        'exgauss_sigma': 6.58655566,
         'irt_weight': 0.95,
         'rcutoff': 20})
 
@@ -70,12 +70,12 @@ for subj in subs:
 
 graphs, priordict = rw.hierarchicalUinvite(Xs, items, numnodes, toydata, fitinfo=fitinfo, seed=None, irts=irts)
 
-for subj in subs:
-    g=nx.to_networkx_graph(graphs[subj])
-    g2=nx.to_networkx_graph(rw.noHidden(Xs[subj],numnodes[subj]))
-    nx.relabel_nodes(g, items[subj], copy=False)
-    nx.relabel_nodes(g2, items[subj], copy=False)
-    rw.write_csv([g, g2],subj+".csv",subj) # write multiple graphs
+for subnum, subj in enumerate(subs):
+    g=nx.to_networkx_graph(graphs[subnum])
+    g2=nx.to_networkx_graph(rw.noHidden(Xs[subnum],numnodes[subnum]))
+    nx.relabel_nodes(g, items[subnum], copy=False)
+    nx.relabel_nodes(g2, items[subnum], copy=False)
+    rw.write_csv([g, g2],subj+"_irt.csv",subj) # write multiple graphs
     
-with open('prior.pickle','w') as fh:
+with open('prior_irt.pickle','w') as fh:
     pickle.dump(priordict, fh)
