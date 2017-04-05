@@ -258,6 +258,8 @@ def genX(g,td,seed=None):
 
 # generate random walk that results in observed x
 def genZfromX(x, theta):
+    nplocal=np.random.RandomState(seed)    
+    
     x2=x[:]                  # make a local copy
     x2.reverse()
     
@@ -266,11 +268,11 @@ def genZfromX(x, theta):
     path.append(x2.pop())
 
     while len(x2) > 0:
-        if np.random.random() < theta:     # might want to set random seed for replicability?
+        if nplocal.random_sample() < theta:     # might want to set random seed for replicability?
             # add random hidden node
             possibles=set(path) # choose equally from previously visited nodes
             possibles.discard(path[-1]) # but exclude last node (node cant link to itself)
-            path.append(np.random.choice(list(possibles)))
+            path.append(nplocal.choice(list(possibles)))
         else:
             # first hit!
             path.append(x2.pop())
@@ -329,7 +331,7 @@ def evalGraphPrior(a, prior):
     probs = sum(probs)
     return probs
 
-def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({}), seed=None):
+def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({}), seed=None, debug=True):
     nplocal=np.random.RandomState(seed) 
 
     # create ids for all subjects
@@ -356,26 +358,31 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
             graphs.append(np.copy(fitinfo.startGraph[sub]))
 
     # cycle though participants
-    graphschanges=1
-    while graphschanges > 0:
-        graphschanges = 0
-        np.random.shuffle(subs)
+    graphchanges=1
+    rnd=1
+    while graphchanges > 0:
+        if debug: print "Round: ", rnd
+        graphchanges = 0
+        nplocal.random.shuffle(subs)
         for sub in subs:
+            if debug: print "SS: ", sub
+
             td.numx = len(Xs[sub])
             fitinfo.startGraph = graphs[sub]
 
             # generate prior without participant's data, fit graph
-            #priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:])
-            priordict = genGraphPrior(graphs, items)
+            #priordict = genGraphPrior(graphs, items)
+            priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:])
             prior = (priordict, items[sub])
             if isinstance(irts, list):
                 uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub])
             else:
                 uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior)
 
-        if not np.array_equal(uinvite_graph, graphs[sub]):
-            graphschanges += 1
-            graphs[sub] = uinvite_graph
+            if not np.array_equal(uinvite_graph, graphs[sub]):
+                graphchanges += 1
+                graphs[sub] = uinvite_graph
+        rnd += 1
 
     return graphs, priordict
 
@@ -595,12 +602,12 @@ def random_walk(g,td,seed=None):
     while len(unused_nodes) > num_unused:
 
         # jump after n censored nodes or with random probability (depending on parameters)
-        if (censoredcount == td.jumponcensored) or (nplocal.random_sample(1)[0] < td.jump):
+        if (censoredcount == td.jumponcensored) or (nplocal.random_sample() < td.jump):
             second=jump()
         else:                                           # no jumping!
             second=nplocal.choice([x for x in nx.all_neighbors(g,first)]) # follow random edge (actual random walk!)
             if (td.priming > 0.0) and (len(td.priming_vector) > 0):
-                if (first in td.priming_vector[:-1]) & (nplocal.random_sample(1)[0] < td.priming):      
+                if (first in td.priming_vector[:-1]) & (nplocal.random_sample() < td.priming):      
                     idx=td.priming_vector.index(first)
                     second=td.priming_vector[idx+1]          # overwrite RW... kinda janky
         walk.append((first,second))
