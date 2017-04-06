@@ -18,16 +18,9 @@ from datetime import datetime
 from helper import *
 from structs import *
 
-
-# TODO: double check genX trimval and numx changes working properly
-# TODO: error?? ValueError: list.remove(x): x not in list -- with small graphs i think
-# TODO: make recording optional
-    # write toy params to record file
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
-# TODO: pass method name to findBestGraph, eliminate some branching
-# TODO: hide priming vector from output file
-# TODO: check priming vector model!! see if Xs generating from priming model converge to true network faster with priming parameters
+# TODO: in hierarchical model, only redo subjects prior to last change
 
 
 # mix U-INVITE with random jumping model
@@ -44,7 +37,7 @@ def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
         for inum, i in enumerate(probs[l][1:]):              # loop through all items (i) excluding first (don't jump to item 1)
             if td.jumptype=="stationary":
                 jumpprob=statdist[Xs[l][inum+1]]             # stationary probability jumping
-                if np.isnan(jumpprob):                     # if node is disconnected, jumpprob is nan
+                if np.isnan(jumpprob):                       # if node is disconnected, jumpprob is nan
                     jumpprob=0.0
             probs[l][inum+1]=jumpprob + (1-td.jump)*i        # else normalize existing probability and add jumping probability
     return probs
@@ -167,6 +160,20 @@ def genGraphs(numgraphs, theta, Xs, numnodes):
     Zs=[reduce(operator.add,[genZfromX(x,theta) for x in Xs]) for i in range(numgraphs)]
     As=[genGfromZ(z, numnodes) for z in Zs]
     return As
+
+# generate starting graph for U-INVITE
+def genStartGraph(Xs, numnodes, td, fitinfo):
+    if fitinfo.startGraph=="windowgraph_valid":
+        graph=windowGraph(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
+    elif fitinfo.startGraph=="rw":
+        graph=noHidden(Xs,numnodes)
+    elif fitinfo.startGraph=="fully_connected":
+        graph=fullyConnected(numnodes)
+    elif fitinfo.startGraph=="empty_graph":
+        graph=np.zeros((numnodes[sub],numnodes[sub])).astype(int) # requires jumping
+    else:
+        graph=np.copy(fitinfo.startGraph)                         # assume a graph has been passed as a starting point
+    return graph
 
 # generate pdf of small-world metric based on W-S criteria
 # n <- # samples (larger n == better fidelity)
@@ -348,15 +355,8 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     # find starting graphs
     graphs=[]
     for sub in subs:
-        if fitinfo.startGraph=="windowgraph_valid":
-            td.numx=len(Xs[sub])
-            graphs.append(windowGraph(Xs[sub], numnodes[sub], td=td, valid=True, fitinfo=fitinfo))
-        elif fitinfo.startGraph=="rw":
-            graphs.append(noHidden(Xs[sub],numnodes[sub]))
-        elif fitinfo.startGraph=="fully_connected":
-            graphs.append(fullyConnected(numnodes[sub]))
-        else:
-            graphs.append(np.copy(fitinfo.startGraph[sub]))
+        td.numx=len(Xs[sub])    # for windowgraph
+        graphs.append(genStartGraph(Xs[sub], numnodes[sub], td, fitinfo=fitinfo))
 
     # cycle though participants
     graphchanges=1
@@ -853,14 +853,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
     firstedges=[(x[0], x[1]) for x in Xs]
     
     # find a good starting graph using naive RW
-    if fitinfo.startGraph=="windowgraph_valid":
-        graph=windowGraph(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
-    elif fitinfo.startGraph=="rw":
-        graph=noHidden(Xs,numnodes)
-    elif fitinfo.startGraph=="fully_connected":
-        graph=fullyConnected(numnodes)
-    else:                                                         # assume a graph has been passed as a starting point
-        graph=np.copy(fitinfo.startGraph)
+    graph = genStartGraph(Xs, numnodes, td, fitinfo)
 
     best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
     records=[]

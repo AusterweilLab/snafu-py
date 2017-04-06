@@ -47,13 +47,22 @@ for subj in subs:
     print subj
     category="animals"
     Xs, items, irts.data, numnodes=rw.readX(subj,category,'./Spring2015/results_cleaned.csv',ignorePerseverations=True)
+    
     toydata.numx = len(Xs)
+    [mu, sig, lambd] = rw.mexgauss(rw.flatten_list(irts.data))
+    irts.exgauss_sigma = sig    
+    irts.exgauss_lambda = lambd
 
     # u-invite
     uinvite_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo)
 
     # irt95
+    irts.irt_weight=0.95
     irt95_graph, bestval=rw.uinvite(Xs, toydata, numnodes, irts=irts, fitinfo=fitinfo)
+
+    # irt5
+    irts.irt_weight=0.5
+    irt5_graph, bestval=rw.uinvite(Xs, toydata, numnodes, irts=irts, fitinfo=fitinfo)
 
     # rw
     rw_graph=rw.noHidden(Xs, numnodes)
@@ -62,32 +71,28 @@ for subj in subs:
     window_graph=rw.windowGraph(Xs, numnodes, td=toydata, valid=0, fitinfo=fitinfo)
     
     # prior
-    toygraphs.numnodes = numnodes
-    prior=rw.genSWPrior(toygraphs, fitinfo.prior_samplesize)
-    prior_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, prior=prior)
+    #toygraphs.numnodes = numnodes
+    #prior=rw.genSWPrior(toygraphs, fitinfo.prior_samplesize)
+    #prior_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, prior=prior)
 
     # priming
-    toydata.priming = 0.5
-    priming_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo)
+    #toydata.priming = 0.5
+    #priming_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo)
 
     # complete (irts, prior,, priming)
-    complete_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, prior=prior, irts=irts)
-    toydata.priming = 0.0 # reset priming
+    #complete_graph, bestval=rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, prior=prior, irts=irts)
+    #toydata.priming = 0.0 # reset priming
 
-    g=nx.to_networkx_graph(uinvite_graph)
-    g2=nx.to_networkx_graph(priming_graph)
-    g3=nx.to_networkx_graph(rw_graph)
-    g4=nx.to_networkx_graph(window_graph)
+    g=nx.to_networkx_graph(rw_graph)
+    g2=nx.to_networkx_graph(window_graph)
+    g3=nx.to_networkx_graph(uinvite_graph)
+    g4=nx.to_networkx_graph(irt5_graph)
     g5=nx.to_networkx_graph(irt95_graph)
-    g6=nx.to_networkx_graph(prior_graph)
-    g7=nx.to_networkx_graph(complete_graph)
 
     nx.relabel_nodes(g, items, copy=False)
     nx.relabel_nodes(g2, items, copy=False)
     nx.relabel_nodes(g3, items, copy=False)
     nx.relabel_nodes(g4, items, copy=False)
     nx.relabel_nodes(g5, items, copy=False)
-    nx.relabel_nodes(g6, items, copy=False)
-    nx.relabel_nodes(g7, items, copy=False)
 
-    rw.write_csv([g, g2, g3, g4, g5, g6, g7],subj+".csv",subj) # write multiple graphs
+    rw.write_csv([g, g2, g3, g4, g5],subj+".csv",subj) # write multiple graphs
