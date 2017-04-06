@@ -279,7 +279,9 @@ def genZfromX(x, theta, seed=None):
     return walk_from_path(path)
 
 
-def genGraphPrior(graphs, items):
+def genGraphPrior(graphs, items, fitinfo=Fitinfo({})):
+    a=fitinfo.prior_a
+    b=fitinfo.prior_b
     priordict={}
     
     # tabulate number of times edge does or doesn't appear in all of the graphs when node pair is present
@@ -294,7 +296,7 @@ def genGraphPrior(graphs, items):
                     if pair[0] not in priordict.keys():
                         priordict[pair[0]]={}
                     if pair[1] not in priordict[pair[0]].keys():
-                        priordict[pair[0]][pair[1]]=[1,1]
+                        priordict[pair[0]][pair[1]]=[a,b]
                     if j==1:
                         priordict[pair[0]][pair[1]][1] += 1
                     elif j==0:
@@ -370,8 +372,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
             fitinfo.startGraph = graphs[sub]
 
             # generate prior without participant's data, fit graph
-            #priordict = genGraphPrior(graphs, items)
-            priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:])
+            priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
             prior = (priordict, items[sub])
             if isinstance(irts, list):
                 uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub])

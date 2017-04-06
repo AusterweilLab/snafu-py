@@ -22,6 +22,8 @@ fitinfo=rw.Fitinfo({
         'windowgraph_threshold': 2,
         'followtype': "avg", 
         'prior_samplesize': 10000,
+        'prior_a': 1,
+        'prior_b': 1,
         'recorddir': "records/",
         'directed': False,
         'prune_limit': np.inf,

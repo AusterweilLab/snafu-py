@@ -102,6 +102,10 @@ def Fitinfo(fitinfo):
         if isinstance(fitinfo[i],list):
             return flatten_list([Fitinfo(dict(fitinfo, **{i: j})) for j in fitinfo[i]])
     
+    if 'prior_a' not in fitkeys:
+        fitinfo['prior_a'] = 1
+    if 'prior_b' not in fitkeys:
+        fitinfo['prior_b'] = 1
     if 'directed' not in fitkeys:
         fitinfo['directed'] = False
     if 'startGraph' not in fitkeys:
