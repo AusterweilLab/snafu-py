@@ -339,7 +339,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
 
     if irts:
         for sub in subs:
-            [mu, sig, lambd] = rw.mexgauss(flatten_list(irts[sub].data))
+            [mu, sig, lambd] = mexgauss(flatten_list(irts[sub].data))
             irts[sub].exgauss_sigma = sig
             irts[sub].exgauss_lambda = lambd
 
@@ -488,7 +488,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                     if irts.irttype=="gamma":
                         log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.beta*irt # r=alpha. probability of observing irt at r steps
                     if irts.irttype=="exgauss":
-                        log_dist=np.log(irts.exgauss_lambda/2.0)+(irts.exgauss_lambda/2.0)*(2.0*r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-2*irt)+np.log(np.erfc((r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-irt)/(np.sqrt(2)*irts.exgauss_sigma)))
+                        log_dist=np.log(irts.exgauss_lambda/2.0)+(irts.exgauss_lambda/2.0)*(2.0*r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-2*irt)+np.log(math.erfc((r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-irt)/(np.sqrt(2)*irts.exgauss_sigma)))
 
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
                         flist.append(log_dist*(1-irts.irt_weight)+irts.irt_weight*np.log(innersum))
