@@ -170,7 +170,7 @@ def genStartGraph(Xs, numnodes, td, fitinfo):
     elif fitinfo.startGraph=="fully_connected":
         graph=fullyConnected(numnodes)
     elif fitinfo.startGraph=="empty_graph":
-        graph=np.zeros((numnodes[sub],numnodes[sub])).astype(int) # requires jumping
+        graph=np.zeros((numnodes,numnodes)).astype(int) # requires jumping
     else:
         graph=np.copy(fitinfo.startGraph)                         # assume a graph has been passed as a starting point
     return graph
@@ -558,7 +558,6 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                 return -np.inf, "prior"
             else:
                 ll = ll + np.log(priorprob)
-
     return ll, uinvite_probs
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
@@ -784,7 +783,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
 
                 graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=probmat,changed=[node1,node2])
 
-                if best_ll > graph_ll:
+                if best_ll >= graph_ll:
                     record.append(graph_ll)
                     graph=swapEdges(graph,[edge])
                 else:
@@ -847,7 +846,6 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
                 if (phasenum==1) and (vmin>1): complete=[0,1,0]
                 if (phasenum==2) and (vmin>1): complete=[0,0,1]
                 vmin=1
-
         return graph, best_ll
 
     firstedges=[(x[0], x[1]) for x in Xs]
@@ -855,7 +853,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
     # find a good starting graph using naive RW
     graph = genStartGraph(Xs, numnodes, td, fitinfo)
 
-    best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
+    best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of starting graph
     records=[]
     graph, best_ll = phases(graph, best_ll, probmat)
     if fitinfo.record:
