@@ -170,7 +170,7 @@ def genStartGraph(Xs, numnodes, td, fitinfo):
     elif fitinfo.startGraph=="fully_connected":
         graph=fullyConnected(numnodes)
     elif fitinfo.startGraph=="empty_graph":
-        graph=np.zeros((numnodes,numnodes)).astype(int) # requires jumping
+        graph=np.zeros((numnodes,numnodes)).astype(int)           # useless...
     else:
         graph=np.copy(fitinfo.startGraph)                         # assume a graph has been passed as a starting point
     return graph
