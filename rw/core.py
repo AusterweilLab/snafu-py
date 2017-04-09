@@ -56,6 +56,54 @@ def adjustPriming(probs, td, Xs):
                     probs[xnum+1][inum+1] = (probs[xnum+1][inum+1] * (1-td.priming))
     return probs
 
+def blockModel(Xs, td, numnodes, fitinfo=Fitinfo({}), prior=None, debug=True, seed=None):
+    nplocal=np.random.RandomState(seed)
+    import itertools
+
+    def swapEdges(graph,links):
+        for link in links:
+            graph[link[0],link[1]] = 1 - graph[link[0],link[1]]
+            graph[link[1],link[0]] = 1 - graph[link[1],link[0]]
+        return graph
+
+    # starting categories
+    categories = flatten_list([walk_from_path(x) for x in Xs])
+    categories = list({frozenset(i) for i in categories})
+    categories = [set(i) for i in categories]
+    nplocal.shuffle(categories)
+ 
+    # since all categories are tuples of adjacent pairs, starting graph is equivalent to naive random walk 
+    a = noHidden(Xs, numnodes)
+    best_ll, probs = probX(Xs, a, td)
+
+    for cat in categories:
+        for catpair in categories:
+            if cat != catpair:
+                newset=set.union(cat,catpair)
+                edgeschanged = []
+                for i in itertools.combinations(newset, 2):
+                    if (a[i[0],i[1]] == 0) and (i[0] != i[1]):
+                        a = swapEdges(a,[i])
+                        edgeschanged.append(i)
+                nodeschanged = list({j for i in edgeschanged for j in i})
+                if len(nodeschanged) > 0:
+                    graph_ll, probs = probX(Xs, a, td, changed=nodeschanged)
+                    if graph_ll > best_ll:                                      # if merged categories are better, keep them merged
+                        print "GOOD"
+                        best_ll = graph_ll
+                        #categories.remove(cat)
+                        #categories.remove(catpair)
+                        #categories.append(newset)
+                    else:                                                       # else keep categories separate
+                        a = swapEdges(a,edgeschanged)
+                else:                          
+                    pass
+                    # categories are already inter-connected, merge them
+                    #categories.remove(cat)
+                    #categories.append(newset)
+                    
+    return a
+
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
 def cost(graph,a):
@@ -240,18 +288,19 @@ def genSteyvers(n,m, tail=1, seed=None):               # tail allows m-1 "null" 
 
 # return simulated data on graph g
 # also return number of steps between first hits (to use for IRTs)
-def genX(g,td,seed=None):
+def genX(g, td, seed=None):
     Xs=[]
     steps=[]
+    priming_vector=[]
 
     for xnum in range(td.numx):
-        rwalk=random_walk(g,td,seed+xnum)
+        rwalk=random_walk(g, td, priming_vector=priming_vector, seed=seed+xnum)
         x=observed_walk(rwalk)
         fh=list(zip(*firstHits(rwalk))[1])
         step=[fh[i]-fh[i-1] for i in range(1,len(fh))]
         Xs.append(x)
         if td.priming > 0.0:
-            td.priming_vector=x[:]
+            priming_vector=x[:]
         steps.append(step)
 
     alter_graph_size=0
@@ -561,7 +610,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
     return ll, uinvite_probs
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
-def random_walk(g,td,seed=None):
+def random_walk(g, td, priming_vector=[], seed=None):
     nplocal=np.random.RandomState(seed)    
 
     def jump():
@@ -605,10 +654,10 @@ def random_walk(g,td,seed=None):
             second=jump()
         else:                                           # no jumping!
             second=nplocal.choice([x for x in nx.all_neighbors(g,first)]) # follow random edge (actual random walk!)
-            if (td.priming > 0.0) and (len(td.priming_vector) > 0):
-                if (first in td.priming_vector[:-1]) & (nplocal.random_sample() < td.priming):      
-                    idx=td.priming_vector.index(first)
-                    second=td.priming_vector[idx+1]          # overwrite RW... kinda janky
+            if (td.priming > 0.0) and (len(priming_vector) > 0):
+                if (first in priming_vector[:-1]) & (nplocal.random_sample() < td.priming):      
+                    idx=priming_vector.index(first)
+                    second=priming_vector[idx+1]          # overwrite RW... kinda janky
         walk.append((first,second))
         if second in unused_nodes:
             unused_nodes.remove(second)

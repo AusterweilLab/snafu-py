@@ -25,8 +25,6 @@ def Toydata(toydata):
         raise ValueError("Must specify 'numx' in toydata!")
     if 'priming' not in tdkeys:
         toydata['priming']=0.0
-    if 'priming_vector' not in tdkeys:
-        toydata['priming_vector']=[]
     if 'jumponcensored' not in tdkeys:
         toydata['jumponcensored']=None
 
