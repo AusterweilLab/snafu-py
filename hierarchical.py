@@ -17,9 +17,9 @@ toydata=rw.Toydata({
         'startX': "stationary"})
 
 fitinfo=rw.Fitinfo({
-        'startGraph': "windowgraph_valid",
-        'windowgraph_size': 2,
-        'windowgraph_threshold': 2,
+        'startGraph': "goni_valid",
+        'goni_size': 2,
+        'goni_threshold': 2,
         'followtype': "avg", 
         'prior_samplesize': 10000,
         'prior_a': 1,

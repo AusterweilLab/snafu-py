@@ -211,8 +211,8 @@ def genGraphs(numgraphs, theta, Xs, numnodes):
 
 # generate starting graph for U-INVITE
 def genStartGraph(Xs, numnodes, td, fitinfo):
-    if fitinfo.startGraph=="windowgraph_valid":
-        graph=windowGraph(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
+    if fitinfo.startGraph=="goni_valid":
+        graph=goni(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
     elif fitinfo.startGraph=="rw":
         graph=noHidden(Xs,numnodes)
     elif fitinfo.startGraph=="fully_connected":
@@ -404,7 +404,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     # find starting graphs
     graphs=[]
     for sub in subs:
-        td.numx=len(Xs[sub])    # for windowgraph
+        td.numx=len(Xs[sub])    # for goni
         graphs.append(genStartGraph(Xs[sub], numnodes[sub], td, fitinfo=fitinfo))
 
     # cycle though participants
@@ -924,21 +924,21 @@ def walk_from_path(path):
 # f = filter frequency; if two items don't fall within the same window more than f times, then no edge is inferred
 # c = confidence interval; retain the edge if there is a <= c probability that two items occur within the same window n times by chance alone
 # valid (t/f) ensures that graph can produce data using censored RW.
-def windowGraph(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=0):
-    w=fitinfo.windowgraph_size
-    f=fitinfo.windowgraph_threshold
+def goni(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=0):
+    w=fitinfo.goni_size
+    f=fitinfo.goni_threshold
     
     if f<1:                 # if <1 treat as proportion of total lists; if >1 treat as absolute # of lists
         f=int(round(len(Xs)*f))
 
     if valid and td==0:
-        raise ValueError('Need to pass Toydata when generating \'valid\' windowGraph()')
+        raise ValueError('Need to pass Toydata when generating \'valid\' goni()')
 
     if c<1:
         from statsmodels.stats.proportion import proportion_confint as pci
 
     if w < 1:
-        print "Error in windowGraph(): w must be >= 1"
+        print "Error in goni(): w must be >= 1"
         return
 
     graph=np.zeros((numnodes, numnodes)).astype(int)         # empty graph
@@ -989,7 +989,7 @@ def windowGraph(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=0):
             elif check[1] == "prior":
                 raise ValueError('Starting graph has prior probability of 0.0')
             else:
-                raise ValueError('Unexpected error from windowGraph()')
+                raise ValueError('Unexpected error from goni()')
             check=probX(Xs, graph, td)
 
     # make sure there are no self-transitions

@@ -107,17 +107,17 @@ def Fitinfo(fitinfo):
     if 'directed' not in fitkeys:
         fitinfo['directed'] = False
     if 'startGraph' not in fitkeys:
-        fitinfo['startGraph'] = "windowgraph_valid"
+        fitinfo['startGraph'] = "goni_valid"
     if 'prune_limit' not in fitkeys:
         fitinfo['prune_limit'] = np.inf
     if 'triangle_limit' not in fitkeys:
         fitinfo['triangle_limit'] = np.inf
     if 'other_limit' not in fitkeys:
         fitinfo['other_limit'] = np.inf
-    if 'windowgraph_size' not in fitkeys:
-        fitinfo['windowgraph_size'] = 2
-    if 'windowgraph_threshold' not in fitkeys:
-        fitinfo['windowgraph_threshold'] = 2
+    if 'goni_size' not in fitkeys:
+        fitinfo['goni_size'] = 2
+    if 'goni_threshold' not in fitkeys:
+        fitinfo['goni_threshold'] = 2
     if 'record' not in fitkeys:
         fitinfo['record'] = False
     return dotdict(fitinfo)

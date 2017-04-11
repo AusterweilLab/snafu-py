@@ -17,9 +17,9 @@ toydata=rw.Toydata({
         'startX': "stationary"})
 
 fitinfo=rw.Fitinfo({
-        'startGraph': "windowgraph_valid",
-        'windowgraph_size': 2,
-        'windowgraph_threshold': 2,
+        'startGraph': "goni_valid",
+        'goni_size': 2,
+        'goni_threshold': 2,
         'followtype': "avg", 
         'prior_samplesize': 10000,
         'recorddir': "records/",
@@ -67,8 +67,8 @@ for subj in subs:
     # rw
     rw_graph=rw.noHidden(Xs, numnodes)
 
-    # windowgraph
-    window_graph=rw.windowGraph(Xs, numnodes, td=toydata, valid=0, fitinfo=fitinfo)
+    # goni
+    goni_graph=rw.goni(Xs, numnodes, td=toydata, valid=0, fitinfo=fitinfo)
     
     # prior
     #toygraphs.numnodes = numnodes
@@ -84,7 +84,7 @@ for subj in subs:
     #toydata.priming = 0.0 # reset priming
 
     g=nx.to_networkx_graph(rw_graph)
-    g2=nx.to_networkx_graph(window_graph)
+    g2=nx.to_networkx_graph(goni_graph)
     g3=nx.to_networkx_graph(uinvite_graph)
     g4=nx.to_networkx_graph(irt5_graph)
     g5=nx.to_networkx_graph(irt95_graph)

@@ -9,8 +9,8 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
 
     # break out of function if using unknown method
     for method in methods:
-        if method not in ['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior','windowgraph',
-                          'windowgraph_valid','threshold','threshold_valid']:
+        if method not in ['rw','fe','uinvite','uinvite_irt','uinvite_prior','uinvite_irt_prior','goni',
+                          'goni_valid','threshold','threshold_valid']:
             raise ValueError('ERROR: Trying to fit graph with unknown method: ', method)
 
     # flag if using a prior method
@@ -93,17 +93,17 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
             if method == 'uinvite_irt_prior':
                 bestgraph, ll=uinvite(Xs, td, tg.numnodes, irts=irts, prior=prior, debug=debug, fitinfo=fitinfo, recordname=recordname)
                 ll_tg=probX(Xs, a, td, prior=prior, irts=irts)[0]
-            if method == 'windowgraph':
-                bestgraph=windowGraph(Xs, tg.numnodes, fitinfo=fitinfo)
+            if method == 'goni':
+                bestgraph=goni(Xs, tg.numnodes, fitinfo=fitinfo)
                 ll=probX(Xs, bestgraph, td)[0]
-            if method == 'windowgraph_valid':
-                bestgraph=windowGraph(Xs, tg.numnodes, td=td, valid=1, fitinfo=fitinfo)
+            if method == 'goni_valid':
+                bestgraph=goni(Xs, tg.numnodes, td=td, valid=1, fitinfo=fitinfo)
                 ll=probX(Xs, bestgraph, td)[0]
             if method=='threshold':
-                bestgraph=windowGraph(Xs, tg.numnodes, fitinfo=fitinfo, c=1)
+                bestgraph=goni(Xs, tg.numnodes, fitinfo=fitinfo, c=1)
                 ll=probX(Xs, bestgraph, td)[0]
             if method=='threshold_valid':
-                bestgraph=windowGraph(Xs, tg.numnodes, td=td, valid=1, fitinfo=fitinfo, c=1)
+                bestgraph=goni(Xs, tg.numnodes, td=td, valid=1, fitinfo=fitinfo, c=1)
                 ll=probX(Xs, bestgraph, td)[0]
             if method == 'rw':
                 bestgraph=noHidden(Xs, tg.numnodes)
