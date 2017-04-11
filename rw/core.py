@@ -435,6 +435,42 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
 
     return graphs, priordict
 
+# construct graph using method using item correlation matrix and planar maximally filtered graph (PMFG)
+# see Borodkin, Kenett, Faust, & Mashal (2016) and Kenett, Kenett, Ben-Jacob, & Faust (2011)
+# does not work well for small number of lists! many NaN correlations + when two correlations are equal, ordering is arbitrary
+def kenett(Xs, numnodes):
+    import planarity
+    
+    # construct matrix of list x item where each cell indicates whether that item is in that list
+    list_by_item = np.zeros((numnodes,len(Xs)))
+    for node in range(numnodes):
+        for x in range(len(Xs)):
+            if node in Xs[x]:
+                list_by_item[node,x]=1.0
+    
+    # find pearsonr correlation for all item pairs
+    item_by_item = {}
+    for item1 in range(numnodes):
+        for item2 in range(numnodes):
+            if item1 < item2:
+                item_by_item[(item1, item2)] = scipy.stats.pearsonr(list_by_item[item1],list_by_item[item2])[0]
+    
+    corr_vals = sorted(item_by_item, key=item_by_item.get)[::-1]       # keys in correlation dictionary sorted by value (high to low, including NaN first)
+    
+    # nan correlation occurs when item is in all lists-- exclude from graph (conservative)
+    edgelist=[]
+    for pair in corr_vals:
+        if not np.isnan(item_by_item[pair]):
+            edgelist.append(pair)
+            if not planarity.is_planar(edgelist):
+                edgelist.pop()
+    
+    g = nx.Graph()
+    g.add_edges_from(edgelist)
+    a=np.array(nx.to_numpy_matrix(g)).astype(int)
+    
+    return a
+
 # wrapper returns one graph with theta=0
 # aka draw edge between all observed nodes in all lists
 def noHidden(Xs, numnodes):
