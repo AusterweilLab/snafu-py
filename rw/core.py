@@ -21,7 +21,7 @@ from structs import *
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
 # TODO: in hierarchical model, only redo subjects prior to last change
-
+# TODO: get rid of passing numnodes and setting td.numx wherever possible... just calculate from Xs
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -103,6 +103,39 @@ def blockModel(Xs, td, numnodes, fitinfo=Fitinfo({}), prior=None, debug=True, se
                     #categories.append(newset)
                     
     return a
+
+# Chan, Butters, Paulsen, Salmon, Swenson, & Maloney (1993) jcogneuro (p. 256) + pathfinder (PF; Schvaneveldt)
+# + Chan, Butters, Salmon, Johnson, Paulsen, & Swenson (1995) neuropsychology
+# Returns only PF(q, r) = PF(n-1, inf) = minimum spanning tree (sparsest possible graph)
+# other parameterizations of PF(q, r) not implemented
+def chan(Xs, numnodes):
+    import scipy.sparse
+    N = float(len(Xs))
+    distance_mat = np.zeros((numnodes, numnodes))
+    for item1 in range(numnodes):
+        for item2 in range(item1+1,numnodes):
+            Tij = 0
+            dijk = 0
+            for x in Xs:
+                if (item1 in x) and (item2 in x):
+                    Tij += 1
+                    dijk = dijk + (abs(x.index(item1) - x.index(item2)) / float(len(x)))
+            try:
+                dij = dijk * (N / (Tij**2))
+            except:
+                dij = 0.0       # added constraint for divide-by-zero... not clear how Chan handles this
+            distance_mat[item1, item2] = dij
+            distance_mat[item2, item1] = dij
+    graph = scipy.sparse.csgraph.minimum_spanning_tree(distance_mat)
+
+    # binarize and make graph symmetric (undirected)... some redundancy but it's cheap
+    graph = np.where(graph.todense(), 1, 0)
+    for rownum, row in enumerate(graph):
+        for colnum, val in enumerate(row):
+            if val==1:
+                graph[rownum,colnum]=1
+                graph[colnum,rownum]=1
+    return graph
 
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
@@ -451,9 +484,8 @@ def kenett(Xs, numnodes):
     # find pearsonr correlation for all item pairs
     item_by_item = {}
     for item1 in range(numnodes):
-        for item2 in range(numnodes):
-            if item1 < item2:
-                item_by_item[(item1, item2)] = scipy.stats.pearsonr(list_by_item[item1],list_by_item[item2])[0]
+        for item2 in range(item1+1,numnodes):
+            item_by_item[(item1, item2)] = scipy.stats.pearsonr(list_by_item[item1],list_by_item[item2])[0]
     
     corr_vals = sorted(item_by_item, key=item_by_item.get)[::-1]       # keys in correlation dictionary sorted by value (high to low, including NaN first)
     
@@ -466,6 +498,7 @@ def kenett(Xs, numnodes):
                 edgelist.pop()
     
     g = nx.Graph()
+    g.add_nodes_from(range(numnodes))
     g.add_edges_from(edgelist)
     a=np.array(nx.to_numpy_matrix(g)).astype(int)
     
