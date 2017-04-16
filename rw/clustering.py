@@ -70,16 +70,14 @@ def labelClusters(l, scheme):
     cats={}
     for line in cf:
         line=line.rstrip()
-        cat, items = line.split(',', 1)
-        cat=cat.lower().replace(' ','')
-        for item in items.split(','):
-            if item != '':
-                item=item.lower().replace(' ','')
-                if item not in cats.keys():
-                    cats[item]=cat
-                else:
-                    if cat not in cats[item]:
-                        cats[item]=cats[item] + ';' + cat
+        cat, item = line.split(',')
+        cat=cat.lower().replace(' ','').replace("'","").replace("-","") # basic clean-up
+        item=item.lower().replace(' ','').replace("'","").replace("-","")
+        if item not in cats.keys():
+            cats[item]=cat
+        else:
+            if cat not in cats[item]:
+                cats[item]=cats[item] + ';' + cat
     labels=[]
     for inum, item in enumerate(l):
         if isinstance(item, list):

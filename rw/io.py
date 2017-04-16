@@ -78,7 +78,7 @@ def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True):
     return graph, items
 
 # read Xs in from user files
-def readX(subj,category,filepath,ignorePerseverations=False):
+def readX(subj,category,filepath,ignorePerseverations=False,spellingdict=None):
     if type(subj) == str:
         subj=[subj]
     game=-1
@@ -87,6 +87,9 @@ def readX(subj,category,filepath,ignorePerseverations=False):
     irts=[]
     items={}
     idx=0
+    #if spellingdict:
+    #    with open(spellingdict,'r') as spellfile:
+    #        pass
     with open(filepath) as f:
         for line in f:
             row=line.split(',')
@@ -96,7 +99,9 @@ def readX(subj,category,filepath,ignorePerseverations=False):
                     irts.append([])
                     game=row[1]
                     cursubj=row[0]
-                item=row[3]
+                item=row[3].lower().replace(" ","").replace("'","") # basic clean-up
+                #if item in spellingdict:
+                #    pass
                 irt=row[4]
                 if item not in items.values():
                     items[idx]=item

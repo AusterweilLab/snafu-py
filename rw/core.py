@@ -993,14 +993,14 @@ def walk_from_path(path):
 # f = filter frequency; if two items don't fall within the same window more than f times, then no edge is inferred
 # c = confidence interval; retain the edge if there is a <= c probability that two items occur within the same window n times by chance alone
 # valid (t/f) ensures that graph can produce data using censored RW.
-def goni(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=0):
+def goni(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=None):
     w=fitinfo.goni_size
     f=fitinfo.goni_threshold
     
     if f<1:                 # if <1 treat as proportion of total lists; if >1 treat as absolute # of lists
         f=int(round(len(Xs)*f))
 
-    if valid and td==0:
+    if valid and not td:
         raise ValueError('Need to pass Toydata when generating \'valid\' goni()')
 
     if c<1:

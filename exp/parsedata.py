@@ -39,7 +39,7 @@ for df in datafiles:
             line=[subj, gamenum, category, cleanitem, rt, rtstart, shortlist]
             fulldata.append(line)
 
-with open('results_cleaned.csv','wb') as csvfile:
+with open('results_unclean.csv','wb') as csvfile:
     w = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
     w.writerow(header)
     for i in fulldata:

@@ -25,27 +25,27 @@ def list_subjects_and_categories(command):
 def jsonGraph(g, items):
     from networkx.readwrite import json_graph
     json_data = json_graph.node_link_data(g)
-
+    
     json_data['edges'] = json_data['links']
     json_data.pop('links', None)
     json_data.pop('directed', None)
     json_data.pop('multigraph', None)
     json_data.pop('graph', None)
-
+    
     for i, j in enumerate(json_data['edges']):
         json_data['edges'][i]['id'] = i
-
+    
     for i, j in enumerate(json_data['nodes']):
         json_data['nodes'][i]['label']=items[j['id']]
-
-    return json_data
     
+    return json_data
+
 def data_properties(command):
     def cluster_scheme_filename(x):
         current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
-        schemes = { "Troyer": "/../schemes/troyer.csv",
-                    "Troyer-Hills": "/../schemes/troyer_hills.csv",
-                    "Troyer-Hills-Zemla": "/../schemes/troyer_hills_zemla.csv" }
+        schemes = { "Troyer": "/../schemes/troyer_animals.csv",
+                    "Troyer-Hills": "/../schemes/troyer_hills_animals.csv",
+                    "Troyer-Hills-Zemla": "/../schemes/troyer_hills_zemla_animals.csv" }
         filename = current_dir + schemes[x]
         return filename
     command = command['data_parameters']
@@ -77,35 +77,49 @@ def network_properties(command):
     subj_props = command['data_parameters']
     command = command['network_parameters']
     Xs, items, irts, numnodes = rw.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'])
+
+    def no_persev(x):
+        seen = set()
+        seen_add = seen.add
+        return [i for i in x if not (i in seen or seen_add(i))]
+
+    toydata=rw.Toydata({
+            'numx': len(Xs),
+            'trim': 1,
+            'jump': 0.0,
+            'jumptype': "stationary",
+            'priming': 0.0,
+            'startX': "stationary"})
+    fitinfo=rw.Fitinfo({
+            'startGraph': "goni_valid",
+            'goni_size': 2,
+            'goni_threshold': 2,
+            'followtype': "avg", 
+            'prior_samplesize': 10000,
+            'recorddir': "records/",
+            'prune_limit': 100,
+            'triangle_limit': 100,
+            'other_limit': 100})
+   
+    
     if command['network_method']=="RW":
-        bestgraph=rw.noHidden(Xs, numnodes)
+        bestgraph = rw.noHidden(Xs, numnodes)
+    elif command['network_method']=="Goni":
+        bestgraph = rw.goni(Xs, numnodes, td=toydata, valid=0, fitinfo=fitinfo)
     elif command['network_method']=="U-INVITE":
-        toydata=rw.Toydata({
-                'numx': len(Xs),
-                'trim': 1,
-                'jump': 0.0,
-                'jumptype': "stationary",
-                'priming': 0.0,
-                'startX': "stationary"})
-        fitinfo=rw.Fitinfo({
-                'startGraph': "goni_valid",
-                'goni_size': 2,
-                'goni_threshold': 2,
-                'followtype': "avg", 
-                'prior_samplesize': 10000,
-                'recorddir': "records/",
-                'prune_limit': 100,
-                'triangle_limit': 100,
-                'other_limit': 100})
-        uinviteXs = [list(set(x)) for x in Xs]          # U-INVITE can't deal with perseverations
-        bestgraph, ll = rw.uinvite(uinviteXs, toydata, numnodes, fitinfo=fitinfo,debug=False)
+        no_persev_Xs = [no_persev(x) for x in Xs]       # U-INVITE doesn't work with perseverations
+        bestgraph, ll = rw.uinvite(no_persev_Xs, toydata, numnodes, fitinfo=fitinfo,debug=False)
   
     nxg = nx.to_networkx_graph(bestgraph)
 
     node_degree = np.mean(nxg.degree().values())
     nxg_json = jsonGraph(nxg, items)
     clustering_coefficient = nx.average_clustering(nxg)
-    aspl = nx.average_shortest_path_length(nxg)
+    try:
+        aspl = nx.average_shortest_path_length(nxg)
+    except:
+        aspl = "disjointed graph"
+    
     return { "type": "network_properties",
              "node_degree": node_degree,
              "clustering_coefficient": clustering_coefficient,
