@@ -48,8 +48,19 @@ def data_properties(command):
                     "Troyer-Hills-Zemla": "/../schemes/troyer_hills_zemla_animals.csv" }
         filename = current_dir + schemes[x]
         return filename
+    
+    def spelling_filename(x):
+        current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+        schemes = { "Zemla": "/../schemes/zemla_spellfile.csv",
+                    "None": None }
+        if schemes[x]:
+            filename = current_dir + schemes[x]
+        else:                                   # if "None" don'tm append directory
+            filename = schemes[x]
+        return filename
+    
     command = command['data_parameters']
-    Xs, items, irts, numnodes = rw.readX(command['subject'], command['category'], command['fullpath'])
+    Xs, items, irts, numnodes = rw.readX(command['subject'], command['category'], command['fullpath'], spellfile=spelling_filename(command['spellfile']))
     Xs = rw.numToAnimal(Xs, items)
     cluster_sizes = rw.clusterSize(Xs, cluster_scheme_filename(command['cluster_scheme']), clustertype=command['cluster_type'])
     avg_cluster_size = rw.avgClusterSize(cluster_sizes)
@@ -83,7 +94,7 @@ def network_properties(command):
         seen_add = seen.add
         return [i for i in x if not (i in seen or seen_add(i))]
 
-    toydata=rw.Toydata({
+    toydata=rw.Data({
             'numx': len(Xs),
             'trim': 1,
             'jump': 0.0,

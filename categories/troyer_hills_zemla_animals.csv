@@ -38,16 +38,16 @@ African,tiger
 African,warthog
 African,wildebeest
 African,zebra
-Arctic,arctic fox
+Arctic,arcticfox
 Arctic,auk
 Arctic,caribou
 Arctic,muskox
 Arctic,penguin
-Arctic,polar bear
+Arctic,polarbear
 Arctic,reindeer
 Arctic,seal
 Arctic,walrus
-Arctic,woolly mammoth
+Arctic,woollymammoth
 Australian,bandicoot
 Australian,devil
 Australian,dingo
@@ -58,8 +58,8 @@ Australian,kiwi
 Australian,koala
 Australian,possum
 Australian,platypus
-Australian,sugar glider
-Australian,tasmanian devil
+Australian,sugarglider
+Australian,tasmaniandevil
 Australian,wallaby
 Australian,wallaroo
 Australian,wombat
@@ -83,7 +83,7 @@ Bird,avian
 Bird,bird
 Bird,blackbird
 Bird,bluebird
-Bird,bluefooted booby
+Bird,bluefootedbooby
 Bird,bluegill
 Bird,bluejay
 Bird,bobolink
@@ -194,11 +194,11 @@ Bovine,heifer
 Bovine,monitor
 Bovine,muskox
 Bovine,steer
-Bovine,water buffalo
+Bovine,waterbuffalo
 Bovine,yak
 Canine,akita
-Canine,black lab
-Canine,blood hound
+Canine,blacklab
+Canine,bloodhound
 Canine,bulldog
 Canine,canine
 Canine,chihuahua
@@ -207,29 +207,29 @@ Canine,dachshund
 Canine,dalmatian
 Canine,dog
 Canine,fox
-Canine,golden retriever
-Canine,great dane
+Canine,goldenretriever
+Canine,greatdane
 Canine,greyhound
 Canine,harrier
 Canine,husky
 Canine,hyena
 Canine,jackal
-Canine,labrador retriever
+Canine,labradorretriever
 Canine,malamute
-Canine,pembroke welsh corgi
+Canine,pembrokewelshcorgi
 Canine,poodle
 Canine,pug
 Canine,puggle
 Canine,pup
 Canine,shihtzu
-Canine,siberian husky
+Canine,siberianhusky
 Canine,terrier
-Canine,timber wolf
-Canine,wild dog
+Canine,timberwolf
+Canine,wilddog
 Canine,wolf
 Canine,beagle
 Canine,wolfhound
-Deers,blacktailed deer
+Deers,blacktaileddeer
 Deers,buck
 Deers,caribou
 Deers,deer
@@ -245,7 +245,7 @@ Deers,muledeer
 Deers,reindeer
 Deers,roe
 Deers,stag
-Deers,whitetailed deer
+Deers,whitetaileddeer
 Deers,wildebeest
 Deers,muskdeer
 Dinosaur,raptor
@@ -271,12 +271,12 @@ Farm,horse
 Farm,kid
 Farm,lamb
 Farm,mare
-Farm,miniature pony
+Farm,miniaturepony
 Farm,mule
 Farm,pig
 Farm,piglet
 Farm,pony
-Farm,potbellied pig
+Farm,potbelliedpig
 Farm,ram
 Farm,rooster
 Farm,sheep
@@ -285,7 +285,7 @@ Farm,sow
 Farm,spider
 Farm,stallion
 Farm,turkey
-Feline,bengal tiger
+Feline,bengaltiger
 Feline,bobcat
 Feline,bull
 Feline,cat
@@ -296,21 +296,23 @@ Feline,leopard
 Feline,liger
 Feline,lion
 Feline,lynx
-Feline,mountain lion
+Feline,mountainlion
+Feline,cougar
+Feline,catamount
 Feline,ocelot
 Feline,panther
 Feline,puma
-Feline,siamese cat
-Feline,snow leopard
+Feline,siamesecat
+Feline,snowleopard
 Feline,snow
 Feline,lion
 Feline,tiger
 Feline,tomcat
-Feline,white tiger
+Feline,whitetiger
 Feline,wildcat
 Feline,persian
 Fish,angelfish
-Fish,arrowhead shark
+Fish,arrowheadshark
 Fish,barracuda
 Fish,bass
 Fish,betta
@@ -321,9 +323,9 @@ Fish,clownfish
 Fish,cuttlefish
 Fish,fish
 Fish,flounder
-Fish,freshwater fish
+Fish,freshwaterfish
 Fish,goldfish
-Fish,great white shark
+Fish,greatwhiteshark
 Fish,grenadier
 Fish,grouper
 Fish,grunt
@@ -333,15 +335,15 @@ Fish,jack
 Fish,koi
 Fish,lamprey
 Fish,mackerel
-Fish,mako shark
+Fish,makoshark
 Fish,minnow
 Fish,parrotfish
 Fish,pike
-Fish,pink salmon
+Fish,pinksalmon
 Fish,piranha
 Fish,rainbowfish
 Fish,salmon
-Fish,saltwater fish
+Fish,saltwaterfish
 Fish,seabass
 Fish,shark
 Fish,shrimp
@@ -378,7 +380,7 @@ Insects,centipede
 Insects,cicada
 Insects,cockroach
 Insects,cricket
-Insects,daddy long legs
+Insects,daddylonglegs
 Insects,dolphin
 Insects,dragonfly
 Insects,earthworm
@@ -390,7 +392,7 @@ Insects,grub
 Insects,honeybee
 Insects,hornet
 Insects,insect
-Insects,June beetle
+Insects,Junebeetle
 Insects,ladybug
 Insects,larva
 Insects,leafy
@@ -398,23 +400,22 @@ Insects,louse
 Insects,maggot
 Insects,mealworm
 Insects,mite
-Insects,monarch butterfly
+Insects,monarchbutterfly
 Insects,mosquito
 Insects,moth
-Insects,pill bug
+Insects,pillbug
 Insects,mantis
 Insects,scorpion
-Insects,stick insect
+Insects,stickinsect
 Insects,tarantula
 Insects,termite
 Insects,tick
 Insects,wasp
 Insects,worm
-Insects,yellow jacket
+Insects,yellowjacket
 Insects,bumblebee
 Insects,cranefly
 Insects,dungbeetle
-Mythical,basilisk
 NorthAmerican,badger
 NorthAmerican,bear
 NorthAmerican,beaver
@@ -423,20 +424,21 @@ NorthAmerican,bison
 NorthAmerican,blackbear
 NorthAmerican,boar
 NorthAmerican,bobcat
-NorthAmerican,brown bear
+NorthAmerican,brownbear
 NorthAmerican,caribou
 NorthAmerican,chipmunk
 NorthAmerican,cub
 NorthAmerican,deer
 NorthAmerican,elk
 NorthAmerican,fox
-NorthAmerican,grizzly bear
+NorthAmerican,grizzlybear
 NorthAmerican,kodiak
 NorthAmerican,bear
 NorthAmerican,moose
-NorthAmerican,mountain goat
+NorthAmerican,mountaingoat
 NorthAmerican,cougar
-NorthAmerican,mountain lion
+NorthAmerican,catamount
+NorthAmerican,mountainlion
 NorthAmerican,puma
 NorthAmerican,rabbit
 NorthAmerican,raccoon
@@ -451,13 +453,13 @@ Pets,cockatiel
 Pets,cockatoo
 Pets,dog
 Pets,gerbil
-Pets,golden retriever
+Pets,goldenretriever
 Pets,goldfish
-Pets,guinea pig
+Pets,guineapig
 Pets,guppy
 Pets,hamster
 Pets,kitten
-Pets,labrador retriever
+Pets,labradorretriever
 Pets,malamute
 Pets,parakeet
 Pets,parrot
@@ -465,7 +467,7 @@ Pets,poodle
 Pets,puppy
 Pets,rabbit
 Pets,beagle
-Pets,bluerussian
+Pets,russianblue
 Pets,wolfhound
 Pets,germanshepherd
 Primates,ape
@@ -474,7 +476,7 @@ Primates,bonobo
 Primates,chimpanzee
 Primates,gibbon
 Primates,gorilla
-Primates,howler monkey
+Primates,howlermonkey
 Primates,human
 Primates,lemur
 Primates,loris
@@ -482,11 +484,11 @@ Primates,marmoset
 Primates,monkey
 Primates,orangutan
 Primates,primates
-Primates,saki monkey
+Primates,sakimonkey
 Primates,shrew
 Primates,snow
 Primates,monkey
-Primates,spider monkey
+Primates,spidermonkey
 Primates,titi
 Rabbit,bunny
 Rabbit,coney
@@ -501,7 +503,7 @@ ReptileAmphibian,anole
 ReptileAmphibian,asp
 ReptileAmphibian,black
 ReptileAmphibian,mamba
-ReptileAmphibian,boa constrictor
+ReptileAmphibian,boaconstrictor
 ReptileAmphibian,bullfrog
 ReptileAmphibian,caiman
 ReptileAmphibian,chameleon
@@ -527,7 +529,7 @@ ReptileAmphibian,serpent
 ReptileAmphibian,snake
 ReptileAmphibian,toad
 ReptileAmphibian,tortoise
-ReptileAmphibian,tree frog
+ReptileAmphibian,treefrog
 ReptileAmphibian,turtle
 ReptileAmphibian,velociraptor
 ReptileAmphibian,viper
@@ -536,18 +538,18 @@ ReptileAmphibian,gilamonster
 ReptileAmphibian,thornydevil
 Rodents,agouti
 Rodents,beaver
-Rodents,black squirrel
+Rodents,blacksquirrel
 Rodents,capybara
 Rodents,cavy
 Rodents,chinchilla
 Rodents,chipmunk
 Rodents,dormouse
-Rodents,flying squirrel
+Rodents,flyingsquirrel
 Rodents,gerbil
-Rodents,golden marmot
+Rodents,goldenmarmot
 Rodents,gopher
 Rodents,groundhog
-Rodents,guinea pig
+Rodents,guineapig
 Rodents,hamster
 Rodents,hedgehog
 Rodents,lemming
@@ -555,9 +557,9 @@ Rodents,marmot
 Rodents,mole
 Rodents,mouse
 Rodents,muskrat
-Rodents,naked mole rat
+Rodents,nakedmolerat
 Rodents,porcupine
-Rodents,prairie dog
+Rodents,prairiedog
 Rodents,rat
 Rodents,rodent
 Rodents,shrew
@@ -580,9 +582,9 @@ Water,anemone
 Water,axolotl
 Water,beaver
 Water,beluga
-Water,blue whale
+Water,bluewhale
 Water,boto
-Water,brine shrimp
+Water,brineshrimp
 Water,clam
 Water,conch
 Water,coral
@@ -592,14 +594,14 @@ Water,crawfish
 Water,crayfish
 Water,dolphin
 Water,eel
-Water,elephant seal
+Water,elephantseal
 Water,fish
 Water,frog
 Water,goose
-Water,hammerhead shark
-Water,humpback whale
+Water,hammerheadshark
+Water,humpbackwhale
 Water,jellyfish
-Water,killer whale
+Water,killerwhale
 Water,leech
 Water,limpet
 Water,lobster
@@ -613,6 +615,7 @@ Water,nautilus
 Water,newt
 Water,octopus
 Water,orca
+Water,killerwhale
 Water,otter
 Water,oyster
 Water,penguin
@@ -620,12 +623,12 @@ Water,platypus
 Water,porpoise
 Water,ray
 Water,salamander
-Water,sand dollar
+Water,sanddollar
 Water,scallop
 Water,seahorse
 Water,seal
-Water,sea lion
-Water,sea monkey
+Water,sealion
+Water,seamonkey
 Water,shark
 Water,slug
 Water,snail
@@ -660,11 +663,10 @@ Weasels,weasel
 Weasels,wolverine
 Asian,ibex
 Asian,argali
-Unknown,bluejacket
 Weasels,civet
 NorthAmerican,opossum
 Asian,panda
-Asian,red panda
+Asian,redpanda
 Jungle,sloth
 Primates,slowloris
 Jungle,tapir

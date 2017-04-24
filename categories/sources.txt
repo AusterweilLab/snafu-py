@@ -5,3 +5,9 @@ http://psycnet.apa.org/journals/neu/11/1/138/
 "troyer_hills_animals.csv"
 Hills, Jones, & Todd (2012), Appendix 1
 http://supp.apa.org/psycarticles/supplemental/a0027373/Appendix1.pdf
+
+"troyer_hills_zemla_animals.csv"
+Extended version of Troyer-Hills list including animals listed by participants in Zemla, Kenett, Jun, & Austerweil (2016)
+
+"zemla_spellfile.csv"
+Fixes spelling errors made by participants in Zemla, Kenett, Jun & Austerweil (2016)

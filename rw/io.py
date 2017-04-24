@@ -78,7 +78,7 @@ def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True):
     return graph, items
 
 # read Xs in from user files
-def readX(subj,category,filepath,ignorePerseverations=False,spellingdict=None):
+def readX(subj,category,filepath,ignorePerseverations=False,spellfile=None):
     if type(subj) == str:
         subj=[subj]
     game=-1
@@ -87,29 +87,40 @@ def readX(subj,category,filepath,ignorePerseverations=False,spellingdict=None):
     irts=[]
     items={}
     idx=0
-    #if spellingdict:
-    #    with open(spellingdict,'r') as spellfile:
-    #        pass
+    spellingdict={}
+    
+    if spellfile:
+        with open(spellfile,'r') as spellfile:
+            for line in spellfile:
+                correct, incorrect = line.strip('\n').split(',')
+                spellingdict[incorrect] = correct
+   
     with open(filepath) as f:
         for line in f:
-            row=line.split(',')
+            row=line.strip('\n').split(',')
             if (row[0] in subj) & (row[2] == category):
                 if (row[1] != game) or (row[0] != cursubj):
                     Xs.append([])
                     irts.append([])
                     game=row[1]
                     cursubj=row[0]
-                item=row[3].lower().replace(" ","").replace("'","") # basic clean-up
-                #if item in spellingdict:
-                #    pass
-                irt=row[4]
+                item=row[3].lower().replace(" ","").replace("'","").replace("-","") # basic clean-up
+                if item in spellingdict.keys():
+                    item = spellingdict[item]
+                try:
+                    irt=row[4]
+                except:
+                    pass
                 if item not in items.values():
                     items[idx]=item
                     idx += 1
                 itemval=items.values().index(item)
                 if (itemval not in Xs[-1]) or (not ignorePerseverations):   # ignore any duplicates in same list resulting from spelling corrections
                     Xs[-1].append(itemval)
-                    irts[-1].append(int(irt)/1000.0)
+                    try: 
+                        irts[-1].append(int(irt)/1000.0)
+                    except:
+                        pass
     numnodes = len(items)
     return Xs, items, irts, numnodes
 

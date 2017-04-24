@@ -21,7 +21,7 @@ from structs import *
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
 # TODO: in hierarchical model, only redo subjects prior to last change
-# TODO: get rid of passing numnodes and setting td.numx wherever possible... just calculate from Xs
+# TODO: get rid of setting td.numx? just calculate from Xs
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -327,7 +327,11 @@ def genX(g, td, seed=None):
     priming_vector=[]
 
     for xnum in range(td.numx):
-        rwalk=random_walk(g, td, priming_vector=priming_vector, seed=seed+xnum)
+        if seed == None:
+            seedy = None
+        else:
+            seedy = seed + xnum
+        rwalk=random_walk(g, td, priming_vector=priming_vector, seed=seedy)
         x=observed_walk(rwalk)
         fh=list(zip(*firstHits(rwalk))[1])
         step=[fh[i]-fh[i-1] for i in range(1,len(fh))]
@@ -1001,7 +1005,7 @@ def goni(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=None):
         f=int(round(len(Xs)*f))
 
     if valid and not td:
-        raise ValueError('Need to pass Toydata when generating \'valid\' goni()')
+        raise ValueError('Need to pass Data when generating \'valid\' goni()')
 
     if c<1:
         from statsmodels.stats.proportion import proportion_confint as pci
