@@ -139,8 +139,12 @@ def chan(Xs, numnodes):
 
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
-def cost(graph,a):
-    return sum(sum(np.array(abs(graph-a))))/2
+def cost(graph,a, undirected=True):
+    cost = sum(sum(np.array(abs(graph-a))))
+    if undirected:
+        return cost/2.0
+    else:
+        return cost
 
 # graph=estimated graph, a=target/comparison graph
 def costSDT(graph, a):
@@ -537,6 +541,9 @@ def path_from_walk(walk):
     path=list(zip(*walk)[0]) # first element from each tuple
     path.append(walk[-1][1]) # second element from last tuple
     return path
+
+def priorToGraph(priordict, items):
+    return graph
 
 # probability of observing Xs, including irts and prior
 #@profile

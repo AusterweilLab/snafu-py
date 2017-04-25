@@ -100,10 +100,14 @@ def intrusions(l, scheme):
         intrusion_items = [l[i] for i, j in enumerate(labels) if j=="unknown"]
     return intrusion_items
     
+# only works on labels, not indices. is there a need to work on indices?
 def perseverations(l):
-    perseveration_items=[] 
-    for ls in l:
-        perseveration_items.append(list(set([item for item in ls if ls.count(item) > 1])))
+    if isinstance(l[0], list):
+        perseveration_items=[] 
+        for ls in l:
+            perseveration_items.append(list(set([item for item in ls if ls.count(item) > 1])))
+    else:
+        perseveration_items = list(set([item for item in l if l.count(item) > 1]))
     return perseveration_items
 
 

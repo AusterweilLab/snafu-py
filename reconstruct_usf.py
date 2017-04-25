@@ -3,12 +3,14 @@ import networkx as nx
 import numpy as np
 
 usf_graph,usf_items = rw.read_csv("./snet/USF_animal_subset.snet")
-usf_graph = nx.from_numpy_matrix(usf_graph)
+usf_graph_nx = nx.from_numpy_matrix(usf_graph)
 numnodes = len(usf_items)
 
 numsubs = 50
 numlists = 3
 listlength = 35
+numsims = 50
+methods=['rw','goni','chan','kenett','fe']
 
 toydata=rw.Data({
         'numx': numlists,
@@ -30,16 +32,38 @@ fitinfo=rw.Fitinfo({
 #        'numlinks': 6,
 #        'prob_rewire': .3})
 
-#irts=rw.Irts({})
-
 # generate data for `numsub` participants, each having `numlists` lists of `listlengths` items
-data = []
-for sub in range(numsubs):
-    Xs = rw.genX(usf_graph, toydata, seed=None)
-    data.append(Xs[0])
+seednum=0
+with open('sim_methods.csv','w',0) as fh:
+    fh.write("method,simnum,listnum,hit,miss,fa,cr,cost\n")
 
-uinvite_graph, bestval=rw.uinvite(data[0], toydata, numnodes, fitinfo=fitinfo)
-rw_graph=rw.noHidden(Xs, numnodes)
-goni_graph=rw.goni(Xs, numnodes, td=toydata, valid=0, fitinfo=fitinfo)
+    for simnum in range(numsims):
+        data = []
+        for sub in range(numsubs):
+            Xs = rw.genX(usf_graph_nx, toydata, seed=seednum)
+            data.append(Xs[0])
+            seednum += numlists
 
 
+        for listnum in range(1,len(data)+1):
+            print simnum, listnum
+            flatdata = rw.flatten_list(data[:listnum])
+            rw_graph = rw.noHidden(flatdata, numnodes)
+            goni_graph = rw.goni(flatdata, numnodes, td=toydata, valid=0, fitinfo=fitinfo)
+            chan_graph = rw.chan(flatdata, numnodes)
+            kenett_graph = rw.kenett(flatdata, numnodes)
+            fe_graph = rw.firstEdge(flatdata, numnodes)
+            #uinvite_graphs, priordict = rw.hierarchicalUinvite(data[:listnum], [usf_items]*numsubs, [numnodes]*numsubs, toydata)
+
+            for method in methods:
+                if method=="rw": costlist = [rw.costSDT(rw_graph, usf_graph), rw.cost(rw_graph, usf_graph)]
+                if method=="goni": costlist = [rw.costSDT(goni_graph, usf_graph), rw.cost(goni_graph, usf_graph)]
+                if method=="chan": costlist = [rw.costSDT(chan_graph, usf_graph), rw.cost(chan_graph, usf_graph)]
+                if method=="kenett": costlist = [rw.costSDT(kenett_graph, usf_graph), rw.cost(kenett_graph, usf_graph)]
+                if method=="fe": costlist = [rw.costSDT(fe_graph, usf_graph), rw.cost(fe_graph, usf_graph)]
+                if method=="uinvite": costlist = [rw.costSDT(uinvite_graph, usf_graph), rw.cost(uinvite_graph, usf_graph)]
+                costlist = rw.flatten_list(costlist)
+                fh.write(method + "," + str(simnum) + "," + str(listnum))
+                for i in costlist:
+                    fh.write("," + str(i))
+                fh.write('\n')
