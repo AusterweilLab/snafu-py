@@ -20,7 +20,6 @@ from structs import *
 
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
-# TODO: in hierarchical model, only redo subjects prior to last change
 # TODO: get rid of setting td.numx? just calculate from Xs
 
 # mix U-INVITE with random jumping model
@@ -376,7 +375,7 @@ def genZfromX(x, theta, seed=None):
     return walk_from_path(path)
 
 
-def genGraphPrior(graphs, items, fitinfo=Fitinfo({})):
+def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True):
     a=fitinfo.prior_a
     b=fitinfo.prior_b
     priordict={}
@@ -386,7 +385,7 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({})):
         itemdict=items[graphnum]
         for inum, i in enumerate(graph):     # rows of graph
             for jnum, j in enumerate(i):     # columns of graph
-                if inum > jnum:
+                if (inum > jnum) or (undirected==False):
                     item1 = itemdict[inum]
                     item2 = itemdict[jnum]
                     pair = np.sort((item1,item2))
@@ -411,7 +410,8 @@ def evalGraphPrior(a, prior):
     probs = []
     priordict = prior[0]
     items = prior[1]
-    
+    nullprob = scipy.stats.beta.cdf(0.5, 1, 1) # need to fix for when fitinfo.prior_a or fitinfo.prior_b are set
+
     for inum, i in enumerate(a):
         for jnum, j in enumerate(i):
             if inum > jnum:
@@ -423,7 +423,7 @@ def evalGraphPrior(a, prior):
                     elif j==0:
                         prob = (1-priorprob)
                 except:
-                    prob = 0.5  # i.e., scipy.stats.beta.cdf(0.5, 1, 1) -- no information about edge
+                    prob = nullprob  # i.e., scipy.stats.beta.cdf(0.5, 1, 1) -- no information about edge
                 probs.append(prob)
     
     probs = [np.log(prob) for prob in probs]      # multiplication probably results in underflow...
@@ -432,6 +432,7 @@ def evalGraphPrior(a, prior):
 
 def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({}), seed=None, debug=True):
     nplocal=np.random.RandomState(seed) 
+    fitinfoSG = fitinfo.startGraph  # fitinfo it mutable, need to revert at end of function... blah
 
     # create ids for all subjects
     subs=range(len(Xs))
@@ -449,13 +450,14 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
         graphs.append(genStartGraph(Xs[sub], numnodes[sub], td, fitinfo=fitinfo))
 
     # cycle though participants
+    exclude_subs=[]
     graphchanges=1
     rnd=1
     while graphchanges > 0:
         if debug: print "Round: ", rnd
         graphchanges = 0
         nplocal.shuffle(subs)
-        for sub in subs:
+        for sub in [i for i in subs if i not in exclude_subs]:
             if debug: print "SS: ", sub
 
             td.numx = len(Xs[sub])
@@ -472,8 +474,15 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
             if not np.array_equal(uinvite_graph, graphs[sub]):
                 graphchanges += 1
                 graphs[sub] = uinvite_graph
+                exclude_subs=[]                 # if a single change, fit everyone again
+            else:
+                exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
         rnd += 1
-
+    
+    # generate group graph
+    priordict = genGraphPrior(graphs, items, fitinfo=fitinfo)
+    fitinfo.startGraph = fitinfoSG  # revert fitinfo starting graph to default
+    
     return graphs, priordict
 
 # construct graph using method using item correlation matrix and planar maximally filtered graph (PMFG)
@@ -542,8 +551,20 @@ def path_from_walk(walk):
     path.append(walk[-1][1]) # second element from last tuple
     return path
 
-def priorToGraph(priordict, items):
-    return graph
+# converts priordict to graph if probability of edge is greater than cutoff value
+def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
+    numitems = len(items)
+    a = np.zeros((numitems, numitems))
+    
+    for item1 in priordict.keys():
+        for item2 in priordict[item1]:
+            if priordict[item1][item2] > cutoff:
+                item1_idx = items.keys()[items.values().index(item1)]
+                item2_idx = items.keys()[items.values().index(item2)]
+                a[item1_idx, item2_idx] = 1.0
+                if undirected:
+                    a[item2_idx, item1_idx] = 1.0
+    return a
 
 # probability of observing Xs, including irts and prior
 #@profile
