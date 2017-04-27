@@ -403,7 +403,8 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True):
     for item1 in priordict:
         for item2 in priordict[item1]:
             a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
-            priordict[item1][item2] = scipy.stats.beta.cdf(0.5, a, b)
+            #priordict[item1][item2] = scipy.stats.beta.cdf(0.5, a, b) # old
+            priordict[item1][item2] = (b / float(a+b)) # new
     
     return priordict
 
@@ -411,7 +412,9 @@ def evalGraphPrior(a, prior):
     probs = []
     priordict = prior[0]
     items = prior[1]
-    nullprob = scipy.stats.beta.cdf(0.5, 1, 1) # need to fix for when fitinfo.prior_a or fitinfo.prior_b are set
+    # nullprob = scipy.stats.beta.cdf(0.5, 1, 1) # need to fix for when fitinfo.prior_a or fitinfo.prior_b are set # old
+    nullprob = 0.5 # new
+
 
     for inum, i in enumerate(a):
         for jnum, j in enumerate(i):
