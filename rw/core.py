@@ -107,6 +107,7 @@ def blockModel(Xs, td, numnodes, fitinfo=Fitinfo({}), prior=None, debug=True, se
 # + Chan, Butters, Salmon, Johnson, Paulsen, & Swenson (1995) neuropsychology
 # Returns only PF(q, r) = PF(n-1, inf) = minimum spanning tree (sparsest possible graph)
 # other parameterizations of PF(q, r) not implemented
+# implementation not quite right... here uses only a single minimum spanning tree, rather than union of all MST
 def chan(Xs, numnodes):
     import scipy.sparse
     N = float(len(Xs))

@@ -22,9 +22,9 @@ fitinfo=rw.Fitinfo({
         'goni_size': 2,
         'goni_threshold': 2,
         'followtype': "avg", 
-        'prune_limit': 50,
-        'triangle_limit': 50,
-        'other_limit': 50 })
+        'prune_limit': np.inf,
+        'triangle_limit': np.inf,
+        'other_limit': np.inf })
 
 #toygraphs=rw.Graphs({
 #        'numgraphs': 1,
@@ -34,7 +34,8 @@ fitinfo=rw.Fitinfo({
 #        'prob_rewire': .3})
 
 # generate data for `numsub` participants, each having `numlists` lists of `listlengths` items
-seednum=0
+seednum=0    # seednum=150 (numsubs*numlists) means start at second sim, etc.
+
 with open('sim_methods.csv','w',0) as fh:
     fh.write("method,simnum,listnum,hit,miss,fa,cr,cost,startseed\n")
 
@@ -49,7 +50,7 @@ with open('sim_methods.csv','w',0) as fh:
             Xs = rw.genX(usf_graph_nx, toydata, seed=seednum)[0]
             data.append(Xs)
 
-            # TODO: renumber dictionary and item list
+            # renumber dictionary and item list
             itemset = set(rw.flatten_list(Xs))
             numnodes.append(len(itemset))
 
