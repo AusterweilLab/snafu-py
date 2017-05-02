@@ -11,7 +11,7 @@ numlists = 3
 listlength = 35
 numsims = 50
 #methods=['rw','goni','chan','kenett','fe']
-methods=['uinvite']
+methods=['chan']
 
 toydata=rw.Data({
         'numx': numlists,
@@ -36,7 +36,7 @@ fitinfo=rw.Fitinfo({
 # generate data for `numsub` participants, each having `numlists` lists of `listlengths` items
 seednum=0    # seednum=150 (numsubs*numlists) means start at second sim, etc.
 
-with open('sim_methods.csv','w',0) as fh:
+with open('sim_methods_chan.csv','w',0) as fh:
     fh.write("method,simnum,listnum,hit,miss,fa,cr,cost,startseed\n")
 
     for simnum in range(numsims):
@@ -70,14 +70,14 @@ with open('sim_methods.csv','w',0) as fh:
 
         for listnum in range(1,len(data)+1):
             print simnum, listnum
-            #flatdata = rw.flatten_list(data[:listnum])
+            flatdata = rw.flatten_list(data[:listnum])
             #rw_graph = rw.noHidden(flatdata, usf_numnodes)
             #goni_graph = rw.goni(flatdata, usf_numnodes, td=toydata, valid=0, fitinfo=fitinfo)
-            #chan_graph = rw.chan(flatdata, usf_numnodes)
+            chan_graph = rw.chan(flatdata, usf_numnodes)
             #kenett_graph = rw.kenett(flatdata, usf_numnodes)
             #fe_graph = rw.firstEdge(flatdata, usf_numnodes)
-            uinvite_graphs, priordict = rw.hierarchicalUinvite(datab[:listnum], items[:listnum], numnodes[:listnum], toydata, fitinfo=fitinfo)
-            uinvite_group_graph = rw.priorToGraph(priordict, usf_items)
+            #uinvite_graphs, priordict = rw.hierarchicalUinvite(datab[:listnum], items[:listnum], numnodes[:listnum], toydata, fitinfo=fitinfo)
+            #uinvite_group_graph = rw.priorToGraph(priordict, usf_items)
 
             for method in methods:
                 if method=="rw": costlist = [rw.costSDT(rw_graph, usf_graph), rw.cost(rw_graph, usf_graph)]

@@ -21,6 +21,7 @@ from structs import *
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
 # TODO: get rid of setting td.numx? just calculate from Xs
+# TODO: Implement GOTM/ECN from Goni et al. 2011
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -108,8 +109,44 @@ def blockModel(Xs, td, numnodes, fitinfo=Fitinfo({}), prior=None, debug=True, se
 # Returns only PF(q, r) = PF(n-1, inf) = minimum spanning tree (sparsest possible graph)
 # other parameterizations of PF(q, r) not implemented
 # implementation not quite right... here uses only a single minimum spanning tree, rather than union of all MST
-def chan(Xs, numnodes):
-    import scipy.sparse
+def chan(Xs, numnodes, valid=False, td=None):
+    
+    # From https://github.com/evanmiltenburg/dm-graphs
+    def MST_pathfinder(G):
+        """The MST-pathfinder algorithm (Quirin et al. 2008) reduces the graph to the
+        unions of all minimal spanning trees."""
+        NG    = nx.Graph()
+        NG.add_nodes_from(range(numnodes))
+        edges = sorted( ((G[a][b]['weight'],a,b) for a,b in G.edges()),
+                            reverse=False)                          # smaller distances are more similar
+        clusters = {node:i for i,node in enumerate(G.nodes())}
+        while not edges == []:
+            w1,a,b = edges[0]
+            l      = []
+            # Select edges to be considered this round:
+            for w2,u,v in edges:
+                if w1 == w2:
+                    l.append((u,v,w2))
+                else:
+                    break
+            # Remaining edges are those not being considered this round:
+            edges = edges[len(l):]
+            # Only select those edges for which the items are not in the same cluster
+            l = [(a,b,c) for a,b,c in l if not clusters[a]==clusters[b]]
+            # Add these edges to the graph:
+            NG.add_weighted_edges_from(l)
+            # Merge the clusters:
+            for a,b,w in l:
+                cluster_1 = clusters[a]
+                cluster_2 = clusters[b]
+                clusters = {node:cluster_1 if i==cluster_2 else i
+                            for node,i in clusters.iteritems()}
+        return NG
+
+    if valid and not td:
+        raise ValueError('Need to pass Data when generating \'valid\' chan()')
+        
+    #import scipy.sparse
     N = float(len(Xs))
     distance_mat = np.zeros((numnodes, numnodes))
     for item1 in range(numnodes):
@@ -126,15 +163,22 @@ def chan(Xs, numnodes):
                 dij = 0.0       # added constraint for divide-by-zero... not clear how Chan handles this
             distance_mat[item1, item2] = dij
             distance_mat[item2, item1] = dij
-    graph = scipy.sparse.csgraph.minimum_spanning_tree(distance_mat)
+    #graph = scipy.sparse.csgraph.minimum_spanning_tree(distance_mat)
+    graph = nx.to_numpy_matrix(MST_pathfinder(nx.Graph(distance_mat)))
 
     # binarize and make graph symmetric (undirected)... some redundancy but it's cheap
-    graph = np.where(graph.todense(), 1, 0)
+    #graph = np.where(graph.todense(), 1, 0)
+    graph = np.where(graph, 1, 0)
     for rownum, row in enumerate(graph):
         for colnum, val in enumerate(row):
             if val==1:
                 graph[rownum,colnum]=1
                 graph[colnum,rownum]=1
+
+    if valid:
+        graph = makeValid(Xs, graph, td)
+        
+    #return np.array(graph).astype(int)
     return graph
 
 # objective graph cost
@@ -163,6 +207,34 @@ def costSDT(graph, a):
                 else:
                     fa += 1
     return [hit, miss, fa, cr]
+
+def evalGraphPrior(a, prior, undirected=True):
+    probs = []
+    priordict = prior[0]
+    items = prior[1]
+    # nullprob = scipy.stats.beta.cdf(0.5, 1, 1)  # old
+    nullprob = 0.5 # new -- need to fix for when fitinfo.prior_a or fitinfo.prior_b are set
+
+    for inum, i in enumerate(a):
+        for jnum, j in enumerate(i):
+            if (inum > jnum) or ((undirected==False) and (inum != jnum)):
+                if undirected:
+                    pair = np.sort((items[inum],items[jnum]))
+                else:
+                    pair = (items[inum],items[jnum])
+                try:
+                    priorprob = priordict[pair[0]][pair[1]]
+                    if j==1:
+                        prob = priorprob
+                    elif j==0:
+                        prob = (1-priorprob)
+                except:
+                    prob = nullprob  #  no information about edge
+                probs.append(prob)
+    
+    probs = [np.log(prob) for prob in probs]      # multiplication probably results in underflow...
+    probs = sum(probs)
+    return probs
 
 # calculate P(SW_graph|graph type) using pdf generated from genSWPrior
 def evalSWprior(val, prior):
@@ -238,6 +310,41 @@ def genGfromZ(walk, numnodes):
     a=np.array(a.astype(int))
     return a
 
+def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True):
+    a = fitinfo.prior_a
+    b = fitinfo.prior_b
+    priordict={}
+    
+    # tabulate number of times edge does or doesn't appear in all of the graphs when node pair is present
+    for graphnum, graph in enumerate(graphs):   # for each graph
+        itemdict=items[graphnum]
+        for inum, i in enumerate(graph):     # rows of graph
+            for jnum, j in enumerate(i):     # columns of graph
+                if (inum > jnum) or ((undirected==False) and (inum != jnum)):
+                    item1 = itemdict[inum]
+                    item2 = itemdict[jnum]
+                    if undirected:
+                        pair = np.sort((item1,item2))
+                    else:
+                        pair = (item1,item2)
+                    if pair[0] not in priordict.keys():
+                        priordict[pair[0]]={}
+                    if pair[1] not in priordict[pair[0]].keys():
+                        priordict[pair[0]][pair[1]]=[a,b]
+                    if j==1:
+                        priordict[pair[0]][pair[1]][1] += 1
+                    elif j==0:
+                        priordict[pair[0]][pair[1]][0] += 1
+   
+    # use beta distribution to convert to probabilities (of edge being present)
+    for item1 in priordict:
+        for item2 in priordict[item1]:
+            a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
+            #priordict[item1][item2] = scipy.stats.beta.cdf(0.5, a, b) # old
+            priordict[item1][item2] = (b / float(a+b)) # new
+    
+    return priordict
+
 # Generate `numgraphs` graphs from data `Xs`, requiring `numnodes` (used in case not all nodes are covered in data)
 # Graphs are generated by sequentially adding filler nodes between two adjacent items with p=`theta`
 # When theta=0, returns a naive RW graph
@@ -249,23 +356,48 @@ def genGraphs(numgraphs, theta, Xs, numnodes):
 # generate starting graph for U-INVITE
 def genStartGraph(Xs, numnodes, td, fitinfo):
     if fitinfo.startGraph=="goni_valid":
-        graph=goni(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
+        graph = goni(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
+    elif fitinfo.startGraph=="chan_valid":
+        graph = chan(Xs, numnodes, valid=True, td=td)
+    elif fitinfo.startGraph=="kenett_valid":
+        graph = kenett(Xs, numnodes, valid=True, td=td)
     elif fitinfo.startGraph=="rw":
-        graph=noHidden(Xs,numnodes)
+        graph = noHidden(Xs,numnodes)
     elif fitinfo.startGraph=="fully_connected":
-        graph=fullyConnected(numnodes)
+        graph = fullyConnected(numnodes)
     elif fitinfo.startGraph=="empty_graph":
-        graph=np.zeros((numnodes,numnodes)).astype(int)           # useless...
+        graph = np.zeros((numnodes,numnodes)).astype(int)           # useless...
     else:
-        graph=np.copy(fitinfo.startGraph)                         # assume a graph has been passed as a starting point
+        graph = np.copy(fitinfo.startGraph)                         # assume a graph has been passed as a starting point
     return graph
+
+def genSteyvers(n,m, tail=1, seed=None):               # tail allows m-1 "null" nodes in neighborhood of every node
+    nplocal=np.random.RandomState(seed)
+    a=np.zeros((n,n))                                  # initialize matrix
+    for i in range(m):                                 # complete m x m graph
+        for j in range(m):
+            if i!= j:
+                a[i,j]=1
+    for i in range(m,n):                               # for the rest of nodes, preferentially attach
+        nodeprob=sum(a)/sum(sum(a))                    # choose node to differentiate with this probability distribution
+        diffnode=nplocal.choice(n,p=nodeprob)        # node to differentiate
+        h=list(np.where(a[diffnode])[0]) + [diffnode]  # neighborhood of diffnode
+        if tail==1:
+            h=h + [-1]*(m-1)
+        #hprob=sum(a[:,h])/sum(sum(a[:,h]))                 # attach proportional to node degree?
+        #tolink=nplocal.choice(h,m,replace=False,p=hprob)
+        tolink=nplocal.choice(h,m,replace=False)          # or attach randomly
+        for j in tolink:
+            if j != -1:
+                a[i,j]=1
+                a[j,i]=1
+    return nx.to_networkx_graph(a)
 
 # generate pdf of small-world metric based on W-S criteria
 # n <- # samples (larger n == better fidelity)
 # tries <- W-S parameter (number of tries to generate connected graph)
 # forcenew <- if 1, don't use cached prior
 def genSWPrior(tg, n, bins=100, forcenew=False):
-
     # filename for prior
     if tg.graphtype=="steyvers":
         filename = "steyvers_" + str(tg.numnodes) + "_" + str(tg.numlinks) + ".prior"
@@ -300,28 +432,6 @@ def genSWPrior(tg, n, bins=100, forcenew=False):
     else:                                                            # don't use cached prior
         prior=newPrior()
     return prior
-
-def genSteyvers(n,m, tail=1, seed=None):               # tail allows m-1 "null" nodes in neighborhood of every node
-    nplocal=np.random.RandomState(seed)
-    a=np.zeros((n,n))                                  # initialize matrix
-    for i in range(m):                                 # complete m x m graph
-        for j in range(m):
-            if i!= j:
-                a[i,j]=1
-    for i in range(m,n):                               # for the rest of nodes, preferentially attach
-        nodeprob=sum(a)/sum(sum(a))                    # choose node to differentiate with this probability distribution
-        diffnode=nplocal.choice(n,p=nodeprob)        # node to differentiate
-        h=list(np.where(a[diffnode])[0]) + [diffnode]  # neighborhood of diffnode
-        if tail==1:
-            h=h + [-1]*(m-1)
-        #hprob=sum(a[:,h])/sum(sum(a[:,h]))                 # attach proportional to node degree?
-        #tolink=nplocal.choice(h,m,replace=False,p=hprob)
-        tolink=nplocal.choice(h,m,replace=False)          # or attach randomly
-        for j in tolink:
-            if j != -1:
-                a[i,j]=1
-                a[j,i]=1
-    return nx.to_networkx_graph(a)
 
 # return simulated data on graph g
 # also return number of steps between first hits (to use for IRTs)
@@ -375,68 +485,77 @@ def genZfromX(x, theta, seed=None):
             path.append(x2.pop())
     return walk_from_path(path)
 
-
-def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True):
-    a=fitinfo.prior_a
-    b=fitinfo.prior_b
-    priordict={}
+# w = window size; two items appear within +/- w steps of each other (where w=1 means adjacent items)
+# f = filter frequency; if two items don't fall within the same window more than f times, then no edge is inferred
+# c = confidence interval; retain the edge if there is a <= c probability that two items occur within the same window n times by chance alone
+# valid (t/f) ensures that graph can produce data using censored RW.
+def goni(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=None):
+    w=fitinfo.goni_size
+    f=fitinfo.goni_threshold
     
-    # tabulate number of times edge does or doesn't appear in all of the graphs when node pair is present
-    for graphnum, graph in enumerate(graphs):   # for each graph
-        itemdict=items[graphnum]
-        for inum, i in enumerate(graph):     # rows of graph
-            for jnum, j in enumerate(i):     # columns of graph
-                if (inum > jnum) or (undirected==False):
-                    item1 = itemdict[inum]
-                    item2 = itemdict[jnum]
-                    pair = np.sort((item1,item2))
-                    if pair[0] not in priordict.keys():
-                        priordict[pair[0]]={}
-                    if pair[1] not in priordict[pair[0]].keys():
-                        priordict[pair[0]][pair[1]]=[a,b]
-                    if j==1:
-                        priordict[pair[0]][pair[1]][1] += 1
-                    elif j==0:
-                        priordict[pair[0]][pair[1]][0] += 1
-   
-    # use beta distribution to convert to probabilities (of edge being present)
-    for item1 in priordict:
-        for item2 in priordict[item1]:
-            a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
-            #priordict[item1][item2] = scipy.stats.beta.cdf(0.5, a, b) # old
-            priordict[item1][item2] = (b / float(a+b)) # new
+    if f<1:                 # if <1 treat as proportion of total lists; if >1 treat as absolute # of lists
+        f=int(round(len(Xs)*f))
+
+    if valid and not td:
+        raise ValueError('Need to pass Data when generating \'valid\' goni()')
+
+    if c<1:
+        from statsmodels.stats.proportion import proportion_confint as pci
+
+    if w < 1:
+        print "Error in goni(): w must be >= 1"
+        return
+
+    graph=np.zeros((numnodes, numnodes)).astype(int)         # empty graph
+
+    # frequency of co-occurrences within window (w)
+    for x in Xs:                                             # for each list
+        for pos in range(len(x)):                            # for each item in list
+            for i in range(1, w+1):                          # for each window size
+                if pos+i<len(x):
+                    graph[x[pos],x[pos+i]] += 1
+                    graph[x[pos+i],x[pos]] += 1
+
+    # exclude edges with co-occurrences less than frequency (f) and binarize
+    # but first save co-occurence frequencies
+    cooccur = np.copy(graph)
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            if graph[i, j] < f:
+                graph[i, j] = 0
+            else:
+                graph[i, j] = 1
+
+    # check if co-occurrences are due to chance
+    if c<1:
+        setXs=[list(set(x)) for x in Xs]                              # unique nodes in each list
+        flatX=flatten_list(setXs)                                     # flattened
+        xfreq=[flatX.count(i) for i in range(numnodes)]               # number of lists each item appears in (at least once)
+        listofedges=zip(*np.nonzero(graph))                           # list of edges in graph to check
+        numlists=float(len(Xs))
+        meanlistlength=np.mean([len(x) for x in Xs])
     
-    return priordict
+        # Goni et al. (2011), eq. 10
+        p_adj = (2.0/(meanlistlength*(meanlistlength-1))) * ((w*meanlistlength) - ((w*(w+1))/2.0))
+        for i,j in listofedges:
+            p_linked = (xfreq[i]/numlists) * (xfreq[j]/numlists) * p_adj
+            ci=pci(cooccur[i,j],numlists,alpha=c,method="beta")[0]    # lower bound of Clopper-Pearson binomial CI
+            if p_linked >= ci:                                        # if co-occurrence could be due to chance, remove edge
+                graph[i,j]=0
+                graph[j,i]=0
 
-def evalGraphPrior(a, prior):
-    probs = []
-    priordict = prior[0]
-    items = prior[1]
-    # nullprob = scipy.stats.beta.cdf(0.5, 1, 1) # need to fix for when fitinfo.prior_a or fitinfo.prior_b are set # old
-    nullprob = 0.5 # new
+    if valid:
+        graph = makeValid(Xs, graph, td)
 
+    # make sure there are no self-transitions -- is this necessary?
+    for i in range(len(graph)):
+        graph[i,i]=0.0
 
-    for inum, i in enumerate(a):
-        for jnum, j in enumerate(i):
-            if inum > jnum:
-                pair = np.sort((items[inum],items[jnum]))
-                try:
-                    priorprob = priordict[pair[0]][pair[1]]
-                    if j==1:
-                        prob = priorprob
-                    elif j==0:
-                        prob = (1-priorprob)
-                except:
-                    prob = nullprob  # i.e., scipy.stats.beta.cdf(0.5, 1, 1) -- no information about edge
-                probs.append(prob)
-    
-    probs = [np.log(prob) for prob in probs]      # multiplication probably results in underflow...
-    probs = sum(probs)
-    return probs
+    return graph
 
 def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({}), seed=None, debug=True):
     nplocal=np.random.RandomState(seed) 
-    fitinfoSG = fitinfo.startGraph  # fitinfo it mutable, need to revert at end of function... blah
+    fitinfoSG = fitinfo.startGraph  # fitinfo is mutable, need to revert at end of function... blah
 
     # create ids for all subjects
     subs=range(len(Xs))
@@ -470,6 +589,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
             # generate prior without participant's data, fit graph
             priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
             prior = (priordict, items[sub])
+            
             if isinstance(irts, list):
                 uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub])
             else:
@@ -492,7 +612,10 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
 # construct graph using method using item correlation matrix and planar maximally filtered graph (PMFG)
 # see Borodkin, Kenett, Faust, & Mashal (2016) and Kenett, Kenett, Ben-Jacob, & Faust (2011)
 # does not work well for small number of lists! many NaN correlations + when two correlations are equal, ordering is arbitrary
-def kenett(Xs, numnodes):
+def kenett(Xs, numnodes, valid=False, td=None):
+    if valid and not td:
+        raise ValueError('Need to pass Data when generating \'valid\' kenett()')
+    
     import planarity
     
     # construct matrix of list x item where each cell indicates whether that item is in that list
@@ -522,8 +645,25 @@ def kenett(Xs, numnodes):
     g.add_nodes_from(range(numnodes))
     g.add_edges_from(edgelist)
     a=np.array(nx.to_numpy_matrix(g)).astype(int)
-    
+   
+    if valid:
+        a = makeValid(Xs, a, td)
+   
     return a
+
+def makeValid(Xs, graph, td):
+    # add direct edges when transition is impossible
+    check=probX(Xs, graph, td)
+    while check[0] == -np.inf:
+        if isinstance(check[1],tuple):
+            graph[check[1][0], check[1][1]] = 1
+            graph[check[1][1], check[1][0]] = 1
+        elif check[1] == "prior":
+            raise ValueError('Starting graph has prior probability of 0.0')
+        else:
+            raise ValueError('Unexpected error from makeValid()')
+        check=probX(Xs, graph, td)
+    return graph
 
 # wrapper returns one graph with theta=0
 # aka draw edge between all observed nodes in all lists
@@ -557,8 +697,8 @@ def path_from_walk(walk):
 
 # converts priordict to graph if probability of edge is greater than cutoff value
 def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
-    numitems = len(items)
-    a = np.zeros((numitems, numitems))
+    numnodes = len(items)
+    a = np.zeros((numnodes, numnodes))
     
     for item1 in priordict.keys():
         for item2 in priordict[item1]:
@@ -574,7 +714,6 @@ def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
 #@profile
 #@nogc
 def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceCompute=False, pass_link_matrix=True):
-    
     numnodes=len(a)
     reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv, but that's much slower
     identmat=np.identity(numnodes) * reg    # pre-compute for tiny speed-up (only for non-IRT)
@@ -1024,81 +1163,3 @@ def walk_from_path(path):
     for i in range(len(path)-1):
         walk.append((path[i],path[i+1])) 
     return walk
-
-# w = window size; two items appear within +/- w steps of each other (where w=1 means adjacent items)
-# f = filter frequency; if two items don't fall within the same window more than f times, then no edge is inferred
-# c = confidence interval; retain the edge if there is a <= c probability that two items occur within the same window n times by chance alone
-# valid (t/f) ensures that graph can produce data using censored RW.
-def goni(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=None):
-    w=fitinfo.goni_size
-    f=fitinfo.goni_threshold
-    
-    if f<1:                 # if <1 treat as proportion of total lists; if >1 treat as absolute # of lists
-        f=int(round(len(Xs)*f))
-
-    if valid and not td:
-        raise ValueError('Need to pass Data when generating \'valid\' goni()')
-
-    if c<1:
-        from statsmodels.stats.proportion import proportion_confint as pci
-
-    if w < 1:
-        print "Error in goni(): w must be >= 1"
-        return
-
-    graph=np.zeros((numnodes, numnodes)).astype(int)         # empty graph
-
-    # frequency of co-occurrences within window (w)
-    for x in Xs:                                             # for each list
-        for pos in range(len(x)):                            # for each item in list
-            for i in range(1, w+1):                          # for each window size
-                if pos+i<len(x):
-                    graph[x[pos],x[pos+i]] += 1
-                    graph[x[pos+i],x[pos]] += 1
-
-    # exclude edges with co-occurrences less than frequency (f) and binarize
-    # but first save co-occurence frequencies
-    cooccur = np.copy(graph)
-    for i in range(len(graph)):
-        for j in range(len(graph)):
-            if graph[i, j] < f:
-                graph[i, j] = 0
-            else:
-                graph[i, j] = 1
-
-    # check if co-occurrences are due to chance
-    if c<1:
-        setXs=[list(set(x)) for x in Xs]                              # unique nodes in each list
-        flatX=flatten_list(setXs)                                     # flattened
-        xfreq=[flatX.count(i) for i in range(numnodes)]               # number of lists each item appears in (at least once)
-        listofedges=zip(*np.nonzero(graph))                           # list of edges in graph to check
-        numlists=float(len(Xs))
-        meanlistlength=np.mean([len(x) for x in Xs])
-    
-        # Goni et al. (2011), eq. 10
-        p_adj = (2.0/(meanlistlength*(meanlistlength-1))) * ((w*meanlistlength) - ((w*(w+1))/2.0))
-        for i,j in listofedges:
-            p_linked = (xfreq[i]/numlists) * (xfreq[j]/numlists) * p_adj
-            ci=pci(cooccur[i,j],numlists,alpha=c,method="beta")[0]    # lower bound of Clopper-Pearson binomial CI
-            if p_linked >= ci:                                        # if co-occurrence could be due to chance, remove edge
-                graph[i,j]=0
-                graph[j,i]=0
-
-    if valid:
-        # add direct edges when transition is impossible
-        check=probX(Xs, graph, td)
-        while check[0] == -np.inf:
-            if isinstance(check[1],tuple):
-                graph[check[1][0], check[1][1]] = 1
-                graph[check[1][1], check[1][0]] = 1
-            elif check[1] == "prior":
-                raise ValueError('Starting graph has prior probability of 0.0')
-            else:
-                raise ValueError('Unexpected error from goni()')
-            check=probX(Xs, graph, td)
-
-    # make sure there are no self-transitions
-    for i in range(len(graph)):
-        graph[i,i]=0.0
-
-    return graph
