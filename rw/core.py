@@ -334,7 +334,7 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True):
                     if j==1:
                         priordict[pair[0]][pair[1]][1] += 1
                     elif j==0:
-                        priordict[pair[0]][pair[1]][0] += 1
+                        priordict[pair[0]][pair[1]][0] += 0         # JZ 1 to 0
    
     # use beta distribution to convert to probabilities (of edge being present)
     for item1 in priordict:

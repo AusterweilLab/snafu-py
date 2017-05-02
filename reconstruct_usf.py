@@ -11,7 +11,7 @@ numlists = 3
 listlength = 35
 numsims = 50
 #methods=['rw','goni','chan','kenett','fe']
-methods=['chan']
+methods=['uinvite']
 
 toydata=rw.Data({
         'numx': numlists,
@@ -71,13 +71,19 @@ with open('sim_methods_chan.csv','w',0) as fh:
         for listnum in range(1,len(data)+1):
             print simnum, listnum
             flatdata = rw.flatten_list(data[:listnum])
-            #rw_graph = rw.noHidden(flatdata, usf_numnodes)
-            #goni_graph = rw.goni(flatdata, usf_numnodes, td=toydata, valid=0, fitinfo=fitinfo)
-            chan_graph = rw.chan(flatdata, usf_numnodes)
-            #kenett_graph = rw.kenett(flatdata, usf_numnodes)
-            #fe_graph = rw.firstEdge(flatdata, usf_numnodes)
-            #uinvite_graphs, priordict = rw.hierarchicalUinvite(datab[:listnum], items[:listnum], numnodes[:listnum], toydata, fitinfo=fitinfo)
-            #uinvite_group_graph = rw.priorToGraph(priordict, usf_items)
+            if 'rw' in methods:
+                rw_graph = rw.noHidden(flatdata, usf_numnodes)
+            if 'goni' in methods:
+                goni_graph = rw.goni(flatdata, usf_numnodes, td=toydata, valid=0, fitinfo=fitinfo)
+            if 'chan' in methods:
+                chan_graph = rw.chan(flatdata, usf_numnodes)
+            if 'kenett' in methods:
+                kenett_graph = rw.kenett(flatdata, usf_numnodes)
+            if 'fe' in methods:
+                fe_graph = rw.firstEdge(flatdata, usf_numnodes)
+            if 'uinvite' in methods:
+                uinvite_graphs, priordict = rw.hierarchicalUinvite(datab[:listnum], items[:listnum], numnodes[:listnum], toydata, fitinfo=fitinfo)
+                uinvite_group_graph = rw.priorToGraph(priordict, usf_items)
 
             for method in methods:
                 if method=="rw": costlist = [rw.costSDT(rw_graph, usf_graph), rw.cost(rw_graph, usf_graph)]
