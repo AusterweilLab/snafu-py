@@ -310,9 +310,9 @@ def genGfromZ(walk, numnodes):
     a=np.array(a.astype(int))
     return a
 
-def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True):
-    a = fitinfo.prior_a
-    b = fitinfo.prior_b
+def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncounts=False, a_inc=0, b_inc=1):
+    a_start = fitinfo.prior_a
+    b_start = fitinfo.prior_b
     priordict={}
     
     # tabulate number of times edge does or doesn't appear in all of the graphs when node pair is present
@@ -330,18 +330,19 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True):
                     if pair[0] not in priordict.keys():
                         priordict[pair[0]]={}
                     if pair[1] not in priordict[pair[0]].keys():
-                        priordict[pair[0]][pair[1]]=[a,b]
+                        priordict[pair[0]][pair[1]] = [a_start, b_start]
                     if j==1:
-                        priordict[pair[0]][pair[1]][1] += 1
+                        priordict[pair[0]][pair[1]][1] += b_inc
                     elif j==0:
-                        priordict[pair[0]][pair[1]][0] += 0         # JZ 1 to 0
+                        priordict[pair[0]][pair[1]][0] += a_inc         # JZ 1 to 0
    
-    # use beta distribution to convert to probabilities (of edge being present)
-    for item1 in priordict:
-        for item2 in priordict[item1]:
-            a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
-            #priordict[item1][item2] = scipy.stats.beta.cdf(0.5, a, b) # old
-            priordict[item1][item2] = (b / float(a+b)) # new
+    if not returncounts:
+        # use beta distribution to convert to probabilities (of edge being present)
+        for item1 in priordict:
+            for item2 in priordict[item1]:
+                a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
+                #priordict[item1][item2] = scipy.stats.beta.cdf(0.5, a, b) # old
+                priordict[item1][item2] = (b / float(a+b)) # new
     
     return priordict
 
@@ -598,13 +599,13 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
             if not np.array_equal(uinvite_graph, graphs[sub]):
                 graphchanges += 1
                 graphs[sub] = uinvite_graph
-                exclude_subs=[]                 # if a single change, fit everyone again
+                exclude_subs=[sub]              # if a single change, fit everyone again (except the graph that was just fit)
             else:
                 exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
         rnd += 1
     
     # generate group graph
-    priordict = genGraphPrior(graphs, items, fitinfo=fitinfo)
+    priordict = genGraphPrior(graphs, items, fitinfo=fitinfo, a_inc=1)      # JZ a_inc=1
     fitinfo.startGraph = fitinfoSG  # revert fitinfo starting graph to default
     
     return graphs, priordict
