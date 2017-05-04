@@ -219,15 +219,15 @@ def evalGraphPrior(a, prior, undirected=True):
         for jnum, j in enumerate(i):
             if (inum > jnum) or ((undirected==False) and (inum != jnum)):
                 if undirected:
-                    pair = np.sort((items[inum],items[jnum]))
+                    pair = np.sort((items[inum], items[jnum]))
                 else:
-                    pair = (items[inum],items[jnum])
+                    pair = (items[inum], items[jnum])
                 try:
                     priorprob = priordict[pair[0]][pair[1]]
                     if j==1:
-                        prob = priorprob
+                        prob = priorprob * .7
                     elif j==0:
-                        prob = (1-priorprob)
+                        prob = (1-priorprob) * .96
                 except:
                     prob = nullprob  #  no information about edge
                 probs.append(prob)
@@ -310,7 +310,7 @@ def genGfromZ(walk, numnodes):
     a=np.array(a.astype(int))
     return a
 
-def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncounts=False, a_inc=0, b_inc=1):
+def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncounts=False, a_inc=1.0, b_inc=1.0):
     a_start = fitinfo.prior_a
     b_start = fitinfo.prior_b
     priordict={}
@@ -334,7 +334,7 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncou
                     if j==1:
                         priordict[pair[0]][pair[1]][1] += b_inc
                     elif j==0:
-                        priordict[pair[0]][pair[1]][0] += a_inc         # JZ 1 to 0
+                        priordict[pair[0]][pair[1]][0] += a_inc
    
     if not returncounts:
         # use beta distribution to convert to probabilities (of edge being present)
@@ -572,7 +572,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     for sub in subs:
         td.numx=len(Xs[sub])    # for goni
         graphs.append(genStartGraph(Xs[sub], numnodes[sub], td, fitinfo=fitinfo))
-
+    
     # cycle though participants
     exclude_subs=[]
     graphchanges=1
@@ -604,8 +604,8 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
                 exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
         rnd += 1
     
-    # generate group graph
-    priordict = genGraphPrior(graphs, items, fitinfo=fitinfo, a_inc=1)      # JZ a_inc=1
+    ## generate group graph
+    priordict = genGraphPrior(graphs, items, fitinfo=fitinfo)
     fitinfo.startGraph = fitinfoSG  # revert fitinfo starting graph to default
     
     return graphs, priordict
