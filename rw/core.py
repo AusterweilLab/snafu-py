@@ -225,9 +225,9 @@ def evalGraphPrior(a, prior, undirected=True):
                 try:
                     priorprob = priordict[pair[0]][pair[1]]
                     if j==1:
-                        prob = priorprob * .7
+                        prob = priorprob
                     elif j==0:
-                        prob = (1-priorprob) * .96
+                        prob = (1-priorprob)
                 except:
                     prob = nullprob  #  no information about edge
                 probs.append(prob)

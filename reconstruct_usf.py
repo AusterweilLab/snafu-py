@@ -20,6 +20,7 @@ toydata=rw.Data({
 fitinfo=rw.Fitinfo({
         'startGraph': "goni_valid",
         'goni_size': 2,
+        'prior_b': 2,
         'goni_threshold': 2,
         'followtype': "avg", 
         'prune_limit': np.inf,
@@ -36,7 +37,7 @@ fitinfo=rw.Fitinfo({
 # generate data for `numsub` participants, each having `numlists` lists of `listlengths` items
 seednum=0    # seednum=150 (numsubs*numlists) means start at second sim, etc.
 
-with open('sim_methods_density.csv','w',0) as fh:
+with open('sim_methods_2b.csv','w',0) as fh:
     fh.write("method,simnum,listnum,hit,miss,fa,cr,cost,startseed\n")
 
     for simnum in range(numsims):
