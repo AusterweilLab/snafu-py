@@ -610,6 +610,15 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     
     return graphs, priordict
 
+def probXhierarchical(Xs, graphs, items, priordict, td, irts=Irts({})):
+    lls=[]
+    for sub in range(len(Xs)):
+        prior = (priordict, items[sub])
+        best_ll, probmat = probX(Xs[sub], graphs[sub], td, irts=irts, prior=prior)   # LL of starting graph
+        lls.append(best_ll)
+    ll=sum(lls)
+    return ll
+
 # construct graph using method using item correlation matrix and planar maximally filtered graph (PMFG)
 # see Borodkin, Kenett, Faust, & Mashal (2016) and Kenett, Kenett, Ben-Jacob, & Faust (2011)
 # does not work well for small number of lists! many NaN correlations + when two correlations are equal, ordering is arbitrary
