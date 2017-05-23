@@ -10,7 +10,7 @@ usf_numnodes = len(usf_items)
 numsubs = 50
 numlists = 3
 listlength = 35
-numsims = 50
+numsims = 1
 #methods=['rw','goni','chan','kenett','fe']
 methods=['uinvite']
 
@@ -21,7 +21,6 @@ toydata=rw.Data({
 fitinfo=rw.Fitinfo({
         'startGraph': "goni_valid",
         'goni_size': 2,
-        'prior_b': 2,
         'goni_threshold': 2,
         'followtype': "avg", 
         'prune_limit': np.inf,
@@ -66,7 +65,7 @@ for simnum in range(numsims):
         
         seednum += numlists
 
-    listnum=2
+    listnum=10
     uinvite_graphs, priordict = rw.hierarchicalUinvite(datab[:listnum], items[:listnum], numnodes[:listnum], toydata, fitinfo=fitinfo)
     uinvite_group_graph = rw.priorToGraph(priordict, usf_items)
 
@@ -80,7 +79,7 @@ for simnum in range(numsims):
     #alldata['td'] = toydata
     #alldata['fitinfo'] = fitinfo
 
-    fh=open("graphs.pickle","w")
+    fh=open("graphs_halfa.pickle","w")
     pickle.dump(alldata,fh)
     fh.close()
     

@@ -310,11 +310,11 @@ def genGfromZ(walk, numnodes):
     a=np.array(a.astype(int))
     return a
 
-def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncounts=False, a_inc=1.0, b_inc=1.0):
+def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncounts=False, a_inc=0.5, b_inc=1.0):
     a_start = fitinfo.prior_a
     b_start = fitinfo.prior_b
     priordict={}
-    
+   
     # tabulate number of times edge does or doesn't appear in all of the graphs when node pair is present
     for graphnum, graph in enumerate(graphs):   # for each graph
         itemdict=items[graphnum]
