@@ -577,35 +577,35 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     exclude_subs=[]
     graphchanges=1
     rnd=1
-    while graphchanges > 0:
-        if debug: print "Round: ", rnd
-        graphchanges = 0
-        nplocal.shuffle(subs)
-        for sub in [i for i in subs if i not in exclude_subs]:
-            if debug: print "SS: ", sub
+    prior_weight=0.0
+    while prior_weight <= 1.0:  #JZ
+        while graphchanges > 0:
+            if debug: print "Round: ", rnd
+            graphchanges = 0
+            nplocal.shuffle(subs)
+            for sub in [i for i in subs if i not in exclude_subs]:
+                if debug: print "SS: ", sub
 
-            td.numx = len(Xs[sub])
-            fitinfo.startGraph = graphs[sub]
+                td.numx = len(Xs[sub])
+                fitinfo.startGraph = graphs[sub]
 
-            # generate prior without participant's data, fit graph
-            if rnd > 1: #JZ
+                # generate prior without participant's data, fit graph
                 priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
                 prior = (priordict, items[sub])
-            else:
-                prior=None
-            
-            if isinstance(irts, list):
-                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub])
-            else:
-                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior)
+                
+                if isinstance(irts, list):
+                    uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub])
+                else:
+                    uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, prior_weight=prior_weight) #JZ
 
-            if not np.array_equal(uinvite_graph, graphs[sub]):
-                graphchanges += 1
-                graphs[sub] = uinvite_graph
-                exclude_subs=[sub]              # if a single change, fit everyone again (except the graph that was just fit)
-            else:
-                exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
-        rnd += 1
+                if not np.array_equal(uinvite_graph, graphs[sub]):
+                    graphchanges += 1
+                    graphs[sub] = uinvite_graph
+                    exclude_subs=[sub]              # if a single change, fit everyone again (except the graph that was just fit)
+                else:
+                    exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
+            rnd += 1
+        prior_weight += 0.1 #JZ
     
     ## generate group graph
     priordict = genGraphPrior(graphs, items, fitinfo=fitinfo)
@@ -729,7 +729,7 @@ def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
 # probability of observing Xs, including irts and prior
 #@profile
 #@nogc
-def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceCompute=False, pass_link_matrix=True):
+def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceCompute=False, pass_link_matrix=True, prior_weight=0.5):
     numnodes=len(a)
     reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv, but that's much slower
     identmat=np.identity(numnodes) * reg    # pre-compute for tiny speed-up (only for non-IRT)
@@ -859,7 +859,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
     if prior:
         if isinstance(prior, tuple):    # graph prior
             priorlogprob = evalGraphPrior(a, prior)
-            ll = ll + priorlogprob
+            ll = (1.0-prior_weight)*ll + prior_weight*priorlogprob #JZ
         else:                           # smallworld prior
             sw=smallworld(a)
             priorprob = evalSWprior(sw, prior)
@@ -993,7 +993,7 @@ def trimX(trimprop, Xs, steps):
     return Xs, steps, alter_graph_size
 
 #@profile
-def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, recordname="records.csv", seed=None):
+def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, recordname="records.csv", seed=None, prior_weight=0.5):
     nplocal=np.random.RandomState(seed) 
 
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
@@ -1028,7 +1028,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
         numchanges=0     # number of changes in single pivot() call
 
         if (best_ll == None) or (probmat == None):
-            best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
+            best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior,prior_weight=prior_weight)   # LL of best graph found
         nxg=nx.to_networkx_graph(graph)
 
         # generate dict where v[i] is a list of nodes where (i, v[i]) is an existing edge in the graph
@@ -1090,7 +1090,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
                 edge=(node1, node2)
                 graph=swapEdges(graph,[edge])
 
-                graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=probmat,changed=[node1,node2])
+                graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=probmat,changed=[node1,node2],prior_weight=prior_weight)
 
                 if best_ll >= graph_ll:
                     record.append(graph_ll)
@@ -1162,7 +1162,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
     # find a good starting graph using naive RW
     graph = genStartGraph(Xs, numnodes, td, fitinfo)
 
-    best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of starting graph
+    best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior,prior_weight=prior_weight)   # LL of starting graph
     records=[]
     graph, best_ll = phases(graph, best_ll, probmat)
     if fitinfo.record:
