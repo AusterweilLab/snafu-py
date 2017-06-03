@@ -12,7 +12,7 @@ td=rw.Data({
         'trim': 35})
 
 
-fh = open('graphs_halfa.pickle','r')
+fh = open('skiprnd.pickle','r')
 alldata = pickle.load(fh)
 Xs = alldata['datab'][0:10]
 graphs = alldata['uinvite_graphs']
@@ -20,7 +20,7 @@ items = alldata['items'][0:10]
 priordict = alldata['priordict']
 
 # recompute for halfa... should be identical for a=1
-priordict = rw.genGraphPrior(graphs, items, a_inc=0.5)
+#priordict = rw.genGraphPrior(graphs, items, a_inc=0.5)
 
 uinvite_group_graph = rw.priorToGraph(priordict, usf_items)
 

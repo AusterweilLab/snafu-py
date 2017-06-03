@@ -588,11 +588,8 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
             fitinfo.startGraph = graphs[sub]
 
             # generate prior without participant's data, fit graph
-            if rnd > 1: #JZ
-                priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
-                prior = (priordict, items[sub])
-            else:
-                prior=None
+            priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
+            prior = (priordict, items[sub])
             
             if isinstance(irts, list):
                 uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub])
