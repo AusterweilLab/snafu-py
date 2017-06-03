@@ -310,7 +310,7 @@ def genGfromZ(walk, numnodes):
     a=np.array(a.astype(int))
     return a
 
-def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncounts=False, a_inc=0.5, b_inc=1.0):
+def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncounts=False, a_inc=1.0, b_inc=1.0):
     a_start = fitinfo.prior_a
     b_start = fitinfo.prior_b
     priordict={}
@@ -561,11 +561,11 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     # create ids for all subjects
     subs=range(len(Xs))
 
-    if irts:
-        for sub in subs:
-            [mu, sig, lambd] = mexgauss(flatten_list(irts[sub].data))
-            irts[sub].exgauss_sigma = sig
-            irts[sub].exgauss_lambda = lambd
+    #if irts:
+    #    for sub in subs:
+    #        [mu, sig, lambd] = mexgauss(flatten_list(irts[sub].data))
+    #        irts[sub].exgauss_sigma = sig
+    #        irts[sub].exgauss_lambda = lambd
 
     # find starting graphs
     graphs=[]
@@ -588,8 +588,11 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
             fitinfo.startGraph = graphs[sub]
 
             # generate prior without participant's data, fit graph
-            priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
-            prior = (priordict, items[sub])
+            if rnd > 1: #JZ
+                priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
+                prior = (priordict, items[sub])
+            else:
+                prior=None
             
             if isinstance(irts, list):
                 uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub])
@@ -613,7 +616,10 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
 def probXhierarchical(Xs, graphs, items, priordict, td, irts=Irts({})):
     lls=[]
     for sub in range(len(Xs)):
-        prior = (priordict, items[sub])
+        if priordict:
+            prior = (priordict, items[sub])
+        else:
+            prior=None
         best_ll, probmat = probX(Xs[sub], graphs[sub], td, irts=irts, prior=prior)   # LL of starting graph
         lls.append(best_ll)
     ll=sum(lls)

@@ -79,7 +79,7 @@ for simnum in range(numsims):
     #alldata['td'] = toydata
     #alldata['fitinfo'] = fitinfo
 
-    fh=open("skiprnd.pickle","w")
+    fh=open("graphs_halfa.pickle","w")
     pickle.dump(alldata,fh)
     fh.close()
     
@@ -89,3 +89,7 @@ for simnum in range(numsims):
         print i, ",",
 
     print rw.probXhierarchical(datab[:listnum], uinvite_graphs[:listnum], items[:listnum], priordict, toydata)
+
+    # listnum=2
+    # [129, 264, 49, 12278, 313.0]
+    # -4041.27287911

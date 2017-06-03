@@ -20,7 +20,6 @@ toydata=rw.Data({
 fitinfo=rw.Fitinfo({
         'startGraph': "goni_valid",
         'goni_size': 2,
-        'prior_b': 2,
         'goni_threshold': 2,
         'followtype': "avg", 
         'prune_limit': np.inf,
