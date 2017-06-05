@@ -12,7 +12,7 @@ td=rw.Data({
         'trim': 35})
 
 
-fh = open('skiprnd.pickle','r')
+fh = open('gradualprior.pickle','r')
 alldata = pickle.load(fh)
 Xs = alldata['datab'][0:10]
 graphs = alldata['uinvite_graphs']
@@ -22,10 +22,12 @@ priordict = alldata['priordict']
 # recompute for halfa... should be identical for a=1
 #priordict = rw.genGraphPrior(graphs, items, a_inc=0.5)
 
-uinvite_group_graph = rw.priorToGraph(priordict, usf_items)
+print rw.probXhierarchical(Xs, graphs, items, priordict, td)
 
-rw.probXhierarchical(Xs, graphs, items, priordict, td)
-rw.costSDT(uinvite_group_graph, usf_graph)
+uinvite_group_graph = rw.priorToGraph(priordict, usf_items,cutoff=0.7)
+asd=rw.costSDT(uinvite_group_graph, usf_graph)
+print asd
+print asd[1]+asd[2]
 
 # constructed with a_inc=1
 # [109, 284, 33, 12294]
@@ -43,3 +45,8 @@ rw.costSDT(uinvite_group_graph, usf_graph)
 # LL of data excluding prior is better with a=1 than a=0.5
 # -852.79026649054151 vs -952.25959742129692
 # not helpful...
+
+
+# rw start
+#-8652.5339440088173
+#[104, 289, 25, 12302]
