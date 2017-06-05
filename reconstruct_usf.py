@@ -9,7 +9,7 @@ usf_numnodes = len(usf_items)
 numsubs = 50
 numlists = 3
 listlength = 35
-numsims = 50
+numsims = 1
 #methods=['rw','goni','chan','kenett','fe']
 methods=['uinvite']
 
@@ -36,7 +36,7 @@ fitinfo=rw.Fitinfo({
 # generate data for `numsub` participants, each having `numlists` lists of `listlengths` items
 seednum=0    # seednum=150 (numsubs*numlists) means start at second sim, etc.
 
-with open('sim_methods_2b.csv','w',0) as fh:
+with open('gradualpluscutoff7.csv','w',0) as fh:
     fh.write("method,simnum,listnum,hit,miss,fa,cr,cost,startseed\n")
 
     for simnum in range(numsims):
@@ -83,7 +83,7 @@ with open('sim_methods_2b.csv','w',0) as fh:
                 fe_graph = rw.firstEdge(flatdata, usf_numnodes)
             if 'uinvite' in methods:
                 uinvite_graphs, priordict = rw.hierarchicalUinvite(datab[:listnum], items[:listnum], numnodes[:listnum], toydata, fitinfo=fitinfo)
-                uinvite_group_graph = rw.priorToGraph(priordict, usf_items)
+                uinvite_group_graph = rw.priorToGraph(priordict, usf_items, cutoff=0.7) #JZ
 
             for method in methods:
                 if method=="rw": costlist = [rw.costSDT(rw_graph, usf_graph), rw.cost(rw_graph, usf_graph)]
