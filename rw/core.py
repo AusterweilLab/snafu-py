@@ -577,6 +577,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     exclude_subs=[]
     graphchanges=1
     rnd=1
+    prior_weight = 0.9 #JZ
     while graphchanges > 0:
         if debug: print "Round: ", rnd
         graphchanges = 0
@@ -592,9 +593,9 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
             prior = (priordict, items[sub])
             
             if isinstance(irts, list):
-                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub])
+                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub], prior_weight=prior_weight)
             else:
-                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, prior_weight=0.9)
+                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, prior_weight=prior_weight)
 
                 if not np.array_equal(uinvite_graph, graphs[sub]):
                     graphchanges += 1
@@ -602,8 +603,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
                     exclude_subs=[sub]              # if a single change, fit everyone again (except the graph that was just fit)
                 else:
                     exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
-            rnd += 1
-        prior_weight += 0.1 #JZ
+        rnd += 1
     
     ## generate group graph
     priordict = genGraphPrior(graphs, items, fitinfo=fitinfo)
@@ -611,7 +611,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     
     return graphs, priordict
 
-def probXhierarchical(Xs, graphs, items, priordict, td, irts=Irts({})):
+def probXhierarchical(Xs, graphs, items, priordict, td, irts=Irts({}),prior_weight=0.5):
     lls=[]
     for sub in range(len(Xs)):
         if priordict:
