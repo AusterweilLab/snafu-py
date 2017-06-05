@@ -596,13 +596,14 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
             else:
                 uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, prior_weight=0.9)
 
-            if not np.array_equal(uinvite_graph, graphs[sub]):
-                graphchanges += 1
-                graphs[sub] = uinvite_graph
-                exclude_subs=[sub]              # if a single change, fit everyone again (except the graph that was just fit)
-            else:
-                exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
-        rnd += 1
+                if not np.array_equal(uinvite_graph, graphs[sub]):
+                    graphchanges += 1
+                    graphs[sub] = uinvite_graph
+                    exclude_subs=[sub]              # if a single change, fit everyone again (except the graph that was just fit)
+                else:
+                    exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
+            rnd += 1
+        prior_weight += 0.1 #JZ
     
     ## generate group graph
     priordict = genGraphPrior(graphs, items, fitinfo=fitinfo)
@@ -856,7 +857,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
     if prior:
         if isinstance(prior, tuple):    # graph prior
             priorlogprob = evalGraphPrior(a, prior)
-            ll = (1.0-prior_weight)*ll + prior_weight*priorlogprob
+            ll = (1.0-prior_weight)*ll + prior_weight*priorlogprob #JZ
         else:                           # smallworld prior
             sw=smallworld(a)
             priorprob = evalSWprior(sw, prior)
@@ -990,7 +991,7 @@ def trimX(trimprop, Xs, steps):
     return Xs, steps, alter_graph_size
 
 #@profile
-def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, recordname="records.csv", seed=None,prior_weight=0.5):
+def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, recordname="records.csv", seed=None, prior_weight=0.5):
     nplocal=np.random.RandomState(seed) 
 
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
