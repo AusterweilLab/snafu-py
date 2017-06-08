@@ -24,7 +24,7 @@ priordict = alldata['priordict']
 
 print rw.probXhierarchical(Xs, graphs, items, priordict, td)
 
-uinvite_group_graph = rw.priorToGraph(priordict, usf_items,cutoff=0.5)
+uinvite_group_graph = rw.priorToGraph(priordict, usf_items)
 asd=rw.costSDT(uinvite_group_graph, usf_graph)
 print asd
 print asd[1]+asd[2]
