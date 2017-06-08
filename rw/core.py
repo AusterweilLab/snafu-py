@@ -578,7 +578,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     graphchanges=1
     rnd=1
     prior_weight = 0.0 #JZ
-    while prior_weight <= 1.0
+    while prior_weight <= 1.0:
         while graphchanges > 0:
             if debug: print "Round: ", rnd
             graphchanges = 0

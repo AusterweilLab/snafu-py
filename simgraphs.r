@@ -13,10 +13,10 @@ dat[,hit_p := hit/usf_hit]
 dat[,fa_p := fa/usf_cr]
 dat[,cost_p := cost/usf_total]
 
-p4 <- ggplot(dat, aes(x=subjects,y=cost_p,color=method)) + geom_line() + ylim(0,0.08)
-p5 <- ggplot(dat, aes(x=subjects,y=hit_p,color=method)) + geom_line()
-p6 <- ggplot(dat, aes(x=subjects,y=fa_p,color=method)) + geom_line()
-grid.arrange(p4,p5,p6,ncol=3)
+#p4 <- ggplot(dat, aes(x=subjects,y=cost_p,color=method)) + geom_line() + ylim(0,0.08)
+#p5 <- ggplot(dat, aes(x=subjects,y=hit_p,color=method)) + geom_line()
+#p6 <- ggplot(dat, aes(x=subjects,y=fa_p,color=method)) + geom_line()
+#grid.arrange(p4,p5,p6,ncol=3)
 
 p1 <- ggplot(dat, aes(x=subjects,y=cost,color=method)) + geom_line() + ylim(0,1000)
 p2 <- ggplot(dat, aes(x=subjects,y=hit,color=method)) + geom_line()
