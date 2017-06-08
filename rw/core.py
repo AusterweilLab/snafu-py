@@ -341,8 +341,8 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncou
         for item1 in priordict:
             for item2 in priordict[item1]:
                 a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
-                #priordict[item1][item2] = scipy.stats.beta.cdf(0.5, a, b) # old
-                priordict[item1][item2] = (b / float(a+b)) # new
+                priordict[item1][item2] = scipy.stats.beta.cdf(0.5, a, b) # old
+                #priordict[item1][item2] = (b / float(a+b))
     
     return priordict
 
