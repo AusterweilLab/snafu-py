@@ -12,7 +12,7 @@ td=rw.Data({
         'trim': 35})
 
 
-fh = open('fourA.pickle','r')
+fh = open('nbd05.pickle','r')
 alldata = pickle.load(fh)
 Xs = alldata['datab'][0:10]
 graphs = alldata['uinvite_graphs']
