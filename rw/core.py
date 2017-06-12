@@ -337,11 +337,25 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncou
                         priordict[pair[0]][pair[1]][0] += a_inc
    
     if not returncounts:
+        # find current density of prior
+        usf_edges = 313.0
+        totalpossibleedges = 12720.0 # ((160^2)-160)/2
+        usf_density = (usf_edges/totalpossibleedges)
+        numedges=0.0
+        for item1 in priordict:
+            for item2 in priordict[item1]:
+                a,b=priordict[item1][item2]
+                if b>a:
+                    numedges += 1.0
+        currentdensity = numedges / totalpossibleedges
+        num_ss = len(graphs)
+
         # use beta distribution to convert to probabilities (of edge being present)
         for item1 in priordict:
             for item2 in priordict[item1]:
                 a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
-                #priordict[item1][item2] = scipy.stats.beta.cdf(0.5, a, b) # old
+                a = a + num_ss*(usf_density - currentdensity)
+                b = b + num_ss*(currentdensity - usf_density)
                 priordict[item1][item2] = (b / float(a+b))
     
     return priordict

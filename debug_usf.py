@@ -79,7 +79,7 @@ for simnum in range(numsims):
     #alldata['td'] = toydata
     #alldata['fitinfo'] = fitinfo
 
-    fh=open("newcalc.pickle","w")
+    fh=open("densitymodel.pickle","w")
     pickle.dump(alldata,fh)
     fh.close()
     
