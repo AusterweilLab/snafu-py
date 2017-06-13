@@ -341,7 +341,7 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncou
         for item1 in priordict:
             for item2 in priordict[item1]:
                 a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
-                p=.5
+                p=.1
                 priordict[item1][item2] = 1-(((a-a*p)*(1-((a*p)/(a+b))))/(a+b))
     
     return priordict

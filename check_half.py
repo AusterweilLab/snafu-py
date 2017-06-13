@@ -12,7 +12,7 @@ td=rw.Data({
         'trim': 35})
 
 
-fh = open('densitymodel.pickle','r')
+fh = open('mixturep1again.pickle','r')
 alldata = pickle.load(fh)
 Xs = alldata['datab'][0:10]
 graphs = alldata['uinvite_graphs']
