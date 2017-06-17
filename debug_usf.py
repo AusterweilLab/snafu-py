@@ -71,9 +71,9 @@ for simnum in range(numsims):
     listnum=10
 
     
-    for b_start in [1,, 2, 3, 0.75, 0.5]:
+    for b_start in [1, 2, 3, 0.75, 0.5]:
         for a_start in [1, 2, 3, 0.75, 0.5]:
-            for zib_p in [.4, .6, .3, .7]:
+            for zib_p in [.4, .6, .3, .7, .5]:
                 fitinfo.prior_method = "zeroinflatedbetabinomial"
                 fitinfo.zib_p = zib_p
                 fitinfo.prior_a = a_start
