@@ -1,7 +1,12 @@
+#!/usr/bin/python
+
 import pickle
 import numpy as np
 import rw
 import networkx as nx
+import sys
+
+filename = sys.argv[1]
 
 usf_graph, usf_items = rw.read_csv("./snet/USF_animal_subset.snet")
 usf_graph_nx = nx.from_numpy_matrix(usf_graph)
@@ -12,22 +17,30 @@ td=rw.Data({
         'trim': 35})
 
 
-fh = open('mixturep1again.pickle','r')
+fh = open(filename,'r')
 alldata = pickle.load(fh)
 Xs = alldata['datab'][0:10]
 graphs = alldata['uinvite_graphs']
 items = alldata['items'][0:10]
 priordict = alldata['priordict']
 
+# for old pickles. ha, that's kinda funny.
+if 'DEFAULTPRIOR' not in priordict.keys():
+    priordict['DEFAULTPRIOR'] = 0.5
+
 # recompute for halfa... should be identical for a=1
 #priordict = rw.genGraphPrior(graphs, items, a_inc=0.5)
 
 print rw.probXhierarchical(Xs, graphs, items, priordict, td)
 
-uinvite_group_graph = rw.priorToGraph(priordict, usf_items)
-asd=rw.costSDT(uinvite_group_graph, usf_graph)
-print asd
-print asd[1]+asd[2]
+for cut in [j/20.0 for j in range(21)]:
+    uinvite_group_graph = rw.priorToGraph(priordict, usf_items,cutoff=cut)
+    asd=rw.costSDT(uinvite_group_graph, usf_graph)
+    print ",".join([str(i) for i in [filename.split('.')[0], cut, asd[0], asd[2], asd[1]+asd[2]]])
+
+# newmixturepe3 >> 281
+# newmixturep275 >> 275
+# newmixturep4 + cutoff=.8 >> 267
 
 # constructed with a_inc=1
 # [109, 284, 33, 12294]

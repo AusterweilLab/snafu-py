@@ -212,8 +212,7 @@ def evalGraphPrior(a, prior, undirected=True):
     probs = []
     priordict = prior[0]
     items = prior[1]
-    # nullprob = scipy.stats.beta.cdf(0.5, 1, 1)  # old
-    nullprob = 0.5 # new -- need to fix for when fitinfo.prior_a or fitinfo.prior_b are set
+    nullprob = priordict['DEFAULTPRIOR']
 
     for inum, i in enumerate(a):
         for jnum, j in enumerate(i):
@@ -310,11 +309,22 @@ def genGfromZ(walk, numnodes):
     a=np.array(a.astype(int))
     return a
 
-def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncounts=False, a_inc=1.0, b_inc=1.0):
+def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncounts=False):
     a_start = fitinfo.prior_a
     b_start = fitinfo.prior_b
+    method = fitinfo.prior_method
+    p = fitinfo.zib_p
+    #p=.5
+    #p=(usf_density-current_density)/(1-current_density)
+    
     priordict={}
-   
+  
+    def betabinomial(a,b):
+        return (b / (a + b))
+    
+    def zeroinflatedbetabinomial(a,b,p):
+        return (b / ((1-p)*a+b))
+
     # tabulate number of times edge does or doesn't appear in all of the graphs when node pair is present
     for graphnum, graph in enumerate(graphs):   # for each graph
         itemdict=items[graphnum]
@@ -332,17 +342,38 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncou
                     if pair[1] not in priordict[pair[0]].keys():
                         priordict[pair[0]][pair[1]] = [a_start, b_start]
                     if j==1:
-                        priordict[pair[0]][pair[1]][1] += b_inc
+                        priordict[pair[0]][pair[1]][1] += 1.0 # increment b counts
                     elif j==0:
-                        priordict[pair[0]][pair[1]][0] += a_inc
+                        priordict[pair[0]][pair[1]][0] += 1.0 # increment a counts
    
     if not returncounts:
         # use beta distribution to convert to probabilities (of edge being present)
+        usf_edges=313.0
+        totalpossibleedges=12720.0 # ((160^2)-160)/2
+        usf_density = (usf_edges/totalpossibleedges)
+        numedges=0.0
+        for item1 in priordict:
+            for item2 in priordict[item1]:
+                a,b = priordict[item1][item2]
+                if b>a:
+                    numedges += 1.0
+        current_density = numedges / totalpossibleedges
+        
         for item1 in priordict:
             for item2 in priordict[item1]:
                 a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
-                p=.1
-                priordict[item1][item2] = 1-(((a-a*p)*(1-((a*p)/(a+b))))/(a+b))
+                if method == "zeroinflatedbetabinomial":
+                    priordict[item1][item2] = zeroinflatedbetabinomial(a,b,p) # zero-inflated beta-binomial
+                elif method == "betabinomial":
+                    priordict[item1][item2] = betabinomial(a,b) # beta-binomial
+        if 'DEFAULTPRIOR' in priordict.keys():
+            raise ValueError('Sorry, you can\'t have a node called DEFAULTPRIOR. \
+                              Sure, I should have coded this better, but I really didn\'t think this situation would ever occur.')
+        else:
+            if method == "zeroinflatedbetabinomial":
+                priordict['DEFAULTPRIOR'] = zeroinflatedbetabinomial(a_start, b_start, p)
+            elif method=="betabinomial":
+                priordict['DEFAULTPRIOR'] = betabinomial(a_start, b_start)
     
     return priordict
 
@@ -715,13 +746,14 @@ def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
     a = np.zeros((numnodes, numnodes))
     
     for item1 in priordict.keys():
-        for item2 in priordict[item1]:
-            if priordict[item1][item2] > cutoff:
-                item1_idx = items.keys()[items.values().index(item1)]
-                item2_idx = items.keys()[items.values().index(item2)]
-                a[item1_idx, item2_idx] = 1.0
-                if undirected:
-                    a[item2_idx, item1_idx] = 1.0
+        if item1 != 'DEFAULTPRIOR':
+            for item2 in priordict[item1]:
+                if priordict[item1][item2] > cutoff:
+                    item1_idx = items.keys()[items.values().index(item1)]
+                    item2_idx = items.keys()[items.values().index(item2)]
+                    a[item1_idx, item2_idx] = 1.0
+                    if undirected:
+                        a[item2_idx, item1_idx] = 1.0
     return a
 
 # probability of observing Xs, including irts and prior

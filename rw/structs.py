@@ -100,6 +100,10 @@ def Fitinfo(fitinfo):
         if isinstance(fitinfo[i],list):
             return flatten_list([Fitinfo(dict(fitinfo, **{i: j})) for j in fitinfo[i]])
     
+    if 'prior_method' not in fitkeys:
+        fitinfo['prior_method'] = "zeroinflatedbetabinomial"
+    if 'zib_p' not in fitkeys:
+        fitinfo['zib_p'] = 0.5
     if 'prior_a' not in fitkeys:
         fitinfo['prior_a'] = 1
     if 'prior_b' not in fitkeys:
