@@ -89,7 +89,7 @@ for simnum in range(numsims):
                 alldata['items'] = items
                 alldata['numnodes'] = numnodes
                 
-                filename = "zibb_p" + str(int(p*10)) + "_a" + str(a_start).replace('.','') + "_b" + str(b_start).replace('.','') + ".pickle"
+                filename = "zibb_p" + str(int(zib_p*10)) + "_a" + str(a_start).replace('.','') + "_b" + str(b_start).replace('.','') + ".pickle"
                 fh=open(filename,"w")
                 pickle.dump(alldata,fh)
                 fh.close()

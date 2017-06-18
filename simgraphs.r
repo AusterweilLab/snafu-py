@@ -6,7 +6,8 @@ usf_hit <- 393
 usf_cr <- 12327
 usf_total <- 12720
 
-dat <- fread('sim_all_but_uinvite.csv')
+#dat <- fread('sim_all_but_uinvite.csv')
+dat <- fread('simgood.csv')
 dat[,modeltype:="uinvite"]
 dat[method=="rw",modeltype:="other"]
 dat[method=="fe",modeltype:="other"]
@@ -30,7 +31,7 @@ bbrocdat[,type:="bb"]
 zibrocdat[,type:="zibb"]
 rocdat <- rbind(bbrocdat,zibrocdat)
 
-#ggplot(rocdat,aes(y=hit,x=fa,color=name,linetype=type)) + geom_point(aes(size=factor(ptsize))) + geom_line() + coord_cartesian(xlim=c(0,313),ylim=c(0,313))
+#ggplot(rocdat,aes(y=hit,x=fa,color=name)) + geom_point(aes(size=factor(ptsize))) + geom_line() + coord_cartesian(xlim=c(0,313),ylim=c(0,313))
 
 
 #p4 <- ggplot(dat, aes(x=subjects,y=cost_p,color=method)) + geom_line() + ylim(0,0.08)
@@ -39,9 +40,9 @@ rocdat <- rbind(bbrocdat,zibrocdat)
 #grid.arrange(p4,p5,p6,ncol=3)
 
 mainPlot <- function() {
-    p1 <- ggplot(dat, aes(x=subjects,y=cost,color=method,linetype=modeltype)) + geom_line() + ylim(0,1000)
-    p2 <- ggplot(dat, aes(x=subjects,y=hit,color=method,linetype=modeltype)) + geom_line()
-    p3 <- ggplot(dat, aes(x=subjects,y=fa,color=method,linetype=modeltype)) + geom_line()
+    p1 <- ggplot(dat, aes(x=subjects,y=cost_p,color=method,linetype=modeltype)) + geom_line() + ylab("Cost (miss + false alarm)") + xlab("# of subjects")
+    p2 <- ggplot(dat, aes(x=subjects,y=hit_p,color=method,linetype=modeltype)) + geom_line() + ylab("Hits") + xlab("# of subjects")
+    p3 <- ggplot(dat, aes(x=subjects,y=fa_p,color=method,linetype=modeltype)) + geom_line() + ylab("False alarms") + xlab("# of subjects")
     grid.arrange(p1,p2,p3,ncol=3)
 }
 
