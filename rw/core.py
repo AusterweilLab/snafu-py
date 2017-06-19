@@ -600,14 +600,18 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
 
     # find starting graphs
     graphs=[]
+    prior_weight=0.5
+    print "Initial fitting..."
     for sub in subs:
         td.numx=len(Xs[sub])    # for goni
-        graphs.append(genStartGraph(Xs[sub], numnodes[sub], td, fitinfo=fitinfo))
+        priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
+        prior = (priordict, items[sub])
+        uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, prior_weight=prior_weight)
+        graphs.append(uinvite_graph)        # if graphs are shuffled (they aren't yet) make sure they go back in the right order)
     
     # cycle though participants
     exclude_subs=[]
     graphchanges=1
-    prior_weight=0.5
     rnd=1
     while graphchanges > 0:
         if debug: print "Round: ", rnd

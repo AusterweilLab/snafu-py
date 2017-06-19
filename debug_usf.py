@@ -71,28 +71,24 @@ for simnum in range(numsims):
     listnum=10
 
     
-    for b_start in [1, 2, 3, 0.75, 0.5]:
-        for a_start in [1, 2, 3, 0.75, 0.5]:
-            for zib_p in [.4, .6, .3, .7, .5]:
-                fitinfo.prior_method = "zeroinflatedbetabinomial"
-                fitinfo.zib_p = zib_p
-                fitinfo.prior_a = a_start
-                fitinfo.prior_b = b_start
-                uinvite_graphs, priordict = rw.hierarchicalUinvite(datab[:listnum], items[:listnum], numnodes[:listnum], toydata, fitinfo=fitinfo)
-                uinvite_group_graph = rw.priorToGraph(priordict, usf_items)
+    fitinfo.prior_method = "zeroinflatedbetabinomial"
+    fitinfo.zib_p = .5
+    fitinfo.prior_a = 2
+    fitinfo.prior_b = 1
+    uinvite_graphs, priordict = rw.hierarchicalUinvite(datab[:listnum], items[:listnum], numnodes[:listnum], toydata, fitinfo=fitinfo)
+    uinvite_group_graph = rw.priorToGraph(priordict, usf_items)
 
-                alldata=dict()
-                alldata['uinvite_graphs'] = uinvite_graphs
-                alldata['priordict'] = priordict
-                alldata['uinvite_group_graph'] = uinvite_group_graph
-                alldata['datab'] = datab
-                alldata['items'] = items
-                alldata['numnodes'] = numnodes
-                
-                filename = "zibb_p" + str(int(zib_p*10)) + "_a" + str(a_start).replace('.','') + "_b" + str(b_start).replace('.','') + ".pickle"
-                fh=open(filename,"w")
-                pickle.dump(alldata,fh)
-                fh.close()
+    alldata=dict()
+    alldata['uinvite_graphs'] = uinvite_graphs
+    alldata['priordict'] = priordict
+    alldata['uinvite_group_graph'] = uinvite_group_graph
+    alldata['datab'] = datab
+    alldata['items'] = items
+    alldata['numnodes'] = numnodes
+    
+    fh=open(filename,"w")
+    pickle.dump(alldata,fh)
+    fh.close()
     
     costlist = [rw.costSDT(uinvite_group_graph, usf_graph), rw.cost(uinvite_group_graph, usf_graph)]
     costlist = rw.flatten_list(costlist)
