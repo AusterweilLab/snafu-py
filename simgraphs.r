@@ -33,6 +33,7 @@ rocdat <- rbind(bbrocdat,zibrocdat)
 
 #ggplot(rocdat,aes(y=hit,x=fa,color=name)) + geom_point(aes(size=factor(ptsize))) + geom_line() + coord_cartesian(xlim=c(0,313),ylim=c(0,313))
 
+#ggplot(dat[p=="p7" & b=="b1"],aes(x=fa,y=hit,color=a)) + geom_line() + geom_point(aes(size=factor(cutoff==0.5))) + xlim(0,393) + ylim(0,393)
 
 #p4 <- ggplot(dat, aes(x=subjects,y=cost_p,color=method)) + geom_line() + ylim(0,0.08)
 #p5 <- ggplot(dat, aes(x=subjects,y=hit_p,color=method)) + geom_line()
