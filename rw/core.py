@@ -916,7 +916,7 @@ def random_walk(g, td, priming_vector=[], seed=None):
 
     def jump():
         if td.jumptype=="stationary":
-            second=statdist.rvs(random_state=seed)       # jump based on statdist
+            second=statdist.rvs(random_state=seed)     # jump based on statdist
         elif td.jumptype=="uniform":
             second=nplocal.choice(nx.nodes(g))         # jump uniformly
         return second

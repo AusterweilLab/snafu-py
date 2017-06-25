@@ -32,11 +32,12 @@ def hashToGraph(graphhash):
     return mat
 
 # reads in graph from CSV
-# row order not preserved; could be optimized more
+# row order not preserved; not optimized
 def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True):
     fh=open(fh,'r')
+    items={}
     idx=0
-    bigdict={}
+    biglist=[]
 
     if header:
         headerrow=fh.readline().split('\n')[0].split(',')
@@ -47,7 +48,6 @@ def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True):
     else:
         filterrows={}
 
-    done=dict()
     for line in fh:
         line=line.rstrip()
         linesplit=line.split(',')
@@ -60,29 +60,21 @@ def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True):
         if skiprow==1:
             continue
         
-        try:
-            if twoitems[1] not in bigdict[twoitems[0]]:
-                bigdict[twoitems[0]].append(twoitems[1])
-        except:
-            bigdict[twoitems[0]] = [twoitems[1]]
-        try:
-            if twoitems[0] not in bigdict[twoitems[1]]:
-                bigdict[twoitems[1]].append(twoitems[0])
-        except:
-            bigdict[twoitems[1]] = [twoitems[0]]
-    
-    items = dict(zip(bigdict.keys(),range(len(bigdict.keys()))))
+        biglist.append(twoitems)
+        for item in twoitems:
+            if item not in items.values():
+                items[idx]=item
+                idx += 1
+
     graph=np.zeros((len(items),len(items)))
 
-    for item1 in bigdict:
-        for item2 in bigdict[item1]:
-            idx1=items[item1]
-            idx2=items[item2]
-            graph[idx1,idx2]=1
-            if undirected:
-                graph[idx2,idx1]=1
+    for twoitems in biglist:
+        idx1=items.values().index(twoitems[0])
+        idx2=items.values().index(twoitems[1])
+        graph[idx1,idx2]=1
+        if undirected:
+            graph[idx2,idx1]=1
 
-    items = dict(zip(range(len(bigdict.keys())),bigdict.keys()))
     return graph, items
 
 # read Xs in from user files
@@ -166,3 +158,5 @@ def write_csv(gs, fh, subj="NA", directed=False, extra_data={}):
                     edge[1]  + 
                     edgelist + "\n")
     return
+:w ~/Drop
+
