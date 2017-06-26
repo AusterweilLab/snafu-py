@@ -33,7 +33,7 @@ def hashToGraph(graphhash):
 
 # reads in graph from CSV
 # row order not preserved; could be optimized more
-def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True):
+def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False):
     fh=open(fh,'r')
     idx=0
     bigdict={}
@@ -65,24 +65,43 @@ def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True):
                 bigdict[twoitems[0]].append(twoitems[1])
         except:
             bigdict[twoitems[0]] = [twoitems[1]]
-        try:
-            if twoitems[0] not in bigdict[twoitems[1]]:
-                bigdict[twoitems[1]].append(twoitems[0])
-        except:
-            bigdict[twoitems[1]] = [twoitems[0]]
+        if twoitems[1] not in bigdict:              # doesn't this scale with dictionary size-- something i was trying to avoid by rewriting this function?
+            bigdict[twoitems[1]] = []
+
+
     
-    items = dict(zip(bigdict.keys(),range(len(bigdict.keys()))))
-    graph=np.zeros((len(items),len(items)))
-
-    for item1 in bigdict:
-        for item2 in bigdict[item1]:
-            idx1=items[item1]
-            idx2=items[item2]
-            graph[idx1,idx2]=1
-            if undirected:
-                graph[idx2,idx1]=1
-
+    items_rev = dict(zip(bigdict.keys(),range(len(bigdict.keys()))))
     items = dict(zip(range(len(bigdict.keys())),bigdict.keys()))
+    
+    if sparse:
+        from scipy.sparse import csr_matrix
+        rows=[]
+        cols=[]
+        numedges=0
+        for i in bigdict:
+            for j in bigdict[i]:
+                rows.append(items_rev[i])
+                cols.append(items_rev[j])
+                numedges += 1
+                if undirected:
+                    rows.append(items_rev[j])
+                    cols.append(items_rev[i])
+                    numedges += 1
+        data=np.array([1]*numedges)
+        rows=np.array(rows)
+        cols=np.array(cols)
+        graph = csr_matrix((data, (rows, cols)), shape=(len(items),len(items)))
+    else:
+        graph = np.zeros((len(items),len(items)))
+        
+        for item1 in bigdict:
+            for item2 in bigdict[item1]:
+                idx1=items_rev[item1]
+                idx2=items_rev[item2]
+                graph[idx1,idx2]=1
+                if undirected:
+                    graph[idx2,idx1]=1
+
     return graph, items
 
 # read Xs in from user files
