@@ -600,7 +600,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
 
     # find starting graphs
     graphs=[]
-    prior_weight=0.5
+    prior_weight=0.0
     print "Initial fitting..."
     for sub in subs:
         td.numx=len(Xs[sub])    # for goni
@@ -613,10 +613,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     exclude_subs=[]
     graphchanges=1
     rnd=1
-    p=.5                        #JZ
-    start_zib = fitinfo.zib_p   #
-    while p >= 0.0:             #JZ
-        fitinfo.zib_p = p       #
+    while prior_weight <= 0.5:             #JZ
         while graphchanges > 0:
             if debug: print "Round: ", rnd
             graphchanges = 0
@@ -643,7 +640,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
                     else:
                         exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
             rnd += 1
-        p = p - 0.1       #JZ
+        prior_weight += 0.1       #JZ
         exclude_subs = [] #
         graphchanges=1    #
     ## generate group graph

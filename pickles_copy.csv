@@ -1,4 +1,4 @@
-filename,cutoff,hit,fa,cost
+filname,cutoff,hit,fa,cost
 bb_a05,0.0,385,10485,10493
 bb_a05,0.05,385,10485,10493
 bb_a05,0.1,381,10457,10469
