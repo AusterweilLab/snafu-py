@@ -39,7 +39,8 @@ while numitems < usf_numnodes:
 irts.data = rw.stepsToIRT(irts)
 
 fh=open('irt_output.csv','w')
-for irt_weight in [0.5, 0.9, 0.95, 0.7]:
+for irt_weight in [0.5, 0.9, 0.95, 0.7, 1.0]:
+    irts.irt_weighht = irt_weight
     graph, ll = rw.uinvite(Xs, td, usf_numnodes, irts=irts, fitinfo=fitinfo)
     
     costlist = [rw.costSDT(graph, usf_graph), rw.cost(graph, usf_graph)]
