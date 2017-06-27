@@ -9,6 +9,7 @@ import scipy.stats
 import sys
 import copy
 import csv
+from jarjar import jarjar
 
 from numpy.linalg import inv
 from itertools import *
@@ -588,7 +589,7 @@ def goni(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=None):
 def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({}), seed=None, debug=True):
     nplocal=np.random.RandomState(seed) 
     fitinfoSG = fitinfo.startGraph  # fitinfo is mutable, need to revert at end of function... blah
-
+    jj = jarjar("@jeffzemla")
     # create ids for all subjects
     subs=range(len(Xs))
     graphs=[[]]*len(subs)
@@ -638,7 +639,8 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
         prior_weight += 0.05      #JZ
         exclude_subs = []         # reset for next loop
         graphchanges=1            # ""
-        
+        jj.post("prior weight " + str(prior_weight))
+
     ## generate group graph
     priordict = genGraphPrior(graphs, items, fitinfo=fitinfo)
     fitinfo.startGraph = fitinfoSG  # reset fitinfo starting graph to default
