@@ -822,6 +822,13 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                     logbeta=np.log(irts.beta)
                     logirt=np.log(irt)
 
+                # normalize irt probabilities to avoid irt weighting... untested
+                if irts.irttype=="gamma":
+                     # r=alpha. probability of observing irt at r steps
+                    irtdist=[r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.beta*irt for r in range(1,irts.rcutoff)]
+                if irts.irttype=="exgauss":
+                    irtdist=[np.log(irts.exgauss_lambda/2.0)+(irts.exgauss_lambda/2.0)*(2.0*r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-2*irt)+np.log(math.erfc((r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-irt)/(np.sqrt(2)*irts.exgauss_sigma))) for r in range(1,irts.rcutoff)]
+
                 for r in range(1,irts.rcutoff):
                     innersum=0
                     for k in range(numcols):
@@ -829,11 +836,14 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                         num2=t2[curpos,k]                          # probability transitioning from k to absorbing node    
                         innersum=innersum+(num1*num2)
 
-                    # much faster than using scipy.stats.gamma.pdf
-                    if irts.irttype=="gamma":
-                        log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.beta*irt # r=alpha. probability of observing irt at r steps
-                    if irts.irttype=="exgauss":
-                        log_dist=np.log(irts.exgauss_lambda/2.0)+(irts.exgauss_lambda/2.0)*(2.0*r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-2*irt)+np.log(math.erfc((r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-irt)/(np.sqrt(2)*irts.exgauss_sigma)))
+                    # compute irt probability given r steps
+                    log_dist = irtdist[r-1] / sum(irtdist)
+
+                    # old way, without normalizing
+                    #if irts.irttype=="gamma":
+                    #    log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.beta*irt # r=alpha. probability of observing irt at r steps
+                    #if irts.irttype=="exgauss":
+                    #    log_dist=np.log(irts.exgauss_lambda/2.0)+(irts.exgauss_lambda/2.0)*(2.0*r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-2*irt)+np.log(math.erfc((r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-irt)/(np.sqrt(2)*irts.exgauss_sigma)))
 
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
                         flist.append(log_dist*(1-irts.irt_weight)+irts.irt_weight*np.log(innersum))
