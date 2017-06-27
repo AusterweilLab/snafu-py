@@ -591,6 +591,8 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
 
     # create ids for all subjects
     subs=range(len(Xs))
+    graphs=[[]]*len(subs)
+    prior_weight=0.0
 
     #if irts:
     #    for sub in subs:
@@ -598,16 +600,6 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     #        irts[sub].exgauss_sigma = sig
     #        irts[sub].exgauss_lambda = lambd
 
-    # find starting graphs
-    graphs=[]
-    prior_weight=0.0
-    print "Initial fitting..."
-    for sub in subs:
-        td.numx=len(Xs[sub])    # for goni
-        priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
-        prior = (priordict, items[sub])
-        uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, prior_weight=prior_weight)
-        graphs.append(uinvite_graph)        # if graphs are shuffled (they aren't yet) make sure they go back in the right order)
     
     # cycle though participants
     exclude_subs=[]
@@ -622,7 +614,10 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
                 if debug: print "SS: ", sub
 
                 td.numx = len(Xs[sub])
-                fitinfo.startGraph = graphs[sub]
+                if graphs[sub] == []:
+                    fitinfo.startGraph = fitinfoSG      # on first pass for subject, use default fitting method (e.g., NRW, goni, etc)
+                else:
+                    fitinfo.startGraph = graphs[sub]    # on subsequent passes, use ss graph from previous iteration
 
                 # generate prior without participant's data, fit graph
                 priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
@@ -640,13 +635,13 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
                     else:
                         exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
             rnd += 1
-        prior_weight += 0.1       #JZ
-        exclude_subs = [] #
-        graphchanges=1    #
+        prior_weight += 0.05      #JZ
+        exclude_subs = []         # reset for next loop
+        graphchanges=1            # ""
+        
     ## generate group graph
     priordict = genGraphPrior(graphs, items, fitinfo=fitinfo)
-    fitinfo.startGraph = fitinfoSG  # revert fitinfo starting graph to default
-    fitinfo.zib_p = start_zib   #JZ
+    fitinfo.startGraph = fitinfoSG  # reset fitinfo starting graph to default
     
     return graphs, priordict
 
