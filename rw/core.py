@@ -606,35 +606,41 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     exclude_subs=[]
     graphchanges=1
     rnd=1
-    while graphchanges > 0:
-        if debug: print "Round: ", rnd
-        graphchanges = 0
-        nplocal.shuffle(subs)
-        for sub in [i for i in subs if i not in exclude_subs]:
-            if debug: print "SS: ", sub
+    sweep=1
+    while sweep <= 2:
+        while graphchanges > 0:
+            if debug: print "Round: ", rnd
+            graphchanges = 0
+            nplocal.shuffle(subs)
+            for sub in [i for i in subs if i not in exclude_subs]:
+                if debug: print "SS: ", sub
 
-            td.numx = len(Xs[sub])
-            #if graphs[sub] == []:
-            #    fitinfo.startGraph = fitinfoSG      # on first pass for subject, use default fitting method (e.g., NRW, goni, etc)
-            #else:
-            #    fitinfo.startGraph = graphs[sub]    # on subsequent passes, use ss graph from previous iteration
-
-            # generate prior without participant's data, fit graph
-            priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
-            prior = (priordict, items[sub])
-            
-            if isinstance(irts, list):
-                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub], prior_weight=prior_weight)
-            else:
-                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, prior_weight=prior_weight)
-
-                if not np.array_equal(uinvite_graph, graphs[sub]):
-                    graphchanges += 1
-                    graphs[sub] = uinvite_graph
-                    exclude_subs=[sub]              # if a single change, fit everyone again (except the graph that was just fit)
+                td.numx = len(Xs[sub])
+                if graphs[sub] == []:
+                    fitinfo.startGraph = fitinfoSG      # on first pass for subject, use default fitting method (e.g., NRW, goni, etc)
                 else:
-                    exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
-        rnd += 1
+                    fitinfo.startGraph = graphs[sub]    # on subsequent passes, use ss graph from previous iteration
+
+                # generate prior without participant's data, fit graph
+                priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
+                prior = (priordict, items[sub])
+                
+                if isinstance(irts, list):
+                    uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub], prior_weight=prior_weight)
+                else:
+                    uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, prior_weight=prior_weight)
+
+                    if not np.array_equal(uinvite_graph, graphs[sub]):
+                        graphchanges += 1
+                        graphs[sub] = uinvite_graph
+                        exclude_subs=[sub]              # if a single change, fit everyone again (except the graph that was just fit)
+                    else:
+                        exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
+            rnd += 1
+        sweep += 1
+        graphs = [genStartGraph(Xs[sub], numnodes[sub], td, fitinfo) for sub in subs]    #now that we have a prior, run again starting from goni-valid graph
+        graphchanges=0
+        exclude_subs=[]
 
     ## generate group graph
     priordict = genGraphPrior(graphs, items, fitinfo=fitinfo)
@@ -648,8 +654,8 @@ def probXhierarchical(Xs, graphs, items, priordict, td, irts=Irts({}),prior_weig
         if priordict:
             prior = (priordict, items[sub])
         else:
-            prior=None
-        best_ll, probmat = probX(Xs[sub], graphs[sub], td, irts=irts, prior=prior,prior_weight=prior_weight)   # LL of starting graph
+            prior=None      # why did i need this? would probXhierarchical ever not have a prior?
+        best_ll, probmat = probX(Xs[sub], graphs[sub], td, irts=irts, prior=prior, prior_weight=prior_weight)   # LL of graph
         lls.append(best_ll)
     ll=sum(lls)
     return ll
@@ -749,7 +755,7 @@ def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
         if item1 != 'DEFAULTPRIOR':
             for item2 in priordict[item1]:
                 if priordict[item1][item2] > cutoff:
-                    item1_idx = items.keys()[items.values().index(item1)]
+                    item1_idx = items.keys()[items.values().index(item1)]    # syntax is a little convoluted in case dictionary keys are not in sequential order
                     item2_idx = items.keys()[items.values().index(item2)]
                     a[item1_idx, item2_idx] = 1.0
                     if undirected:
