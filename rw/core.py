@@ -593,7 +593,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     # create ids for all subjects
     subs=range(len(Xs))
     graphs=[[]]*len(subs)
-    prior_weight=0.0
+    prior_weight=0.5
 
     #if irts:
     #    for sub in subs:
@@ -606,40 +606,35 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     exclude_subs=[]
     graphchanges=1
     rnd=1
-    while prior_weight <= 0.5:             #JZ
-        while graphchanges > 0:
-            if debug: print "Round: ", rnd
-            graphchanges = 0
-            nplocal.shuffle(subs)
-            for sub in [i for i in subs if i not in exclude_subs]:
-                if debug: print "SS: ", sub
+    while graphchanges > 0:
+        if debug: print "Round: ", rnd
+        graphchanges = 0
+        nplocal.shuffle(subs)
+        for sub in [i for i in subs if i not in exclude_subs]:
+            if debug: print "SS: ", sub
 
-                td.numx = len(Xs[sub])
-                if graphs[sub] == []:
-                    fitinfo.startGraph = fitinfoSG      # on first pass for subject, use default fitting method (e.g., NRW, goni, etc)
+            td.numx = len(Xs[sub])
+            #if graphs[sub] == []:
+            #    fitinfo.startGraph = fitinfoSG      # on first pass for subject, use default fitting method (e.g., NRW, goni, etc)
+            #else:
+            #    fitinfo.startGraph = graphs[sub]    # on subsequent passes, use ss graph from previous iteration
+
+            # generate prior without participant's data, fit graph
+            priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
+            prior = (priordict, items[sub])
+            
+            if isinstance(irts, list):
+                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub], prior_weight=prior_weight)
+            else:
+                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, prior_weight=prior_weight)
+
+                if not np.array_equal(uinvite_graph, graphs[sub]):
+                    graphchanges += 1
+                    graphs[sub] = uinvite_graph
+                    exclude_subs=[sub]              # if a single change, fit everyone again (except the graph that was just fit)
                 else:
-                    fitinfo.startGraph = graphs[sub]    # on subsequent passes, use ss graph from previous iteration
-
-                # generate prior without participant's data, fit graph
-                priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
-                prior = (priordict, items[sub])
-                
-                if isinstance(irts, list):
-                    uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub], prior_weight=prior_weight)
-                else:
-                    uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, prior_weight=prior_weight)
-
-                    if not np.array_equal(uinvite_graph, graphs[sub]):
-                        graphchanges += 1
-                        graphs[sub] = uinvite_graph
-                        exclude_subs=[sub]              # if a single change, fit everyone again (except the graph that was just fit)
-                    else:
-                        exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
-            rnd += 1
-        prior_weight += 0.05      #JZ
-        exclude_subs = []         # reset for next loop
-        graphchanges=1            # ""
-        jj.post("prior weight " + str(prior_weight))
+                    exclude_subs.append(sub)        # if graph didn't change, don't fit them again in next round
+        rnd += 1
 
     ## generate group graph
     priordict = genGraphPrior(graphs, items, fitinfo=fitinfo)
