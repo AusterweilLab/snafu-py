@@ -593,15 +593,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     # create ids for all subjects
     subs=range(len(Xs))
     graphs=[[]]*len(subs)
-    prior_weight=0.5
 
-    #if irts:
-    #    for sub in subs:
-    #        [mu, sig, lambd] = mexgauss(flatten_list(irts[sub].data))
-    #        irts[sub].exgauss_sigma = sig
-    #        irts[sub].exgauss_lambda = lambd
-
-    
     # cycle though participants
     exclude_subs=[]
     graphchanges=1

@@ -6,7 +6,7 @@ library(ggplot2)
 allsubs <-  sapply(seq(100,150),function(i) { paste("S",i,sep="")[1] })
 
 # human data
-humans<-fread('humans2017.csv')
+humans<-fread('../humans2017.csv')
 setkey(humans,subj)
 
 # MATLAB files
@@ -95,7 +95,7 @@ humans[,beaglediff:=beagle-beaglerand]
 sameCats()
 catRand()
 
-# humans2<-melt(humans,measure.vars=c("rw","fe","goni","chan","kenett"))
+# humans2<-melt(humans,measure.vars=c("uinvite_hierarchical","rw","fe","goni","chan","kenett"))
 
 # BEAGLE test: INVITE vs IRT
 t.test(humans[uinvite==0 & irt==1,mean(beaglediff,na.rm=T),by=subj][,V1])  # adds quality links!

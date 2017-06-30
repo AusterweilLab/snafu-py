@@ -73,15 +73,15 @@ def Irts(irts):
         irts['rcutoff']=20
 
     if 'irt_weight' not in irtkeys:
-        irts['irt_weight'] = 1.0
+        irts['irt_weight'] = 0.5
         #warnings.warn("Using default IRT weight of 0.9")
     else:
         if (irts['irt_weight'] > 1.0) or (irts['irt_weight'] < 0.0):
             raise ValueError('IRT weight must be between 0.0 and 1.0')
     if irts['irttype'] == "gamma":
-        if 'beta' not in irtkeys:
-            irts['beta'] = (1/1.1)
-            #warnings.warn("Using default beta (Gamma IRT) weight of "+str(irts['beta']))
+        if 'gamma_beta' not in irtkeys:
+            irts['gamma_beta'] = (1/1.1)
+            #warnings.warn("Using default beta (Gamma IRT) weight of "+str(irts['gamma_beta']))
     if irts['irttype'] == "exgauss":
         if 'exgauss_lambda' not in irtkeys:
             irts['exgauss_lambda'] = 0.5

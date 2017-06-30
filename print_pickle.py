@@ -3,7 +3,7 @@ import networkx as nx
 import pickle
 
 gs=[]
-for filename in ["humans_rw.pickle","humans_fe.pickle","humans_goni.pickle","humans_chan.pickle","humans_kenett.pickle"]:
+for filename in ["humans_uinvite_hierarchical.pickle","humans_rw.pickle","humans_fe.pickle","humans_goni.pickle","humans_chan.pickle","humans_kenett.pickle"]:
     fh=open(filename,"r")
     alldata=pickle.load(fh)
     fh.close()
