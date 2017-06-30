@@ -1,15 +1,16 @@
 library(R.matlab)
 library(data.table)
+library(ggplot2)
 
-allsubs<-c("S101","S102","S103","S104","S105","S106","S107","S108","S109","S110","S111","S112","S113","S114","S115","S116","S117","S118","S119","S120")
-#allsubs<-c("S1","S2","S3","S4","S5","S7","S8","S9","S10","S11","S12","S13")
+#allsubs<-c("S101","S102","S103","S104","S105","S106","S107","S108","S109","S110","S111","S112","S113","S114","S115","S116","S117","S118","S119","S120","S101","S102","S103","S104","S105","S106","S107","S108","S109","S110","S111","S112","S113","S114","S115","S116","S117","S118","S119","S120")
+allsubs <-  sapply(seq(100,150),function(i) { paste("S",i,sep="")[1] })
 
 # human data
-humans<-fread('Shier.csv')
+humans<-fread('humans2017.csv')
 setkey(humans,subj)
 
 # MATLAB files
-rawmat<-readMat('snet/BEAGLEdata.mat')
+rawmat<-readMat('../snet/BEAGLEdata.mat')
 beagle<-rawmat[5]$BEAGLE.sim
 lbls<-rawmat[4]$BEAGLE.labels
 lbls<-unlist(lbls)
@@ -94,6 +95,8 @@ humans[,beaglediff:=beagle-beaglerand]
 sameCats()
 catRand()
 
+# humans2<-melt(humans,measure.vars=c("rw","fe","goni","chan","kenett"))
+
 # BEAGLE test: INVITE vs IRT
 t.test(humans[uinvite==0 & irt==1,mean(beaglediff,na.rm=T),by=subj][,V1])  # adds quality links!
 t.test(humans[uinvite==1 & irt==0,mean(beaglediff,na.rm=T),by=subj][,V1])  # removes quality links :(
@@ -104,4 +107,21 @@ t.test(humans[uinvite==1,mean(sharecat,na.rm=T),keyby=subj][,V1],humans[irt==1,m
 
 
 
+#> humans2[value==1,.(.N,mean(beaglediff,na.rm=T)),keyby=variable]
+#   variable    N          V2
+#1:       rw 2784 0.078526046
+#2:       fe   73 0.139276736
+#3:     goni  623 0.105313114
+#4:     chan  439 0.086944563
+#5:   kenett 1083 0.004109446
 
+#> humans2[value==1,.(.N,mean(sharecat,na.rm=T)),keyby=variable]
+#   variable    N        V2
+#1:       rw 2784 0.3397004
+#2:       fe   73 0.3972603
+#3:     goni  623 0.6900000
+#4:     chan  439 0.5780822
+#5:   kenett 1083 0.1132300
+
+# ggplot(humans2[beaglediff!="NA" & value==1],aes(beaglediff,color=variable)) + geom_density()
+# > humans2[,.(.N,mean(beaglediff,na.rm=T)),keyby=.(value,variable)]

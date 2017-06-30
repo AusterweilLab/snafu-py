@@ -105,7 +105,7 @@ def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False)
     return graph, items
 
 # read Xs in from user files
-def readX(subj,category,filepath,ignorePerseverations=False,spellfile=None):
+def readX(subj,category,filepath,ignorePerseverations=False,ignoreIntrusions=False,spellfile=None,scheme=None):
     if type(subj) == str:
         subj=[subj]
     game=-1
@@ -115,11 +115,21 @@ def readX(subj,category,filepath,ignorePerseverations=False,spellfile=None):
     items={}
     idx=0
     spellingdict={}
+    validitems=[]
     
+    if ignoreIntrusions:
+        if not scheme:
+            raise ValueError('You need to provide a category scheme if you want to ignore intrusions!')
+        else:
+            # this should really go somewhere else, like io.py
+            with open(scheme,'r') as fh:
+                for line in fh:
+                    validitems.append(line.rstrip().split(',')[1].lower())
+
     if spellfile:
         with open(spellfile,'r') as spellfile:
             for line in spellfile:
-                correct, incorrect = line.strip('\n').split(',')
+                correct, incorrect = line.rstrip().split(',')
                 spellingdict[incorrect] = correct
    
     with open(filepath) as f:
@@ -131,7 +141,11 @@ def readX(subj,category,filepath,ignorePerseverations=False,spellfile=None):
                     irts.append([])
                     game=row[1]
                     cursubj=row[0]
-                item=row[3].lower().replace(" ","").replace("'","").replace("-","") # basic clean-up
+                # basic clean-up
+                item=row[3].lower()
+                badchars=" '-\"\\;"
+                for char in badchars:
+                    item=item.replace(char,"")
                 if item in spellingdict.keys():
                     item = spellingdict[item]
                 try:
@@ -142,12 +156,13 @@ def readX(subj,category,filepath,ignorePerseverations=False,spellfile=None):
                     items[idx]=item
                     idx += 1
                 itemval=items.values().index(item)
-                if (itemval not in Xs[-1]) or (not ignorePerseverations):   # ignore any duplicates in same list resulting from spelling corrections
-                    Xs[-1].append(itemval)
-                    try: 
-                        irts[-1].append(int(irt)/1000.0)
-                    except:
-                        pass
+                if (not ignorePerseverations) or (itemval not in Xs[-1]):   # ignore any duplicates in same list resulting from spelling corrections
+                    if (not ignoreIntrusions) or (item in validitems):
+                        Xs[-1].append(itemval)
+                        try: 
+                            irts[-1].append(int(irt)/1000.0)
+                        except:
+                            pass
     numnodes = len(items)
     return Xs, items, irts, numnodes
 
