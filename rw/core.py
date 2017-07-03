@@ -589,7 +589,6 @@ def goni(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=None):
 def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({}), seed=None, debug=True):
     nplocal=np.random.RandomState(seed) 
     fitinfoSG = fitinfo.startGraph  # fitinfo is mutable, need to revert at end of function... blah
-    jj = jarjar("@jeffzemla")
     # create ids for all subjects
     subs=range(len(Xs))
     graphs=[[]]*len(subs)
@@ -616,16 +615,16 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
             prior = (priordict, items[sub])
             
             if isinstance(irts, list):
-                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub], prior_weight=prior_weight)
+                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub])
             else:
-                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, prior_weight=prior_weight)
+                uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior)
 
-                if not np.array_equal(uinvite_graph, graphs[sub]):
-                    graphchanges += 1
-                    graphs[sub] = uinvite_graph
-                    exclude_subs=[sub]              # if a single change, fit everyone again (except the graph that was just fit)
-                else:
-                    exclude_subs.append(sub)        # if graph didn't change, don't fit them again until another change
+            if not np.array_equal(uinvite_graph, graphs[sub]):
+                graphchanges += 1
+                graphs[sub] = uinvite_graph
+                exclude_subs=[sub]              # if a single change, fit everyone again (except the graph that was just fit)
+            else:
+                exclude_subs.append(sub)        # if graph didn't change, don't fit them again until another change
         rnd += 1
 
     ## generate group graph
@@ -806,13 +805,13 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
 
                 # precompute for small speedup
                 if irts.irttype=="gamma":
-                    logbeta=np.log(irts.beta)
+                    logbeta=np.log(irts.gamma_beta)
                     logirt=np.log(irt)
 
                 # normalize irt probabilities to avoid irt weighting... untested
                 if irts.irttype=="gamma":
                      # r=alpha. probability of observing irt at r steps
-                    irtdist=[r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.beta*irt for r in range(1,irts.rcutoff)]
+                    irtdist=[r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.gamma_beta*irt for r in range(1,irts.rcutoff)]
                 if irts.irttype=="exgauss":
                     irtdist=[np.log(irts.exgauss_lambda/2.0)+(irts.exgauss_lambda/2.0)*(2.0*r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-2*irt)+np.log(math.erfc((r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-irt)/(np.sqrt(2)*irts.exgauss_sigma))) for r in range(1,irts.rcutoff)]
 
@@ -828,7 +827,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
 
                     # old way, without normalizing
                     #if irts.irttype=="gamma":
-                    #    log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.beta*irt # r=alpha. probability of observing irt at r steps
+                    #    log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.gamma_beta*irt # r=alpha. probability of observing irt at r steps
                     #if irts.irttype=="exgauss":
                     #    log_dist=np.log(irts.exgauss_lambda/2.0)+(irts.exgauss_lambda/2.0)*(2.0*r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-2*irt)+np.log(math.erfc((r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-irt)/(np.sqrt(2)*irts.exgauss_sigma)))
 
@@ -998,7 +997,7 @@ def stepsToIRT(irts, seed=None):
     new_irts=[]
     for irtlist in irts.data:
         if irts.irttype=="gamma":
-            newlist=[nplocal.gamma(irt, (1.0/irts.beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
+            newlist=[nplocal.gamma(irt, (1.0/irts.gamma_beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
         if irts.irttype=="exgauss":
             newlist=[rand_exg(irt, irts.exgauss_sigma, irts.exgauss_lambda) for irt in irtlist] 
         new_irts.append(newlist)

@@ -95,7 +95,7 @@ humans[,beaglediff:=beagle-beaglerand]
 sameCats()
 catRand()
 
-# humans2<-melt(humans,measure.vars=c("uinvite_hierarchical","rw","fe","goni","chan","kenett"))
+humans2<-melt(humans,id.vars=c("subj","node1","node2","beaglediff","beaglerand","beagle","catrand","sharecat"))
 
 # BEAGLE test: INVITE vs IRT
 t.test(humans[uinvite==0 & irt==1,mean(beaglediff,na.rm=T),by=subj][,V1])  # adds quality links!

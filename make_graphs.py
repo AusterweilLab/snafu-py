@@ -69,6 +69,7 @@ for method in  methods:
             irts[sub].data = irtdata[start:end]
             
             fit_alpha, fit_loc, fit_beta = scipy.stats.gamma.fit(rw.flatten_list(irts[sub].data))
+            print fit_alpha, fit_loc, fit_beta, np.mean(rw.flatten_list(irts[sub].data))
             irts[sub].gamma_beta = fit_beta
 
             itemset = set(rw.flatten_list(subXs))
@@ -86,7 +87,6 @@ for method in  methods:
             datab.append(subXs)
             start += 3
             end += 3
-        raise
 
         print datab
         print itemsb
