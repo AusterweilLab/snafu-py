@@ -633,14 +633,14 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     
     return graphs, priordict
 
-def probXhierarchical(Xs, graphs, items, priordict, td, irts=Irts({}),prior_weight=0.5):
+def probXhierarchical(Xs, graphs, items, priordict, td, irts=Irts({})):
     lls=[]
     for sub in range(len(Xs)):
         if priordict:
             prior = (priordict, items[sub])
         else:
             prior=None      # why did i need this? would probXhierarchical ever not have a prior?
-        best_ll, probmat = probX(Xs[sub], graphs[sub], td, irts=irts, prior=prior, prior_weight=prior_weight)   # LL of graph
+        best_ll, probmat = probX(Xs[sub], graphs[sub], td, irts=irts, prior=prior)   # LL of graph
         lls.append(best_ll)
     ll=sum(lls)
     return ll
@@ -750,7 +750,7 @@ def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
 # probability of observing Xs, including irts and prior
 #@profile
 #@nogc
-def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceCompute=False, pass_link_matrix=True,prior_weight=0.5):
+def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceCompute=False, pass_link_matrix=True):
     numnodes=len(a)
     reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv, but that's much slower
     identmat=np.identity(numnodes) * reg    # pre-compute for tiny speed-up (only for non-IRT)
@@ -795,7 +795,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                         continue
             Q=t2[:curpos,:curpos]
 
-            if (len(irts.data) > 0) and (irts.irt_weight < 1):     # use this method only when passing IRTs with weight < 1
+            if len(irts.data) > 0:     # use this method only when passing IRTs with weight < 1
                 numcols=len(Q)
                 flist=[]
                 newQ=np.zeros(numcols)                             # init to Q^0, for when r=1
@@ -832,7 +832,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                     #    log_dist=np.log(irts.exgauss_lambda/2.0)+(irts.exgauss_lambda/2.0)*(2.0*r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-2*irt)+np.log(math.erfc((r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-irt)/(np.sqrt(2)*irts.exgauss_sigma)))
 
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
-                        flist.append(log_dist*(1-irts.irt_weight)+irts.irt_weight*np.log(innersum))
+                        flist.append(log_dist + np.log(innersum))
 
                     newQ=np.inner(newQ,Q)                          # raise power by one
 
@@ -890,7 +890,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
     if prior:
         if isinstance(prior, tuple):    # graph prior
             priorlogprob = evalGraphPrior(a, prior)
-            ll = (1.0-prior_weight)*ll + prior_weight*priorlogprob
+            ll = ll + priorlogprob
         else:                           # smallworld prior
             sw=smallworld(a)
             priorprob = evalSWprior(sw, prior)
@@ -1024,7 +1024,7 @@ def trimX(trimprop, Xs, steps):
     return Xs, steps, alter_graph_size
 
 #@profile
-def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, recordname="records.csv", seed=None, prior_weight=0.5):
+def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, recordname="records.csv", seed=None):
     nplocal=np.random.RandomState(seed) 
 
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
@@ -1059,7 +1059,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
         numchanges=0     # number of changes in single pivot() call
 
         if (best_ll == None) or (probmat == None):
-            best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior,prior_weight=prior_weight)   # LL of best graph found
+            best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
         nxg=nx.to_networkx_graph(graph)
 
         # generate dict where v[i] is a list of nodes where (i, v[i]) is an existing edge in the graph
@@ -1121,7 +1121,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
                 edge=(node1, node2)
                 graph=swapEdges(graph,[edge])
 
-                graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=probmat,changed=[node1,node2],prior_weight=prior_weight)
+                graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=probmat,changed=[node1,node2])
 
                 if best_ll >= graph_ll:
                     record.append(graph_ll)
@@ -1193,7 +1193,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
     # find a good starting graph using naive RW
     graph = genStartGraph(Xs, numnodes, td, fitinfo)
 
-    best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior,prior_weight=prior_weight)   # LL of starting graph
+    best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of starting graph
     records=[]
     graph, best_ll = phases(graph, best_ll, probmat)
     if fitinfo.record:
