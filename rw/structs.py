@@ -94,6 +94,8 @@ def Fitinfo(fitinfo):
         if isinstance(fitinfo[i],list):
             return flatten_list([Fitinfo(dict(fitinfo, **{i: j})) for j in fitinfo[i]])
     
+    if 'followtype' not in fitkeys:
+        fitinfo['followtype'] = "avg"   # or max or random
     if 'prior_method' not in fitkeys:
         fitinfo['prior_method'] = "zeroinflatedbetabinomial"
     if 'zib_p' not in fitkeys:
