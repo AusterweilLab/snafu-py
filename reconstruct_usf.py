@@ -9,9 +9,8 @@ usf_numnodes = len(usf_items)
 numsubs = 50
 numlists = 3
 listlength = 35
-numsims = 1
-#methods=['rw','goni','chan','kenett','fe']
-methods=['uinvite']
+numsims = 10
+methods=['rw','goni','chan','kenett','fe']
 
 toydata=rw.Data({
         'numx': numlists,
@@ -36,7 +35,7 @@ fitinfo=rw.Fitinfo({
 # generate data for `numsub` participants, each having `numlists` lists of `listlengths` items
 seednum=0    # seednum=150 (numsubs*numlists) means start at second sim, etc.
 
-with open('gradualpluscutoff7.csv','w',0) as fh:
+with open('nonuinvitemethods.csv','w',0) as fh:
     fh.write("method,simnum,listnum,hit,miss,fa,cr,cost,startseed\n")
 
     for simnum in range(numsims):
@@ -66,7 +65,7 @@ with open('gradualpluscutoff7.csv','w',0) as fh:
             datab.append(Xs)
             
             seednum += numlists
-
+            print data
 
         for listnum in range(1,len(data)+1):
             print simnum, listnum
@@ -81,9 +80,11 @@ with open('gradualpluscutoff7.csv','w',0) as fh:
                 kenett_graph = rw.kenett(flatdata, usf_numnodes)
             if 'fe' in methods:
                 fe_graph = rw.firstEdge(flatdata, usf_numnodes)
-            if 'uinvite' in methods:
+            if 'uinvite_hierarchical' in methods:
                 uinvite_graphs, priordict = rw.hierarchicalUinvite(datab[:listnum], items[:listnum], numnodes[:listnum], toydata, fitinfo=fitinfo)
-                uinvite_group_graph = rw.priorToGraph(priordict, usf_items, cutoff=0.7) #JZ
+                uinvite_group_graph = rw.priorToGraph(priordict, usf_items) #JZ
+            if 'uinvite_flat' in methods:
+                uinvite_flat_graph, ll = rw.uinvite(flatdata, toydata, usf_numnodes, fitinfo=fitinfo)
 
             for method in methods:
                 if method=="rw": costlist = [rw.costSDT(rw_graph, usf_graph), rw.cost(rw_graph, usf_graph)]
@@ -91,7 +92,8 @@ with open('gradualpluscutoff7.csv','w',0) as fh:
                 if method=="chan": costlist = [rw.costSDT(chan_graph, usf_graph), rw.cost(chan_graph, usf_graph)]
                 if method=="kenett": costlist = [rw.costSDT(kenett_graph, usf_graph), rw.cost(kenett_graph, usf_graph)]
                 if method=="fe": costlist = [rw.costSDT(fe_graph, usf_graph), rw.cost(fe_graph, usf_graph)]
-                if method=="uinvite": costlist = [rw.costSDT(uinvite_group_graph, usf_graph), rw.cost(uinvite_group_graph, usf_graph)]
+                if method=="uinvite_hierarchical": costlist = [rw.costSDT(uinvite_group_graph, usf_graph), rw.cost(uinvite_group_graph, usf_graph)]
+                if method=="uinvite_flat": costlist = [rw.costSDT(uinvite_flat_graph, usf_graph), rw.cost(uinvite_flat_graph, usf_graph)]
                 costlist = rw.flatten_list(costlist)
                 fh.write(method + "," + str(simnum) + "," + str(listnum))
                 for i in costlist:

@@ -13,8 +13,8 @@ usf_numnodes = len(usf_items)
 numsubs = 50
 numlists = 3
 listlength = 35
-methods=['rw','goni','chan','kenett','fe']
-methods=['uinvite_flat_noirt','uinvite_noirt']
+#methods=['rw','goni','chan','kenett','fe']
+methods=['uinvite_flat_irt']
 
 toydata=rw.Data({
         'numx': numlists,
@@ -99,7 +99,7 @@ with open('./graphs_tofit/'+filename,'w',0) as fh:
             if 'uinvite_irt' in methods:
                 pf=open('uinvite_irt_'+str(simnum)+"_"+str(listnum),'w')
                 uinvite_irt_graphs, priordict_irt = rw.hierarchicalUinvite(datab[:listnum], items[:listnum], numnodes[:listnum], toydata, irts=irts[:listnum], fitinfo=fitinfo_zibb)
-                uinvite_group_irt_graph = rw.priorToGraph(priordict, usf_items)
+                uinvite_group_irt_graph = rw.priorToGraph(priordict_irt, usf_items)
                 pickle.dump(priordict, pf)
                 pf.close()
             
