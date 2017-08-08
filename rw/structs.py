@@ -100,8 +100,11 @@ def Fitinfo(fitinfo):
         fitinfo['prior_method'] = "zeroinflatedbetabinomial"
     if 'zib_p' not in fitkeys:
         fitinfo['zib_p'] = 0.5
-    if 'prior_a' not in fitkeys:
-        fitinfo['prior_a'] = 1
+    if 'prior_a' not in fitkeys:        # adjust default prior_a depending on BB or ZIBB, to make edge prior .5
+        if fitinfo['prior_method'] == "zeroinflatedbetabinomial":
+            fitinfo['prior_a'] = 2
+        else:
+            fitinfo['prior_a'] = 1
     if 'prior_b' not in fitkeys:
         fitinfo['prior_b'] = 1
     if 'directed' not in fitkeys:
