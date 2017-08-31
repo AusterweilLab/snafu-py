@@ -20,7 +20,7 @@ def Data(data):
     if 'jumptype' not in tdkeys:
         data['jumptype']="uniform"   # or stationary
     if 'startX' not in tdkeys:
-        data['startX']="uniform"      # or stationary
+        data['startX']="stationary"      # or stationary
     if 'numx' not in tdkeys:
         raise ValueError("Must specify 'numx' in data!")
     if 'priming' not in tdkeys:

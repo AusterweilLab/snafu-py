@@ -166,7 +166,8 @@ def readX(subj,category,filepath,ignorePerseverations=False,ignoreIntrusions=Fal
     numnodes = len(items)
     return Xs, items, irts, numnodes
 
-# some sloppy code in here + extra_data doesn't work when passed list
+# some sloppy code in here; methods are different depending on whether you pass an nx or array (but should be the same)
+# needs to be re-written
 def write_csv(gs, fh, subj="NA", directed=False, extra_data={}):
     onezero={True: '1', False: '0'}        
     import networkx as nx
@@ -194,9 +195,18 @@ def write_csv(gs, fh, subj="NA", directed=False, extra_data={}):
                 edgelist=edgelist+"," + onezero[g.has_edge(edge[0],edge[1])]
             if directed:
                 for g in gs:
-                    edgelist=edgelist + "," + (onezero[(g.has_edge(edge[1],edge[0]) and g.has_edge(edge[1],edge[0]))])
+                    edgelist=edgelist + "," + (onezero[(g.has_edge(edge[1],edge[0]) and g.has_edge(edge[1],edge[0]))]) # this doesn't look right...
+            extrainfo=""
+            sortededge=np.sort([edge[0],edge[1]])
+            if sortededge[0] in extra_data.keys():
+                if sortededge[1] in extra_data[sortededge[0]].keys():
+                    if isinstance(extra_data[sortededge[0]][sortededge[1]],list):
+                        extrainfo=","+",".join([str(i) for i in extra_data[sortededge[0]][sortededge[1]]])
+                    else:
+                        extrainfo=","+","+str(extra_data[sortededge[0]][sortededge[1]])
             fh.write(subj    + "," +
                     edge[0]  + "," +
                     edge[1]  + 
-                    edgelist + "\n")
+                    edgelist + "," +
+                    extrainfo + "\n")
     return

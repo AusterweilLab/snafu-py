@@ -6,8 +6,9 @@ import sys
 import numpy as np
 import scipy.stats
 
-methods=['rw','fe','goni','chan','kenett','uinvite_flat','uinvite_hierarchical_bb','uinvite_hierarchical_zibb']
+#methods=['rw','fe','goni','chan','kenett','uinvite_flat','uinvite_hierarchical_bb','uinvite_hierarchical_zibb']
 #methods=['uinvite_hierarchical','uinvite']
+methods=['goni']
 
 td=rw.Data({
         'startX': "stationary",
@@ -49,7 +50,11 @@ for method in  methods:
     if method=="rw":
         graph = rw.noHidden(Xs, numnodes)
     if method=="goni":
-        graph = rw.goni(Xs, numnodes, valid=False, fitinfo=fitinfo)
+        graphs=[]
+        for c in [i/1000.0 for i in range(1,10)]:
+            print c
+            graph = rw.goni(Xs, numnodes, valid=False, fitinfo=fitinfo_bb, c=c)
+            graphs.append(graph)
     if method=="chan":
         graph = rw.chan(Xs, numnodes)
     if method=="kenett":
@@ -89,9 +94,10 @@ for method in  methods:
             sub_graphs, priordict = rw.hierarchicalUinvite(datab, itemsb, ssnumnodes, td, fitinfo=fitinfo_zibb)
         graph = rw.priorToGraph(priordict, items)
 
-    fh=open("humans_new_"+method+".pickle","w")
-    alldata={}
-    alldata['graph']=graph
-    alldata['items']=items
-    pickle.dump(alldata,fh)
-    fh.close()
+    for graphnum, graph in enumerate(graphs):
+        fh=open("humans_new_c"+str(graphnum)+"_"+method+".pickle","w")
+        alldata={}
+        alldata['graph']=graphs[graphnum]
+        alldata['items']=items
+        pickle.dump(alldata,fh)
+        fh.close()

@@ -52,7 +52,7 @@ for method in  methods:
     if method=="fe":
         graph = rw.firstEdge(Xs, numnodes)
     if method=="uinvite":
-        fit_alpha, fit_loc, fit_beta = scipy.stats.gamma.fit(rw.flatten_list(irtsdata))
+        fit_alpha, fit_loc, fit_beta = scipy.stats.gamma.fit(rw.flatten_list(irtdata))
         irtgroup.data = irtdata
         irtgroup.gamma_beta = fit_beta
         graph = rw.uinvite(Xs, td, numnodes, irts=irtgroup, fitinfo=fitinfo)
