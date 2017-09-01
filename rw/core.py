@@ -1058,7 +1058,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
         record=[method] 
         numchanges=0     # number of changes in single pivot() call
 
-        if (best_ll == None) or (probmat == None):
+        if (best_ll == None) or (np.any(probmat == None)):
             best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of best graph found
         nxg=nx.to_networkx_graph(graph)
 
