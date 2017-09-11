@@ -38,7 +38,7 @@ irtgroup=rw.Irts({})
 irtgroup.irttype="gamma"
 
 # read data from file (all as one)
-Xs, items, irtdata, numnodes = rw.readX(subs,category,filepath,ignorePerseverations=True,ignoreIntrusions=True,scheme="categories/troyer_hills_zemla_animals.csv",spellfile="categories/zemla_spellfile.csv")
+Xs, items, irtdata, numnodes = rw.readX(subs,category,filepath,removePerseverations=True,removeIntrusions=True,scheme="categories/troyer_hills_zemla_animals.csv",spellfile="categories/zemla_spellfile.csv")
 
 for method in  methods:
     if method=="rw":

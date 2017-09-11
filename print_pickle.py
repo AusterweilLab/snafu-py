@@ -56,7 +56,7 @@ for filename in pickles:
 
 
 
-rw.write_csv(gs,"humans_edge_prior.csv",subj="S100") #,extra_data=alldata['graph'])
+w.write_csv(gs,"humans_edge_prior.csv",subj="S100") #,extra_data=alldata['graph'])
 
 
 #for i in alldata['graph']:

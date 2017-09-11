@@ -105,7 +105,7 @@ def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False)
     return graph, items
 
 # read Xs in from user files
-def readX(subj,category,filepath,ignorePerseverations=False,ignoreIntrusions=False,spellfile=None,scheme=None):
+def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None):
     if type(subj) == str:
         subj=[subj]
     game=-1
@@ -117,7 +117,7 @@ def readX(subj,category,filepath,ignorePerseverations=False,ignoreIntrusions=Fal
     spellingdict={}
     validitems=[]
     
-    if ignoreIntrusions:
+    if removeIntrusions:
         if not scheme:
             raise ValueError('You need to provide a category scheme if you want to ignore intrusions!')
         else:
@@ -156,8 +156,8 @@ def readX(subj,category,filepath,ignorePerseverations=False,ignoreIntrusions=Fal
                     items[idx]=item
                     idx += 1
                 itemval=items.values().index(item)
-                if (not ignorePerseverations) or (itemval not in Xs[-1]):   # ignore any duplicates in same list resulting from spelling corrections
-                    if (not ignoreIntrusions) or (item in validitems):
+                if (not removePerseverations) or (itemval not in Xs[-1]):   # ignore any duplicates in same list resulting from spelling corrections
+                    if (not removeIntrusions) or (item in validitems):
                         Xs[-1].append(itemval)
                         try: 
                             irts[-1].append(int(irt)/1000.0)

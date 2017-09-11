@@ -44,17 +44,14 @@ filepath = "../Spring2017/results_clean.csv"
 category="animals"
 
 # read data from file (all as one)
-Xs, items, irtdata, numnodes = rw.readX(subs,category,filepath,ignorePerseverations=True,ignoreIntrusions=True,scheme="categories/troyer_hills_zemla_animals.csv",spellfile="categories/zemla_spellfile.csv")
+Xs, items, irtdata, numnodes = rw.readX(subs,category,filepath,removePerseverations=True,removeIntrusions=True,scheme="categories/troyer_hills_zemla_animals.csv",spellfile="categories/zemla_spellfile.csv")
 
 for method in  methods:
     if method=="rw":
         graph = rw.noHidden(Xs, numnodes)
     if method=="goni":
-        graphs=[]
-        for c in [i/1000.0 for i in range(1,10)]:
-            print c
-            graph = rw.goni(Xs, numnodes, valid=False, fitinfo=fitinfo_bb, c=c)
-            graphs.append(graph)
+        c=0.05
+        graph = rw.goni(Xs, numnodes, valid=False, fitinfo=fitinfo_bb, c=c)
     if method=="chan":
         graph = rw.chan(Xs, numnodes)
     if method=="kenett":
