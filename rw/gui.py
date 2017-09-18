@@ -7,7 +7,7 @@ def list_subjects_and_categories(command):
     subjects=[]
     categories=[]
     with open(command['fullpath'],'r') as fh:
-        header=fh.readline().split(',')
+        header=fh.readline().strip().decode("utf-8-sig").encode("utf-8").split(',')
         subj_idx = header.index("id")
         cat_idx = header.index("category")
         for line in fh:

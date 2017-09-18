@@ -104,66 +104,151 @@ def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False)
 
     return graph, items
 
-# read Xs in from user files
-def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None):
-    if type(subj) == str:
-        subj=[subj]
-    game=-1
-    cursubj=-1
-    Xs=[]
-    irts=[]
-    items={}
-    idx=0
-    spellingdict={}
-    validitems=[]
-    
-    if removeIntrusions:
-        if not scheme:
-            raise ValueError('You need to provide a category scheme if you want to ignore intrusions!')
-        else:
-            # this should really go somewhere else, like io.py
-            with open(scheme,'r') as fh:
-                for line in fh:
-                    validitems.append(line.rstrip().split(',')[1].lower())
+#def oldreadX(subj,category,filepath,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,flatten=True):
+#    if type(subj) == str:
+#        subj=[subj]
+#    game=-1
+#    cursubj=-1
+#    Xs=[]
+#    irts=[]
+#    items={}
+#    idx=0
+#    spellingdict={}
+#    validitems=[]
+#    
+#    if removeIntrusions:
+#        if not scheme:
+#            raise ValueError('You need to provide a category scheme if you want to ignore intrusions!')
+#        else:
+#            # this should really go somewhere else, like io.py
+#            with open(scheme,'r') as fh:
+#                for line in fh:
+#                    validitems.append(line.rstrip().split(',')[1].lower())
+#
+#    if spellfile:
+#        with open(spellfile,'r') as spellfile:
+#            for line in spellfile:
+#                correct, incorrect = line.rstrip().split(',')
+#                spellingdict[incorrect] = correct
+#   
+#    with open(filepath) as f:
+#        for line in f:
+#            row=line.strip('\n').split(',')
+#            if (row[0] in subj) & (row[2] == category):
+#                if (row[1] != game) or (row[0] != cursubj):
+#                    Xs.append([])
+#                    irts.append([])
+#                    game=row[1]
+#                    cursubj=row[0]
+#                # basic clean-up
+#                item=row[3].lower()
+#                badchars=" '-\"\\;"
+#                for char in badchars:
+#                    item=item.replace(char,"")
+#                if item in spellingdict.keys():
+#                    item = spellingdict[item]
+#                try:
+#                    irt=row[4]
+#                except:
+#                    pass
+#                if item not in items.values():
+#                    items[idx]=item
+#                    idx += 1
+#                itemval=items.values().index(item)
+#                if (not removePerseverations) or (itemval not in Xs[-1]):   # ignore any duplicates in same list resulting from spelling corrections
+#                    if (not removeIntrusions) or (item in validitems):
+#                        Xs[-1].append(itemval)
+#                        try: 
+#                            irts[-1].append(int(irt)/1000.0)
+#                        except:
+#                            pass
+#    numnodes = len(items)
+#    return Xs, items, irts, numnodes
 
-    if spellfile:
-        with open(spellfile,'r') as spellfile:
-            for line in spellfile:
-                correct, incorrect = line.rstrip().split(',')
-                spellingdict[incorrect] = correct
-   
-    with open(filepath) as f:
-        for line in f:
-            row=line.strip('\n').split(',')
-            if (row[0] in subj) & (row[2] == category):
-                if (row[1] != game) or (row[0] != cursubj):
-                    Xs.append([])
-                    irts.append([])
-                    game=row[1]
-                    cursubj=row[0]
-                # basic clean-up
-                item=row[3].lower()
-                badchars=" '-\"\\;"
-                for char in badchars:
-                    item=item.replace(char,"")
-                if item in spellingdict.keys():
-                    item = spellingdict[item]
-                try:
-                    irt=row[4]
-                except:
-                    pass
-                if item not in items.values():
-                    items[idx]=item
+
+# read Xs in from user files
+# flatten == treat all subjects as identical; when False, keep hierarchical structure and dictionaries
+def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,flatten=False):
+    if (type(subj) == list) and not flatten:
+        subj_data=[]
+        for sub in subj:
+            subj_data.append(readX(sub,category,filepath,removePerseverations,removeIntrusions,spellfile,scheme,flatten))
+        Xs = [i[0] for i in subj_data]
+        items = [i[1] for i in subj_data]
+        irts = [i[2] for i in subj_data]
+        numnodes = [i[3] for i in subj_data]
+        
+        groupitems={}
+        idx=0
+        for subitems in items:
+            for item in subitems.values():
+                if item not in groupitems.values():
+                    groupitems[idx] = item
                     idx += 1
-                itemval=items.values().index(item)
-                if (not removePerseverations) or (itemval not in Xs[-1]):   # ignore any duplicates in same list resulting from spelling corrections
-                    if (not removeIntrusions) or (item in validitems):
-                        Xs[-1].append(itemval)
-                        try: 
-                            irts[-1].append(int(irt)/1000.0)
-                        except:
-                            pass
-    numnodes = len(items)
+        
+        groupnumnodes = len(groupitems)
+
+        return Xs, items, irts, numnodes, groupitems, groupnumnodes
+    else:
+        if type(subj) == "str":
+            subj=[subj]
+        game=-1
+        Xs=[]
+        irts=[]
+        items={}
+        idx=0
+        spellingdict={}
+        validitems=[]
+        
+        if removeIntrusions:
+            if not scheme:
+                raise ValueError('You need to provide a category scheme if you want to ignore intrusions!')
+            else:
+                with open(scheme,'r') as fh:
+                    for line in fh:
+                        validitems.append(line.rstrip().split(',')[1].lower())
+
+        if spellfile:
+            with open(spellfile,'r') as spellfile:
+                for line in spellfile:
+                    correct, incorrect = line.rstrip().split(',')
+                    spellingdict[incorrect] = correct
+       
+        with open(filepath) as f:
+            for line in f:
+                row=line.strip('\n').split(',')
+                if (row[0] in subj) & (row[2] == category):
+                    if (row[1] != game):
+                        Xs.append([])
+                        irts.append([])
+                        game=row[1]
+                    # basic clean-up
+                    item=row[3].lower()
+                    badchars=" '-\"\\;"
+                    for char in badchars:
+                        item=item.replace(char,"")
+                    if item in spellingdict.keys():
+                        item = spellingdict[item]
+                    try:
+                        irt=row[4]
+                    except:
+                        pass
+                    if item not in items.values():
+                        if (item in validitems) or (not removeIntrusions):
+                            items[idx]=item
+                            idx += 1
+                    try:
+                        itemval=items.values().index(item)
+                        if (not removePerseverations) or (itemval not in Xs[-1]):   # ignore any duplicates in same list resulting from spelling corrections
+                            if (not removeIntrusions) or (item in validitems):
+                                Xs[-1].append(itemval)
+                                try: 
+                                    irts[-1].append(int(irt)/1000.0)
+                                except:
+                                    pass    # bad practice?
+                    except:
+                        pass                # bad practice?
+        numnodes = len(items)
     return Xs, items, irts, numnodes
 
 # some sloppy code in here; methods are different depending on whether you pass an nx or array (but should be the same)
