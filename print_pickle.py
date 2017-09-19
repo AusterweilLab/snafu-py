@@ -13,13 +13,13 @@ zib_p=.7
 count_threshold=5
 
 gs=[]
-pickles=["prior.pickle"]
+pickles=["priming.pickle"]
 
 # if you forgot to save items use this
 subs=["S"+str(i) for i in range(101,151)]
 filepath = "../Spring2017/results_clean.csv"
 category="animals"
-Xs, items, irtdata, numnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="categories/zemla_spellfile.csv")
+Xs, items, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="categories/zemla_spellfile.csv")
 
 for filename in pickles:
     #if "_zibb" in filename:
@@ -32,8 +32,8 @@ for filename in pickles:
     
     # if you forgot to save items use this
     alldata={}
-    alldata['graph']=pickle.load(fh)
-    alldata['items']=items
+    alldata['graph']=pickle.load(fh)['graph']
+    alldata['items']=groupitems
 
     # else use this
     #alldata=pickle.load(fh)
@@ -74,7 +74,7 @@ for filename in pickles:
 
 
 
-rw.write_csv(gs,"newhierarchical.csv",subj="S100") #,extra_data=alldata['graph'])
+rw.write_csv(gs,"priming.csv",subj="S100") #,extra_data=alldata['graph'])
 
 
 #for i in alldata['graph']:
