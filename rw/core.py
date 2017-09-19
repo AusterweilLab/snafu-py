@@ -878,7 +878,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
     if prior:
         if isinstance(prior, tuple):    # graph prior
             priorlogprob = evalGraphPrior(a, prior)
-            ll = (ll * (1-priorweight)) + (priorlogprob * prioweight)
+            ll = (ll * (1-priorweight)) + (priorlogprob * priorweight)
         else:                           # smallworld prior
             sw=smallworld(a)
             priorprob = evalSWprior(sw, prior)
