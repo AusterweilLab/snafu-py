@@ -4,22 +4,22 @@ import rw
 import networkx as nx
 import pickle
 
-priortype="prob"
+priortype="count"
 
 # for priortype=="count"
-prior_a=0
-prior_b=0
-zib_p=.7
-count_threshold=5
+prior_a=2
+prior_b=1
+zib_p=.3
+count_threshold=2
 
 gs=[]
-pickles=["priming.pickle"]
+pickles=["bb"]
 
 # if you forgot to save items use this
-subs=["S"+str(i) for i in range(101,151)]
-filepath = "../Spring2017/results_clean.csv"
-category="animals"
-Xs, items, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="categories/zemla_spellfile.csv")
+#subs=["S"+str(i) for i in range(101,151)]
+#filepath = "../Spring2017/results_clean.csv"
+#category="animals"
+#Xs, items, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="categories/zemla_spellfile.csv")
 
 for filename in pickles:
     #if "_zibb" in filename:
@@ -28,15 +28,15 @@ for filename in pickles:
     #    prior_a = 1
     
     
-    fh=open(filename,"r")
+    fh=open(filename+".pickle","r")
     
     # if you forgot to save items use this
-    alldata={}
-    alldata['graph']=pickle.load(fh)['graph']
-    alldata['items']=groupitems
+    #alldata={}
+    #alldata['graph']=pickle.load(fh)['graph']
+    #alldata['items']=groupitems
 
     # else use this
-    #alldata=pickle.load(fh)
+    alldata=pickle.load(fh)
     
     fh.close()
     if priortype=="graph":
@@ -47,7 +47,7 @@ for filename in pickles:
         nx.relabel_nodes(g, alldata['items'], copy=False)
         gs.append(g)
     elif priortype=="prob":
-        for cut in [i/100.0 for i in range(50,70)]:
+        for cut in [i/100.0 for i in range(10,30)]:
             g = rw.priorToGraph(alldata['graph'], alldata['items'], cutoff=cut)
             g=nx.to_networkx_graph(g)
             nx.relabel_nodes(g, alldata['items'], copy=False)
@@ -61,12 +61,13 @@ for filename in pickles:
                     a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
                     b = b - prior_b
                     a = a - prior_a
-                    if (a+b) >= count_threshold:
-                        priordict[item1][item2] = float(b)/((1-zib_p)*a+b)
+                    if b >= count_threshold:  # or (a+b)
+                        priordict[item1][item2] = float(b)/((1-zib_p)*a+b)     # zibb
+                        #priordict[item1][item2] = float(b)/(a+b)                # bb
                     else:
                         priordict[item1][item2] = 0.0
         # then probability threshold
-        for cut in [i/10.0 for i in range(5,10)]:
+        for cut in [i/100.0 for i in range(10,30)]:
             g = rw.priorToGraph(priordict, alldata['items'], cutoff=cut)
             g=nx.to_networkx_graph(g)
             nx.relabel_nodes(g, alldata['items'], copy=False)
@@ -74,7 +75,7 @@ for filename in pickles:
 
 
 
-rw.write_csv(gs,"priming.csv",subj="S100") #,extra_data=alldata['graph'])
+rw.write_csv(gs,filename+".csv",subj="S100") #,extra_data=alldata['graph'])
 
 
 #for i in alldata['graph']:
