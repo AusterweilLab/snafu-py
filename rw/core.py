@@ -21,7 +21,7 @@ from structs import *
 
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
-# TODO: get rid of setting td.numx? just calculate from Xs
+# TODO: get rid of setting td.numx? just calculate from Xs... only needed in genX()
 # TODO: Implement GOTM/ECN from Goni et al. 2011
 
 # mix U-INVITE with random jumping model
@@ -474,6 +474,7 @@ def genX(g, td, seed=None):
         if td.priming > 0.0:
             priming_vector=x[:]
         steps.append(step)
+    td.priming_vector = []      # JZ added 9/29, untested
 
     alter_graph_size=0
     if td.trim != 1.0:
@@ -592,7 +593,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
         for sub in [i for i in subs if i not in exclude_subs]:
             if debug: print "SS: ", sub
 
-            td.numx = len(Xs[sub])
+            #td.numx = len(Xs[sub])
             if graphs[sub] == []:
                 fitinfo.startGraph = fitinfoSG      # on first pass for subject, use default fitting method (e.g., NRW, goni, etc)
             else:
@@ -627,7 +628,7 @@ def probXhierarchical(Xs, graphs, items, priordict, td, irts=Irts({})):
         if priordict:
             prior = (priordict, items[sub])
         else:
-            prior=None      # why did i need this? would probXhierarchical ever not have a prior?
+            prior=None
         best_ll, probmat = probX(Xs[sub], graphs[sub], td, irts=irts, prior=prior)   # LL of graph
         lls.append(best_ll)
     ll=sum(lls)

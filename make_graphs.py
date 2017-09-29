@@ -15,7 +15,7 @@ td=rw.Data({
 
 fitinfo=rw.Fitinfo({
         'prior_method': "zeroinflatedbetabinomial",
-        'zib_p': .5,
+        'zibb_p': .5,
         'prior_a': 2,
         'prior_b': 1,
         'startGraph': "goni_valid",
@@ -38,7 +38,7 @@ irtgroup=rw.Irts({})
 irtgroup.irttype="gamma"
 
 # read data from file (all as one)
-Xs, items, irtdata, numnodes = rw.readX(subs,category,filepath,removePerseverations=True,removeIntrusions=True,scheme="categories/troyer_hills_zemla_animals.csv",spellfile="categories/zemla_spellfile.csv")
+Xs, items, irtdata, numnodes = rw.readX(subs,category,filepath,removePerseverations=True,removeIntrusions=True,scheme="schemes/troyer_hills_zemla_animals.csv",spellfile="schemes/zemla_spellfile.csv")
 
 for method in  methods:
     if method=="rw":

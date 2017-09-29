@@ -4,7 +4,7 @@ import networkx as nx
 import pickle
 
 graphs=[]
-matsize=100
+matsize=30      # number of nodes in group graph
 numsubs=50
 
 thetamat = np.random.rand(matsize,matsize)
@@ -14,7 +14,7 @@ for sub in range(numsubs):
     for i in range(matsize):
         for j in range(matsize):
             if i>j:
-                graph[i][j] = np.random.binomial(1, thetamat[i][j]**10)
+                graph[i][j] = np.random.binomial(1, thetamat[i][j])
                 graph[j][i] = graph[i][j]                               # symmetric and no self-loops
     graph=nx.from_numpy_matrix(graph)
     graph=max(nx.connected_component_subgraphs(graph), key=len) # take largest component just in case

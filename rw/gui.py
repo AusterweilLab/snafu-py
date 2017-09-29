@@ -97,29 +97,47 @@ def network_properties(command):
     toydata=rw.Data({
             'numx': len(Xs),
             'trim': 1,
-            'jump': 0.0,
-            'jumptype': "stationary",
-            'priming': 0.0,
-            'startX': "stationary"})
+            'jump': float(command['jump_probability']),
+            'jumptype': command['jump_type'],
+            'priming': float(command['priming_probability']),
+            'startX': command['first_item']})
     fitinfo=rw.Fitinfo({
-            'startGraph': "goni_valid",
-            'goni_size': 2,
-            'goni_threshold': 2,
+            'prior_method': "betabinomial",
+            'prior_a': 1,
+            'prior_b': 1,
+            'startGraph': command['starting_graph'],
+            'goni_size': int(command['goni_windowsize']),
+            'goni_threshold': int(command['goni_threshold']),
             'followtype': "avg", 
-            'prior_samplesize': 10000,
-            'recorddir': "records/",
             'prune_limit': 100,
             'triangle_limit': 100,
             'other_limit': 100})
    
-    
+    if command['prior']=="None":
+        prior=None
+    elif command['prior']=="USF":
+        current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+        usf_file_path = "/../snet/USF_animal_subset.snet"
+        filename = current_dir + usf_file_path
+        
+        usf_graph, usf_items = rw.read_csv(filename)
+        usf_numnodes = len(usf_items)
+        priordict = rw.genGraphPrior([usf_graph], [usf_items], fitinfo=fitinfo)
+        prior = (priordict, usf_items)
+        
     if command['network_method']=="RW":
         bestgraph = rw.noHidden(Xs, numnodes)
     elif command['network_method']=="Goni":
         bestgraph = rw.goni(Xs, numnodes, td=toydata, valid=0, fitinfo=fitinfo)
+    elif command['network_method']=="Chan":
+        bestgraph = rw.chan(Xs, numnodes)
+    elif command['network_method']=="Kenett":
+        bestgraph = rw.kenett(Xs, numnodes)
+    elif command['network_method']=="FirstEdge":
+        bestgraph = rw.firstEdge(Xs, numnodes)
     elif command['network_method']=="U-INVITE":
         no_persev_Xs = [no_persev(x) for x in Xs]       # U-INVITE doesn't work with perseverations
-        bestgraph, ll = rw.uinvite(no_persev_Xs, toydata, numnodes, fitinfo=fitinfo,debug=False)
+        bestgraph, ll = rw.uinvite(no_persev_Xs, toydata, numnodes, fitinfo=fitinfo, debug=False, prior=prior)
   
     nxg = nx.to_networkx_graph(bestgraph)
 
