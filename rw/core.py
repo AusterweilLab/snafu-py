@@ -21,7 +21,7 @@ from structs import *
 
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
-# TODO: get rid of setting td.numx? just calculate from Xs
+# TODO: get rid of setting td.numx? just calculate from Xs... only needed in genX()
 # TODO: Implement GOTM/ECN from Goni et al. 2011
 
 # mix U-INVITE with random jumping model
@@ -474,6 +474,7 @@ def genX(g, td, seed=None):
         if td.priming > 0.0:
             priming_vector=x[:]
         steps.append(step)
+    td.priming_vector = []      # reset mutable priming vector between participants; JZ added 9/29, untested
 
     alter_graph_size=0
     if td.trim != 1.0:
@@ -592,7 +593,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
         for sub in [i for i in subs if i not in exclude_subs]:
             if debug: print "SS: ", sub
 
-            td.numx = len(Xs[sub])
+            #td.numx = len(Xs[sub])
             if graphs[sub] == []:
                 fitinfo.startGraph = fitinfoSG      # on first pass for subject, use default fitting method (e.g., NRW, goni, etc)
             else:
@@ -621,13 +622,13 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     
     return graphs, priordict
 
-def probXhierarchical(Xs, graphs, items, priordict, td, irts=Irts({})):
+def probXhierarchical(Xs, graphs, items, td, priordict=None, irts=Irts({})):
     lls=[]
     for sub in range(len(Xs)):
         if priordict:
             prior = (priordict, items[sub])
         else:
-            prior=None      # why did i need this? would probXhierarchical ever not have a prior?
+            prior=None
         best_ll, probmat = probX(Xs[sub], graphs[sub], td, irts=irts, prior=prior)   # LL of graph
         lls.append(best_ll)
     ll=sum(lls)
@@ -1198,3 +1199,16 @@ def walk_from_path(path):
     for i in range(len(path)-1):
         walk.append((path[i],path[i+1])) 
     return walk
+
+def smallToBigGraph(small_graph, small_items, large_items):
+    numnodes = len(large_items)
+    a=np.zeros((numnodes,numnodes))
+    for inum, i in enumerate(small_graph):
+        for jnum, j in enumerate(i):
+            if j==1:
+                i_label = small_items[inum]
+                j_label = small_items[jnum]
+                big_i = large_items.keys()[large_items.values().index(i_label)] # wordy just in case dictionary keys are not in numerical order
+                big_j = large_items.keys()[large_items.values().index(j_label)]
+                a[big_i, big_j] = 1
+    return a

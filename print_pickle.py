@@ -9,7 +9,7 @@ priortype="count"
 # for priortype=="count"
 prior_a=2
 prior_b=1
-zib_p=.3
+zibb_p=.3
 count_threshold=2
 
 gs=[]
@@ -19,7 +19,7 @@ pickles=["bb"]
 #subs=["S"+str(i) for i in range(101,151)]
 #filepath = "../Spring2017/results_clean.csv"
 #category="animals"
-#Xs, items, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="categories/zemla_spellfile.csv")
+#Xs, items, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv")
 
 for filename in pickles:
     #if "_zibb" in filename:
@@ -62,7 +62,7 @@ for filename in pickles:
                     b = b - prior_b
                     a = a - prior_a
                     if b >= count_threshold:  # or (a+b)
-                        priordict[item1][item2] = float(b)/((1-zib_p)*a+b)     # zibb
+                        priordict[item1][item2] = float(b)/((1-zibb_p)*a+b)     # zibb
                         #priordict[item1][item2] = float(b)/(a+b)                # bb
                     else:
                         priordict[item1][item2] = 0.0

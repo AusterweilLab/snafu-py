@@ -98,8 +98,8 @@ def Fitinfo(fitinfo):
         fitinfo['followtype'] = "avg"   # or max or random
     if 'prior_method' not in fitkeys:
         fitinfo['prior_method'] = "zeroinflatedbetabinomial"
-    if 'zib_p' not in fitkeys:
-        fitinfo['zib_p'] = 0.5
+    if 'zibb_p' not in fitkeys:
+        fitinfo['zibb_p'] = 0.5
     if 'prior_a' not in fitkeys:        # adjust default prior_a depending on BB or ZIBB, to make edge prior .5
         if fitinfo['prior_method'] == "zeroinflatedbetabinomial":
             fitinfo['prior_a'] = 2

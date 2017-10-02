@@ -18,7 +18,7 @@ fh.close()
 
 fitinfo_zibb=rw.Fitinfo({
         'prior_method': "zeroinflatedbetabinomial",
-        'zib_p': .3,
+        'zibb_p': .3,
         'prior_a': 2,
         'prior_b': 1,
         'startGraph': "goni_valid",
@@ -58,7 +58,7 @@ priordict = rw.genGraphPrior(graphs, items, fitinfo=fitinfo_zibb, returncounts=T
 subs=["S"+str(i) for i in range(101,151)]
 filepath = "../Spring2017/results_clean.csv"
 category="animals"
-Xs, noitems, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="categories/zemla_spellfile.csv")
+Xs, noitems, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv")
 
 fh=open("prior.pickle","w")
 alldata={}
