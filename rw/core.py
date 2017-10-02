@@ -474,7 +474,7 @@ def genX(g, td, seed=None):
         if td.priming > 0.0:
             priming_vector=x[:]
         steps.append(step)
-    td.priming_vector = []      # JZ added 9/29, untested
+    td.priming_vector = []      # reset mutable priming vector between participants; JZ added 9/29, untested
 
     alter_graph_size=0
     if td.trim != 1.0:
@@ -622,7 +622,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     
     return graphs, priordict
 
-def probXhierarchical(Xs, graphs, items, priordict, td, irts=Irts({})):
+def probXhierarchical(Xs, graphs, items, td, priordict=None, irts=Irts({})):
     lls=[]
     for sub in range(len(Xs)):
         if priordict:
@@ -1199,3 +1199,16 @@ def walk_from_path(path):
     for i in range(len(path)-1):
         walk.append((path[i],path[i+1])) 
     return walk
+
+def smallToBigGraph(small_graph, small_items, large_items):
+    numnodes = len(large_items)
+    a=np.zeros((numnodes,numnodes))
+    for inum, i in enumerate(small_graph):
+        for jnum, j in enumerate(i):
+            if j==1:
+                i_label = small_items[inum]
+                j_label = small_items[jnum]
+                big_i = large_items.keys()[large_items.values().index(i_label)] # wordy just in case dictionary keys are not in numerical order
+                big_j = large_items.keys()[large_items.values().index(j_label)]
+                a[big_i, big_j] = 1
+    return a
