@@ -6,14 +6,17 @@ import sys
 import numpy as np
 import scipy.stats
 
-#methods=['rw','fe','goni','chan','kenett','uinvite','uinvite_hierarchical']
-methods=['uinvite_hierarchical','uinvite']
+# these are different methods for generating graphs from fluency data
+# our methods are the uinvite_* methods
+
+#methods=['rw','fe','goni','chan','kenett','uinvite_flat','uinvite_hierarchical_bb','uinvite_hierarchical_zibb']
+methods=['uinvite_hierarchical_bb']
 
 td=rw.Data({
         'startX': "stationary",
         'numx': 3 })
 
-fitinfo=rw.Fitinfo({
+fitinfo_zibb=rw.Fitinfo({
         'prior_method': "zeroinflatedbetabinomial",
         'zibb_p': .5,
         'prior_a': 2,
@@ -26,77 +29,53 @@ fitinfo=rw.Fitinfo({
         'triangle_limit': np.inf,
         'other_limit': np.inf })
 
+fitinfo_bb=rw.Fitinfo({
+        'prior_method': "betabinomial",
+        'prior_a': 1,
+        'prior_b': 1,
+        'startGraph': "goni_valid",
+        'goni_size': 2,
+        'goni_threshold': 2,
+        'followtype': "avg", 
+        'prune_limit': np.inf,
+        'triangle_limit': np.inf,
+        'other_limit': np.inf })
+
+# the hierarchical model will take a long time to run!! to test it you can fit a smaller number of participants, e.g. ranmge(101,111)
 subs=["S"+str(i) for i in range(101,151)]
 filepath = "../Spring2017/results_clean.csv"
 category="animals"
 
-irts=[rw.Irts({}) for i in range(len(subs))]
-for irt in irts:
-    irt.irttype = "gamma"
-
-irtgroup=rw.Irts({})
-irtgroup.irttype="gamma"
-
 # read data from file (all as one)
-Xs, items, irtdata, numnodes = rw.readX(subs,category,filepath,removePerseverations=True,removeIntrusions=True,scheme="schemes/troyer_hills_zemla_animals.csv",spellfile="schemes/zemla_spellfile.csv")
+Xs, items, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv")
+flatdata, groupitems, irtdata, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv",flatten=True)
 
-for method in  methods:
+for method in methods:
     if method=="rw":
-        graph = rw.noHidden(Xs, numnodes)
+        graph = rw.noHidden(flatdata, groupnumnodes)
     if method=="goni":
-        graph = rw.goni(Xs, numnodes, valid=False, fitinfo=fitinfo)
+        c=0.05
+        graph = rw.goni(flatdata, groupnumnodes, valid=False, fitinfo=fitinfo_bb, c=c)
     if method=="chan":
-        graph = rw.chan(Xs, numnodes)
+        graph = rw.chan(flatdata, groupnumnodes)
     if method=="kenett":
-        graph = rw.kenett(Xs, numnodes)
+        graph = rw.kenett(flatdata, groupnumnodes)
     if method=="fe":
-        graph = rw.firstEdge(Xs, numnodes)
-    if method=="uinvite":
-        fit_alpha, fit_loc, fit_beta = scipy.stats.gamma.fit(rw.flatten_list(irtdata))
-        irtgroup.data = irtdata
-        irtgroup.gamma_beta = fit_beta
-        graph = rw.uinvite(Xs, td, numnodes, irts=irtgroup, fitinfo=fitinfo)
-    if method=="uinvite_hierarchical":
-        # renumber dictionary and item list
-        start=0
-        end=3
-        ssnumnodes=[]
-        itemsb=[]
-        datab=[]
-        irtsb=[]
-        for sub in range(len(subs)):
-            subXs = Xs[start:end]
-            irts[sub].data = irtdata[start:end]
-            
-            fit_alpha, fit_loc, fit_beta = scipy.stats.gamma.fit(rw.flatten_list(irts[sub].data))
-            #print fit_alpha, fit_loc, fit_beta, np.mean(rw.flatten_list(irts[sub].data))
-            irts[sub].gamma_beta = fit_beta
+        graph = rw.firstEdge(flatdata, groupnumnodes)
+    if method=="uinvite_flat":
+        graph = rw.uinvite(flatdata, td, groupnumnodes, fitinfo=fitinfo_bb)
+    if method=="uinvite_hierarchical_bb":
+        sub_graphs, priordict = rw.hierarchicalUinvite(Xs, items, numnodes, td, fitinfo=fitinfo_bb)
+        graph = rw.priorToGraph(priordict, groupitems)
+    if method=="uinvite_hierarchical_zibb":
+        sub_graphs, priordict = rw.hierarchicalUinvite(Xs, items, numnodes, td, fitinfo=fitinfo_zibb)
+        graph = rw.priorToGraph(priordict, groupitems)
 
-            itemset = set(rw.flatten_list(subXs))
-            ssnumnodes.append(len(itemset))
-                                                        
-            ss_items = {}
-            convertX = {}
-            for itemnum, item in enumerate(itemset):
-                ss_items[itemnum] = items[item]
-                convertX[item] = itemnum
-                                                        
-            itemsb.append(ss_items)
-                                                        
-            subXs = [[convertX[i] for i in x] for x in subXs]
-            datab.append(subXs)
-            start += 3
-            end += 3
-
-        #print datab
-        #print itemsb
-        #print ssnumnodes
-        sub_graphs, priordict = rw.hierarchicalUinvite(datab, itemsb, ssnumnodes, td, irts=irts, fitinfo=fitinfo)
-        graph = rw.priorToGraph(priordict, items)
-
-    fh=open("humans_"+method+"_irt.pickle","w")
+    # graph is an n x n matrix, where n is the number of items in the data set. if graph_{ij} = 1, that indicates an edge between those two items, else no edge exists
+    # items is a dictionary that can be used to convert between matrix row/column numbers and animal names
+    fh=open("humans_"+method+".pickle","w")
     alldata={}
     alldata['graph']=graph
-    alldata['items']=items
+    alldata['items']=groupitems
     pickle.dump(alldata,fh)
     fh.close()

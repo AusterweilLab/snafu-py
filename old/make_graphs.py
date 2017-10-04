@@ -6,30 +6,17 @@ import sys
 import numpy as np
 import scipy.stats
 
-#methods=['rw','fe','goni','chan','kenett','uinvite_flat','uinvite_hierarchical_bb','uinvite_hierarchical_zibb']
-#methods=['uinvite_hierarchical','uinvite']
-methods=['goni']
+#methods=['rw','fe','goni','chan','kenett','uinvite','uinvite_hierarchical']
+methods=['uinvite_hierarchical','uinvite']
 
 td=rw.Data({
         'startX': "stationary",
         'numx': 3 })
 
-fitinfo_zibb=rw.Fitinfo({
+fitinfo=rw.Fitinfo({
         'prior_method': "zeroinflatedbetabinomial",
         'zibb_p': .5,
         'prior_a': 2,
-        'prior_b': 1,
-        'startGraph': "goni_valid",
-        'goni_size': 2,
-        'goni_threshold': 2,
-        'followtype': "avg", 
-        'prune_limit': np.inf,
-        'triangle_limit': np.inf,
-        'other_limit': np.inf })
-
-fitinfo_bb=rw.Fitinfo({
-        'prior_method': "betabinomial",
-        'prior_a': 1,
         'prior_b': 1,
         'startGraph': "goni_valid",
         'goni_size': 2,
@@ -43,6 +30,13 @@ subs=["S"+str(i) for i in range(101,151)]
 filepath = "../Spring2017/results_clean.csv"
 category="animals"
 
+irts=[rw.Irts({}) for i in range(len(subs))]
+for irt in irts:
+    irt.irttype = "gamma"
+
+irtgroup=rw.Irts({})
+irtgroup.irttype="gamma"
+
 # read data from file (all as one)
 Xs, items, irtdata, numnodes = rw.readX(subs,category,filepath,removePerseverations=True,removeIntrusions=True,scheme="schemes/troyer_hills_zemla_animals.csv",spellfile="schemes/zemla_spellfile.csv")
 
@@ -50,25 +44,34 @@ for method in  methods:
     if method=="rw":
         graph = rw.noHidden(Xs, numnodes)
     if method=="goni":
-        c=0.05
-        graph = rw.goni(Xs, numnodes, valid=False, fitinfo=fitinfo_bb, c=c)
+        graph = rw.goni(Xs, numnodes, valid=False, fitinfo=fitinfo)
     if method=="chan":
         graph = rw.chan(Xs, numnodes)
     if method=="kenett":
         graph = rw.kenett(Xs, numnodes)
     if method=="fe":
         graph = rw.firstEdge(Xs, numnodes)
-    if method=="uinvite_flat":
-        graph = rw.uinvite(Xs, td, numnodes, fitinfo=fitinfo_bb)
-    if (method=="uinvite_hierarchical_bb") or (method=="uinvite_hierarchical_zibb"):
+    if method=="uinvite":
+        fit_alpha, fit_loc, fit_beta = scipy.stats.gamma.fit(rw.flatten_list(irtdata))
+        irtgroup.data = irtdata
+        irtgroup.gamma_beta = fit_beta
+        graph = rw.uinvite(Xs, td, numnodes, irts=irtgroup, fitinfo=fitinfo)
+    if method=="uinvite_hierarchical":
         # renumber dictionary and item list
         start=0
         end=3
         ssnumnodes=[]
         itemsb=[]
         datab=[]
+        irtsb=[]
         for sub in range(len(subs)):
             subXs = Xs[start:end]
+            irts[sub].data = irtdata[start:end]
+            
+            fit_alpha, fit_loc, fit_beta = scipy.stats.gamma.fit(rw.flatten_list(irts[sub].data))
+            #print fit_alpha, fit_loc, fit_beta, np.mean(rw.flatten_list(irts[sub].data))
+            irts[sub].gamma_beta = fit_beta
+
             itemset = set(rw.flatten_list(subXs))
             ssnumnodes.append(len(itemset))
                                                         
@@ -85,16 +88,15 @@ for method in  methods:
             start += 3
             end += 3
 
-        if method=="uinvite_hierarchical_bb":
-            sub_graphs, priordict = rw.hierarchicalUinvite(datab, itemsb, ssnumnodes, td, fitinfo=fitinfo_bb)
-        elif method=="uinvite_hierarchical_zibb":
-            sub_graphs, priordict = rw.hierarchicalUinvite(datab, itemsb, ssnumnodes, td, fitinfo=fitinfo_zibb)
+        #print datab
+        #print itemsb
+        #print ssnumnodes
+        sub_graphs, priordict = rw.hierarchicalUinvite(datab, itemsb, ssnumnodes, td, irts=irts, fitinfo=fitinfo)
         graph = rw.priorToGraph(priordict, items)
 
-    for graphnum, graph in enumerate(graphs):
-        fh=open("humans_new_c"+str(graphnum)+"_"+method+".pickle","w")
-        alldata={}
-        alldata['graph']=graphs[graphnum]
-        alldata['items']=items
-        pickle.dump(alldata,fh)
-        fh.close()
+    fh=open("humans_"+method+"_irt.pickle","w")
+    alldata={}
+    alldata['graph']=graph
+    alldata['items']=items
+    pickle.dump(alldata,fh)
+    fh.close()
