@@ -6,6 +6,7 @@ import numpy as np
 import operator
 import math
 import scipy.stats
+import scipy.cluster
 import sys
 import copy
 import csv
@@ -28,7 +29,7 @@ from structs import *
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
     if (td.jumptype=="uniform") and (numnodes==None):
         raise ValueError("Must specify 'numnodes' when jumptype is uniform [addJumps]")
-    if (td.jumptype=="stationary") and ((statdist==None) or (Xs==None)):
+    if (td.jumptype=="stationary") and (np.any(statdist==None) or (Xs==None)):
         raise ValueError("Must specify 'statdist' and 'Xs' when jumptype is stationary [addJumps]")
 
     if td.jumptype=="uniform":
@@ -274,6 +275,7 @@ def firstEdge(Xs, numnodes):
     return a
 
 # first hitting times for each node
+# TODO: Doesn't work with faulty censoring!!!
 def firstHits(walk):
     firsthit=[]
     path=path_from_walk(walk)
@@ -314,7 +316,7 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncou
     a_start = fitinfo.prior_a
     b_start = fitinfo.prior_b
     method = fitinfo.prior_method
-    p = fitinfo.zib_p
+    p = fitinfo.zibb_p
     #p=.5
     #p=(usf_density-current_density)/(1-current_density)
     
@@ -467,7 +469,7 @@ def genX(g, td, seed=None):
         else:
             seedy = seed + xnum
         rwalk=random_walk(g, td, priming_vector=priming_vector, seed=seedy)
-        x=observed_walk(rwalk)
+        x=observed_walk(rwalk, td)
         fh=list(zip(*firstHits(rwalk))[1])
         step=[fh[i]-fh[i-1] for i in range(1,len(fh))]
         Xs.append(x)
@@ -575,6 +577,46 @@ def goni(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=None):
 
     return graph
 
+# enrich graph by finding modules and making them completely interconnected
+# using Generalized Topological Overlap Measure (GTOM)
+# right now only does n=2 (neighbors and neighbors of neighbors)
+# see Goni et al 2010
+# TODO unfinished: so far, creates GTOM matrix but doesn't "enrich" network... how to determine # of clusters?
+def gtom(graph):
+
+    # modified from uinvite(), copied for convenience (TODO consolidate by moving outside to its own function)
+    # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
+    # i.e., an edge between i and any item in nn forms a triangle
+    def neighborsofneighbors(i, nxg):
+        nn=[]                                       # neighbors of neighbors (nn)
+        n=list(nx.all_neighbors(nxg,i))
+        for j in n:
+            nn=nn+list(nx.all_neighbors(nxg,j))
+        nn=list(set(nn))
+        if i in nn:
+            nn.remove(i)                            # remove self
+        return nn
+    
+    nxgraph = nx.to_networkx_graph(graph)
+    numnodes = nx.number_of_nodes(nxgraph)
+    gtom_mat = np.zeros((numnodes,numnodes))
+   
+    nn_dict = {}
+    for i in range(numnodes):
+        nn_dict[i] = neighborsofneighbors(i, nxgraph)
+    
+    for i in range(numnodes):
+        for j in range(i+1,numnodes):
+            i_neighbors = nn_dict[i]
+            j_neighbors = nn_dict[j]
+            min_neighbors = min(len(i_neighbors),len(j_neighbors))
+            len_overlap = len(set.intersection(set(i_neighbors),set(j_neighbors)))
+            gtom_mat[i, j] = 1 - (float(len_overlap) / min_neighbors)
+            gtom_mat[j, i] = gtom_mat[i, j]
+
+    return gtom_mat
+
+ 
 def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({}), seed=None, debug=True):
     nplocal=np.random.RandomState(seed) 
     fitinfoSG = fitinfo.startGraph  # fitinfo is mutable, need to revert at end of function... blah
@@ -705,13 +747,28 @@ def numToAnimal(Xs, items):
 # Unique nodes in random walk preserving order
 # (aka fake participant data)
 # http://www.peterbe.com/plog/uniqifiers-benchmark
-def observed_walk(walk):
+def observed_walk(walk, td=None, seed=None):
+    def addItem(item):
+        seen[item] = 1
+        result.append(item)
+    
+    nplocal=np.random.RandomState(seed)    
     seen = {}
     result = []
     for item in path_from_walk(walk):
-        if item in seen: continue
-        seen[item] = 1
-        result.append(item)
+        if item in seen:
+            try:
+                if nplocal.rand() <= td.censor_fault:
+                    addItem(item)
+            except: continue
+        else:
+            try:
+                if nplocal.rand() <= td.emission_fault:
+                    continue
+                else:
+                    addItem(item)
+            except:
+                addItem(item)
     return result
 
 # flat list from tuple walk
@@ -740,6 +797,7 @@ def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
 #@profile
 #@nogc
 def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceCompute=False, pass_link_matrix=True):
+
     numnodes=len(a)
     reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv, but that's much slower
     identmat=np.identity(numnodes) * reg    # pre-compute for tiny speed-up (only for non-IRT)
@@ -797,7 +855,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                     logbeta=np.log(irts.gamma_beta)
                     logirt=np.log(irt)
 
-                # normalize irt probabilities to avoid irt weighting... untested
+                # normalize irt probabilities to avoid irt weighting
                 if irts.irttype=="gamma":
                      # r=alpha. probability of observing irt at r steps
                     irtdist=[r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.gamma_beta*irt for r in range(1,irts.rcutoff)]
@@ -848,7 +906,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
 
         probs.append(prob)
 
-    uinvite_probs = np.copy(probs)      # store only u-invite transition probabilities (the computationally hard stuff) to avoid recomputing
+    uinvite_probs = copy.deepcopy(probs)      # store only u-invite transition probabilities (the computationally hard stuff) to avoid recomputing
     
     # adjust for jumping probability
     if td.jump > 0.0:
@@ -869,7 +927,6 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                 elif (i==0.0) and (inum > 0):
                     return -np.inf, (Xs[xnum][inum-1], Xs[xnum][inum])  # link to previous item otherwise
                 
-    # total ll of graph
     try:
         ll=sum([sum([np.log(j) for j in probs[i]]) for i in range(len(probs))])
     except:
@@ -887,6 +944,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                 return -np.inf, "prior"
             else:
                 ll = ll + np.log(priorprob)
+
     return ll, uinvite_probs
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
@@ -1062,7 +1120,8 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
                 v[i]=[]
             for i in zip(*listofedges):
                 if ((i[0], i[1]) not in firstedges) and ((i[1], i[0]) not in firstedges): # don't flip first edges (FE)!
-                    v[i[0]].append(i[1])
+                    if td.jump == 0.0:                                                      # unless jumping is allowed, untested 10/6/17 JZ
+                        v[i[0]].append(i[1])
         
         # generate dict where v[i] is a list of nodes where (i, v[i]) would form a new triangle
         if (method=="triangles") or (method==1):

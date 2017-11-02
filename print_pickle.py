@@ -3,17 +3,20 @@
 import rw
 import networkx as nx
 import pickle
+import sys
 
 priortype="count"
 
 # for priortype=="count"
 prior_a=2
 prior_b=1
-zibb_p=.3
+zibb_p=.5
 count_threshold=2
 
 gs=[]
-pickles=["bb"]
+
+inputname = sys.argv[1]
+pickles=[inputname]
 
 # if you forgot to save items use this
 #subs=["S"+str(i) for i in range(101,151)]
@@ -47,7 +50,7 @@ for filename in pickles:
         nx.relabel_nodes(g, alldata['items'], copy=False)
         gs.append(g)
     elif priortype=="prob":
-        for cut in [i/100.0 for i in range(10,30)]:
+        for cut in [i/10.0 for i in range(4,8)]:
             g = rw.priorToGraph(alldata['graph'], alldata['items'], cutoff=cut)
             g=nx.to_networkx_graph(g)
             nx.relabel_nodes(g, alldata['items'], copy=False)
@@ -59,15 +62,15 @@ for filename in pickles:
             if item1 != "DEFAULTPRIOR":
                 for item2 in priordict[item1]:
                     a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
-                    b = b - prior_b
-                    a = a - prior_a
-                    if b >= count_threshold:  # or (a+b)
+                    b_count = b - prior_b
+                    a_acount = a - prior_a
+                    if b_count >= count_threshold:  # or (a+b)
                         priordict[item1][item2] = float(b)/((1-zibb_p)*a+b)     # zibb
                         #priordict[item1][item2] = float(b)/(a+b)                # bb
                     else:
                         priordict[item1][item2] = 0.0
         # then probability threshold
-        for cut in [i/100.0 for i in range(10,30)]:
+        for cut in [i/100.0 for i in range(50,51)]:
             g = rw.priorToGraph(priordict, alldata['items'], cutoff=cut)
             g=nx.to_networkx_graph(g)
             nx.relabel_nodes(g, alldata['items'], copy=False)

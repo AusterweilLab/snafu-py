@@ -6,6 +6,8 @@
 
 import textwrap
 import numpy as np
+import csv
+from  more_itertools import unique_everseen
 
 # sibling functions
 from helper import *
@@ -104,71 +106,22 @@ def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False)
 
     return graph, items
 
-#def oldreadX(subj,category,filepath,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,flatten=True):
-#    if type(subj) == str:
-#        subj=[subj]
-#    game=-1
-#    cursubj=-1
-#    Xs=[]
-#    irts=[]
-#    items={}
-#    idx=0
-#    spellingdict={}
-#    validitems=[]
-#    
-#    if removeIntrusions:
-#        if not scheme:
-#            raise ValueError('You need to provide a category scheme if you want to ignore intrusions!')
-#        else:
-#            # this should really go somewhere else, like io.py
-#            with open(scheme,'r') as fh:
-#                for line in fh:
-#                    validitems.append(line.rstrip().split(',')[1].lower())
-#
-#    if spellfile:
-#        with open(spellfile,'r') as spellfile:
-#            for line in spellfile:
-#                correct, incorrect = line.rstrip().split(',')
-#                spellingdict[incorrect] = correct
-#   
-#    with open(filepath) as f:
-#        for line in f:
-#            row=line.strip('\n').split(',')
-#            if (row[0] in subj) & (row[2] == category):
-#                if (row[1] != game) or (row[0] != cursubj):
-#                    Xs.append([])
-#                    irts.append([])
-#                    game=row[1]
-#                    cursubj=row[0]
-#                # basic clean-up
-#                item=row[3].lower()
-#                badchars=" '-\"\\;"
-#                for char in badchars:
-#                    item=item.replace(char,"")
-#                if item in spellingdict.keys():
-#                    item = spellingdict[item]
-#                try:
-#                    irt=row[4]
-#                except:
-#                    pass
-#                if item not in items.values():
-#                    items[idx]=item
-#                    idx += 1
-#                itemval=items.values().index(item)
-#                if (not removePerseverations) or (itemval not in Xs[-1]):   # ignore any duplicates in same list resulting from spelling corrections
-#                    if (not removeIntrusions) or (item in validitems):
-#                        Xs[-1].append(itemval)
-#                        try: 
-#                            irts[-1].append(int(irt)/1000.0)
-#                        except:
-#                            pass
-#    numnodes = len(items)
-#    return Xs, items, irts, numnodes
-
-
 # read Xs in from user files
 # flatten == treat all subjects as identical; when False, keep hierarchical structure and dictionaries
 def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,flatten=False):
+    
+    # loops through file twice (once to grab subject ids), inefficient for large files
+    # replaces "all" with list of subjects
+    if subj=="all":
+        mycsv = csv.reader(open(filepath))
+        subj=[]
+        headers = next(mycsv, None)
+        
+        for row in mycsv:
+            subj.append(row[0])
+        subj = list(unique_everseen(subj)) # reduce to unique values, convert back to list    
+    
+    # for hierarchical
     if (type(subj) == list) and not flatten:
         subj_data=[]
         for sub in subj:
@@ -189,10 +142,11 @@ def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=Fal
         groupnumnodes = len(groupitems)
 
         return Xs, items, irts, numnodes, groupitems, groupnumnodes
-    else:
-        if type(subj) == "str":
+    else:                           # non-hierarchical
+        if isinstance(subj,str):
             subj=[subj]
         game=-1
+        cursubj="-1"    # hacky
         Xs=[]
         irts=[]
         items={}
@@ -216,15 +170,16 @@ def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=Fal
        
         with open(filepath) as f:
             for line in f:
-                row=line.strip('\n').split(',')
-                if (row[0] in subj) & (row[2] == category):
-                    if (row[1] != game):
+                row=line.rstrip().split(',')
+                if (row[0] in subj) and (row[2] == category):
+                    if (row[1] != game) or ((row[1] == game) and (row[0] != cursubj)):
                         Xs.append([])
                         irts.append([])
                         game=row[1]
+                        cursubj=row[0]
                     # basic clean-up
                     item=row[3].lower()
-                    badchars=" '-\"\\;"
+                    badchars=" '-\"\\;?"
                     for char in badchars:
                         item=item.replace(char,"")
                     if item in spellingdict.keys():

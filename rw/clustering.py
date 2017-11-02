@@ -9,26 +9,38 @@ def avgClusterSize(clist):
     return np.mean(avglist)
 
 def avgNumIntrusions(ilist):
-    if isinstance(ilist[0],list):
-        return np.mean([len(i) for i in ilist])
+    if len(ilist) > 0:
+        if isinstance(ilist[0],list):
+            return np.mean([len(i) for i in ilist])
+        else:
+            return len(ilist)
     else:
-        return len(ilist)
+        return 0
 
 # given list of cluster lengths, compute average number of cluster switches of each list, then return avearge of that
 # also works on single list
 def avgNumClusterSwitches(clist):
     avgnum=[]
-    for l in clist:
-        avgnum.append(len(l)-1)
-    return np.mean(avgnum)
+    if len(clist) > 0:
+        if isinstance(clist[0], list):
+            for l in clist:
+                avgnum.append(len(l)-1)
+            return np.mean(avgnum)
+        else:
+            return len(clist)-1
+    else:
+        return 0
 
 # report average cluster size for list or nested lists
 def clusterSize(l, scheme, clustertype='fluid'):
     # only convert items to labels if list of items, not list of lists
-    if isinstance(l[0], list):
-        clusters=l
+    if len(l) > 0:
+        if isinstance(l[0], list):
+            clusters=l
+        else:
+            clusters=labelClusters(l, scheme)
     else:
-        clusters=labelClusters(l, scheme)
+        clusters=[]
     
     csize=[]
     curcats=set([])
@@ -92,22 +104,28 @@ def labelClusters(l, scheme):
 
 def intrusions(l, scheme):
     labels=labelClusters(l, scheme)
-    if isinstance(labels[0], list):
-        intrusion_items=[]
-        for listnum, nested_list in enumerate(labels):
-            intrusion_items.append([l[listnum][i] for i, j in enumerate(nested_list) if j=="unknown"])
+    if len(l) > 0:
+        if isinstance(labels[0], list):
+            intrusion_items=[]
+            for listnum, nested_list in enumerate(labels):
+                intrusion_items.append([l[listnum][i] for i, j in enumerate(nested_list) if j=="unknown"])
+        else:
+            intrusion_items = [l[i] for i, j in enumerate(labels) if j=="unknown"]
     else:
-        intrusion_items = [l[i] for i, j in enumerate(labels) if j=="unknown"]
+        intrusion_items = []
     return intrusion_items
     
 # only works on labels, not indices. is there a need to work on indices?
 def perseverations(l):
-    if isinstance(l[0], list):
-        perseveration_items=[] 
-        for ls in l:
-            perseveration_items.append(list(set([item for item in ls if ls.count(item) > 1])))
+    if len(l) > 0:
+        if isinstance(l[0], list):
+            perseveration_items=[] 
+            for ls in l:
+                perseveration_items.append(list(set([item for item in ls if ls.count(item) > 1])))
+        else:
+            perseveration_items = list(set([item for item in l if l.count(item) > 1]))
     else:
-        perseveration_items = list(set([item for item in l if l.count(item) > 1]))
+        perseveration_items = []
     return perseveration_items
 
 

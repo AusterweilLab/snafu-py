@@ -10,11 +10,14 @@ import scipy.stats
 # our methods are the uinvite_* methods
 
 #methods=['rw','fe','goni','chan','kenett','uinvite_flat','uinvite_hierarchical_bb','uinvite_hierarchical_zibb']
-methods=['uinvite_hierarchical_bb']
+methods=['uinvite_hierarchical_zibb']
 
 td=rw.Data({
         'startX': "stationary",
-        'numx': 3 })
+        'numx': 3,
+        'jump': .1,
+        'jumptype': "stationary"
+        })
 
 fitinfo_zibb=rw.Fitinfo({
         'prior_method': "zeroinflatedbetabinomial",
@@ -41,7 +44,7 @@ fitinfo_bb=rw.Fitinfo({
         'triangle_limit': np.inf,
         'other_limit': np.inf })
 
-# the hierarchical model will take a long time to run!! to test it you can fit a smaller number of participants, e.g. ranmge(101,111)
+# the hierarchical model will take a long time to run!! to test it you can fit a smaller number of participants, e.g. range(101,111)
 subs=["S"+str(i) for i in range(101,151)]
 filepath = "../Spring2017/results_clean.csv"
 category="animals"
@@ -54,8 +57,7 @@ for method in methods:
     if method=="rw":
         graph = rw.noHidden(flatdata, groupnumnodes)
     if method=="goni":
-        c=0.05
-        graph = rw.goni(flatdata, groupnumnodes, valid=False, fitinfo=fitinfo_bb, c=c)
+        graph = rw.goni(flatdata, groupnumnodes, valid=False, fitinfo=fitinfo_bb)
     if method=="chan":
         graph = rw.chan(flatdata, groupnumnodes)
     if method=="kenett":
