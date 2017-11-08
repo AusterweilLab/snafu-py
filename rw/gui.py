@@ -141,7 +141,7 @@ def network_properties(command):
   
     nxg = nx.to_networkx_graph(bestgraph)
 
-    node_degree = np.mean(nxg.degree().values())
+    node_degree = np.mean(dict(nxg.degree()).values())
     nxg_json = jsonGraph(nxg, items)
     clustering_coefficient = nx.average_clustering(nxg)
     try:
