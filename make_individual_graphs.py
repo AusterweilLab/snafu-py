@@ -10,12 +10,11 @@ import scipy.stats
 # our methods are the uinvite_* methods
 
 #methods=['rw','fe','goni','chan','kenett','uinvite_flat','uinvite_hierarchical_bb','uinvite_hierarchical_zibb']
-methods=['chan']
+methods=['rw','fe','goni','chan','kenett','uinvite_flat']
 
 td=rw.Data({
         'startX': "stationary",
         'numx': 3,
-        'jump': .1,
         'jumptype': "stationary"
         })
 
@@ -50,34 +49,32 @@ filepath = "../Spring2017/results_clean.csv"
 category="animals"
 
 # read data from file (all as one)
-Xs, items, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv")
 flatdata, groupitems, irtdata, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv",flatten=True)
 
-for method in methods:
-    if method=="rw":
-        graph = rw.noHidden(flatdata, groupnumnodes)
-    if method=="goni":
-        graph = rw.goni(flatdata, groupnumnodes, valid=False, fitinfo=fitinfo_bb)
-    if method=="chan":
-        graph = rw.chan(flatdata, groupnumnodes)
-    if method=="kenett":
-        graph = rw.kenett(flatdata, groupnumnodes)
-    if method=="fe":
-        graph = rw.firstEdge(flatdata, groupnumnodes)
-    if method=="uinvite_flat":
-        graph = rw.uinvite(flatdata, td, groupnumnodes, fitinfo=fitinfo_bb)
-    if method=="uinvite_hierarchical_bb":
-        sub_graphs, priordict = rw.hierarchicalUinvite(Xs, items, numnodes, td, fitinfo=fitinfo_bb)
-        graph = rw.priorToGraph(priordict, groupitems)
-    if method=="uinvite_hierarchical_zibb":
-        sub_graphs, priordict = rw.hierarchicalUinvite(Xs, items, numnodes, td, fitinfo=fitinfo_zibb)
-        graph = rw.priorToGraph(priordict, groupitems)
+fo=open('individual_graphs.csv','w')
+fo.write('subj,method,item1,item2,edge\n')
 
-    # graph is an n x n matrix, where n is the number of items in the data set. if graph_{ij} = 1, that indicates an edge between those two items, else no edge exists
-    # items is a dictionary that can be used to convert between matrix row/column numbers and animal names
-    fh=open("humans_"+method+".pickle","w")
-    alldata={}
-    alldata['graph']=graph
-    alldata['items']=groupitems
-    pickle.dump(alldata,fh)
-    fh.close()
+for method in methods:
+    for sub in subs:
+        Xs, items, irtdata, numnodes = rw.readX(sub,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv")
+        if method=="rw":
+            graph = rw.noHidden(Xs, numnodes)
+        if method=="goni":
+            graph = rw.goni(Xs, numnodes, valid=False, fitinfo=fitinfo_zibb)
+        if method=="chan":
+            graph = rw.chan(Xs, numnodes)
+        if method=="kenett":
+            graph = rw.kenett(Xs, numnodes)
+        if method=="fe":
+            graph = rw.firstEdge(Xs, numnodes)
+        if method=="uinvite_flat":
+            graph, ll = rw.uinvite(Xs, td, numnodes, fitinfo=fitinfo_zibb)
+
+        for i in range(len(graph)):
+            for j in range(len(graph)):
+                if i>j:
+                    item1=items[i]
+                    item2=items[j]
+                    itempair=np.sort([item1,item2])
+                    fo.write(sub + "," + method + "," + itempair[0] + "," + itempair[1] +  "," + str(graph[i,j]) + "\n")
+fo.close()

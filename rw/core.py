@@ -162,7 +162,8 @@ def chan(Xs, numnodes, valid=False, td=None):
             try:
                 dij = dijk * (N / (Tij**2))
             except:
-                dij = 0.0       # added constraint for divide-by-zero... not clear how Chan handles this
+                dij = np.inf   # added constraint for divide-by-zero... not clear how Chan handles this
+                #dij = 0.0     # old way i handled this, probably wrong
             distance_mat[item1, item2] = dij
             distance_mat[item2, item1] = dij
     #graph = scipy.sparse.csgraph.minimum_spanning_tree(distance_mat)
