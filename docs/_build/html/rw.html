@@ -1,0 +1,978 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>rw package &mdash; snafu  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="snafu  documentation" href="index.html"/>
+        <link rel="prev" title="Welcome to snafu’s documentation!" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> snafu
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">rw package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rw.clustering">rw.clustering module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rw.core">rw.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">rw.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rw.draw">rw.draw module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rw.frequency">rw.frequency module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rw.gui">rw.gui module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rw.helper">rw.helper module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rw.io">rw.io module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rw.netstats">rw.netstats module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rw.search">rw.search module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rw.simulations">rw.simulations module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rw.structs">rw.structs module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rw.triadic">rw.triadic module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rw">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">snafu</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>rw package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/rw.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="rw-package">
+<h1>rw package<a class="headerlink" href="#rw-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-rw.clustering">
+<span id="rw-clustering-module"></span><h2>rw.clustering module<a class="headerlink" href="#module-rw.clustering" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rw.clustering.avgClusterSize">
+<code class="descclassname">rw.clustering.</code><code class="descname">avgClusterSize</code><span class="sig-paren">(</span><em>clist</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.clustering.avgClusterSize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.clustering.avgNumClusterSwitches">
+<code class="descclassname">rw.clustering.</code><code class="descname">avgNumClusterSwitches</code><span class="sig-paren">(</span><em>clist</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.clustering.avgNumClusterSwitches" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.clustering.avgNumIntrusions">
+<code class="descclassname">rw.clustering.</code><code class="descname">avgNumIntrusions</code><span class="sig-paren">(</span><em>ilist</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.clustering.avgNumIntrusions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.clustering.avgNumPerseverations">
+<code class="descclassname">rw.clustering.</code><code class="descname">avgNumPerseverations</code><span class="sig-paren">(</span><em>l</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.clustering.avgNumPerseverations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.clustering.clusterSize">
+<code class="descclassname">rw.clustering.</code><code class="descname">clusterSize</code><span class="sig-paren">(</span><em>l</em>, <em>scheme</em>, <em>clustertype='fluid'</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.clustering.clusterSize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.clustering.intrusions">
+<code class="descclassname">rw.clustering.</code><code class="descname">intrusions</code><span class="sig-paren">(</span><em>l</em>, <em>scheme</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.clustering.intrusions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.clustering.labelClusters">
+<code class="descclassname">rw.clustering.</code><code class="descname">labelClusters</code><span class="sig-paren">(</span><em>l</em>, <em>scheme</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.clustering.labelClusters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.clustering.numClusters">
+<code class="descclassname">rw.clustering.</code><code class="descname">numClusters</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.clustering.numClusters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.clustering.perseverations">
+<code class="descclassname">rw.clustering.</code><code class="descname">perseverations</code><span class="sig-paren">(</span><em>l</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.clustering.perseverations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rw.core">
+<span id="rw-core-module"></span><h2>rw.core module<a class="headerlink" href="#module-rw.core" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rw.core.addJumps">
+<code class="descclassname">rw.core.</code><code class="descname">addJumps</code><span class="sig-paren">(</span><em>probs</em>, <em>td</em>, <em>numnodes=None</em>, <em>statdist=None</em>, <em>Xs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.addJumps" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a test docstring</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="rw.core.adjustPriming">
+<code class="descclassname">rw.core.</code><code class="descname">adjustPriming</code><span class="sig-paren">(</span><em>probs</em>, <em>td</em>, <em>Xs</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.adjustPriming" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.blockModel">
+<code class="descclassname">rw.core.</code><code class="descname">blockModel</code><span class="sig-paren">(</span><em>Xs</em>, <em>td</em>, <em>numnodes</em>, <em>fitinfo={'directed': False</em>, <em>'prior_method': 'zeroinflatedbetabinomial'</em>, <em>'goni_threshold': 2</em>, <em>'prior_b': 1</em>, <em>'other_limit': inf</em>, <em>'followtype': 'avg'</em>, <em>'record': False</em>, <em>'triangle_limit': inf</em>, <em>'zibb_p': 0.5</em>, <em>'startGraph': 'goni_valid'</em>, <em>'prior_a': 2</em>, <em>'goni_size': 2</em>, <em>'prune_limit': inf}</em>, <em>prior=None</em>, <em>debug=True</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.blockModel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.chan">
+<code class="descclassname">rw.core.</code><code class="descname">chan</code><span class="sig-paren">(</span><em>Xs</em>, <em>numnodes</em>, <em>valid=False</em>, <em>td=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.chan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.cost">
+<code class="descclassname">rw.core.</code><code class="descname">cost</code><span class="sig-paren">(</span><em>graph</em>, <em>a</em>, <em>undirected=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.cost" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.costSDT">
+<code class="descclassname">rw.core.</code><code class="descname">costSDT</code><span class="sig-paren">(</span><em>graph</em>, <em>a</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.costSDT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.evalGraphPrior">
+<code class="descclassname">rw.core.</code><code class="descname">evalGraphPrior</code><span class="sig-paren">(</span><em>a</em>, <em>prior</em>, <em>undirected=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.evalGraphPrior" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.evalSWprior">
+<code class="descclassname">rw.core.</code><code class="descname">evalSWprior</code><span class="sig-paren">(</span><em>val</em>, <em>prior</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.evalSWprior" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.expectedHidden">
+<code class="descclassname">rw.core.</code><code class="descname">expectedHidden</code><span class="sig-paren">(</span><em>Xs</em>, <em>a</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.expectedHidden" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.firstEdge">
+<code class="descclassname">rw.core.</code><code class="descname">firstEdge</code><span class="sig-paren">(</span><em>Xs</em>, <em>numnodes</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.firstEdge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.firstHits">
+<code class="descclassname">rw.core.</code><code class="descname">firstHits</code><span class="sig-paren">(</span><em>walk</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.firstHits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.fullyConnected">
+<code class="descclassname">rw.core.</code><code class="descname">fullyConnected</code><span class="sig-paren">(</span><em>numnodes</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.fullyConnected" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.genG">
+<code class="descclassname">rw.core.</code><code class="descname">genG</code><span class="sig-paren">(</span><em>tg</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.genG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.genGfromZ">
+<code class="descclassname">rw.core.</code><code class="descname">genGfromZ</code><span class="sig-paren">(</span><em>walk</em>, <em>numnodes</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.genGfromZ" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.genGraphPrior">
+<code class="descclassname">rw.core.</code><code class="descname">genGraphPrior</code><span class="sig-paren">(</span><em>graphs</em>, <em>items</em>, <em>fitinfo={'directed': False</em>, <em>'prior_method': 'zeroinflatedbetabinomial'</em>, <em>'goni_threshold': 2</em>, <em>'prior_b': 1</em>, <em>'other_limit': inf</em>, <em>'followtype': 'avg'</em>, <em>'record': False</em>, <em>'triangle_limit': inf</em>, <em>'zibb_p': 0.5</em>, <em>'startGraph': 'goni_valid'</em>, <em>'prior_a': 2</em>, <em>'goni_size': 2</em>, <em>'prune_limit': inf}</em>, <em>mincount=1</em>, <em>undirected=True</em>, <em>returncounts=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.genGraphPrior" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.genGraphs">
+<code class="descclassname">rw.core.</code><code class="descname">genGraphs</code><span class="sig-paren">(</span><em>numgraphs</em>, <em>theta</em>, <em>Xs</em>, <em>numnodes</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.genGraphs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.genSWPrior">
+<code class="descclassname">rw.core.</code><code class="descname">genSWPrior</code><span class="sig-paren">(</span><em>tg</em>, <em>n</em>, <em>bins=100</em>, <em>forcenew=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.genSWPrior" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.genStartGraph">
+<code class="descclassname">rw.core.</code><code class="descname">genStartGraph</code><span class="sig-paren">(</span><em>Xs</em>, <em>numnodes</em>, <em>td</em>, <em>fitinfo</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.genStartGraph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.genSteyvers">
+<code class="descclassname">rw.core.</code><code class="descname">genSteyvers</code><span class="sig-paren">(</span><em>n</em>, <em>m</em>, <em>tail=1</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.genSteyvers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.genX">
+<code class="descclassname">rw.core.</code><code class="descname">genX</code><span class="sig-paren">(</span><em>g</em>, <em>td</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.genX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.genZfromX">
+<code class="descclassname">rw.core.</code><code class="descname">genZfromX</code><span class="sig-paren">(</span><em>x</em>, <em>theta</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.genZfromX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.goni">
+<code class="descclassname">rw.core.</code><code class="descname">goni</code><span class="sig-paren">(</span><em>Xs</em>, <em>numnodes</em>, <em>fitinfo={'directed': False</em>, <em>'prior_method': 'zeroinflatedbetabinomial'</em>, <em>'goni_threshold': 2</em>, <em>'prior_b': 1</em>, <em>'other_limit': inf</em>, <em>'followtype': 'avg'</em>, <em>'record': False</em>, <em>'triangle_limit': inf</em>, <em>'zibb_p': 0.5</em>, <em>'startGraph': 'goni_valid'</em>, <em>'prior_a': 2</em>, <em>'goni_size': 2</em>, <em>'prune_limit': inf}</em>, <em>c=0.05</em>, <em>valid=False</em>, <em>td=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.goni" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.gtom">
+<code class="descclassname">rw.core.</code><code class="descname">gtom</code><span class="sig-paren">(</span><em>graph</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.gtom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.hierarchicalUinvite">
+<code class="descclassname">rw.core.</code><code class="descname">hierarchicalUinvite</code><span class="sig-paren">(</span><em>Xs</em>, <em>items</em>, <em>numnodes</em>, <em>td</em>, <em>irts=False</em>, <em>fitinfo={'directed': False</em>, <em>'prior_method': 'zeroinflatedbetabinomial'</em>, <em>'goni_threshold': 2</em>, <em>'prior_b': 1</em>, <em>'other_limit': inf</em>, <em>'followtype': 'avg'</em>, <em>'record': False</em>, <em>'triangle_limit': inf</em>, <em>'zibb_p': 0.5</em>, <em>'startGraph': 'goni_valid'</em>, <em>'prior_a': 2</em>, <em>'goni_size': 2</em>, <em>'prune_limit': inf}</em>, <em>seed=None</em>, <em>debug=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.hierarchicalUinvite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.kenett">
+<code class="descclassname">rw.core.</code><code class="descname">kenett</code><span class="sig-paren">(</span><em>Xs</em>, <em>numnodes</em>, <em>minlists=0</em>, <em>valid=False</em>, <em>td=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.kenett" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.makeValid">
+<code class="descclassname">rw.core.</code><code class="descname">makeValid</code><span class="sig-paren">(</span><em>Xs</em>, <em>graph</em>, <em>td</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.makeValid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.noHidden">
+<code class="descclassname">rw.core.</code><code class="descname">noHidden</code><span class="sig-paren">(</span><em>Xs</em>, <em>numnodes</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.noHidden" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.numToAnimal">
+<code class="descclassname">rw.core.</code><code class="descname">numToAnimal</code><span class="sig-paren">(</span><em>Xs</em>, <em>items</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.numToAnimal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.observed_walk">
+<code class="descclassname">rw.core.</code><code class="descname">observed_walk</code><span class="sig-paren">(</span><em>walk</em>, <em>td=None</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.observed_walk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.path_from_walk">
+<code class="descclassname">rw.core.</code><code class="descname">path_from_walk</code><span class="sig-paren">(</span><em>walk</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.path_from_walk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.priorToGraph">
+<code class="descclassname">rw.core.</code><code class="descname">priorToGraph</code><span class="sig-paren">(</span><em>priordict</em>, <em>items</em>, <em>cutoff=0.5</em>, <em>undirected=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.priorToGraph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.probX">
+<code class="descclassname">rw.core.</code><code class="descname">probX</code><span class="sig-paren">(</span><em>Xs</em>, <em>a</em>, <em>td</em>, <em>irts={'irttype': 'none'</em>, <em>'data': []</em>, <em>'rcutoff': 20}</em>, <em>prior=None</em>, <em>origmat=None</em>, <em>changed=[]</em>, <em>forceCompute=False</em>, <em>pass_link_matrix=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.probX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.probXhierarchical">
+<code class="descclassname">rw.core.</code><code class="descname">probXhierarchical</code><span class="sig-paren">(</span><em>Xs</em>, <em>graphs</em>, <em>items</em>, <em>td</em>, <em>priordict=None</em>, <em>irts={'irttype': 'none'</em>, <em>'data': []</em>, <em>'rcutoff': 20}</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.probXhierarchical" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.random_walk">
+<code class="descclassname">rw.core.</code><code class="descname">random_walk</code><span class="sig-paren">(</span><em>g</em>, <em>td</em>, <em>priming_vector=[]</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.random_walk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.smallToBigGraph">
+<code class="descclassname">rw.core.</code><code class="descname">smallToBigGraph</code><span class="sig-paren">(</span><em>small_graph</em>, <em>small_items</em>, <em>large_items</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.smallToBigGraph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.smallworld">
+<code class="descclassname">rw.core.</code><code class="descname">smallworld</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.smallworld" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.stationary">
+<code class="descclassname">rw.core.</code><code class="descname">stationary</code><span class="sig-paren">(</span><em>t</em>, <em>method='unweighted'</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.stationary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.stepsToIRT">
+<code class="descclassname">rw.core.</code><code class="descname">stepsToIRT</code><span class="sig-paren">(</span><em>irts</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.stepsToIRT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.trimX">
+<code class="descclassname">rw.core.</code><code class="descname">trimX</code><span class="sig-paren">(</span><em>trimprop</em>, <em>Xs</em>, <em>steps</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.trimX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.uinvite">
+<code class="descclassname">rw.core.</code><code class="descname">uinvite</code><span class="sig-paren">(</span><em>Xs</em>, <em>td</em>, <em>numnodes</em>, <em>irts={'irttype': 'none'</em>, <em>'data': []</em>, <em>'rcutoff': 20}</em>, <em>fitinfo={'directed': False</em>, <em>'prior_method': 'zeroinflatedbetabinomial'</em>, <em>'goni_threshold': 2</em>, <em>'prior_b': 1</em>, <em>'other_limit': inf</em>, <em>'followtype': 'avg'</em>, <em>'record': False</em>, <em>'triangle_limit': inf</em>, <em>'zibb_p': 0.5</em>, <em>'startGraph': 'goni_valid'</em>, <em>'prior_a': 2</em>, <em>'goni_size': 2</em>, <em>'prune_limit': inf}</em>, <em>prior=None</em>, <em>debug=True</em>, <em>recordname='records.csv'</em>, <em>seed=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.uinvite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.core.walk_from_path">
+<code class="descclassname">rw.core.</code><code class="descname">walk_from_path</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.core.walk_from_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="id1">
+<h2>rw.core module<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-rw.core"></span><dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">addJumps</code><span class="sig-paren">(</span><em>probs</em>, <em>td</em>, <em>numnodes=None</em>, <em>statdist=None</em>, <em>Xs=None</em><span class="sig-paren">)</span></dt>
+<dd><p>This is a test docstring</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">adjustPriming</code><span class="sig-paren">(</span><em>probs</em>, <em>td</em>, <em>Xs</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">blockModel</code><span class="sig-paren">(</span><em>Xs</em>, <em>td</em>, <em>numnodes</em>, <em>fitinfo={'directed': False</em>, <em>'prior_method': 'zeroinflatedbetabinomial'</em>, <em>'goni_threshold': 2</em>, <em>'prior_b': 1</em>, <em>'other_limit': inf</em>, <em>'followtype': 'avg'</em>, <em>'record': False</em>, <em>'triangle_limit': inf</em>, <em>'zibb_p': 0.5</em>, <em>'startGraph': 'goni_valid'</em>, <em>'prior_a': 2</em>, <em>'goni_size': 2</em>, <em>'prune_limit': inf}</em>, <em>prior=None</em>, <em>debug=True</em>, <em>seed=None</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">chan</code><span class="sig-paren">(</span><em>Xs</em>, <em>numnodes</em>, <em>valid=False</em>, <em>td=None</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">cost</code><span class="sig-paren">(</span><em>graph</em>, <em>a</em>, <em>undirected=True</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">costSDT</code><span class="sig-paren">(</span><em>graph</em>, <em>a</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">evalGraphPrior</code><span class="sig-paren">(</span><em>a</em>, <em>prior</em>, <em>undirected=True</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">evalSWprior</code><span class="sig-paren">(</span><em>val</em>, <em>prior</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">expectedHidden</code><span class="sig-paren">(</span><em>Xs</em>, <em>a</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">firstEdge</code><span class="sig-paren">(</span><em>Xs</em>, <em>numnodes</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">firstHits</code><span class="sig-paren">(</span><em>walk</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">fullyConnected</code><span class="sig-paren">(</span><em>numnodes</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">genG</code><span class="sig-paren">(</span><em>tg</em>, <em>seed=None</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">genGfromZ</code><span class="sig-paren">(</span><em>walk</em>, <em>numnodes</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">genGraphPrior</code><span class="sig-paren">(</span><em>graphs</em>, <em>items</em>, <em>fitinfo={'directed': False</em>, <em>'prior_method': 'zeroinflatedbetabinomial'</em>, <em>'goni_threshold': 2</em>, <em>'prior_b': 1</em>, <em>'other_limit': inf</em>, <em>'followtype': 'avg'</em>, <em>'record': False</em>, <em>'triangle_limit': inf</em>, <em>'zibb_p': 0.5</em>, <em>'startGraph': 'goni_valid'</em>, <em>'prior_a': 2</em>, <em>'goni_size': 2</em>, <em>'prune_limit': inf}</em>, <em>mincount=1</em>, <em>undirected=True</em>, <em>returncounts=False</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">genGraphs</code><span class="sig-paren">(</span><em>numgraphs</em>, <em>theta</em>, <em>Xs</em>, <em>numnodes</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">genSWPrior</code><span class="sig-paren">(</span><em>tg</em>, <em>n</em>, <em>bins=100</em>, <em>forcenew=False</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">genStartGraph</code><span class="sig-paren">(</span><em>Xs</em>, <em>numnodes</em>, <em>td</em>, <em>fitinfo</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">genSteyvers</code><span class="sig-paren">(</span><em>n</em>, <em>m</em>, <em>tail=1</em>, <em>seed=None</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">genX</code><span class="sig-paren">(</span><em>g</em>, <em>td</em>, <em>seed=None</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">genZfromX</code><span class="sig-paren">(</span><em>x</em>, <em>theta</em>, <em>seed=None</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">goni</code><span class="sig-paren">(</span><em>Xs</em>, <em>numnodes</em>, <em>fitinfo={'directed': False</em>, <em>'prior_method': 'zeroinflatedbetabinomial'</em>, <em>'goni_threshold': 2</em>, <em>'prior_b': 1</em>, <em>'other_limit': inf</em>, <em>'followtype': 'avg'</em>, <em>'record': False</em>, <em>'triangle_limit': inf</em>, <em>'zibb_p': 0.5</em>, <em>'startGraph': 'goni_valid'</em>, <em>'prior_a': 2</em>, <em>'goni_size': 2</em>, <em>'prune_limit': inf}</em>, <em>c=0.05</em>, <em>valid=False</em>, <em>td=None</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">gtom</code><span class="sig-paren">(</span><em>graph</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">hierarchicalUinvite</code><span class="sig-paren">(</span><em>Xs</em>, <em>items</em>, <em>numnodes</em>, <em>td</em>, <em>irts=False</em>, <em>fitinfo={'directed': False</em>, <em>'prior_method': 'zeroinflatedbetabinomial'</em>, <em>'goni_threshold': 2</em>, <em>'prior_b': 1</em>, <em>'other_limit': inf</em>, <em>'followtype': 'avg'</em>, <em>'record': False</em>, <em>'triangle_limit': inf</em>, <em>'zibb_p': 0.5</em>, <em>'startGraph': 'goni_valid'</em>, <em>'prior_a': 2</em>, <em>'goni_size': 2</em>, <em>'prune_limit': inf}</em>, <em>seed=None</em>, <em>debug=True</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">kenett</code><span class="sig-paren">(</span><em>Xs</em>, <em>numnodes</em>, <em>minlists=0</em>, <em>valid=False</em>, <em>td=None</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">makeValid</code><span class="sig-paren">(</span><em>Xs</em>, <em>graph</em>, <em>td</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">noHidden</code><span class="sig-paren">(</span><em>Xs</em>, <em>numnodes</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">numToAnimal</code><span class="sig-paren">(</span><em>Xs</em>, <em>items</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">observed_walk</code><span class="sig-paren">(</span><em>walk</em>, <em>td=None</em>, <em>seed=None</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">path_from_walk</code><span class="sig-paren">(</span><em>walk</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">priorToGraph</code><span class="sig-paren">(</span><em>priordict</em>, <em>items</em>, <em>cutoff=0.5</em>, <em>undirected=True</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">probX</code><span class="sig-paren">(</span><em>Xs</em>, <em>a</em>, <em>td</em>, <em>irts={'irttype': 'none'</em>, <em>'data': []</em>, <em>'rcutoff': 20}</em>, <em>prior=None</em>, <em>origmat=None</em>, <em>changed=[]</em>, <em>forceCompute=False</em>, <em>pass_link_matrix=True</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">probXhierarchical</code><span class="sig-paren">(</span><em>Xs</em>, <em>graphs</em>, <em>items</em>, <em>td</em>, <em>priordict=None</em>, <em>irts={'irttype': 'none'</em>, <em>'data': []</em>, <em>'rcutoff': 20}</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">random_walk</code><span class="sig-paren">(</span><em>g</em>, <em>td</em>, <em>priming_vector=[]</em>, <em>seed=None</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">smallToBigGraph</code><span class="sig-paren">(</span><em>small_graph</em>, <em>small_items</em>, <em>large_items</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">smallworld</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">stationary</code><span class="sig-paren">(</span><em>t</em>, <em>method='unweighted'</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">stepsToIRT</code><span class="sig-paren">(</span><em>irts</em>, <em>seed=None</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">trimX</code><span class="sig-paren">(</span><em>trimprop</em>, <em>Xs</em>, <em>steps</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">uinvite</code><span class="sig-paren">(</span><em>Xs</em>, <em>td</em>, <em>numnodes</em>, <em>irts={'irttype': 'none'</em>, <em>'data': []</em>, <em>'rcutoff': 20}</em>, <em>fitinfo={'directed': False</em>, <em>'prior_method': 'zeroinflatedbetabinomial'</em>, <em>'goni_threshold': 2</em>, <em>'prior_b': 1</em>, <em>'other_limit': inf</em>, <em>'followtype': 'avg'</em>, <em>'record': False</em>, <em>'triangle_limit': inf</em>, <em>'zibb_p': 0.5</em>, <em>'startGraph': 'goni_valid'</em>, <em>'prior_a': 2</em>, <em>'goni_size': 2</em>, <em>'prune_limit': inf}</em>, <em>prior=None</em>, <em>debug=True</em>, <em>recordname='records.csv'</em>, <em>seed=None</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">rw.core.</code><code class="descname">walk_from_path</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rw.draw">
+<span id="rw-draw-module"></span><h2>rw.draw module<a class="headerlink" href="#module-rw.draw" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rw.draw.checkAll">
+<code class="descclassname">rw.draw.</code><code class="descname">checkAll</code><span class="sig-paren">(</span><em>Xs</em>, <em>a</em>, <em>td</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.draw.checkAll" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.draw.drawDot">
+<code class="descclassname">rw.draw.</code><code class="descname">drawDot</code><span class="sig-paren">(</span><em>g</em>, <em>filename</em>, <em>labels={}</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.draw.drawDot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.draw.drawG">
+<code class="descclassname">rw.draw.</code><code class="descname">drawG</code><span class="sig-paren">(</span><em>g</em>, <em>Xs=[]</em>, <em>labels={}</em>, <em>save=False</em>, <em>display=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.draw.drawG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.draw.drawMat">
+<code class="descclassname">rw.draw.</code><code class="descname">drawMat</code><span class="sig-paren">(</span><em>mat</em>, <em>mat2=0</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;</em>, <em>v=(-0.03</em>, <em>0.03)</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.draw.drawMat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.draw.drawMatChange">
+<code class="descclassname">rw.draw.</code><code class="descname">drawMatChange</code><span class="sig-paren">(</span><em>Xs</em>, <em>a</em>, <em>td</em>, <em>link</em>, <em>cmap=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;</em>, <em>keep=0</em>, <em>binary=0</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.draw.drawMatChange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rw.frequency">
+<span id="rw-frequency-module"></span><h2>rw.frequency module<a class="headerlink" href="#module-rw.frequency" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rw.frequency.freq">
+<code class="descclassname">rw.frequency.</code><code class="descname">freq</code><span class="sig-paren">(</span><em>Xs</em>, <em>perlist=0</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.frequency.freq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.frequency.freq_stat">
+<code class="descclassname">rw.frequency.</code><code class="descname">freq_stat</code><span class="sig-paren">(</span><em>Xs</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.frequency.freq_stat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.frequency.numNgrams">
+<code class="descclassname">rw.frequency.</code><code class="descname">numNgrams</code><span class="sig-paren">(</span><em>data</em>, <em>ngram=1</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.frequency.numNgrams" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rw.gui">
+<span id="rw-gui-module"></span><h2>rw.gui module<a class="headerlink" href="#module-rw.gui" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rw.gui.data_properties">
+<code class="descclassname">rw.gui.</code><code class="descname">data_properties</code><span class="sig-paren">(</span><em>command</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.gui.data_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.gui.error">
+<code class="descclassname">rw.gui.</code><code class="descname">error</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.gui.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.gui.jsonGraph">
+<code class="descclassname">rw.gui.</code><code class="descname">jsonGraph</code><span class="sig-paren">(</span><em>g</em>, <em>items</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.gui.jsonGraph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.gui.list_subjects_and_categories">
+<code class="descclassname">rw.gui.</code><code class="descname">list_subjects_and_categories</code><span class="sig-paren">(</span><em>command</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.gui.list_subjects_and_categories" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.gui.network_properties">
+<code class="descclassname">rw.gui.</code><code class="descname">network_properties</code><span class="sig-paren">(</span><em>command</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.gui.network_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.gui.quit">
+<code class="descclassname">rw.gui.</code><code class="descname">quit</code><span class="sig-paren">(</span><em>command</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.gui.quit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rw.helper">
+<span id="rw-helper-module"></span><h2>rw.helper module<a class="headerlink" href="#module-rw.helper" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rw.helper.dotdict">
+<em class="property">class </em><code class="descclassname">rw.helper.</code><code class="descname">dotdict</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.helper.dotdict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dict</span></code></p>
+<p>Example:
+m = dotdict({‘first_name’: ‘Eduardo’}, last_name=’Pool’, age=24, sports=[‘Soccer’])</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="rw.helper.find_ngrams">
+<code class="descclassname">rw.helper.</code><code class="descname">find_ngrams</code><span class="sig-paren">(</span><em>input_list</em>, <em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.helper.find_ngrams" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.helper.flatten_list">
+<code class="descclassname">rw.helper.</code><code class="descname">flatten_list</code><span class="sig-paren">(</span><em>l</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.helper.flatten_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.helper.logTrick">
+<code class="descclassname">rw.helper.</code><code class="descname">logTrick</code><span class="sig-paren">(</span><em>loglist</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.helper.logTrick" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.helper.maxn">
+<code class="descclassname">rw.helper.</code><code class="descname">maxn</code><span class="sig-paren">(</span><em>items</em>, <em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.helper.maxn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.helper.mexgauss">
+<code class="descclassname">rw.helper.</code><code class="descname">mexgauss</code><span class="sig-paren">(</span><em>rts</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.helper.mexgauss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.helper.nogc">
+<code class="descclassname">rw.helper.</code><code class="descname">nogc</code><span class="sig-paren">(</span><em>fun</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.helper.nogc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.helper.numToItemLabel">
+<code class="descclassname">rw.helper.</code><code class="descname">numToItemLabel</code><span class="sig-paren">(</span><em>data</em>, <em>items</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.helper.numToItemLabel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.helper.rand_exg">
+<code class="descclassname">rw.helper.</code><code class="descname">rand_exg</code><span class="sig-paren">(</span><em>irt</em>, <em>sigma</em>, <em>lambd</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.helper.rand_exg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.helper.renumber">
+<code class="descclassname">rw.helper.</code><code class="descname">renumber</code><span class="sig-paren">(</span><em>Xs</em>, <em>numsubs</em>, <em>numper</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.helper.renumber" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.helper.timer">
+<code class="descclassname">rw.helper.</code><code class="descname">timer</code><span class="sig-paren">(</span><em>fun</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.helper.timer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rw.io">
+<span id="rw-io-module"></span><h2>rw.io module<a class="headerlink" href="#module-rw.io" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rw.io.graphToHash">
+<code class="descclassname">rw.io.</code><code class="descname">graphToHash</code><span class="sig-paren">(</span><em>a</em>, <em>numnodes</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.io.graphToHash" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.io.hashToGraph">
+<code class="descclassname">rw.io.</code><code class="descname">hashToGraph</code><span class="sig-paren">(</span><em>graphhash</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.io.hashToGraph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.io.readX">
+<code class="descclassname">rw.io.</code><code class="descname">readX</code><span class="sig-paren">(</span><em>subj</em>, <em>category</em>, <em>filepath</em>, <em>removePerseverations=False</em>, <em>removeIntrusions=False</em>, <em>spellfile=None</em>, <em>scheme=None</em>, <em>flatten=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.io.readX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.io.read_csv">
+<code class="descclassname">rw.io.</code><code class="descname">read_csv</code><span class="sig-paren">(</span><em>fh</em>, <em>cols=(0</em>, <em>1)</em>, <em>header=False</em>, <em>filters={}</em>, <em>undirected=True</em>, <em>sparse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.io.read_csv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.io.write_csv">
+<code class="descclassname">rw.io.</code><code class="descname">write_csv</code><span class="sig-paren">(</span><em>gs</em>, <em>fh</em>, <em>subj='NA'</em>, <em>directed=False</em>, <em>extra_data={}</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.io.write_csv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.io.write_csv_old">
+<code class="descclassname">rw.io.</code><code class="descname">write_csv_old</code><span class="sig-paren">(</span><em>gs</em>, <em>fh</em>, <em>subj='NA'</em>, <em>directed=False</em>, <em>extra_data={}</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.io.write_csv_old" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rw.netstats">
+<span id="rw-netstats-module"></span><h2>rw.netstats module<a class="headerlink" href="#module-rw.netstats" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rw.netstats.degree_dist">
+<code class="descclassname">rw.netstats.</code><code class="descname">degree_dist</code><span class="sig-paren">(</span><em>g</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.netstats.degree_dist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rw.search">
+<span id="rw-search-module"></span><h2>rw.search module<a class="headerlink" href="#module-rw.search" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rw.search.cbdfs">
+<code class="descclassname">rw.search.</code><code class="descname">cbdfs</code><span class="sig-paren">(</span><em>g</em>, <em>td</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.search.cbdfs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.search.nodeDegreeSearch">
+<code class="descclassname">rw.search.</code><code class="descname">nodeDegreeSearch</code><span class="sig-paren">(</span><em>g</em>, <em>td</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.search.nodeDegreeSearch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.search.spreadingActivationSearch">
+<code class="descclassname">rw.search.</code><code class="descname">spreadingActivationSearch</code><span class="sig-paren">(</span><em>g</em>, <em>td</em>, <em>decay</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.search.spreadingActivationSearch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rw.simulations">
+<span id="rw-simulations-module"></span><h2>rw.simulations module<a class="headerlink" href="#module-rw.simulations" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rw.simulations.toyBatch">
+<code class="descclassname">rw.simulations.</code><code class="descname">toyBatch</code><span class="sig-paren">(</span><em>tg, td, outfile, irts={'irttype': 'none', 'data': [], 'rcutoff': 20}, fitinfo={'directed': False, 'prior_method': 'zeroinflatedbetabinomial', 'goni_threshold': 2, 'prior_b': 1, 'other_limit': inf, 'followtype': 'avg', 'record': False, 'triangle_limit': inf, 'zibb_p': 0.5, 'startGraph': 'goni_valid', 'prior_a': 2, 'goni_size': 2, 'prune_limit': inf}, start_seed=0, methods=['rw', 'fe', 'uinvite', 'uinvite_irt', 'uinvite_prior', 'uinvite_irt_prior'], header=1, debug=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.simulations.toyBatch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rw.structs">
+<span id="rw-structs-module"></span><h2>rw.structs module<a class="headerlink" href="#module-rw.structs" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rw.structs.Data">
+<code class="descclassname">rw.structs.</code><code class="descname">Data</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.structs.Data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.structs.Fitinfo">
+<code class="descclassname">rw.structs.</code><code class="descname">Fitinfo</code><span class="sig-paren">(</span><em>fitinfo</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.structs.Fitinfo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.structs.Graphs">
+<code class="descclassname">rw.structs.</code><code class="descname">Graphs</code><span class="sig-paren">(</span><em>graphs</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.structs.Graphs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.structs.Irts">
+<code class="descclassname">rw.structs.</code><code class="descname">Irts</code><span class="sig-paren">(</span><em>irts</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.structs.Irts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rw.triadic">
+<span id="rw-triadic-module"></span><h2>rw.triadic module<a class="headerlink" href="#module-rw.triadic" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="rw.triadic.commonNode">
+<code class="descclassname">rw.triadic.</code><code class="descname">commonNode</code><span class="sig-paren">(</span><em>graph</em>, <em>items</em>, <em>node1</em>, <em>node2</em>, <em>numsims=100</em>, <em>jumpval=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.triadic.commonNode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.triadic.similarity">
+<code class="descclassname">rw.triadic.</code><code class="descname">similarity</code><span class="sig-paren">(</span><em>a</em>, <em>items</em>, <em>start</em>, <em>choices</em>, <em>steps='inf'</em>, <em>jumpval=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.triadic.similarity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.triadic.triadicComparison">
+<code class="descclassname">rw.triadic.</code><code class="descname">triadicComparison</code><span class="sig-paren">(</span><em>graph</em>, <em>items</em>, <em>triad</em>, <em>steplimit=200</em>, <em>jumpval=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.triadic.triadicComparison" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rw.triadic.triadicMonteCarlo">
+<code class="descclassname">rw.triadic.</code><code class="descname">triadicMonteCarlo</code><span class="sig-paren">(</span><em>graph</em>, <em>items</em>, <em>triad</em>, <em>numsims=100</em>, <em>jumpval=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rw.triadic.triadicMonteCarlo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-rw">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-rw" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to snafu’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Jeffrey C. Zemla.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

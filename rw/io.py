@@ -108,18 +108,41 @@ def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False)
 
 # read Xs in from user files
 # flatten == treat all subjects as identical; when False, keep hierarchical structure and dictionaries
-def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,flatten=False):
-    
+def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,flatten=False,factor_label="id",group=None):
+   
+    mycsv = csv.reader(open(filepath))
+    headers = next(mycsv, None)
+    subj_row = headers.index('id')
+    category_row = headers.index('category')
+    listnum_row = headers.index('listnum')
+    item_row = headers.index('item')
+
+    try:
+        group_row = headers.index('group')
+        has_group = True
+    except:
+        has_group = False
+    try:
+        rt_row = headers.index('rt')
+        has_rts = True
+    except:
+        has_rts = False
+
+    # if group is specified, replace subj with list of subjects who have that grouping; "all" takes all subjects
     # loops through file twice (once to grab subject ids), inefficient for large files
-    # replaces "all" with list of subjects
-    if subj=="all":
-        mycsv = csv.reader(open(filepath))
+    if group != None:
         subj=[]
-        headers = next(mycsv, None)
-        
-        for row in mycsv:
-            subj.append(row[0])
-        subj = list(unique_everseen(subj)) # reduce to unique values, convert back to list    
+        if group=="all":
+            for row in mycsv:
+                subj.append(row[subj_row])
+            subj = list(unique_everseen(subj)) # reduce to unique values, convert back to list
+        else:
+            if not has_group:
+                raise ValueError('Data file does not have grouping column, but you asked for a specific group.')
+            for row in mycsv:
+                if row[group_row] == group:
+                    subj.append(row[subj_row])
+            subj = list(unique_everseen(subj))
     
     # for hierarchical
     if (type(subj) == list) and not flatten:
@@ -145,8 +168,8 @@ def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=Fal
     else:                           # non-hierarchical
         if isinstance(subj,str):
             subj=[subj]
-        game=-1
-        cursubj="-1"    # hacky
+        listnum=-1
+        cursubj="-1"    # hacky; hopefully no one has a subject labeled -1...
         Xs=[]
         irts=[]
         items={}
@@ -171,23 +194,21 @@ def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=Fal
         with open(filepath) as f:
             for line in f:
                 row=line.rstrip().split(',')
-                if (row[0] in subj) and (row[2] == category):
-                    if (row[1] != game) or ((row[1] == game) and (row[0] != cursubj)):
+                if (row[subj_row] in subj) and (row[category_row] == category):
+                    if (row[listnum_row] != listnum) or ((row[listnum_row] == listnum) and (row[subj_row] != cursubj)):
                         Xs.append([])
                         irts.append([])
-                        game=row[1]
-                        cursubj=row[0]
+                        listnum=row[listnum_row]
+                        cursubj=row[subj_row]
                     # basic clean-up
-                    item=row[3].lower()
+                    item=row[item_row].lower()
                     badchars=" '-\"\\;?"
                     for char in badchars:
                         item=item.replace(char,"")
                     if item in spellingdict.keys():
                         item = spellingdict[item]
-                    try:
-                        irt=row[4]
-                    except:
-                        pass
+                    if has_rts:
+                        irt=row[rt_row]
                     if item not in items.values():
                         if (item in validitems) or (not removeIntrusions):
                             items[idx]=item
@@ -197,56 +218,37 @@ def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=Fal
                         if (not removePerseverations) or (itemval not in Xs[-1]):   # ignore any duplicates in same list resulting from spelling corrections
                             if (not removeIntrusions) or (item in validitems):
                                 Xs[-1].append(itemval)
-                                try: 
+                                if has_rts:
                                     irts[-1].append(int(irt)/1000.0)
-                                except:
-                                    pass    # bad practice?
                     except:
                         pass                # bad practice?
         numnodes = len(items)
     return Xs, items, irts, numnodes
 
-# some sloppy code in here; methods are different depending on whether you pass an nx or array (but should be the same)
-# needs to be re-written
 def write_csv(gs, fh, subj="NA", directed=False, extra_data={}):
     onezero={True: '1', False: '0'}        
     import networkx as nx
     fh=open(fh,'w',0)
-    if isinstance(gs,nx.classes.graph.Graph):       # write nx graph
-        edges=set(flatten_list([gs.edges()]))
-        for edge in edges:
-            isdirected=""
-            if directed:
-                isdirected="," + (onezero[(g.has_edge(edge[1],edge[0]) and g.has_edge(edge[1],edge[0]))])
-            extrainfo=""
-            if edge[0] in extra_data.keys():
-                if edge[1] in extra_data[edge[0]].keys():
-                    extrainfo=","+",".join([str(i) for i in extra_data[edge[0]][edge[1]]])
-            fh.write(subj    + "," +
-                    edge[0]  + "," +
-                    edge[1]  + 
-                    isdirected + 
-                    extrainfo + "\n")
-    else:                                           # write matrix
-        edges=set(flatten_list([gs[i].edges() for i in range(len(gs))]))
-        for edge in edges:
-            edgelist=""
-            for g in gs:
-                edgelist=edgelist+"," + onezero[g.has_edge(edge[0],edge[1])]
-            if directed:
+
+    nodes = list(set(flatten_list([gs[i].nodes() for i in range(len(gs))])))
+
+    for node1 in nodes:
+        for node2 in nodes:
+            if (node1 < node2) or ((directed) and (node1 != node2)):   # write edges in alphabetical order unless directed graph
+                edge = (node1,node2)
+                edgelist=""
                 for g in gs:
-                    edgelist=edgelist + "," + (onezero[(g.has_edge(edge[1],edge[0]) and g.has_edge(edge[1],edge[0]))]) # this doesn't look right...
-            extrainfo=""
-            sortededge=np.sort([edge[0],edge[1]])
-            if sortededge[0] in extra_data.keys():
-                if sortededge[1] in extra_data[sortededge[0]].keys():
-                    if isinstance(extra_data[sortededge[0]][sortededge[1]],list):
-                        extrainfo=","+",".join([str(i) for i in extra_data[sortededge[0]][sortededge[1]]])
-                    else:
-                        extrainfo=","+","+str(extra_data[sortededge[0]][sortededge[1]])
-            fh.write(subj    + "," +
-                    edge[0]  + "," +
-                    edge[1]  + 
-                    edgelist + "," +
-                    extrainfo + "\n")
+                    edgelist=edgelist+"," + onezero[g.has_edge(edge[0],edge[1])]    # assumes graph is symmetrical if directed=True !!
+                extrainfo=""
+                if edge[0] in extra_data.keys():
+                    if edge[1] in extra_data[edge[0]].keys():
+                        if isinstance(extra_data[edge[0]][edge[1]],list):
+                            extrainfo=","+",".join([str(i) for i in extra_data[sortededge[0]][sortededge[1]]])
+                        else:
+                            extrainfo=","+str(extra_data[sortededge[0]][sortededge[1]])
+                fh.write(subj    + "," +
+                        edge[0]  + "," +
+                        edge[1]  + 
+                        edgelist + "," +
+                        extrainfo + "\n")
     return

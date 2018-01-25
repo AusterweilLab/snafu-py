@@ -150,3 +150,10 @@ def timer(fun):
         print(elapsedtime)
         return returnval
     return timerwrapper
+
+def reverseDict(items):
+    newitems=dict()
+    for itemnum in items:
+        itemlabel = items[itemnum]
+        newitems[itemlabel] = itemnum
+    return newitems

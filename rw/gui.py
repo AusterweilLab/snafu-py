@@ -6,21 +6,34 @@ import networkx as nx
 def list_subjects_and_categories(command):
     subjects=[]
     categories=[]
+    groups=["all"]
     with open(command['fullpath'],'r') as fh:
         header=fh.readline().strip().decode("utf-8-sig").encode("utf-8").split(',')
         subj_idx = header.index("id")
         cat_idx = header.index("category")
+        try:
+            group_idx = header.index("group")
+        except:
+            group_idx = -1
         for line in fh:
-            line=line.split(',')
+            line=line.rstrip().split(',')
             if line[subj_idx] not in subjects:
                 subjects.append(line[subj_idx])
             if line[cat_idx] not in categories:
                 categories.append(line[cat_idx])
+            if group_idx > -1:
+                group_label = line[group_idx]
+                if group_label == "all":        # "all" is a reserved group label, if user uses
+                    group_label = "all.b"       # this label it will be replaced by "all.b", even though it won't compute statistics for that group in snafu
+                if group_label not in groups:
+                    groups.append(group_label)
     return { "type": "list_subjects_and_categories",
              "subjects": subjects, 
              "categories": categories,
+             "groups": groups,
              "subject": subjects[0],
-             "category": categories[0] }
+             "category": categories[0],
+             "group": groups[0] }
 
 def jsonGraph(g, items):
     from networkx.readwrite import json_graph
@@ -40,6 +53,18 @@ def jsonGraph(g, items):
     
     return json_data
 
+def spelling_filename(x):
+    current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+    schemes = { "Zemla": "/../schemes/zemla_spellfile.csv",
+                "Lange": "/../schemes/kendra_spellfile.csv",
+                "LangeSpanish": "/../schemes/KendraSpanish.csv",
+                "None": None }
+    if schemes[x]:
+        filename = current_dir + schemes[x]
+    else:                                   # if "None" don't append directory
+        filename = schemes[x]
+    return filename
+
 def data_properties(command):
     def cluster_scheme_filename(x):
         current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -49,29 +74,59 @@ def data_properties(command):
         filename = current_dir + schemes[x]
         return filename
     
-    def spelling_filename(x):
-        current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
-        schemes = { "Zemla": "/../schemes/zemla_spellfile.csv",
-                    "None": None }
-        if schemes[x]:
-            filename = current_dir + schemes[x]
-        else:                                   # if "None" don'tm append directory
-            filename = schemes[x]
-        return filename
+    # turns array into string: "Mean (Std) [Min - Max]"
+    def format_output(x):
+        x_mean = str(round(np.mean(x),2))
+        x_std = str(round(np.std(x),2))
+        x_min = str(round(np.min(x),2))
+        x_max = str(round(np.max(x),2))
+        
+        return x_mean + " (" + x_std + ") [" + x_min + " -- " + x_max + "]"
     
     command = command['data_parameters']
-    Xs, items, irts, numnodes = rw.readX(command['subject'], command['category'], command['fullpath'], spellfile=spelling_filename(command['spellfile']))
-    Xs = rw.numToAnimal(Xs, items)
-    cluster_sizes = rw.clusterSize(Xs, cluster_scheme_filename(command['cluster_scheme']), clustertype=command['cluster_type'])
-    avg_cluster_size = rw.avgClusterSize(cluster_sizes)
-    avg_num_cluster_switches = rw.avgNumClusterSwitches(cluster_sizes)
-    num_lists = len(Xs)
-    avg_items_listed = np.mean([len(i) for i in Xs])
-    avg_unique_items_listed = np.mean([len(set(i)) for i in Xs])
-    intrusions = rw.intrusions(Xs, cluster_scheme_filename(command['cluster_scheme']))
-    avg_num_intrusions = rw.avgNumIntrusions(intrusions)
-    perseverations = rw.perseverations(Xs)
-    avg_num_perseverations = rw.avgNumPerseverations(Xs)
+    
+    if command['factor_type'] == "subject":
+        Xs, items, irts, numnodes = [[i] for i in rw.readX(command['subject'], command['category'], command['fullpath'], spellfile=spelling_filename(command['spellfile']))]    # embed each return variable in list so that format is the same as when factor=group
+    elif command['factor_type'] == "group":
+        Xs, items, irts, numnodes, groupitems, groupnumnodes = rw.readX(command['subject'], command['category'], command['fullpath'], spellfile=spelling_filename(command['spellfile']), group=command['group'])
+    
+    # initialize
+    avg_cluster_size = []
+    avg_num_cluster_switches = []
+    num_lists = []
+    avg_items_listed = []
+    avg_unique_items_listed = []
+    intrusions = []
+    avg_num_intrusions = []
+    perseverations = []
+    avg_num_perseverations = []
+
+    # kinda messy...
+    for subjnum in range(len(Xs)):
+        Xs[subjnum] = rw.numToAnimal(Xs[subjnum], items[subjnum])
+        cluster_sizes = rw.clusterSize(Xs[subjnum], cluster_scheme_filename(command['cluster_scheme']), clustertype=command['cluster_type'])
+        avg_cluster_size.append(rw.avgClusterSize(cluster_sizes))
+        avg_num_cluster_switches.append(rw.avgNumClusterSwitches(cluster_sizes))
+        num_lists.append(len(Xs[subjnum]))
+        avg_items_listed.append(np.mean([len(i) for i in Xs[subjnum]]))
+        avg_unique_items_listed.append(np.mean([len(set(i)) for i in Xs[subjnum]]))
+        intrusions.append(rw.intrusions(Xs[subjnum], cluster_scheme_filename(command['cluster_scheme'])))
+        avg_num_intrusions.append(rw.avgNumIntrusions(intrusions[-1]))
+        perseverations.append(rw.perseverations(Xs[subjnum]))
+        avg_num_perseverations.append(rw.avgNumPerseverations(Xs[subjnum]))
+
+    # clean up / format data to send back, still messy
+    intrusions = rw.flatten_list(intrusions)
+    perseverations = rw.flatten_list(perseverations)
+
+    if len(Xs) > 1:
+        avg_cluster_size = format_output(avg_cluster_size)
+        avg_num_cluster_switches = format_output(avg_num_cluster_switches)
+        num_lists = format_output(num_lists)
+        avg_items_listed = format_output(avg_items_listed)
+        avg_unique_items_listed = format_output(avg_unique_items_listed)
+        avg_num_intrusions = format_output(avg_num_intrusions)
+        avg_num_perseverations = format_output(avg_num_perseverations)
 
     return { "type": "data_properties", 
              "num_lists": num_lists,
@@ -87,12 +142,22 @@ def data_properties(command):
 def network_properties(command):
     subj_props = command['data_parameters']
     command = command['network_parameters']
-    Xs, items, irts, numnodes = rw.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'])
 
-    def no_persev(x):
-        seen = set()
-        seen_add = seen.add
-        return [i for i in x if not (i in seen or seen_add(i))]
+    # U-INVITE won't work with perseverations
+    if command['network_method'] == "U-INVITE":
+        removePerseverations=True
+    else:
+        removePerseverations=False
+    
+    if subj_props['factor_type'] == "subject":
+        Xs, items, irts, numnodes = rw.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'], spellfile=spelling_filename(subj_props['spellfile']), removePerseverations=removePerseverations)
+    elif subj_props['factor_type'] == "group":
+        Xs, items, irts, numnodes = rw.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'], spellfile=spelling_filename(subj_props['spellfile']), removePerseverations=removePerseverations, group=subj_props['group'], flatten=True)
+
+    #def no_persev(x):
+    #    seen = set()
+    #    seen_add = seen.add
+    #    return [i for i in x if not (i in seen or seen_add(i))]
 
     toydata=rw.Data({
             'numx': len(Xs),
@@ -136,8 +201,8 @@ def network_properties(command):
     elif command['network_method']=="FirstEdge":
         bestgraph = rw.firstEdge(Xs, numnodes)
     elif command['network_method']=="U-INVITE":
-        no_persev_Xs = [no_persev(x) for x in Xs]       # U-INVITE doesn't work with perseverations
-        bestgraph, ll = rw.uinvite(no_persev_Xs, toydata, numnodes, fitinfo=fitinfo, debug=False, prior=prior)
+        #no_persev_Xs = [no_persev(x) for x in Xs]       # U-INVITE doesn't work with perseverations
+        bestgraph, ll = rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, debug=False, prior=prior)
   
     nxg = nx.to_networkx_graph(bestgraph)
 

@@ -27,6 +27,9 @@ from structs import *
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
+    """
+    This is a test docstring
+    """
     if (td.jumptype=="uniform") and (numnodes==None):
         raise ValueError("Must specify 'numnodes' when jumptype is uniform [addJumps]")
     if (td.jumptype=="stationary") and (np.any(statdist==None) or (Xs==None)):
@@ -110,7 +113,6 @@ def blockModel(Xs, td, numnodes, fitinfo=Fitinfo({}), prior=None, debug=True, se
 # + Chan, Butters, Salmon, Johnson, Paulsen, & Swenson (1995) neuropsychology
 # Returns only PF(q, r) = PF(n-1, inf) = minimum spanning tree (sparsest possible graph)
 # other parameterizations of PF(q, r) not implemented
-# implementation not quite right... here uses only a single minimum spanning tree, rather than union of all MST
 def chan(Xs, numnodes, valid=False, td=None):
     
     # From https://github.com/evanmiltenburg/dm-graphs
@@ -162,10 +164,10 @@ def chan(Xs, numnodes, valid=False, td=None):
             try:
                 dij = dijk * (N / (Tij**2))
             except:
-                dij = np.inf   # added constraint for divide-by-zero... not clear how Chan handles this
-                #dij = 0.0     # old way i handled this, probably wrong
+                dij = 0.0      # added constraint for divide-by-zero... this will ensure that no edge will exist between i and j
             distance_mat[item1, item2] = dij
             distance_mat[item2, item1] = dij
+
     #graph = scipy.sparse.csgraph.minimum_spanning_tree(distance_mat)
     graph = nx.to_numpy_matrix(MST_pathfinder(nx.Graph(distance_mat)))
 
@@ -313,7 +315,7 @@ def genGfromZ(walk, numnodes):
     a=np.array(a.astype(int))
     return a
 
-def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncounts=False):
+def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=True, returncounts=False):
     a_start = fitinfo.prior_a
     b_start = fitinfo.prior_b
     method = fitinfo.prior_method
@@ -354,10 +356,13 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), undirected=True, returncou
         for item1 in priordict:
             for item2 in priordict[item1]:
                 a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
-                if method == "zeroinflatedbetabinomial":
-                    priordict[item1][item2] = zeroinflatedbetabinomial(a,b,p) # zero-inflated beta-binomial
-                elif method == "betabinomial":
-                    priordict[item1][item2] = betabinomial(a,b) # beta-binomial
+                if (a+b) >= (mincount + a_start + b_start):
+                    if method == "zeroinflatedbetabinomial":
+                        priordict[item1][item2] = zeroinflatedbetabinomial(a,b,p) # zero-inflated beta-binomial
+                    elif method == "betabinomial":
+                        priordict[item1][item2] = betabinomial(a,b) # beta-binomial
+                else:
+                    priordict[item1][item2] = 0.0   # if number of observations is less than mincount, make edge prior 0.0
         if 'DEFAULTPRIOR' in priordict.keys():
             raise ValueError('Sorry, you can\'t have a node called DEFAULTPRIOR. \
                               Sure, I should have coded this better, but I really didn\'t think this situation would ever occur.')
@@ -680,7 +685,7 @@ def probXhierarchical(Xs, graphs, items, td, priordict=None, irts=Irts({})):
 # construct graph using method using item correlation matrix and planar maximally filtered graph (PMFG)
 # see Borodkin, Kenett, Faust, & Mashal (2016) and Kenett, Kenett, Ben-Jacob, & Faust (2011)
 # does not work well for small number of lists! many NaN correlations + when two correlations are equal, ordering is arbitrary
-def kenett(Xs, numnodes, valid=False, td=None):
+def kenett(Xs, numnodes, minlists=0, valid=False, td=None):
     if valid and not td:
         raise ValueError('Need to pass Data when generating \'valid\' kenett()')
     
@@ -697,14 +702,16 @@ def kenett(Xs, numnodes, valid=False, td=None):
     item_by_item = {}
     for item1 in range(numnodes):
         for item2 in range(item1+1,numnodes):
-            item_by_item[(item1, item2)] = scipy.stats.pearsonr(list_by_item[item1],list_by_item[item2])[0]
+            if (sum(list_by_item[item1]) <= minlists) or (sum(list_by_item[item2]) <= minlists):    # if a word only appears in <= minlists lists, exclude from correlation list (kenett personal communication, to avoid spurious correlations)
+                item_by_item[(item1, item2)] = np.nan
+            else:
+                item_by_item[(item1, item2)] = scipy.stats.pearsonr(list_by_item[item1],list_by_item[item2])[0]
     
     corr_vals = sorted(item_by_item, key=item_by_item.get)[::-1]       # keys in correlation dictionary sorted by value (high to low, including NaN first)
-    
-    # nan correlation occurs when item is in all lists-- exclude from graph (conservative)
+
     edgelist=[]
     for pair in corr_vals:
-        if not np.isnan(item_by_item[pair]):
+        if not np.isnan(item_by_item[pair]):    # nan correlation occurs when item is in all lists-- exclude from graph (conservative)
             edgelist.append(pair)
             if not planarity.is_planar(edgelist):
                 edgelist.pop()

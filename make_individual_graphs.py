@@ -10,7 +10,8 @@ import scipy.stats
 # our methods are the uinvite_* methods
 
 #methods=['rw','fe','goni','chan','kenett','uinvite_flat','uinvite_hierarchical_bb','uinvite_hierarchical_zibb']
-methods=['rw','fe','goni','chan','kenett','uinvite_flat']
+#methods=['rw','fe','goni','chan','kenett','uinvite_flat']
+methods=['chan']
 
 td=rw.Data({
         'startX': "stationary",
@@ -51,7 +52,7 @@ category="animals"
 # read data from file (all as one)
 flatdata, groupitems, irtdata, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv",flatten=True)
 
-fo=open('individual_graphs.csv','w')
+fo=open('individual_graphs2.csv','w')
 fo.write('subj,method,item1,item2,edge\n')
 
 for method in methods:

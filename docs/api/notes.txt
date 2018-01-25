@@ -1,0 +1,10 @@
+https://codeandchaos.wordpress.com/2012/07/30/sphinx-autodoc-tutorial-for-dummies/
+
+from docs/ folder...
+sphinx-apidoc -f -o api ../rw
+
+^^-- this generates rw.rst with all of the modules in that folder. copy this file to docs/
+
+then `make html`
+
+should grab stuff from docstrings and make documentation!!

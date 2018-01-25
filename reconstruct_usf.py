@@ -6,11 +6,11 @@ usf_graph, usf_items = rw.read_csv("./snet/USF_animal_subset.snet")
 usf_graph_nx = nx.from_numpy_matrix(usf_graph)
 usf_numnodes = len(usf_items)
 
-numsubs = 50
+numsubs = 1
 numlists = 3
 listlength = 35
 numsims = 10
-methods=['rw','goni','chan','kenett','fe']
+methods=['uinvite_hierarchical']
 
 toydata=rw.Data({
         'numx': numlists,
@@ -35,7 +35,7 @@ fitinfo=rw.Fitinfo({
 # generate data for `numsub` participants, each having `numlists` lists of `listlengths` items
 seednum=0    # seednum=150 (numsubs*numlists) means start at second sim, etc.
 
-with open('nonuinvitemethods.csv','w',0) as fh:
+with open('test.csv','w',0) as fh:
     fh.write("method,simnum,listnum,hit,miss,fa,cr,cost,startseed\n")
 
     for simnum in range(numsims):
@@ -65,7 +65,6 @@ with open('nonuinvitemethods.csv','w',0) as fh:
             datab.append(Xs)
             
             seednum += numlists
-            print data
 
         for listnum in range(1,len(data)+1):
             print simnum, listnum

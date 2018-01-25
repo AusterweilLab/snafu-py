@@ -18,6 +18,10 @@ gs=[]
 inputname = sys.argv[1]
 pickles=[inputname]
 
+# temporary
+pickles=["s2017_chan","s2017_fe","s2017_goni","s2017_kenett","s2017_rw","s2017_uinvite_flat","s2017_uinvite_hierarchical"]
+
+
 # if you forgot to save items use this
 #subs=["S"+str(i) for i in range(101,151)]
 #filepath = "../Spring2017/results_clean.csv"
@@ -25,6 +29,11 @@ pickles=[inputname]
 #Xs, items, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv")
 
 for filename in pickles:
+    print filename
+    if "hierarchical" in filename:
+        priortype="count"
+    else:
+        priortype="graph"
     #if "_zibb" in filename:
     #    prior_a = 2
     #elif "_bb" in filename:
@@ -43,7 +52,7 @@ for filename in pickles:
     
     fh.close()
     if priortype=="graph":
-        if filename=="s2017_uinvite_flat.pickle":
+        if filename=="s2017_uinvite_flat":
             g=nx.to_networkx_graph(alldata['graph'][0]) #oops
         else:
             g=nx.to_networkx_graph(alldata['graph'])
@@ -63,10 +72,10 @@ for filename in pickles:
                 for item2 in priordict[item1]:
                     a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
                     b_count = b - prior_b
-                    a_acount = a - prior_a
+                    a_count = a - prior_a
                     if b_count >= count_threshold:  # or (a+b)
                         priordict[item1][item2] = float(b)/((1-zibb_p)*a+b)     # zibb
-                        #priordict[item1][item2] = float(b)/(a+b)                # bb
+                        #priordict[item1][item2] = float(b)/(a+b)               # bb
                     else:
                         priordict[item1][item2] = 0.0
         # then probability threshold
@@ -78,7 +87,7 @@ for filename in pickles:
 
 
 
-rw.write_csv(gs,filename+".csv",subj="S100") #,extra_data=alldata['graph'])
+rw.write_csv(gs,inputname+".csv",subj="S100") #,extra_data=alldata['graph'])
 
 
 #for i in alldata['graph']:
