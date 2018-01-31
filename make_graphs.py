@@ -10,7 +10,7 @@ import scipy.stats
 # our methods are the uinvite_* methods
 
 #methods=['rw','fe','goni','chan','kenett','uinvite_flat','uinvite_hierarchical_bb','uinvite_hierarchical_zibb']
-methods=['chan']
+methods=['rw']
 
 td=rw.Data({
         'startX': "stationary",
