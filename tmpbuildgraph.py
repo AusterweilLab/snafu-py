@@ -28,7 +28,7 @@ subs=["S"+str(i) for i in range(101,151)]
 filepath = "../Spring2017/results_clean.csv"
 category="animals"
 
-Xs, noitems, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv")
+Xs, noitems, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
 
 priordict = rw.genGraphPrior(graphs, items, fitinfo)
 #groupgraph = rw.priorToGraph(priordict, groupitems)

@@ -14,8 +14,8 @@ uinvite_graph, uinvite_items = rw.read_csv("graph_plus_ratings.csv",cols=("node1
 subs=["S"+str(i) for i in range(101,151)]
 filepath = "../Spring2017/results_clean.csv"
 category="animals"
-Xs, items, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv")
-flatdata, groupitems, irtdata, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv",flatten=True)
+Xs, items, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
+flatdata, groupitems, irtdata, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv",flatten=True)
 
 
 

@@ -3,7 +3,7 @@ import numpy as np
 import os, sys
 import networkx as nx
 
-def list_subjects_and_categories(command):
+def list_subjects_and_categories(command, root_path):
     subjects=[]
     categories=[]
     with open(command['fullpath'],'r') as fh:
@@ -40,23 +40,23 @@ def jsonGraph(g, items):
     
     return json_data
 
-def data_properties(command):
+def data_properties(command, root_path):
     def cluster_scheme_filename(x):
-        current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
-        schemes = { "Troyer": "/../schemes/troyer_animals.csv",
-                    "Troyer-Hills": "/../schemes/troyer_hills_animals.csv",
-                    "Troyer-Hills-Zemla": "/../schemes/troyer_hills_zemla_animals.csv" }
-        filename = current_dir + schemes[x]
+        #current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+        schemes = { "Troyer": "/schemes/troyer_animals.csv",
+                    "Troyer-Hills": "/schemes/troyer_hills_animals.csv",
+                    "Troyer-Hills-Zemla": "/schemes/troyer_hills_zemla_animals.csv" }
+        filename = root_path + schemes[x]
         return filename
     
     def spelling_filename(x):
         current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
-        schemes = { "Zemla": "/../schemes/zemla_spellfile.csv",
-                    "Lange": "/../schemes/kendra_spellfile.csv",
-                    "LangeSpanish": "/../schemes/KendraSpanish.csv",
+        schemes = { "Zemla": "/schemes/zemla_spellfile.csv",
+                    "Lange": "/schemes/kendra_spellfile.csv",
+                    "LangeSpanish": "/schemes/KendraSpanish.csv",
                     "None": None }
         if schemes[x]:
-            filename = current_dir + schemes[x]
+            filename = root_path + schemes[x]
         else:                                   # if "None" don'tm append directory
             filename = schemes[x]
         return filename
@@ -86,7 +86,7 @@ def data_properties(command):
              "avg_num_cluster_switches": avg_num_cluster_switches,
              "avg_cluster_size": avg_cluster_size }
 
-def network_properties(command):
+def network_properties(command, root_path):
     subj_props = command['data_parameters']
     command = command['network_parameters']
     Xs, items, irts, numnodes = rw.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'])
@@ -118,9 +118,9 @@ def network_properties(command):
     if command['prior']=="None":
         prior=None
     elif command['prior']=="USF":
-        current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
-        usf_file_path = "/../snet/USF_animal_subset.snet"
-        filename = current_dir + usf_file_path
+        #current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+        usf_file_path = "/snet/USF_animal_subset.snet"
+        filename = root_path + usf_file_path
         
         usf_graph, usf_items = rw.read_csv(filename)
         usf_numnodes = len(usf_items)
@@ -157,7 +157,7 @@ def network_properties(command):
              "aspl": aspl,
              "graph": nxg_json }
 
-def quit(command): 
+def quit(command, root_path): 
     return { "type": "quit",
              "status": "success" }
 

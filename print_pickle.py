@@ -26,7 +26,7 @@ pickles=["s2017_chan","s2017_fe","s2017_goni","s2017_kenett","s2017_rw","s2017_u
 #subs=["S"+str(i) for i in range(101,151)]
 #filepath = "../Spring2017/results_clean.csv"
 #category="animals"
-#Xs, items, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv")
+#Xs, items, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
 
 for filename in pickles:
     print filename

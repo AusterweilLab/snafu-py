@@ -24,7 +24,7 @@ for subnum, subfile in enumerate(subfiles):
     sub = "S" + str(101+subnum)   # fluency subs start here
     
     # load fluency data
-    Xs, items, irtdata, numnodes = rw.readX(sub,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv")
+    Xs, items, irtdata, numnodes = rw.readX(sub,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
 
     # load graph
     fh=open('subs/'+subfile,'r')

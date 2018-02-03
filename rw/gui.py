@@ -3,10 +3,11 @@ import numpy as np
 import os, sys
 import networkx as nx
 
-def list_subjects_and_categories(command):
+def list_subjects_and_categories(command, root_path):
     subjects=[]
     categories=[]
     groups=["all"]
+    
     with open(command['fullpath'],'r') as fh:
         header=fh.readline().strip().decode("utf-8-sig").encode("utf-8").split(',')
         subj_idx = header.index("id")
@@ -53,27 +54,21 @@ def jsonGraph(g, items):
     
     return json_data
 
-def spelling_filename(x):
-    current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
-    schemes = { "Zemla": "/../schemes/zemla_spellfile.csv",
-                "Lange": "/../schemes/kendra_spellfile.csv",
-                "LangeSpanish": "/../schemes/KendraSpanish.csv",
-                "None": None }
-    if schemes[x]:
-        filename = current_dir + schemes[x]
-    else:                                   # if "None" don't append directory
-        filename = schemes[x]
+def label_to_filepath(x, root_path, filetype):
+    filedict=dict()
+    folder = root_path + "/" + filetype + "/"
+    for filename in os.listdir(folder):
+        if "csv" in filename:
+            label = filename[0:filename.find('.')].replace('_',' ')
+            filedict[label] = folder + filename
+    try:
+        filename = filedict[x]
+    except:
+        filename = None
     return filename
 
-def data_properties(command):
-    def cluster_scheme_filename(x):
-        current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
-        schemes = { "Troyer": "/../schemes/troyer_animals.csv",
-                    "Troyer-Hills": "/../schemes/troyer_hills_animals.csv",
-                    "Troyer-Hills-Zemla": "/../schemes/troyer_hills_zemla_animals.csv" }
-        filename = current_dir + schemes[x]
-        return filename
-    
+def data_properties(command, root_path):
+   
     # turns array into string: "Mean (Std) [Min - Max]"
     def format_output(x):
         x_mean = str(round(np.mean(x),2))
@@ -86,9 +81,9 @@ def data_properties(command):
     command = command['data_parameters']
     
     if command['factor_type'] == "subject":
-        Xs, items, irts, numnodes = [[i] for i in rw.readX(command['subject'], command['category'], command['fullpath'], spellfile=spelling_filename(command['spellfile']))]    # embed each return variable in list so that format is the same as when factor=group
+        Xs, items, irts, numnodes = [[i] for i in rw.readX(command['subject'], command['category'], command['fullpath'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"))]    # embed each return variable in list so that format is the same as when factor=group
     elif command['factor_type'] == "group":
-        Xs, items, irts, numnodes, groupitems, groupnumnodes = rw.readX(command['subject'], command['category'], command['fullpath'], spellfile=spelling_filename(command['spellfile']), group=command['group'])
+        Xs, items, irts, numnodes, groupitems, groupnumnodes = rw.readX(command['subject'], command['category'], command['fullpath'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=command['group'])
     
     # initialize
     avg_cluster_size = []
@@ -104,13 +99,13 @@ def data_properties(command):
     # kinda messy...
     for subjnum in range(len(Xs)):
         Xs[subjnum] = rw.numToAnimal(Xs[subjnum], items[subjnum])
-        cluster_sizes = rw.clusterSize(Xs[subjnum], cluster_scheme_filename(command['cluster_scheme']), clustertype=command['cluster_type'])
+        cluster_sizes = rw.clusterSize(Xs[subjnum], label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
         avg_cluster_size.append(rw.avgClusterSize(cluster_sizes))
         avg_num_cluster_switches.append(rw.avgNumClusterSwitches(cluster_sizes))
         num_lists.append(len(Xs[subjnum]))
         avg_items_listed.append(np.mean([len(i) for i in Xs[subjnum]]))
         avg_unique_items_listed.append(np.mean([len(set(i)) for i in Xs[subjnum]]))
-        intrusions.append(rw.intrusions(Xs[subjnum], cluster_scheme_filename(command['cluster_scheme'])))
+        intrusions.append(rw.intrusions(Xs[subjnum], label_to_filepath(command['cluster_scheme'], root_path, "schemes")))
         avg_num_intrusions.append(rw.avgNumIntrusions(intrusions[-1]))
         perseverations.append(rw.perseverations(Xs[subjnum]))
         avg_num_perseverations.append(rw.avgNumPerseverations(Xs[subjnum]))
@@ -139,7 +134,7 @@ def data_properties(command):
              "avg_num_cluster_switches": avg_num_cluster_switches,
              "avg_cluster_size": avg_cluster_size }
 
-def network_properties(command):
+def network_properties(command, root_path):
     subj_props = command['data_parameters']
     command = command['network_parameters']
 
@@ -150,14 +145,9 @@ def network_properties(command):
         removePerseverations=False
     
     if subj_props['factor_type'] == "subject":
-        Xs, items, irts, numnodes = rw.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'], spellfile=spelling_filename(subj_props['spellfile']), removePerseverations=removePerseverations)
+        Xs, items, irts, numnodes = rw.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations)
     elif subj_props['factor_type'] == "group":
-        Xs, items, irts, numnodes = rw.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'], spellfile=spelling_filename(subj_props['spellfile']), removePerseverations=removePerseverations, group=subj_props['group'], flatten=True)
-
-    #def no_persev(x):
-    #    seen = set()
-    #    seen_add = seen.add
-    #    return [i for i in x if not (i in seen or seen_add(i))]
+        Xs, items, irts, numnodes = rw.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations, group=subj_props['group'], flatten=True)
 
     toydata=rw.Data({
             'numx': len(Xs),
@@ -181,9 +171,8 @@ def network_properties(command):
     if command['prior']=="None":
         prior=None
     elif command['prior']=="USF":
-        current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
-        usf_file_path = "/../snet/USF_animal_subset.snet"
-        filename = current_dir + usf_file_path
+        usf_file_path = "/snet/USF_animal_subset.snet"
+        filename = root_path + usf_file_path
         
         usf_graph, usf_items = rw.read_csv(filename)
         usf_numnodes = len(usf_items)
@@ -201,7 +190,6 @@ def network_properties(command):
     elif command['network_method']=="FirstEdge":
         bestgraph = rw.firstEdge(Xs, numnodes)
     elif command['network_method']=="U-INVITE":
-        #no_persev_Xs = [no_persev(x) for x in Xs]       # U-INVITE doesn't work with perseverations
         bestgraph, ll = rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, debug=False, prior=prior)
   
     nxg = nx.to_networkx_graph(bestgraph)

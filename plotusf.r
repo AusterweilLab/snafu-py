@@ -17,7 +17,7 @@ dat3<-dat[,mean(hit),keyby=.(method,listnum)]
 dat4<-dat[,mean(fa),keyby=.(method,listnum)]
 
 dat4[,method:=factor(method)]
-levels(dat4$method)<-c("PF","FE","CN","CBN","RW","U-INVITE","Hierarchical U-INVITE")
+levels(dat4$method)<-c("PF","FE","CN","CBN","NRW","U-INVITE","Hierarchical U-INVITE")
 dat4[,Method:=method]
 
 usf1 <- ggplot(dat2,aes(x=listnum,y=V1,color=method)) + geom_line(size=0.6) + theme_classic() + xlab("Number of psuedo-participants") + ylab("Cost") + theme(legend.position="none") + scale_y_continuous(limits=c(0,1000),expand=c(0,0))

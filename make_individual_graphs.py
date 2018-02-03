@@ -50,14 +50,14 @@ filepath = "../Spring2017/results_clean.csv"
 category="animals"
 
 # read data from file (all as one)
-flatdata, groupitems, irtdata, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv",flatten=True)
+flatdata, groupitems, irtdata, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv",flatten=True)
 
 fo=open('individual_graphs2.csv','w')
 fo.write('subj,method,item1,item2,edge\n')
 
 for method in methods:
     for sub in subs:
-        Xs, items, irtdata, numnodes = rw.readX(sub,category,filepath,removePerseverations=True,spellfile="schemes/zemla_spellfile.csv")
+        Xs, items, irtdata, numnodes = rw.readX(sub,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
         if method=="rw":
             graph = rw.noHidden(Xs, numnodes)
         if method=="goni":

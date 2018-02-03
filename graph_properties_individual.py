@@ -36,5 +36,5 @@ for method in methods:
             clustering.append(nx.average_clustering(graph))
     
     number_of_graphs = str(len(num_nodes) / float(len(subs)))
-    vars_to_print = [method, number_of_graphs] + property_stats(num_nodes) + property_stats(num_edges) + property_stats(num_components) + property_stats(density) + property_stats(largest_component_size) + property_stats(aspl) + property_stats(clustering) + [str(np.mean(is_connected))] + property_stats(degree)<D-1>
+    vars_to_print = [method, number_of_graphs] + property_stats(num_nodes) + property_stats(num_edges) + property_stats(num_components) + property_stats(density) + property_stats(largest_component_size) + property_stats(aspl) + property_stats(clustering) + [str(np.mean(is_connected))] + property_stats(degree)
     print ",".join(vars_to_print)
