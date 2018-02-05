@@ -1,6 +1,0 @@
-method,simnum,listnum,hit,miss,fa,cr,cost,startseed
-uinvite_hierarchical,0,1,69,324,22,12305,346.0,0
-uinvite_hierarchical,1,1,66,327,27,12300,354.0,3
-uinvite_hierarchical,2,1,64,329,25,12302,354.0,6
-uinvite_hierarchical,3,1,70,323,29,12298,352.0,9
-uinvite_hierarchical,4,1,62,331,26,12301,357.0,12

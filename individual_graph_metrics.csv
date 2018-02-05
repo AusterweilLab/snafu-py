@@ -1,8 +1,0 @@
-method,proportion_graphs,num_nodes_mean,num_nodes_std,num_nodes_min,num_nodes_max, num_edges_mean,num_edges_std,num_edges_min,num_edges_max, num_components_mean,num_components_std,num_components_min,num_components_max, density_mean,density_std,density_min,density_max, largest_component_size_mean,largest_component_size_std,largest_component_size_min,largest_component_size_max, aspl_mean,aspl_std,aspl_min,aspl_max, clustering_mean,clustering_std,clustering_min,clustering_max, proportion_connected
-chan,1,59.38,18.51,26,103,62.34,19.59,26,103,1,0,1,1,0.04,0.01,0.02,0.08,59.38,18.51,26,103,10.27,3.89,5.01,25.86,0.04,0.04,0,0.13,1
-fe,1,4.1,1.5,2,6,2.24,0.84,1,3,1.86,0.75,1,3,0.5,0.32,0.2,1,2.38,0.52,2,4,1.12,0.17,1,1.5,0,0,0,0,0.36
-goni,0.92,23.87,14.15,2,49,20.22,15.05,1,52,7.63,3.53,1,14,0.14,0.2,0.04,1,4.87,2.24,2,10,1.64,0.55,1,2.82,0.28,0.22,0,1,0.04
-kenett,1,44.42,19.8,11,103,127.26,59.39,27,303,1,0,1,1,0.16,0.08,0.06,0.49,44.42,19.8,11,103,2.73,0.62,1.51,4.8,0.59,0.03,0.53,0.71,1
-rw,1,59.38,18.51,26,103,87.96,26.7,37,149,1,0,1,1,0.06,0.02,0.02,0.15,59.38,18.51,26,103,5.2,4.04,2.56,25.86,0.08,0.05,0,0.16,1
-uinvite_flat,1,59.38,18.51,26,103,84.56,26.28,37,148,1,0,1,1,0.06,0.02,0.02,0.13,59.38,18.51,26,103,5.33,4.04,2.82,25.86,0.06,0.04,0,0.14,1
-uinvite_hierarchical,1,59.38,18.51,26,103,84.36,27.07,40,151,1,0,1,1,0.05,0.02,0.02,0.13,59.38,18.51,26,103,5.21,3.94,2.87,28.86,0.07,0.04,0,0.15,1

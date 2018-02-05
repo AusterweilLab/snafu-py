@@ -1,9 +1,0 @@
-method,simnum,listnum,hit,miss,fa,cr,cost
-uinvite_noirt,0,1,59,334,39,12288,373.0
-uinvite_noirt,0,2,77,316,53,12274,369.0
-uinvite_noirt,0,3,92,301,56,12271,357.0
-uinvite_noirt,0,4,102,291,64,12263,355.0
-uinvite_noirt,0,5,100,293,59,12268,352.0
-uinvite_noirt,0,6,107,286,62,12265,348.0
-uinvite_noirt,0,7,121,272,63,12264,335.0
-uinvite_noirt,0,8,120,273,62,12265,335.0
