@@ -57,6 +57,8 @@ def jsonGraph(g, items):
 def label_to_filepath(x, root_path, filetype):
     filedict=dict()
     folder = root_path + "/" + filetype + "/"
+
+    # after re-structuring, there's no need to build a dict() anymore
     for filename in os.listdir(folder):
         if "csv" in filename:
             label = filename[0:filename.find('.')].replace('_',' ')

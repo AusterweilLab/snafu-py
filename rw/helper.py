@@ -157,3 +157,10 @@ def reverseDict(items):
         itemlabel = items[itemnum]
         newitems[itemlabel] = itemnum
     return newitems
+
+# remove perseverations -- keep only first occurrence in place
+# https://www.peterbe.com/plog/uniqifiers-benchmark
+def no_persev(x):
+    seen = set()
+    seen_add = seen.add
+    return [i for i in x if not (i in seen or seen_add(i))]

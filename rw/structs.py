@@ -27,7 +27,11 @@ def Data(data):
         data['priming']=0.0
     if 'jumponcensored' not in tdkeys:
         data['jumponcensored']=None
-
+    if 'censor_fault' not in tdkeys:
+        data['censor_fault'] = 0.0
+    if 'emission_fault' not in tdkeys:
+        data['emission_fault'] = 0.0
+    
     return dotdict(data)
 
 def Graphs(graphs):

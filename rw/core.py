@@ -301,7 +301,7 @@ def genG(tg, seed=None):
     elif tg.graphtype=="random":                               
         g=nx.erdos_renyi_graph(tg.numnodes, tg.prob_rewire,seed)
     elif tg.graphtype=="steyvers":
-        g=genSteyvers(tg.numnodes, tg.numlinks, seed=seed)
+        g=genSteyvers(tg.numnodes, tg.numlinks, seed=seed, tail=tg.steyvers_tail)
     
     a=np.array(nx.to_numpy_matrix(g)).astype(int)
     return g, a
@@ -400,7 +400,7 @@ def genStartGraph(Xs, numnodes, td, fitinfo):
         graph = np.copy(fitinfo.startGraph)                         # assume a graph has been passed as a starting point
     return graph
 
-def genSteyvers(n,m, tail=1, seed=None):               # tail allows m-1 "null" nodes in neighborhood of every node
+def genSteyvers(n,m, tail=True, seed=None):               # tail allows m-1 "null" nodes in neighborhood of every node
     nplocal=np.random.RandomState(seed)
     a=np.zeros((n,n))                                  # initialize matrix
     for i in range(m):                                 # complete m x m graph
@@ -411,7 +411,7 @@ def genSteyvers(n,m, tail=1, seed=None):               # tail allows m-1 "null" 
         nodeprob=sum(a)/sum(sum(a))                    # choose node to differentiate with this probability distribution
         diffnode=nplocal.choice(n,p=nodeprob)        # node to differentiate
         h=list(np.where(a[diffnode])[0]) + [diffnode]  # neighborhood of diffnode
-        if tail==1:
+        if tail==True:
             h=h + [-1]*(m-1)
         #hprob=sum(a[:,h])/sum(sum(a[:,h]))                 # attach proportional to node degree?
         #tolink=nplocal.choice(h,m,replace=False,p=hprob)
@@ -482,7 +482,7 @@ def genX(g, td, seed=None):
         if td.priming > 0.0:
             priming_vector=x[:]
         steps.append(step)
-    td.priming_vector = []      # reset mutable priming vector between participants; JZ added 9/29, untested
+    td.priming_vector = []      # reset mutable priming vector between participants; JCZ added 9/29, untested
 
     alter_graph_size=0
     if td.trim != 1.0:
@@ -807,7 +807,7 @@ def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
 def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceCompute=False, pass_link_matrix=True):
 
     numnodes=len(a)
-    reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv, but that's much slower
+    reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv instead of inv, but that's much slower
     identmat=np.identity(numnodes) * reg    # pre-compute for tiny speed-up (only for non-IRT)
 
     probs=[]
@@ -819,11 +819,12 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
     else:                                    
         t=a
 
-    t=np.nan_to_num(t)                        # jumping/priming models can have nan in matrix, need to change to 0
-
+    t=np.nan_to_num(t)                      # jumping/priming models can have nan in matrix, need to change to 0
+    
     if (td.jumptype=="stationary") or (td.startX=="stationary"):
         statdist=stationary(t)
 
+    # U-INVITE probability excluding jumps, prior, and priming adjustments -- those come later
     for xnum, x in enumerate(Xs):
         x2=np.array(x)
         t2=t[x2[:,None],x2]                                        # re-arrange transition matrix to be in list order
@@ -840,17 +841,35 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
         if (len(changed) > 0) and isinstance(origmat,list):        # if updating prob. matrix based on specific link changes
             update=0                                               # reset for each list
 
+        # flag if list contains perseverations
+        if len(x) == len(set(x)):
+            list_has_perseverations = False
+        else:
+            list_has_perseverations = True
+            #x3=np.array(rw.no_persev(x))                           # compute transition matrix with one column per node (no perseverations) for speed-up
+            #t3=t[x3[:,None],x3]
+
         for curpos in range(1,len(x)):
-            if (len(changed) > 0) and isinstance(origmat,list):
+            if (len(changed) > 0) and isinstance    (origmat,list):
                 if update==0:                                      # first check if probability needs to be updated
                     if (Xs[xnum][curpos-1] in changed):            # (only AFTER first changed node has been reached)
                         update=1
                     else:                                          # if not, take probability from old matrix
                         prob.append(origmat[xnum][curpos])
                         continue
-            Q=t2[:curpos,:curpos]
+            
+            if list_has_perseverations:            # a bit slower because matrix is being copied
+                x2=np.array([i for i,j in enumerate(x) if (j not in x[:i]) and (i < curpos)]) # column ids for transient states excluding perseverations
+                Q=t2[x2[:,None],x2]                # excludes perseverations. could be sped if only performed when Q contains perseverations
+                                                   # as opposed to being done for every transition if a perseveration is in the list
+            else:                                  
+                Q=t2[:curpos,:curpos]              # old way when data does not include perseverations
 
-            if len(irts.data) > 0:     # use this method only when passing IRTs with weight < 1
+            # td.censor_fault is necessary to model perservations in the data
+            if td.censor_fault > 0.0:
+                Q=np.multiply(Q, 1-td.censor_fault)
+            
+            if len(irts.data) > 0:     # use this method only when passing IRTs
                 numcols=len(Q)
                 flist=[]
                 newQ=np.zeros(numcols)                             # init to Q^0, for when r=1
@@ -880,12 +899,6 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                     # compute irt probability given r steps
                     log_dist = irtdist[r-1] / sum(irtdist)
 
-                    # old way, without normalizing
-                    #if irts.irttype=="gamma":
-                    #    log_dist=r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.gamma_beta*irt # r=alpha. probability of observing irt at r steps
-                    #if irts.irttype=="exgauss":
-                    #    log_dist=np.log(irts.exgauss_lambda/2.0)+(irts.exgauss_lambda/2.0)*(2.0*r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-2*irt)+np.log(math.erfc((r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-irt)/(np.sqrt(2)*irts.exgauss_sigma)))
-
                     if innersum > 0: # sometimes it's not possible to get to the target node in r steps
                         flist.append(log_dist + np.log(innersum))
 
@@ -895,7 +908,30 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                 prob.append(f)                                     # probability of x_(t-1) to X_t
             else:                                                  # if no IRTs, use standard U-INVITE
                 I=identmat[:len(Q),:len(Q)]
-                R=t2[curpos,:curpos]
+                
+                # novel items are emitted with probability 1 when encountered. perseverations are emitted with probability td.censor_fault when encountered.
+                if list_has_perseverations:              # if list has perseverations. could speed up by only doing this step when a perseveration has been encountered
+                    x2=np.array([i for i,j in enumerate(x) if (j not in x[:i]) and (i < curpos)]) # column ids for transient states excluding perseverations
+                    R=t2[np.array([curpos])[:,None],x2]
+                    if Xs[xnum][curpos] in Xs[xnum][:curpos]:       # if absorbing state has appeared in list before...
+                        R=np.multiply(R,td.censor_fault)
+                else:                                       # if not a perseveration
+                    R=t2[curpos,:curpos]                    # old way
+                        
+                ### test (when censor_fault=0) to see if absorbing distribution sums to 1... something is broken
+                #total = []
+                #x2=np.array([j for i,j in enumerate(x) if (i < curpos)]) # column ids for transient states excluding perseverations
+                #N=np.linalg.solve(I-Q,I[-1])
+                #for i in range(len(t)):
+                #    R=t[np.array([i])[:,None],x2]
+                #    B=np.dot(R,N)
+                #    total.append(B[0])
+                #    if B[0] > 1.0:
+                #        print "NONONO"
+                #print "total ", total
+                #R=t2[curpos,:curpos]                    # old way to reset
+                ###
+                
                 N=np.linalg.solve(I-Q,I[-1])
                 B=np.dot(R,N)
                 if np.isnan(B):
@@ -927,7 +963,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
         probs=adjustPriming(probs, td, Xs)
 
     # check for impossible transitions after priming and jumping
-    if not forceCompute:
+    if not forceCompute:    
         for xnum, x in enumerate(probs):
             for inum, i in enumerate(x):
                 if (i==0.0) and (inum==0):
@@ -940,7 +976,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
     except:
         ll=-np.inf
 
-    # inclue prior?
+    # include prior?
     if prior:
         if isinstance(prior, tuple):    # graph prior
             priorlogprob = evalGraphPrior(a, prior)
@@ -993,7 +1029,7 @@ def random_walk(g, td, priming_vector=[], seed=None):
 
     censoredcount=0                                # keep track of censored nodes and jump after td.jumponcensored censored nodes
 
-    while len(unused_nodes) > num_unused:
+    while len(unused_nodes) > num_unused:       # covers td.trim nodes-- list could be longer if it has perseverations
 
         # jump after n censored nodes or with random probability (depending on parameters)
         if (censoredcount == td.jumponcensored) or (nplocal.random_sample() < td.jump):
@@ -1128,7 +1164,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
                 v[i]=[]
             for i in zip(*listofedges):
                 if ((i[0], i[1]) not in firstedges) and ((i[1], i[0]) not in firstedges): # don't flip first edges (FE)!
-                    if td.jump == 0.0:                                                      # unless jumping is allowed, untested 10/6/17 JZ
+                    if td.jump == 0.0:                                                      # unless jumping is allowed, untested 10/6/17 JCZ
                         v[i[0]].append(i[1])
         
         # generate dict where v[i] is a list of nodes where (i, v[i]) would form a new triangle

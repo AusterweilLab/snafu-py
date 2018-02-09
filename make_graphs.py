@@ -32,18 +32,6 @@ fitinfo_zibb=rw.Fitinfo({
         'triangle_limit': np.inf,
         'other_limit': np.inf })
 
-fitinfo_bb=rw.Fitinfo({
-        'prior_method': "betabinomial",
-        'prior_a': 1,
-        'prior_b': 1,
-        'startGraph': "goni_valid",
-        'goni_size': 2,
-        'goni_threshold': 2,
-        'followtype': "avg", 
-        'prune_limit': np.inf,
-        'triangle_limit': np.inf,
-        'other_limit': np.inf })
-
 # the hierarchical model will take a long time to run!! to test it you can fit a smaller number of participants, e.g. range(101,111)
 subs=["S"+str(i) for i in range(101,151)]
 filepath = "../Spring2017/results_clean.csv"
