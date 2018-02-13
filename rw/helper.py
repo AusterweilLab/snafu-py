@@ -164,3 +164,38 @@ def no_persev(x):
     seen = set()
     seen_add = seen.add
     return [i for i in x if not (i in seen or seen_add(i))]
+
+# this function is copied from scipy to avoid shipping that whole library with snafu
+# unlike scipy, don't return p-value (requires C code from scipy)
+def pearsonr(x, y):
+    
+    def _sum_of_squares(a, axis=0):
+        a, axis = _chk_asarray(a, axis)
+        return np.sum(a*a, axis)
+
+    def _chk_asarray(a, axis):
+        if axis is None:
+            a = np.ravel(a)
+            outaxis = 0
+        else:
+            a = np.asarray(a)
+            outaxis = axis
+
+        if a.ndim == 0:
+            a = np.atleast_1d(a)
+
+        return a, outaxis
+    
+    
+    # x and y should have same length.
+    x = np.asarray(x)
+    y = np.asarray(y)
+    n = len(x)
+    mx = x.mean()
+    my = y.mean()
+    xm, ym = x - mx, y - my
+    r_num = np.add.reduce(xm * ym)
+    r_den = np.sqrt(_sum_of_squares(xm) * _sum_of_squares(ym))
+    r = r_num / r_den
+
+    return r

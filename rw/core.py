@@ -5,8 +5,7 @@ import networkx as nx
 import numpy as np
 import operator
 import math
-import scipy.stats
-import scipy.cluster
+#import scipy.cluster
 import sys
 import copy
 import csv
@@ -15,6 +14,8 @@ from jarjar import jarjar
 from numpy.linalg import inv
 from itertools import *
 from datetime import datetime
+
+import scipy.stats
 
 # sibling packages
 from helper import *
@@ -705,7 +706,8 @@ def kenett(Xs, numnodes, minlists=0, valid=False, td=None):
             if (sum(list_by_item[item1]) <= minlists) or (sum(list_by_item[item2]) <= minlists):    # if a word only appears in <= minlists lists, exclude from correlation list (kenett personal communication, to avoid spurious correlations)
                 item_by_item[(item1, item2)] = np.nan
             else:
-                item_by_item[(item1, item2)] = scipy.stats.pearsonr(list_by_item[item1],list_by_item[item2])[0]
+                #item_by_item[(item1, item2)] = scipy.stats.pearsonr(list_by_item[item1],list_by_item[item2])[0]
+                item_by_item[(item1, item2)] = pearsonr(list_by_item[item1],list_by_item[item2])
     
     corr_vals = sorted(item_by_item, key=item_by_item.get)[::-1]       # keys in correlation dictionary sorted by value (high to low, including NaN first)
 
@@ -846,8 +848,6 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
             list_has_perseverations = False
         else:
             list_has_perseverations = True
-            #x3=np.array(rw.no_persev(x))                           # compute transition matrix with one column per node (no perseverations) for speed-up
-            #t3=t[x3[:,None],x3]
 
         for curpos in range(1,len(x)):
             if (len(changed) > 0) and isinstance    (origmat,list):
@@ -864,10 +864,10 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                                                    # as opposed to being done for every transition if a perseveration is in the list
             else:                                  
                 Q=t2[:curpos,:curpos]              # old way when data does not include perseverations
-
+                
             # td.censor_fault is necessary to model perservations in the data
             if td.censor_fault > 0.0:
-                Q=np.multiply(Q, 1-td.censor_fault)
+                Q=np.multiply(Q, 1.0-td.censor_fault)
             
             if len(irts.data) > 0:     # use this method only when passing IRTs
                 numcols=len(Q)
@@ -887,6 +887,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                      # r=alpha. probability of observing irt at r steps
                     irtdist=[r*logbeta-math.lgamma(r)+(r-1)*logirt-irts.gamma_beta*irt for r in range(1,irts.rcutoff)]
                 if irts.irttype=="exgauss":
+                
                     irtdist=[np.log(irts.exgauss_lambda/2.0)+(irts.exgauss_lambda/2.0)*(2.0*r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-2*irt)+np.log(math.erfc((r+irts.exgauss_lambda*(irts.exgauss_sigma**2)-irt)/(np.sqrt(2)*irts.exgauss_sigma))) for r in range(1,irts.rcutoff)]
 
                 for r in range(1,irts.rcutoff):
@@ -911,13 +912,16 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                 
                 # novel items are emitted with probability 1 when encountered. perseverations are emitted with probability td.censor_fault when encountered.
                 if list_has_perseverations:              # if list has perseverations. could speed up by only doing this step when a perseveration has been encountered
-                    x2=np.array([i for i,j in enumerate(x) if (j not in x[:i]) and (i < curpos)]) # column ids for transient states excluding perseverations
-                    R=t2[np.array([curpos])[:,None],x2]
+                    x1=np.array([curpos])   # absorbing node
+                    #x2=np.array([i for i,j in enumerate(x) if (j not in x[:i]) and (i < curpos)]) # column ids for transient states excluding perseverations
+                    x2=np.array([i for i,j in enumerate(x) if (j not in x[i+1:curpos]) and (i < curpos)]) # column ids for transient states excluding perseverations
+                    R=t2[x1[:,None],x2][0]  # why is [0] necessary here but not in the else case?
+                    
                     if Xs[xnum][curpos] in Xs[xnum][:curpos]:       # if absorbing state has appeared in list before...
                         R=np.multiply(R,td.censor_fault)
                 else:                                       # if not a perseveration
                     R=t2[curpos,:curpos]                    # old way
-                        
+               
                 ### test (when censor_fault=0) to see if absorbing distribution sums to 1... something is broken
                 #total = []
                 #x2=np.array([j for i,j in enumerate(x) if (i < curpos)]) # column ids for transient states excluding perseverations
@@ -937,7 +941,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                 if np.isnan(B):
                     B=0.0
                 prob.append(B)
-                
+               
                 # alternative/original using matrix inverse
                 #R=t2[curpos:,:curpos]
                 #N=inv(I-Q)
