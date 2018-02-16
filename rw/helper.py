@@ -1,3 +1,5 @@
+import numpy as np
+
 # http://stackoverflow.com/a/32107024/353278
 # use dot notation on dicts for convenience
 class dotdict(dict):
@@ -44,14 +46,12 @@ def find_ngrams(input_list, n):
 # flattens list of list one level only, preserving non-list items
 # flattens type list and type np.ndarray, nothing else (on purpose)
 def flatten_list(l):
-    import numpy as np
     l1=[item for sublist in l if isinstance(sublist,list) or isinstance(sublist,np.ndarray) for item in sublist]
     l=l1+[item for item in l if not isinstance(item,list) and not isinstance(item,np.ndarray)]
     return l
 
 # log trick given list of log-likelihoods **UNUSED
 def logTrick(loglist):
-    import numpy as np
     logmax=max(loglist)
     loglist=[i-logmax for i in loglist]                     # log trick: subtract off the max
     p=np.log(sum([np.e**i for i in loglist])) + logmax  # add it back on
@@ -73,7 +73,6 @@ def maxn(items,n):
 # port from R's retimes library, mexgauss function by Davide Massidda <davide.massidda@humandata.it>
 # returns [mu, sigma, lambda]
 def mexgauss(rts):
-    import numpy as np 
     n = len(rts)
     k = [np.nan, np.nan, np.nan]
     start = [np.nan, np.nan, np.nan]
@@ -110,7 +109,6 @@ def numToItemLabel(data, items):
 
 # modified from ExGUtils package by Daniel Gamermann <gamermann@gmail.com>
 def rand_exg(irt, sigma, lambd):
-    import numpy as np
     tau=(1.0/lambd)
     nexp = -tau*np.log(1.-np.random.random())
     ngau = np.random.normal(irt, sigma)
@@ -166,7 +164,7 @@ def no_persev(x):
     return [i for i in x if not (i in seen or seen_add(i))]
 
 # this function is copied from scipy to avoid shipping that whole library with snafu
-# unlike scipy, don't return p-value (requires C code from scipy)
+# unlike scipy version, this one doesn't return p-value (requires C code from scipy)
 def pearsonr(x, y):
     
     def _sum_of_squares(a, axis=0):
@@ -199,3 +197,17 @@ def pearsonr(x, y):
     r = r_num / r_den
 
     return r
+
+# takes an individual's data in group space and translates it into local space
+def groupToIndividual(Xs, group_dict):
+    itemset = set(flatten_list(Xs))
+    
+    ss_items = {}
+    convertX = {}
+    for itemnum, item in enumerate(itemset):
+        ss_items[itemnum] = group_dict[item]
+        convertX[item] = itemnum
+    
+    Xs = [[convertX[i] for i in x] for x in Xs]
+    
+    return Xs, ss_items

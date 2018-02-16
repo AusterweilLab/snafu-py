@@ -104,13 +104,13 @@ def Fitinfo(fitinfo):
         fitinfo['prior_method'] = "zeroinflatedbetabinomial"
     if 'zibb_p' not in fitkeys:
         fitinfo['zibb_p'] = 0.5
-    if 'prior_a' not in fitkeys:        # adjust default prior_a depending on BB or ZIBB, to make edge prior .5
-        if fitinfo['prior_method'] == "zeroinflatedbetabinomial":
-            fitinfo['prior_a'] = 2
-        else:
-            fitinfo['prior_a'] = 1
     if 'prior_b' not in fitkeys:
         fitinfo['prior_b'] = 1
+    if 'prior_a' not in fitkeys:        # adjust default prior_a depending on BB or ZIBB, to make edge prior .5
+        if fitinfo['prior_method'] == "betabinomial":
+            fitinfo['prior_a'] = fitinfo['prior_b']
+        if fitinfo['prior_method'] == "zeroinflatedbetabinomial":
+            fitinfo['prior_a'] = fitinfo['prior_b'] / float(fitinfo['zibb_p'])
     if 'directed' not in fitkeys:
         fitinfo['directed'] = False
     if 'startGraph' not in fitkeys:

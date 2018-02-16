@@ -321,8 +321,6 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=Tru
     b_start = fitinfo.prior_b
     method = fitinfo.prior_method
     p = fitinfo.zibb_p
-    #p=.5
-    #p=(usf_density-current_density)/(1-current_density)
     
     priordict={}
   
@@ -745,6 +743,10 @@ def makeValid(Xs, graph, td):
 # wrapper returns one graph with theta=0
 # aka draw edge between all observed nodes in all lists
 def noHidden(Xs, numnodes):
+    return genGraphs(1, 0, Xs, numnodes)[0]
+
+# literally the same as noHidden but with a more semantic function name
+def nrw(Xs, numnodes):
     return genGraphs(1, 0, Xs, numnodes)[0]
 
 # take Xs and convert them from numbers (nodes) to labels

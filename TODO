@@ -1,0 +1,3 @@
+* check random seeds everywhere
+* have all functions take numpy matrix, not nx graph, if possible
+* why does human data have > 363 nodes?

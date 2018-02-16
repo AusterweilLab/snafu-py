@@ -35,7 +35,7 @@ def hashToGraph(graphhash):
 
 # reads in graph from CSV
 # row order not preserved; could be optimized more
-def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False):
+def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False):
     fh=open(fh,'r')
     idx=0
     bigdict={}
@@ -225,12 +225,15 @@ def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=Fal
         numnodes = len(items)
     return Xs, items, irts, numnodes
 
-def write_csv(gs, fh, subj="NA", directed=False, extra_data={}):
+def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=False):
     onezero={True: '1', False: '0'}        
     import networkx as nx
     fh=open(fh,'w',0)
 
     nodes = list(set(flatten_list([gs[i].nodes() for i in range(len(gs))])))
+
+    if header != False:
+        fh.write('subj,item1,item2,'+ header+'\n')
 
     for node1 in nodes:
         for node2 in nodes:
