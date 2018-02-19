@@ -6,8 +6,8 @@ import sys
 import numpy as np
 import scipy.stats
 
-methods=['rw','fe','goni','chan','kenett']
-methods=['uinvite_flat','uinvite_hierarchical']
+#methods=['rw','fe','goni','chan','kenett','uinvite_hierarchical']
+methods=['uinvite_flat']
 
 # describe what your data should look like
 toydata=rw.Data({
@@ -38,7 +38,6 @@ fitinfo=rw.Fitinfo({
         'other_limit': np.inf })
 
 subs=["S"+str(i) for i in range(101,151)]
-subs=["S"+str(i) for i in range(101,105)]
 filepath = "fluency/spring2017.csv"
 category="animals"
 
