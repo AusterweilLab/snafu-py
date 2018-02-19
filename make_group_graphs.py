@@ -39,7 +39,7 @@ fitinfo=rw.Fitinfo({
 
 subs=["S"+str(i) for i in range(101,151)]
 subs=["S"+str(i) for i in range(101,105)]
-filepath = "../Spring2017/results_clean.csv"
+filepath = "fluency/spring2017.csv"
 category="animals"
 
 # read in data from file, flattening all participants together

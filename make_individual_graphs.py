@@ -42,7 +42,7 @@ fitinfo=rw.Fitinfo({
 
 # the hierarchical model will take a long time to run!! to test it you can fit a smaller number of participants, e.g. range(101,111)
 subs=["S"+str(i) for i in range(101,151)]
-filepath = "../Spring2017/results_clean.csv"
+filepath = "fluency/spring2017.csv"
 category="animals"
 
 fo=open('individual_graphs.csv','w')
