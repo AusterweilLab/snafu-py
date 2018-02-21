@@ -122,7 +122,7 @@ def renumber(Xs,numsubs,numper):
     datab=[]
     for sub in range(len(subs)):
         subXs = Xs[start:end]
-        itemset = set(rw.flatten_list(subXs))
+        itemset = set(snafu.flatten_list(subXs))
         ssnumnodes.append(len(itemset))
                                                     
         ss_items = {}

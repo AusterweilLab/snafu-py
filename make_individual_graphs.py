@@ -1,4 +1,4 @@
-import rw
+import snafu
 import networkx as nx
 import numpy as np
 import pickle
@@ -13,7 +13,7 @@ import scipy.stats
 methods=['rw','fe','goni','chan','kenett','uinvite_flat']
 
 # describe what your data should look like
-toydata=rw.Data({
+toydata=snafu.Data({
         'jump': 0.0,
         'jumptype': "stationary",
         'priming': 0.0,
@@ -25,7 +25,7 @@ toydata=rw.Data({
         'trim': 1.0 })        
 
 # some parameters of the fitting process
-fitinfo=rw.Fitinfo({
+fitinfo=snafu.Fitinfo({
         'startGraph': "goni_valid",
         'record': False,
         'directed': False,
@@ -50,19 +50,19 @@ fo.write('subj,method,item1,item2,edge\n')
 
 for method in methods:
     for sub in subs:
-        Xs, items, irtdata, numnodes = rw.readX(sub,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
+        Xs, items, irtdata, numnodes = snafu.readX(sub,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
         if method=="rw":
-            graph = rw.nrw(Xs, numnodes)
+            graph = snafu.nrw(Xs, numnodes)
         if method=="goni":
-            graph = rw.goni(Xs, numnodes, fitinfo=fitinfo)
+            graph = snafu.goni(Xs, numnodes, fitinfo=fitinfo)
         if method=="chan":
-            graph = rw.chan(Xs, numnodes)
+            graph = snafu.chan(Xs, numnodes)
         if method=="kenett":
-            graph = rw.kenett(Xs, numnodes)
+            graph = snafu.kenett(Xs, numnodes)
         if method=="fe":
-            graph = rw.firstEdge(Xs, numnodes)
+            graph = snafu.firstEdge(Xs, numnodes)
         if method=="uinvite_flat":
-            graph, ll = rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo)
+            graph, ll = snafu.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo)
 
         for i in range(len(graph)):
             for j in range(len(graph)):

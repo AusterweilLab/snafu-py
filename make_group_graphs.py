@@ -1,4 +1,4 @@
-import rw
+import snafu
 import networkx as nx
 import numpy as np
 import pickle
@@ -10,7 +10,7 @@ import scipy.stats
 methods=['uinvite_flat']
 
 # describe what your data should look like
-toydata=rw.Data({
+toydata=snafu.Data({
         'jump': 0.0,
         'jumptype': "stationary",
         'priming': 0.0,
@@ -22,7 +22,7 @@ toydata=rw.Data({
         'trim': 1.0 })        
 
 # some parameters of the fitting process
-fitinfo=rw.Fitinfo({
+fitinfo=snafu.Fitinfo({
         'startGraph': "goni_valid",
         'record': False,
         'directed': False,
@@ -42,42 +42,42 @@ filepath = "fluency/spring2017.csv"
 category="animals"
 
 # read in data from file, flattening all participants together
-Xs_flat, groupitems, irtdata, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv",flatten=True)
+Xs_flat, groupitems, irtdata, groupnumnodes = snafu.readX(subs,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv",flatten=True)
 
 # read data from file, preserving hierarchical structure
-Xs_hier, items, irtdata, numnodes, groupitems, groupnumnodes = rw.readX(subs,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
+Xs_hier, items, irtdata, numnodes, groupitems, groupnumnodes = snafu.readX(subs,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
 
 graphs=[]
 for method in methods:
 
     # Estimate the best network using a Naive Random Walk
     if method=="rw":
-        graph = rw.nrw(Xs_flat, groupnumnodes)
+        graph = snafu.nrw(Xs_flat, groupnumnodes)
 
     # Estimate the best network using Goni
     if method=="goni":
-        graph = rw.goni(Xs_flat, groupnumnodes, fitinfo=fitinfo)
+        graph = snafu.goni(Xs_flat, groupnumnodes, fitinfo=fitinfo)
         
     # Estimate the best network using Chan
     if method=="chan":
-        graph = rw.chan(Xs_flat, groupnumnodes)
+        graph = snafu.chan(Xs_flat, groupnumnodes)
 
     # Estimate the best network using Kenett
     if method=="kenett":
-        graph = rw.kenett(Xs_flat, groupnumnodes)
+        graph = snafu.kenett(Xs_flat, groupnumnodes)
 
     # Estimate the best network using First-Edge
     if method=="fe":
-        graph = rw.firstEdge(Xs_flat, groupnumnodes)
+        graph = snafu.firstEdge(Xs_flat, groupnumnodes)
         
     # Estimate the best network using a non-hierarchical U-INVITE
     if method=="uinvite_flat":
-        graph = rw.uinvite(Xs_flat, toydata, groupnumnodes, fitinfo=fitinfo)
+        graph = snafu.uinvite(Xs_flat, toydata, groupnumnodes, fitinfo=fitinfo)
         
     # Estimate the best network using hierarchical U-INVITE
     if method=="uinvite_hierarchical":
-        sub_graphs, priordict = rw.hierarchicalUinvite(Xs_hier, items, numnodes, toydata, fitinfo=fitinfo)
-        graph = rw.priorToGraph(priordict, groupitems)
+        sub_graphs, priordict = snafu.hierarchicalUinvite(Xs_hier, items, numnodes, toydata, fitinfo=fitinfo)
+        graph = snafu.priorToGraph(priordict, groupitems)
 
     # convert numpy matrix to networkx graph and replace indices with semantic labels
     graph = nx.to_networkx_graph(graph)
@@ -85,4 +85,4 @@ for method in methods:
     graphs.append(graph)
 
 header=','.join(methods)
-rw.write_graph(graphs, "human_graphs.csv",header=header)
+snafu.write_graph(graphs, "human_graphs.csv",header=header)

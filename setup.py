@@ -14,7 +14,7 @@ setup(name='snafu-py',
       author_email='jeffzemla@gmail.com',
       #license='MIT',
       keywords=['fluency', 'networks'],
-      packages=['rw'],
+      packages=['snafu'],
       install_requires = ['numpy','networkx','scipy','more_itertools'],
       classifiers=[ ]
       )

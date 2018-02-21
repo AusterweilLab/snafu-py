@@ -74,7 +74,7 @@ def commonNode(graph, items, node1, node2, numsims=100, jumpval=0.0):
 #    Q1=t1[:-1,:-1]
 #    Q2=t2[:-1,:-1]
 #    
-#    # this can probably be made more efficient by using linalg instead of inv -- model after rw.probX()
+#    # this can probably be made more efficient by using linalg instead of inv -- model after snafu.probX()
 #    reg=(1+1e-10)                        
 #    identmat=np.identity(len(graph)) * reg
 #    I=identmat[:len(Q1),:len(Q1)]
@@ -193,7 +193,7 @@ def similarity(a, items, start, choices, steps="inf", jumpval=0.0):
     
     # compute absorbing probabilities
     if steps=="inf":
-        # this can probably be made more efficient by using linalg instead of inv -- model after rw.probX()
+        # this can probably be made more efficient by using linalg instead of inv -- model after snafu.probX()
         reg=(1+1e-10)                        
         identmat=np.identity(len(a)) * reg
         I=identmat[:len(Q),:len(Q)]

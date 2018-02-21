@@ -1,4 +1,4 @@
-import rw as rw
+import snafu as snafu
 import numpy as np
 import os, sys
 import networkx as nx
@@ -83,9 +83,9 @@ def data_properties(command, root_path):
     command = command['data_parameters']
     
     if command['factor_type'] == "subject":
-        Xs, items, irts, numnodes = [[i] for i in rw.readX(command['subject'], command['category'], command['fullpath'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"))]    # embed each return variable in list so that format is the same as when factor=group
+        Xs, items, irts, numnodes = [[i] for i in snafu.readX(command['subject'], command['category'], command['fullpath'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"))]    # embed each return variable in list so that format is the same as when factor=group
     elif command['factor_type'] == "group":
-        Xs, items, irts, numnodes, groupitems, groupnumnodes = rw.readX(command['subject'], command['category'], command['fullpath'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=command['group'])
+        Xs, items, irts, numnodes, groupitems, groupnumnodes = snafu.readX(command['subject'], command['category'], command['fullpath'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=command['group'])
     
     # initialize
     avg_cluster_size = []
@@ -100,15 +100,15 @@ def data_properties(command, root_path):
 
     # kinda messy...
     for subjnum in range(len(Xs)):
-        Xs[subjnum] = rw.numToAnimal(Xs[subjnum], items[subjnum])
+        Xs[subjnum] = snafu.numToAnimal(Xs[subjnum], items[subjnum])
         if command['cluster_scheme'] != "None":
-            cluster_sizes = rw.clusterSize(Xs[subjnum], label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
-            avg_cluster_size.append(rw.avgClusterSize(cluster_sizes))
-            avg_num_cluster_switches.append(rw.avgNumClusterSwitches(cluster_sizes))
-            intrusions.append(rw.intrusions(Xs[subjnum], label_to_filepath(command['cluster_scheme'], root_path, "schemes")))
-            avg_num_intrusions.append(rw.avgNumIntrusions(intrusions[-1]))
-            perseverations.append(rw.perseverations(Xs[subjnum]))
-            avg_num_perseverations.append(rw.avgNumPerseverations(Xs[subjnum]))
+            cluster_sizes = snafu.clusterSize(Xs[subjnum], label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
+            avg_cluster_size.append(snafu.avgClusterSize(cluster_sizes))
+            avg_num_cluster_switches.append(snafu.avgNumClusterSwitches(cluster_sizes))
+            intrusions.append(snafu.intrusions(Xs[subjnum], label_to_filepath(command['cluster_scheme'], root_path, "schemes")))
+            avg_num_intrusions.append(snafu.avgNumIntrusions(intrusions[-1]))
+            perseverations.append(snafu.perseverations(Xs[subjnum]))
+            avg_num_perseverations.append(snafu.avgNumPerseverations(Xs[subjnum]))
         else:
             avg_cluster_size = ["n/a"]
             avg_num_cluster_switches = ["n/a"]
@@ -119,8 +119,8 @@ def data_properties(command, root_path):
         avg_unique_items_listed.append(np.mean([len(set(i)) for i in Xs[subjnum]]))
 
     # clean up / format data to send back, still messy
-    intrusions = rw.flatten_list(intrusions)
-    perseverations = rw.flatten_list(perseverations)
+    intrusions = snafu.flatten_list(intrusions)
+    perseverations = snafu.flatten_list(perseverations)
 
     if len(Xs) > 1:
         if command['cluster_scheme'] != "None":
@@ -154,18 +154,18 @@ def network_properties(command, root_path):
         removePerseverations=False
     
     if subj_props['factor_type'] == "subject":
-        Xs, items, irts, numnodes = rw.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations)
+        Xs, items, irts, numnodes = snafu.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations)
     elif subj_props['factor_type'] == "group":
-        Xs, items, irts, numnodes = rw.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations, group=subj_props['group'], flatten=True)
+        Xs, items, irts, numnodes = snafu.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations, group=subj_props['group'], flatten=True)
 
-    toydata=rw.Data({
+    toydata=snafu.Data({
             'numx': len(Xs),
             'trim': 1,
             'jump': float(command['jump_probability']),
             'jumptype': command['jump_type'],
             'priming': float(command['priming_probability']),
             'startX': command['first_item']})
-    fitinfo=rw.Fitinfo({
+    fitinfo=snafu.Fitinfo({
             'prior_method': "betabinomial",
             'prior_a': 1,
             'prior_b': 1,
@@ -183,23 +183,23 @@ def network_properties(command, root_path):
         usf_file_path = "/snet/USF_animal_subset.snet"
         filename = root_path + usf_file_path
         
-        usf_graph, usf_items = rw.read_csv(filename)
+        usf_graph, usf_items = snafu.read_csv(filename)
         usf_numnodes = len(usf_items)
-        priordict = rw.genGraphPrior([usf_graph], [usf_items], fitinfo=fitinfo)
+        priordict = snafu.genGraphPrior([usf_graph], [usf_items], fitinfo=fitinfo)
         prior = (priordict, usf_items)
         
     if command['network_method']=="RW":
-        bestgraph = rw.noHidden(Xs, numnodes)
+        bestgraph = snafu.noHidden(Xs, numnodes)
     elif command['network_method']=="Goni":
-        bestgraph = rw.goni(Xs, numnodes, td=toydata, valid=0, fitinfo=fitinfo)
+        bestgraph = snafu.goni(Xs, numnodes, td=toydata, valid=0, fitinfo=fitinfo)
     elif command['network_method']=="Chan":
-        bestgraph = rw.chan(Xs, numnodes)
+        bestgraph = snafu.chan(Xs, numnodes)
     elif command['network_method']=="Kenett":
-        bestgraph = rw.kenett(Xs, numnodes)
+        bestgraph = snafu.kenett(Xs, numnodes)
     elif command['network_method']=="FirstEdge":
-        bestgraph = rw.firstEdge(Xs, numnodes)
+        bestgraph = snafu.firstEdge(Xs, numnodes)
     elif command['network_method']=="U-INVITE":
-        bestgraph, ll = rw.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, debug=False, prior=prior)
+        bestgraph, ll = snafu.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, debug=False, prior=prior)
   
     nxg = nx.to_networkx_graph(bestgraph)
 
