@@ -58,7 +58,7 @@ def label_to_filepath(x, root_path, filetype):
     filedict=dict()
     folder = root_path + "/" + filetype + "/"
 
-    # after re-structuring, there's no need to build a dict() anymore
+    # since filenames are populated from directory listing there's no need to build a dict() anymore, but that's the way it's done still
     for filename in os.listdir(folder):
         if "csv" in filename:
             label = filename[0:filename.find('.')].replace('_',' ')
@@ -101,29 +101,36 @@ def data_properties(command, root_path):
     # kinda messy...
     for subjnum in range(len(Xs)):
         Xs[subjnum] = rw.numToAnimal(Xs[subjnum], items[subjnum])
-        cluster_sizes = rw.clusterSize(Xs[subjnum], label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
-        avg_cluster_size.append(rw.avgClusterSize(cluster_sizes))
-        avg_num_cluster_switches.append(rw.avgNumClusterSwitches(cluster_sizes))
+        if command['cluster_scheme'] != "None":
+            cluster_sizes = rw.clusterSize(Xs[subjnum], label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
+            avg_cluster_size.append(rw.avgClusterSize(cluster_sizes))
+            avg_num_cluster_switches.append(rw.avgNumClusterSwitches(cluster_sizes))
+            intrusions.append(rw.intrusions(Xs[subjnum], label_to_filepath(command['cluster_scheme'], root_path, "schemes")))
+            avg_num_intrusions.append(rw.avgNumIntrusions(intrusions[-1]))
+            perseverations.append(rw.perseverations(Xs[subjnum]))
+            avg_num_perseverations.append(rw.avgNumPerseverations(Xs[subjnum]))
+        else:
+            avg_cluster_size = ["n/a"]
+            avg_num_cluster_switches = ["n/a"]
+            avg_num_intrusions = ["n/a"]
+            avg_num_perseverations = ["n/a"]
         num_lists.append(len(Xs[subjnum]))
         avg_items_listed.append(np.mean([len(i) for i in Xs[subjnum]]))
         avg_unique_items_listed.append(np.mean([len(set(i)) for i in Xs[subjnum]]))
-        intrusions.append(rw.intrusions(Xs[subjnum], label_to_filepath(command['cluster_scheme'], root_path, "schemes")))
-        avg_num_intrusions.append(rw.avgNumIntrusions(intrusions[-1]))
-        perseverations.append(rw.perseverations(Xs[subjnum]))
-        avg_num_perseverations.append(rw.avgNumPerseverations(Xs[subjnum]))
 
     # clean up / format data to send back, still messy
     intrusions = rw.flatten_list(intrusions)
     perseverations = rw.flatten_list(perseverations)
 
     if len(Xs) > 1:
-        avg_cluster_size = format_output(avg_cluster_size)
-        avg_num_cluster_switches = format_output(avg_num_cluster_switches)
+        if command['cluster_scheme'] != "None":
+            avg_cluster_size = format_output(avg_cluster_size)
+            avg_num_cluster_switches = format_output(avg_num_cluster_switches)
+            avg_num_intrusions = format_output(avg_num_intrusions)
+            avg_num_perseverations = format_output(avg_num_perseverations)
         num_lists = format_output(num_lists)
         avg_items_listed = format_output(avg_items_listed)
         avg_unique_items_listed = format_output(avg_unique_items_listed)
-        avg_num_intrusions = format_output(avg_num_intrusions)
-        avg_num_perseverations = format_output(avg_num_perseverations)
 
     return { "type": "data_properties", 
              "num_lists": num_lists,
@@ -210,7 +217,7 @@ def network_properties(command, root_path):
              "aspl": aspl,
              "graph": nxg_json }
 
-def quit(command): 
+def quit(command, root_path): 
     return { "type": "quit",
              "status": "success" }
 

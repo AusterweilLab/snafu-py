@@ -1,6 +1,5 @@
 #import numpy as np
 import networkx as nx
-import scipy
 import numpy as np
 from core import *
 #from helper import *
@@ -36,6 +35,7 @@ def nodeDegreeSearch(g, td):
 # cluster-based depth first search: output all neighbors of starting node (random order), then all neighbors of most recently
 # outputted node, etc; when you reach a dead end, back through the list until a new node with neighbors is usable
 def cbdfs(g, td):
+    import scipy    
     numnodes=nx.number_of_nodes(g)
     if td.trim <= 1:
         numtrim=int(round(numnodes*td.trim))       # if <=1, paramater is proportion of a list# make list of nodes by frequency
@@ -78,6 +78,7 @@ def cbdfs(g, td):
     return walk
 
 def spreadingActivationSearch(g, td, decay):
+    import scipy    
     numnodes=nx.number_of_nodes(g)
     if td.trim <= 1:
         numtrim=int(round(numnodes*td.trim))       # if <=1, paramater is proportion of a list# make list of nodes by frequency

@@ -4,7 +4,6 @@
 # * Write graph to file
 # * Read fluency data from file
 
-import textwrap
 import numpy as np
 import csv
 from  more_itertools import unique_everseen
@@ -24,6 +23,7 @@ def graphToHash(a,numnodes):
 # ** DEPRECATED
 # see graphToHash function
 def hashToGraph(graphhash):
+    import textwrap
     numnodes, graphhash = graphhash.split('!')
     numnodes=int(numnodes)
     graphstring=bin(int(graphhash, 36))[2:]

@@ -2,9 +2,9 @@
 
 from numpy.linalg import inv
 import numpy as np
-import scipy.sparse as sp
 
 def commonNode(graph, items, node1, node2, numsims=100, jumpval=0.0):
+    import scipy.sparse as sp
     
     if sp.issparse(graph):
         sparse=True
@@ -98,6 +98,7 @@ def commonNode(graph, items, node1, node2, numsims=100, jumpval=0.0):
 # monte carlo implementation of triadic comparison task, for when network is too large (works with sparse matrices)
 # sloppy code put together quickly...
 def triadicMonteCarlo(graph, items, triad, numsims=100,jumpval=0.0):
+    import scipy.sparse as sp
 
     if sp.issparse(graph):
         sparse=True

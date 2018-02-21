@@ -9,13 +9,12 @@ import math
 import sys
 import copy
 import csv
-from jarjar import jarjar
 
 from numpy.linalg import inv
 from itertools import *
 from datetime import datetime
 
-import scipy.stats
+#import scipy.stats
 
 # sibling packages
 from helper import *
@@ -426,6 +425,7 @@ def genSteyvers(n,m, tail=True, seed=None):               # tail allows m-1 "nul
 # tries <- W-S parameter (number of tries to generate connected graph)
 # forcenew <- if 1, don't use cached prior
 def genSWPrior(tg, n, bins=100, forcenew=False):
+    import scipy.stats    
     # filename for prior
     if tg.graphtype=="steyvers":
         filename = "steyvers_" + str(tg.numnodes) + "_" + str(tg.numlinks) + ".prior"
@@ -999,6 +999,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g, td, priming_vector=[], seed=None):
+    import scipy.stats    
     nplocal=np.random.RandomState(seed)    
 
     def jump():
