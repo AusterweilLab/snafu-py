@@ -6,7 +6,7 @@
 from setuptools import setup
 
 setup(name='snafu-py',
-      version='1.0',
+      version='1.0.1',
       description='Analyze your fluency data and build networks from there',
       python_requires='>=2.7,<3.0',
       url='https://github.com/AusterweilLab/snafu-py',
