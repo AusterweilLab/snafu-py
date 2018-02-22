@@ -183,7 +183,7 @@ def network_properties(command, root_path):
         usf_file_path = "/snet/USF_animal_subset.snet"
         filename = root_path + usf_file_path
         
-        usf_graph, usf_items = snafu.read_csv(filename)
+        usf_graph, usf_items = snafu.read_graph(filename)
         usf_numnodes = len(usf_items)
         priordict = snafu.genGraphPrior([usf_graph], [usf_items], fitinfo=fitinfo)
         prior = (priordict, usf_items)
