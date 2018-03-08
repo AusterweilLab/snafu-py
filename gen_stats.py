@@ -25,3 +25,4 @@ for i in range(len(Xs)):
     cluster_sizes.append(snafu.avgClusterSize(Xs[i]))
     perseverations.append(snafu.avgNumPerseverations(Xs[i]))
 
+print perseverations
