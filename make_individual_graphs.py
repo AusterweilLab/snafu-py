@@ -49,6 +49,8 @@ fo=open('individual_graphs.csv','w')
 fo.write('subj,method,item1,item2,edge\n')
 
 for method in methods:
+    # add snafu.hierarhicalUinvite method here
+    
     for sub in subs:
         Xs, items, irtdata, numnodes = snafu.readX(sub,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
         if method=="rw":

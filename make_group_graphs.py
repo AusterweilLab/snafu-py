@@ -72,7 +72,7 @@ for method in methods:
         
     # Estimate the best network using a non-hierarchical U-INVITE
     if method=="uinvite_flat":
-        graph = snafu.uinvite(Xs_flat, toydata, groupnumnodes, fitinfo=fitinfo)
+        graph, ll = snafu.uinvite(Xs_flat, toydata, groupnumnodes, fitinfo=fitinfo)
         
     # Estimate the best network using hierarchical U-INVITE
     if method=="uinvite_hierarchical":
