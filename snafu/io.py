@@ -108,15 +108,16 @@ def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=Fals
 
 # read Xs in from user files
 # flatten == treat all subjects as identical; when False, keep hierarchical structure and dictionaries
-def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,flatten=False,factor_label="id",group=None):
+def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,flatten=False,group=None):
    
-    mycsv = csv.reader(open(filepath))
+    mycsv = csv.reader(open(filepath,'rbU'))
     headers = next(mycsv, None)
+
     subj_row = headers.index('id')
     category_row = headers.index('category')
     listnum_row = headers.index('listnum')
     item_row = headers.index('item')
-
+    
     try:
         group_row = headers.index('group')
         has_group = True
@@ -191,7 +192,7 @@ def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=Fal
                     correct, incorrect = line.rstrip().split(',')
                     spellingdict[incorrect] = correct
        
-        with open(filepath) as f:
+        with open(filepath,'rbU') as f:
             for line in f:
                 row=line.rstrip().split(',')
                 if (row[subj_row] in subj) and (row[category_row] == category):
