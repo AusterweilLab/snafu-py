@@ -27,13 +27,6 @@ numsims = 10            # how many simulations to perform?
 #methods = ['rw','goni','chan','kenett','fe','uinvite_flat','uinvite_hierarchical']
 methods=['uinvite_hierarchical']    # which methods to use for reconstructing network?
 
-## TMP
-numsubs = 10             # how many subjects?
-numlists = 3            # how many lists per subject?
-listlength = 35         # how many unique items should each list traverse?
-numsims = 1             # how many simulations to perform?
-methods = ['uinvite_flat','uinvite_hierarchical']
-
 # describe what your data should look like
 toydata=snafu.Data({
         'jump': 0.0,
