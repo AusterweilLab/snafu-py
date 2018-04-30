@@ -639,7 +639,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
         nplocal.shuffle(subs)
         for sub in [i for i in subs if i not in exclude_subs]:
             if debug: print "SS: ", sub
-
+            
             #td.numx = len(Xs[sub])
             if graphs[sub] == []:
                 fitinfo.startGraph = fitinfoSG      # on first pass for subject, use default fitting method (e.g., NRW, goni, etc)
@@ -1287,7 +1287,10 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
                 vmin=1
         return graph, best_ll
 
-    firstedges=[(x[0], x[1]) for x in Xs]
+    try:
+        firstedges=[(x[0], x[1]) for x in Xs]
+    except:
+        firstedges=[]
     
     # find a good starting graph using naive RW
     graph = genStartGraph(Xs, numnodes, td, fitinfo)

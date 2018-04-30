@@ -78,28 +78,40 @@ def clusterSize(l, scheme, clustertype='fluid'):
 # returns labels in place of items for list or nested lists
 # provide list (l) and coding scheme (external file)
 def labelClusters(l, scheme):
-    cf=open(scheme,'r')
-    cats={}
-    for line in cf:
-        line=line.rstrip()
-        cat, item = line.split(',')
-        cat=cat.lower().replace(' ','').replace("'","").replace("-","") # basic clean-up
-        item=item.lower().replace(' ','').replace("'","").replace("-","")
-        if item not in cats.keys():
-            cats[item]=cat
-        else:
-            if cat not in cats[item]:
-                cats[item]=cats[item] + ';' + cat
+    if isinstance(scheme,str):
+        clustertype = "semantic"    # reads clusters from a fixed file
+    elif isinstance(scheme,int):
+        clustertype = "letter"      # if an int is given, use the first N letters as a clustering scheme
+        maxletters = scheme
+    else:
+        raise Exception('Unknown clustering type in labelClusters()')
+
+    if clustertype == "semantic":
+        cf=open(scheme,'r')
+        cats={}
+        for line in cf:
+            line=line.rstrip()
+            cat, item = line.split(',')
+            cat=cat.lower().replace(' ','').replace("'","").replace("-","") # basic clean-up
+            item=item.lower().replace(' ','').replace("'","").replace("-","")
+            if item not in cats.keys():
+                cats[item]=cat
+            else:
+                if cat not in cats[item]:
+                    cats[item]=cats[item] + ';' + cat
     labels=[]
     for inum, item in enumerate(l):
         if isinstance(item, list):
             labels.append(labelClusters(item, scheme))
         else:
             item=item.lower().replace(' ','')
-            if item in cats.keys():
-                labels.append(cats[item])
-            else:
-                labels.append("unknown")
+            if clustertype == "semantic":
+                if item in cats.keys():
+                    labels.append(cats[item])
+                else:
+                    labels.append("unknown")
+            elif clustertype == "letter":
+                labels.append(item[:maxletters])
     return labels
 
 def intrusions(l, scheme):
