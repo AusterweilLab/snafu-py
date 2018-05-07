@@ -1,3 +1,5 @@
+from _version import __version__
+
 from structs import *
 from helper import *
 from io import *
