@@ -108,16 +108,20 @@ def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=Fals
 
 # read Xs in from user files
 # flatten == treat all subjects as identical; when False, keep hierarchical structure and dictionaries
-def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,flatten=False,group=None):
+def readX(subj,filepath,category=None,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,flatten=False,group=False):
    
     mycsv = csv.reader(open(filepath,'rbU'))
     headers = next(mycsv, None)
 
     subj_row = headers.index('id')
-    category_row = headers.index('category')
     listnum_row = headers.index('listnum')
     item_row = headers.index('item')
     
+    try:
+        category_row = headers.index('category')
+        has_category = True
+    except:
+        has_category = False
     try:
         group_row = headers.index('group')
         has_group = True
@@ -129,27 +133,29 @@ def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=Fal
     except:
         has_rts = False
 
-    # if group is specified, replace subj with list of subjects who have that grouping; "all" takes all subjects
+    # if group is True, treat subj as a group (string)
+    # if group=True, then subj="all" is a specicial identifier that takes all subjects
     # loops through file twice (once to grab subject ids), inefficient for large files
-    if group != None:
-        subj=[]
-        if group=="all":
+    if group == True:
+        new_subj=[]
+        if subj=="all":
             for row in mycsv:
-                subj.append(row[subj_row])
-            subj = list(unique_everseen(subj)) # reduce to unique values, convert back to list
+                new_subj.append(row[subj_row])
+            new_subj = list(unique_everseen(new_subj)) # reduce to unique values, convert back to list
         else:
             if not has_group:
                 raise ValueError('Data file does not have grouping column, but you asked for a specific group.')
             for row in mycsv:
-                if row[group_row] == group:
-                    subj.append(row[subj_row])
-            subj = list(unique_everseen(subj))
-    
+                if row[group_row] == subj:
+                    new_subj.append(row[subj_row])
+            new_subj = list(unique_everseen(new_subj))
+        subj = new_subj
+        
     # for hierarchical
     if (type(subj) == list) and not flatten:
         subj_data=[]
         for sub in subj:
-            subj_data.append(readX(sub,category,filepath,removePerseverations,removeIntrusions,spellfile,scheme,flatten))
+            subj_data.append(readX(sub,filepath,category,removePerseverations,removeIntrusions,spellfile,scheme,flatten,group=None))
         Xs = [i[0] for i in subj_data]
         items = [i[1] for i in subj_data]
         irts = [i[2] for i in subj_data]
@@ -195,7 +201,20 @@ def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=Fal
         with open(filepath,'rbU') as f:
             for line in f:
                 row=line.rstrip().split(',')
-                if (row[subj_row] in subj) and (row[category_row] == category):
+                
+                storerow=False
+                if row[subj_row] in subj:
+                    if category == None:
+                        storerow = True
+                    elif has_category == True:
+                        if row[category_row] == category:
+                            storerow = True
+                    else:
+                        storerow = False
+                else:
+                    storerow = False
+                
+                if storerow == True:
                     if (row[listnum_row] != listnum) or ((row[listnum_row] == listnum) and (row[subj_row] != cursubj)):
                         Xs.append([])
                         irts.append([])
@@ -222,7 +241,7 @@ def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=Fal
                                 if has_rts:
                                     irts[-1].append(int(irt)/1000.0)
                     except:
-                        pass                # bad practice?
+                        pass                # bad practice
         numnodes = len(items)
     return Xs, items, irts, numnodes
 
