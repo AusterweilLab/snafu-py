@@ -19,6 +19,7 @@ setup(name='snafu',
       author_email='austerweil.lab@gmail.com',
       keywords=['fluency', 'networks'],
       packages=['snafu'],
+      include_package_data=True,
       install_requires=['numpy','networkx','scipy'],
       zip_safe=False,
       classifiers=[

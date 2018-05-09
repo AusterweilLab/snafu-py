@@ -1,0 +1,5 @@
+include spellfiles/tools_zemla_spellfile.csv
+include spellfiles/foods_zemla_spellfile.csv
+include spellfiles/animals_zemla_spellfile.csv
+include schemes/troyer_hills_animals.csv
+include schemes/troyer_hills_zemla_animals.csv
