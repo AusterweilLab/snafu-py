@@ -42,10 +42,10 @@ filepath = "fluency/spring2017.csv"
 category="animals"
 
 # read in data from file, flattening all participants together
-Xs_flat, groupitems, irtdata, groupnumnodes = snafu.readX(subs,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv",flatten=True)
+Xs_flat, groupitems, irtdata, groupnumnodes = snafu.readX(subs,filepath,category=category,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv",flatten=True)
 
 # read data from file, preserving hierarchical structure
-Xs_hier, items, irtdata, numnodes, groupitems, groupnumnodes = snafu.readX(subs,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
+Xs_hier, items, irtdata, numnodes, groupitems, groupnumnodes = snafu.readX(subs,filepath,category=category,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
 
 graphs=[]
 for method in methods:

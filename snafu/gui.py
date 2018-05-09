@@ -83,9 +83,9 @@ def data_properties(command, root_path):
     command = command['data_parameters']
     
     if command['factor_type'] == "subject":
-        Xs, items, irts, numnodes = [[i] for i in snafu.readX(command['subject'], command['category'], command['fullpath'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"))]    # embed each return variable in list so that format is the same as when factor=group
+        Xs, items, irts, numnodes = [[i] for i in snafu.readX(command['subject'], command['fullpath'], category=command['category'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"))]    # embed each return variable in list so that format is the same as when factor=group
     elif command['factor_type'] == "group":
-        Xs, items, irts, numnodes, groupitems, groupnumnodes = snafu.readX(command['subject'], command['category'], command['fullpath'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=command['group'])
+        Xs, items, irts, numnodes, groupitems, groupnumnodes = snafu.readX(command['group'], command['fullpath'], category=command['category'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=True)
     
     # initialize
     avg_cluster_size = []
@@ -154,9 +154,9 @@ def network_properties(command, root_path):
         removePerseverations=False
     
     if subj_props['factor_type'] == "subject":
-        Xs, items, irts, numnodes = snafu.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations)
+        Xs, items, irts, numnodes = snafu.readX(subj_props['subject'], subj_props['fullpath'], category=subj_props['category'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations)
     elif subj_props['factor_type'] == "group":
-        Xs, items, irts, numnodes = snafu.readX(subj_props['subject'], subj_props['category'], subj_props['fullpath'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations, group=subj_props['group'], flatten=True)
+        Xs, items, irts, numnodes = snafu.readX(subj_props['group'], subj_props['fullpath'], category=subj_props['category'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations, group=True, flatten=True)
 
     toydata=snafu.Data({
             'numx': len(Xs),

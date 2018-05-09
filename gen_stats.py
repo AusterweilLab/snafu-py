@@ -16,7 +16,7 @@ filepath = "fluency/spring2017.csv"
 category="animals"
 
 # read data from file, preserving hierarchical structure
-Xs, items, irtdata, numnodes, groupitems, groupnumnodes = snafu.readX(subs,category,filepath,removePerseverations=False,spellfile="spellfiles/zemla_spellfile.csv")
+Xs, items, irtdata, numnodes, groupitems, groupnumnodes = snafu.readX(subs,filepath,category=category,removePerseverations=False,spellfile="spellfiles/zemla_spellfile.csv")
 
 # for each participant, calculate the average cluster size and average number of perservations across that participant's lists
 cluster_sizes = []

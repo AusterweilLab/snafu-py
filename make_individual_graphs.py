@@ -52,7 +52,7 @@ for method in methods:
     # add snafu.hierarhicalUinvite method here
     
     for sub in subs:
-        Xs, items, irtdata, numnodes = snafu.readX(sub,category,filepath,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
+        Xs, items, irtdata, numnodes = snafu.readX(sub,filepath,category=category,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
         if method=="rw":
             graph = snafu.nrw(Xs, numnodes)
         if method=="goni":
