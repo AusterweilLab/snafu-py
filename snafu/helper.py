@@ -102,10 +102,12 @@ def nogc(fun):
 
 # take list of lists in number/node and translate back to items using dictionary (e.g., 1->dog, 2->cat)
 def numToItemLabel(data, items):
-    for lnum, l in enumerate(data):
-        for inum, i in enumerate(l):
-            data[lnum][inum]=items[i]
-    return data
+    new_data=[]
+    for l in data:
+        new_data.append([])
+        for i in l:
+            new_data[-1].append(items[i])
+    return new_data
 
 # modified from ExGUtils package by Daniel Gamermann <gamermann@gmail.com>
 def rand_exg(irt, sigma, lambd):

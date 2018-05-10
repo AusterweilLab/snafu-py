@@ -1231,6 +1231,20 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
                     probmat = newprobmat
                     numchanges += 1
                     loopcount = 0
+                    # probX under all possible perseveration values JCZ 5/9/2018
+                    if fitinfo.estimatePerseveration:
+                        old_censor = td.censor_fault
+                        best_param = old_censor
+                        for censor_param in [i/100.0 for i in range(101)]:
+                            td.censor_fault = censor_param
+                            graph_ll, newprobmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of starting graph
+                            if graph_ll > best_ll:
+                                best_ll = graph_ll
+                                probmat = newprobmat
+                                best_param = censor_param
+                        td.censor_fault = best_param
+                        print "parameter old:", old_censor, " new: ", best_param
+
                 v[node1].remove(node2)   # remove edge from possible choices
                 if not fitinfo.directed:
                     v[node2].remove(node1)
@@ -1287,14 +1301,36 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
                 vmin=1
         return graph, best_ll
 
+    # check if data has perseverations
+    if not [len(set(i)) for i in Xs]==[len(i) for i in Xs]:
+        if td.censor_fault == 0.0:
+            if fitinfo.estimatePerseveration:
+                td.censor_fault = 0.01      # initialize to ensure likelihood is non-negative
+            else:
+                raise Exception('Your data contains perseverations, but
+                                censor_fault = 0.0; Set to some value 0.0 < x <= 1.0 or
+                                set estimatePerseverations to True')
+
     try:
         firstedges=[(x[0], x[1]) for x in Xs]
     except:
         firstedges=[]
     
-    # find a good starting graph using naive RW
+    # find a good starting graph
     graph = genStartGraph(Xs, numnodes, td, fitinfo)
 
+    # find best starting perseveration parameter if applicable JCZ 5/9/2018
+    if fitinfo.estimatePerseveration:
+        best_ll = -np.inf
+        best_param = 0.0
+        for censor_param in [i/100.0 for i in range(101)]:
+            td.censor_fault = censor_param
+            graph_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of starting graph
+            if graph_ll > best_ll:
+                best_ll = graph_ll
+                best_param = censor_param
+        td.censor_fault = best_param
+        
     best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of starting graph
     records=[]
     graph, best_ll = phases(graph, best_ll, probmat)

@@ -10,7 +10,8 @@ import scipy.stats
 # our methods are the uinvite_* methods
 
 #methods=['rw','fe','goni','chan','kenett','uinvite_flat','uinvite_hierarchical']
-methods=['rw','fe','goni','chan','kenett','uinvite_flat']
+#methods=['rw','fe','goni','chan','kenett','uinvite_flat']
+methods=["uinvite_flat"]
 
 # describe what your data should look like
 toydata=snafu.Data({
@@ -52,7 +53,8 @@ for method in methods:
     # add snafu.hierarhicalUinvite method here
     
     for sub in subs:
-        Xs, items, irtdata, numnodes = snafu.readX(sub,filepath,category=category,removePerseverations=True,spellfile="spellfiles/zemla_spellfile.csv")
+        #Xs, items, irtdata, numnodes = snafu.readX(sub,filepath,category=category,removePerseverations=True,spellfile="spellfiles/animals_zemla_spellfile.csv")
+        Xs, items, irtdata, numnodes = snafu.readX(sub,filepath,category=category,removePerseverations=True,spellfile="spellfiles/animals_zemla_spellfile.csv")
         if method=="rw":
             graph = snafu.nrw(Xs, numnodes)
         if method=="goni":
