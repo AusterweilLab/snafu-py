@@ -1307,9 +1307,9 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
             if fitinfo.estimatePerseveration:
                 td.censor_fault = 0.01      # initialize to ensure likelihood is non-negative
             else:
-                raise Exception('Your data contains perseverations, but
+                raise Exception('''Your data contains perseverations, but \
                                 censor_fault = 0.0; Set to some value 0.0 < x <= 1.0 or
-                                set estimatePerseverations to True')
+                                set estimatePerseverations to True''')
 
     try:
         firstedges=[(x[0], x[1]) for x in Xs]
