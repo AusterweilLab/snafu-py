@@ -4,8 +4,78 @@
 import warnings
 from helper import *
 import numpy as np
+from copy import deepcopy
 
-def Data(data):
+class Data():
+    
+    def __init__(self, data):
+        
+        self.rawdata = data
+    
+        def generateGroupSpace():
+            items = data['items']
+            groupitems={}
+            idx=0
+            for subitems in items:
+                for item in items[subitems].values():
+                    if item not in groupitems.values():
+                        groupitems[idx] = item
+                        idx += 1
+            return groupitems
+        
+        self.groupitems = generateGroupSpace()
+        self.groupnumnodes = len(self.groupitems)
+        self.subs = sorted(data['Xs'].keys())
+            
+        return
+
+    def hierarchical(self):
+
+        Xs = deepcopy(self.rawdata['Xs'])
+        self.Xs = [[Xs[i][j] for j in sorted(Xs[i].keys())] for i in self.subs]
+
+        items = deepcopy(self.rawdata['items'])
+        self.items = [items[i] for i in sorted(items.keys())]
+
+        try:
+            irts = deepcopy(self.rawdata['irts'])
+            self.irts = [[irts[i][j] for j in sorted(irts[i].keys())] for i in self.subs]
+        except:
+            self.irts = []
+
+        self.numnodes = [len(i) for i in self.items]
+        self.structure = "hierarchical"
+
+        return self
+
+    def nonhierarchical(self):
+        # map everyone to group space
+        reverseGroup = reverseDict(self.groupitems)
+        Xs = deepcopy(self.rawdata['Xs'])
+        items = deepcopy(self.rawdata['items'])
+        irts = deepcopy(self.rawdata['irts'])
+
+        for sub in Xs:
+            for listnum in Xs[sub]:
+                Xs[sub][listnum] = [reverseGroup[items[sub][i]] for i in Xs[sub][listnum]]
+                
+        try:
+            self.Xs = flatten_list([[Xs[i][j] for j in sorted(Xs[i].keys())] for i in self.subs])
+            self.irts = flatten_list([[irts[i][j] for j in sorted(irts[i].keys())] for i in self.subs])
+        except:
+            self.irts = []
+
+        self.numnodes = self.groupnumnodes
+        self.items = self.groupitems
+        self.structure = "nonhierarchical"
+        
+        return self
+
+    def subs(self):
+        return 
+    
+        
+def DataModel(data):
     tdkeys=data.keys()
 
     # full factorial of any list params

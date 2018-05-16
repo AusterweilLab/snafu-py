@@ -7,31 +7,18 @@
 import numpy as np
 import csv
 from  more_itertools import unique_everseen
+from structs import *
 
 # sibling functions
 from helper import *
 
-# ** DEPRECATED
-# ** use nx.generate_sparse6(nx.to_networkx_graph(graph),header=False) instead
-# helper function converts binary adjacency matrix to base 36 string for easy storage in CSV
-# binary -> int -> base62
-def graphToHash(a,numnodes):
-    def baseN(num,b,numerals="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"):
-        return ((num == 0) and numerals[0]) or (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
-    return str(numnodes) + '!' + baseN(int(''.join([str(i) for i in flatten_list(a)]),2), 62)
+# wrapper
+def graphToHash(a):
+    return nx.generate_sparse6(nx.to_networkx_graph(a),header=False)
 
-# ** DEPRECATED
-# see graphToHash function
+# wrapper
 def hashToGraph(graphhash):
-    import textwrap
-    numnodes, graphhash = graphhash.split('!')
-    numnodes=int(numnodes)
-    graphstring=bin(int(graphhash, 36))[2:]
-    zeropad=numnodes**2-len(graphstring)
-    graphstring=''.join(['0' for i in range(zeropad)]) + graphstring
-    arrs=textwrap.wrap(graphstring, numnodes)
-    mat=np.array([map(int, s) for s in arrs])
-    return mat
+    return nx.to_numpy_matrix(nx.parse_graph6(graphhash))
 
 # reads in graph from CSV
 # row order not preserved; could be optimized more
@@ -107,143 +94,120 @@ def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=Fals
     return graph, items
 
 # read Xs in from user files
-# flatten == treat all subjects as identical; when False, keep hierarchical structure and dictionaries
-def readX(subj,filepath,category=None,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,flatten=False,group=False):
+# this should be re-written with pandas or something more managable
+def readX(ids,filepath,category=None,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,group=False):
    
+    # grab header col indices
     mycsv = csv.reader(open(filepath,'rbU'))
     headers = next(mycsv, None)
 
-    subj_row = headers.index('id')
-    listnum_row = headers.index('listnum')
-    item_row = headers.index('item')
+    subj_col = headers.index('id')
+    listnum_col = headers.index('listnum')
+    item_col = headers.index('item')
     
     try:
-        category_row = headers.index('category')
-        has_category = True
+        category_col = headers.index('category')
+        has_category_col = True
     except:
-        has_category = False
+        has_category_col = False
     try:
-        group_row = headers.index('group')
-        has_group = True
+        group_col = headers.index('group')
+        has_group_col = True
     except:
-        has_group = False
+        has_group_col = False
+        if group:
+            raise ValueError('Data file does not have grouping column, but you asked for a specific group.')
     try:
-        rt_row = headers.index('rt')
-        has_rts = True
+        rt_col = headers.index('rt')
+        has_rt_col = True
     except:
-        has_rts = False
+        has_rt_col = False
 
-    # if group is True, treat subj as a group (string)
-    # if group=True, then subj="all" is a specicial identifier that takes all subjects
-    # loops through file twice (once to grab subject ids), inefficient for large files
-    if group == True:
-        new_subj=[]
-        if subj=="all":
-            for row in mycsv:
-                new_subj.append(row[subj_row])
-            new_subj = list(unique_everseen(new_subj)) # reduce to unique values, convert back to list
+    # if ids is string wrap it in a list
+    if isinstance(ids,str):
+        ids=[ids]
+        
+    Xs=dict()
+    irts=dict()
+    items=dict()
+    spellingdict=dict()
+    validitems=[]
+    
+    # read in list of valid items when removeIntrusions = True
+    if removeIntrusions:
+        if not scheme:
+            raise ValueError('You need to provide a category scheme if you want to ignore intrusions!')
         else:
-            if not has_group:
-                raise ValueError('Data file does not have grouping column, but you asked for a specific group.')
-            for row in mycsv:
-                if row[group_row] == subj:
-                    new_subj.append(row[subj_row])
-            new_subj = list(unique_everseen(new_subj))
-        subj = new_subj
-        
-    # for hierarchical
-    if (type(subj) == list) and not flatten:
-        subj_data=[]
-        for sub in subj:
-            subj_data.append(readX(sub,filepath,category,removePerseverations,removeIntrusions,spellfile,scheme,flatten,group=None))
-        Xs = [i[0] for i in subj_data]
-        items = [i[1] for i in subj_data]
-        irts = [i[2] for i in subj_data]
-        numnodes = [i[3] for i in subj_data]
-        
-        groupitems={}
-        idx=0
-        for subitems in items:
-            for item in subitems.values():
-                if item not in groupitems.values():
-                    groupitems[idx] = item
-                    idx += 1
-        
-        groupnumnodes = len(groupitems)
+            with open(scheme,'r') as fh:
+                for line in fh:
+                    validitems.append(line.rstrip().split(',')[1].lower())
 
-        return Xs, items, irts, numnodes, groupitems, groupnumnodes
-    else:                           # non-hierarchical
-        if isinstance(subj,str):
-            subj=[subj]
-        listnum=-1
-        cursubj="-1"    # hacky; hopefully no one has a subject labeled -1...
-        Xs=[]
-        irts=[]
-        items={}
-        idx=0
-        spellingdict={}
-        validitems=[]
-        
-        if removeIntrusions:
-            if not scheme:
-                raise ValueError('You need to provide a category scheme if you want to ignore intrusions!')
-            else:
-                with open(scheme,'r') as fh:
-                    for line in fh:
-                        validitems.append(line.rstrip().split(',')[1].lower())
+    # read in spelling correction dictionary when spellfile is specified
+    if spellfile:
+        with open(spellfile,'r') as spellfile:
+            for line in spellfile:
+                correct, incorrect = line.rstrip().split(',')
+                spellingdict[incorrect] = correct
+   
+    with open(filepath,'rbU') as f:
+        f.readline()    # discard header row
+        for line in f:
+            row=line.rstrip().split(',')
 
-        if spellfile:
-            with open(spellfile,'r') as spellfile:
-                for line in spellfile:
-                    correct, incorrect = line.rstrip().split(',')
-                    spellingdict[incorrect] = correct
-       
-        with open(filepath,'rbU') as f:
-            for line in f:
-                row=line.rstrip().split(',')
-                
-                storerow=False
-                if row[subj_row] in subj:
-                    if category == None:
-                        storerow = True
-                    elif has_category == True:
-                        if row[category_row] == category:
-                            storerow = True
-                    else:
-                        storerow = False
+            listnum_int = int(row[listnum_col])
+            
+            storerow=False
+            if ((group==True) and (ids==["all"])):
+                storerow = True
+            elif ((group==False) and (row[subj_col] in ids)) or ((group==True) and (row[group_col] in ids)):
+                if category == None:
+                    storerow = True 
+                elif (has_category_col == True) and (row[category_col] == category):
+                    storerow = True
                 else:
                     storerow = False
-                
-                if storerow == True:
-                    if (row[listnum_row] != listnum) or ((row[listnum_row] == listnum) and (row[subj_row] != cursubj)):
-                        Xs.append([])
-                        irts.append([])
-                        listnum=row[listnum_row]
-                        cursubj=row[subj_row]
-                    # basic clean-up
-                    item=row[item_row].lower()
-                    badchars=" '-\"\\;?"
-                    for char in badchars:
-                        item=item.replace(char,"")
-                    if item in spellingdict.keys():
-                        item = spellingdict[item]
-                    if has_rts:
-                        irt=row[rt_row]
-                    if item not in items.values():
+            else:
+                storerow = False
+            
+            if storerow == True:
+
+                # make sure dict keys exist
+                if not Xs.has_key(row[subj_col]):
+                    Xs[row[subj_col]] = dict()
+                    if has_rt_col:
+                        irts[row[subj_col]] = dict()
+                if not Xs[row[subj_col]].has_key(listnum_int):
+                    Xs[row[subj_col]][listnum_int] = []
+                    if has_rt_col:
+                        irts[row[subj_col]][listnum_int] = []
+                if not items.has_key(row[subj_col]):
+                    items[row[subj_col]] = dict()
+                    
+                # basic clean-up
+                item=row[item_col].lower()
+                badchars=" '-\"\\;?"
+                for char in badchars:
+                    item=item.replace(char,"")
+                if item in spellingdict.keys():
+                    item = spellingdict[item]
+                if has_rt_col:
+                    irt=row[rt_col]
+                if item not in items[row[subj_col]].values():
+                    if (item in validitems) or (not removeIntrusions):
+                        next_idx = len(items[row[subj_col]])
+                        items[row[subj_col]][next_idx]=item
+                        
+                try:
+                    itemval=items[row[subj_col]].values().index(item)
+                    if (not removePerseverations) or (itemval not in Xs[row[subj_col]][listnum_int]):   # ignore any duplicates in same list resulting from spelling corrections
                         if (item in validitems) or (not removeIntrusions):
-                            items[idx]=item
-                            idx += 1
-                    try:
-                        itemval=items.values().index(item)
-                        if (not removePerseverations) or (itemval not in Xs[-1]):   # ignore any duplicates in same list resulting from spelling corrections
-                            if (not removeIntrusions) or (item in validitems):
-                                Xs[-1].append(itemval)
-                                if has_rts:
-                                    irts[-1].append(int(irt)/1000.0)
-                    except:
-                        pass                # bad practice
-        numnodes = len(items)
-    return Xs, items, irts, numnodes
+                            Xs[row[subj_col]][listnum_int].append(itemval)
+                            if has_rt_col:
+                                irts[row[subj_col]][listnum_int].append(int(irt)/1000.0)
+                except:
+                    pass                # bad practice
+   
+    return Data({'Xs': Xs, 'items': items, 'irts': irts})
 
 def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=False):
     onezero={True: '1', False: '0'}        

@@ -116,29 +116,29 @@ def rand_exg(irt, sigma, lambd):
     ngau = np.random.normal(irt, sigma)
     return nexp + ngau
 
-def renumber(Xs,numsubs,numper):
-    start=0
-    end=numper
-    ssnumnodes=[]
-    itemsb=[]
-    datab=[]
-    for sub in range(len(subs)):
-        subXs = Xs[start:end]
-        itemset = set(snafu.flatten_list(subXs))
-        ssnumnodes.append(len(itemset))
-                                                    
-        ss_items = {}
-        convertX = {}
-        for itemnum, item in enumerate(itemset):
-            ss_items[itemnum] = items[item]
-            convertX[item] = itemnum
-                                                    
-        itemsb.append(ss_items)
-                                                    
-        subXs = [[convertX[i] for i in x] for x in subXs]
-        datab.append(subXs)
-        start += 3
-        end += 3
+#def renumber(Xs,numsubs,numper):
+#    start=0
+#    end=numper
+#    ssnumnodes=[]
+#    itemsb=[]
+#    datab=[]
+#    for sub in range(len(subs)):
+#        subXs = Xs[start:end]
+#        itemset = set(snafu.flatten_list(subXs))
+#        ssnumnodes.append(len(itemset))
+#                                                    
+#        ss_items = {}
+#        convertX = {}
+#        for itemnum, item in enumerate(itemset):
+#            ss_items[itemnum] = items[item]
+#            convertX[item] = itemnum
+#                                                    
+#        itemsb.append(ss_items)
+#                                                    
+#        subXs = [[convertX[i] for i in x] for x in subXs]
+#        datab.append(subXs)
+#        start += 3
+#        end += 3
 
 # decorator; prints elapsed time for function call
 def timer(fun):

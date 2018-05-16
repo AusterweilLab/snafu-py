@@ -4,7 +4,6 @@
 # * Write graph to file
 # * Read fluency data from file
 
-import textwrap
 import numpy as np
 import csv
 from  more_itertools import unique_everseen
@@ -12,30 +11,17 @@ from  more_itertools import unique_everseen
 # sibling functions
 from helper import *
 
-# ** DEPRECATED
-# ** use nx.generate_sparse6(nx.to_networkx_graph(graph),header=False) instead
-# helper function converts binary adjacency matrix to base 36 string for easy storage in CSV
-# binary -> int -> base62
-def graphToHash(a,numnodes):
-    def baseN(num,b,numerals="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"):
-        return ((num == 0) and numerals[0]) or (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
-    return str(numnodes) + '!' + baseN(int(''.join([str(i) for i in flatten_list(a)]),2), 62)
+# wrapper
+def graphToHash(a):
+    return nx.generate_sparse6(nx.to_networkx_graph(a),header=False)
 
-# ** DEPRECATED
-# see graphToHash function
+# wrapper
 def hashToGraph(graphhash):
-    numnodes, graphhash = graphhash.split('!')
-    numnodes=int(numnodes)
-    graphstring=bin(int(graphhash, 36))[2:]
-    zeropad=numnodes**2-len(graphstring)
-    graphstring=''.join(['0' for i in range(zeropad)]) + graphstring
-    arrs=textwrap.wrap(graphstring, numnodes)
-    mat=np.array([map(int, s) for s in arrs])
-    return mat
+    return nx.to_numpy_matrix(nx.parse_graph6(graphhash))
 
 # reads in graph from CSV
 # row order not preserved; could be optimized more
-def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False):
+def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False):
     fh=open(fh,'r')
     idx=0
     bigdict={}
@@ -108,24 +94,56 @@ def read_csv(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False)
 
 # read Xs in from user files
 # flatten == treat all subjects as identical; when False, keep hierarchical structure and dictionaries
-def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,flatten=False):
+def readX(ids,filepath,category=None,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,flatten=False,group=False):
+   
+    mycsv = csv.reader(open(filepath,'rbU'))
+    headers = next(mycsv, None)
+
+    subj_row = headers.index('id')
+    listnum_row = headers.index('listnum')
+    item_row = headers.index('item')
     
+    try:
+        category_col = headers.index('category')
+        has_category_col = True
+    except:
+        has_category_col = False
+    try:
+        group_row = headers.index('group')
+        has_group_col = True
+    except:
+        has_group_col = False
+    try:
+        rt_row = headers.index('rt')
+        has_rt_col = True
+    except:
+        has_rt_col = False
+
+    # if group is True, then ids="all" is a specicial identifier that takes all subjects
     # loops through file twice (once to grab subject ids), inefficient for large files
-    # replaces "all" with list of subjects
-    if subj=="all":
-        mycsv = csv.reader(open(filepath))
-        subj=[]
-        headers = next(mycsv, None)
-        
+    if (group == True) and (ids=="all"):
+        ids=[]
         for row in mycsv:
-            subj.append(row[0])
-        subj = list(unique_everseen(subj)) # reduce to unique values, convert back to list    
+            ids.append(row[subj_row])
+        ids = list(unique_everseen(ids)) # reduce to unique values, convert back to list
+        #else:
+        #    if not has_group_col:
+        #        raise ValueError('Data file does not have grouping column, but you asked for a specific group.')
+        #    for row in mycsv:
+        #        if row[group_row] == subj:
+        #            subj.append(row[subj_row])
+        #    new_subj = list(unique_everseen(new_subj))
+    
+    if (group) and (not has_group_col):
+        raise ValueError('Data file does not have grouping column, but you asked for a specific group.')
+    if (group) and (type(ids) != str):
+        raise ValueError('When group=True, you must specify one group (string) not a list of groups.')
     
     # for hierarchical
-    if (type(subj) == list) and not flatten:
+    if (type(ids) == list) and not flatten:
         subj_data=[]
         for sub in subj:
-            subj_data.append(readX(sub,category,filepath,removePerseverations,removeIntrusions,spellfile,scheme,flatten))
+            subj_data.append(readX(sub,filepath,category,removePerseverations,removeIntrusions,spellfile,scheme,flatten,group=False))
         Xs = [i[0] for i in subj_data]
         items = [i[1] for i in subj_data]
         irts = [i[2] for i in subj_data]
@@ -143,10 +161,10 @@ def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=Fal
 
         return Xs, items, irts, numnodes, groupitems, groupnumnodes
     else:                           # non-hierarchical
-        if isinstance(subj,str):
-            subj=[subj]
-        game=-1
-        cursubj="-1"    # hacky
+        if isinstance(ids,str):
+            ids=[ids]
+        listnum=-1
+        cursubj="-1"    # hacky; hopefully no one has a subject labeled -1...
         Xs=[]
         irts=[]
         items={}
@@ -168,26 +186,35 @@ def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=Fal
                     correct, incorrect = line.rstrip().split(',')
                     spellingdict[incorrect] = correct
        
-        with open(filepath) as f:
+        with open(filepath,'rbU') as f:
             for line in f:
                 row=line.rstrip().split(',')
-                if (row[0] in subj) and (row[2] == category):
-                    if (row[1] != game) or ((row[1] == game) and (row[0] != cursubj)):
+                storerow=False
+                if (row[subj_row] in ids) or ((group==True) and (row[group_row] in ids)):
+                    if category == None:
+                        storerow = True
+                    elif (has_category_col == True) and (row[category_col] == category):
+                        storerow = True
+                    else:
+                        storerow = False
+                else:
+                    storerow = False
+                
+                if storerow == True:
+                    if (row[listnum_row] != listnum) or ((row[listnum_row] == listnum) and (row[subj_row] != cursubj)):
                         Xs.append([])
                         irts.append([])
-                        game=row[1]
-                        cursubj=row[0]
+                        listnum=row[listnum_row]
+                        cursubj=row[subj_row]
                     # basic clean-up
-                    item=row[3].lower()
+                    item=row[item_row].lower()
                     badchars=" '-\"\\;?"
                     for char in badchars:
                         item=item.replace(char,"")
                     if item in spellingdict.keys():
                         item = spellingdict[item]
-                    try:
-                        irt=row[4]
-                    except:
-                        pass
+                    if has_rt_col:
+                        irt=row[rt_row]
                     if item not in items.values():
                         if (item in validitems) or (not removeIntrusions):
                             items[idx]=item
@@ -197,21 +224,22 @@ def readX(subj,category,filepath,removePerseverations=False,removeIntrusions=Fal
                         if (not removePerseverations) or (itemval not in Xs[-1]):   # ignore any duplicates in same list resulting from spelling corrections
                             if (not removeIntrusions) or (item in validitems):
                                 Xs[-1].append(itemval)
-                                try: 
+                                if has_rt_col:
                                     irts[-1].append(int(irt)/1000.0)
-                                except:
-                                    pass    # bad practice?
                     except:
-                        pass                # bad practice?
+                        pass                # bad practice
         numnodes = len(items)
     return Xs, items, irts, numnodes
 
-def write_csv(gs, fh, subj="NA", directed=False, extra_data={}):
+def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=False):
     onezero={True: '1', False: '0'}        
     import networkx as nx
     fh=open(fh,'w',0)
 
     nodes = list(set(flatten_list([gs[i].nodes() for i in range(len(gs))])))
+
+    if header != False:
+        fh.write('subj,item1,item2,'+ header+'\n')
 
     for node1 in nodes:
         for node2 in nodes:
@@ -233,49 +261,3 @@ def write_csv(gs, fh, subj="NA", directed=False, extra_data={}):
                         edgelist + "," +
                         extrainfo + "\n")
     return
-
-# some sloppy code in here; methods are different depending on whether you pass an nx or array (but should be the same)
-# needs to be re-written
-def write_csv_old(gs, fh, subj="NA", directed=False, extra_data={}):
-    onezero={True: '1', False: '0'}        
-    import networkx as nx
-    fh=open(fh,'w',0)
-    if isinstance(gs,nx.classes.graph.Graph):       # write nx graph
-        edges=set(flatten_list([gs.edges()]))
-        for edge in edges:
-            isdirected=""
-            if directed:
-                isdirected="," + (onezero[(g.has_edge(edge[1],edge[0]) and g.has_edge(edge[1],edge[0]))])
-            extrainfo=""
-            if edge[0] in extra_data.keys():
-                if edge[1] in extra_data[edge[0]].keys():
-                    extrainfo=","+",".join([str(i) for i in extra_data[edge[0]][edge[1]]])
-            fh.write(subj    + "," +
-                    edge[0]  + "," +
-                    edge[1]  + 
-                    isdirected + 
-                    extrainfo + "\n")
-    else:                                           # write matrix
-        edges=set(flatten_list([gs[i].edges() for i in range(len(gs))]))
-        for edge in edges:
-            edgelist=""
-            for g in gs:
-                edgelist=edgelist+"," + onezero[g.has_edge(edge[0],edge[1])]
-            if directed:
-                for g in gs:
-                    edgelist=edgelist + "," + (onezero[(g.has_edge(edge[1],edge[0]) and g.has_edge(edge[1],edge[0]))]) # this doesn't look right...
-            extrainfo=""
-            sortededge=np.sort([edge[0],edge[1]])
-            if sortededge[0] in extra_data.keys():
-                if sortededge[1] in extra_data[sortededge[0]].keys():
-                    if isinstance(extra_data[sortededge[0]][sortededge[1]],list):
-                        extrainfo=","+",".join([str(i) for i in extra_data[sortededge[0]][sortededge[1]]])
-                    else:
-                        extrainfo=","+","+str(extra_data[sortededge[0]][sortededge[1]])
-            fh.write(subj    + "," +
-                    edge[0]  + "," +
-                    edge[1]  + 
-                    edgelist + "," +
-                    extrainfo + "\n")
-    return
-

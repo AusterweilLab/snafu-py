@@ -81,12 +81,21 @@ def data_properties(command, root_path):
         return x_mean + " (" + x_std + ") [" + x_min + " -- " + x_max + "]"
     
     command = command['data_parameters']
-    
+  
     if command['factor_type'] == "subject":
-        Xs, items, irts, numnodes = [[i] for i in snafu.readX(command['subject'], command['fullpath'], category=command['category'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"))]    # embed each return variable in list so that format is the same as when factor=group
+        ids = str(command['subject'])
+        group = False
     elif command['factor_type'] == "group":
-        Xs, items, irts, numnodes, groupitems, groupnumnodes = snafu.readX(command['group'], command['fullpath'], category=command['category'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=True)
-    
+        ids = str(command['group'])            # without str() causes unicode issues for "all" :(
+        group = True
+
+    filedata = snafu.readX(ids, command['fullpath'], category=command['category'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=group)
+    filedata.hierarchical()
+    Xs = filedata.Xs
+    items = filedata.items
+    irts = filedata.irts
+    numnodes = filedata.numnodes
+
     # initialize
     avg_cluster_size = []
     avg_num_cluster_switches = []
@@ -154,11 +163,20 @@ def network_properties(command, root_path):
         removePerseverations=False
     
     if subj_props['factor_type'] == "subject":
-        Xs, items, irts, numnodes = snafu.readX(subj_props['subject'], subj_props['fullpath'], category=subj_props['category'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations)
+        ids = str(subj_props['subject'])
+        group = False
     elif subj_props['factor_type'] == "group":
-        Xs, items, irts, numnodes = snafu.readX(subj_props['group'], subj_props['fullpath'], category=subj_props['category'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations, group=True, flatten=True)
+        ids = str(subj_props['group'])            # without str() causes unicode issues for "all" :(
+        group = True
 
-    toydata=snafu.Data({
+    filedata = snafu.readX(ids, subj_props['fullpath'], category=subj_props['category'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations, group=group)
+    filedata.nonhierarchical()
+    Xs = filedata.Xs
+    items = filedata.items
+    irts = filedata.irts
+    numnodes = filedata.numnodes
+    
+    toydata=snafu.DataModel({
             'numx': len(Xs),
             'trim': 1,
             'jump': float(command['jump_probability']),
@@ -166,9 +184,10 @@ def network_properties(command, root_path):
             'priming': float(command['priming_probability']),
             'startX': command['first_item']})
     fitinfo=snafu.Fitinfo({
-            'prior_method': "betabinomial",
+            'prior_method': "zeroinflatedbetabinomial",
             'prior_a': 1,
-            'prior_b': 1,
+            'prior_b': 2,
+            'zibb_p': 0.5,
             'startGraph': command['starting_graph'],
             'goni_size': int(command['goni_windowsize']),
             'goni_threshold': int(command['goni_threshold']),
@@ -200,9 +219,9 @@ def network_properties(command, root_path):
         bestgraph = snafu.firstEdge(Xs, numnodes)
     elif command['network_method']=="U-INVITE":
         bestgraph, ll = snafu.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, debug=False, prior=prior)
-  
+    
     nxg = nx.to_networkx_graph(bestgraph)
-
+    
     node_degree = np.mean(dict(nxg.degree()).values())
     nxg_json = jsonGraph(nxg, items)
     clustering_coefficient = nx.average_clustering(nxg)
