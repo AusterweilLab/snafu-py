@@ -222,37 +222,20 @@ def network_properties(command, root_path):
         bestgraph, ll = snafu.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo, debug=False, prior=prior)
     
     nxg = nx.to_networkx_graph(bestgraph)
-    
-    node_degree = np.mean(dict(nxg.degree()).values())
     nxg_json = jsonGraph(nxg, items)
-    clustering_coefficient = nx.average_clustering(nxg)
-    try:
-        aspl = nx.average_shortest_path_length(nxg)
-    except:
-        aspl = "disjointed graph"
-    density = nx.classes.function.density(nxg)
-    betweenness_centrality_nodes = nx.algorithms.centrality.betweenness_centrality(nxg)
-    avg_betweenness_centrality = 0.0
-    for node, bc in betweenness_centrality_nodes.items():
-        avg_betweenness_centrality += bc
-    avg_betweenness_centrality /= len(betweenness_centrality_nodes)
     
-    return { "type": "network_properties",
-             "node_degree": node_degree,
-             "clustering_coefficient": clustering_coefficient,
-             "aspl": aspl,
-             "density": density,
-             "avg_betweenness_centrality": avg_betweenness_centrality,
-             "graph": nxg_json }
+    return graph_properties(nxg,nxg_json)
 
 def analyze_graph(command, root_path): # used when importing graphs
-    js_graph = json.load(open(command['fullpath']))
+    nxg_json = json.load(open(command['fullpath']))
     nxg = nx.readwrite.json_graph.node_link_graph(
-        js_graph,
+        nxg_json,
         multigraph = False,
         attrs=dict(source='source', target='target', name='id', key='nodes', link='edges')
     )
+    return graph_properties(nxg,nxg_json)
 
+def graph_properties(nxg,nxg_json): # separate function that calculates graph properties
     node_degree = np.mean(dict(nxg.degree()).values())
     clustering_coefficient = nx.average_clustering(nxg)
     try:
@@ -273,7 +256,7 @@ def analyze_graph(command, root_path): # used when importing graphs
         "aspl": aspl,
         "density": density,
         "avg_betweenness_centrality": avg_betweenness_centrality,
-        "graph": js_graph
+        "graph": nxg_json
     }
 
 def quit(command, root_path): 
