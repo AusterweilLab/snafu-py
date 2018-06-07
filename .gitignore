@@ -1,2 +1,8 @@
 *.pyc
 .DS_Store
+build/
+dist/
+snafu.egg-info/
+snafu_py.egg-info/
+snet/BEAGLEdata.mat
+snet/dedyne.snet
