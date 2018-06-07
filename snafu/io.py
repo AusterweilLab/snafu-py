@@ -157,9 +157,7 @@ def readX(ids,filepath,category=None,removePerseverations=False,removeIntrusions
             listnum_int = int(row[listnum_col])
             
             storerow=False
-            if ((group==True) and (ids==["all"])):
-                storerow = True
-            elif ((group==False) and (row[subj_col] in ids)) or ((group==True) and (row[group_col] in ids)):
+            if ((group==False) and (row[subj_col] in ids)) or ((group==True) and (ids!=["all"]) and (row[group_col] in ids)) or ((group==True) and (ids==["all"])):
                 if category == None:
                     storerow = True 
                 elif (has_category_col == True) and (row[category_col] == category):
