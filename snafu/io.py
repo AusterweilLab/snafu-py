@@ -115,7 +115,7 @@ def readX(ids,filepath,category=None,removePerseverations=False,removeIntrusions
         has_group_col = True
     except:
         has_group_col = False
-        if group:
+        if group and (ids != "all"):
             raise ValueError('Data file does not have grouping column, but you asked for a specific group.')
     try:
         rt_col = headers.index('rt')
