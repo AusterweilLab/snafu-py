@@ -142,6 +142,8 @@ def data_properties(command, root_path):
         avg_items_listed = format_output(avg_items_listed)
         avg_unique_items_listed = format_output(avg_unique_items_listed)
 
+    csv_file = generate_csv_file(command, root_path);
+
     return { "type": "data_properties", 
              "num_lists": num_lists,
              "avg_items_listed": avg_items_listed,
@@ -151,7 +153,40 @@ def data_properties(command, root_path):
              "avg_num_perseverations": avg_num_perseverations,
              "avg_unique_items_listed": avg_unique_items_listed,
              "avg_num_cluster_switches": avg_num_cluster_switches,
-             "avg_cluster_size": avg_cluster_size }
+             "avg_cluster_size": avg_cluster_size,
+             "csv_file": csv_file }
+
+def generate_csv_file(command, root_path):
+    csv_file = "id,listnum,num_items_listed,num_unique_items,num_cluster_switches,avg_cluster_size,num_intrusions,num_perseverations\n"
+    # parameters should come from snafu gui (ids, filename, category, scheme)
+    # filedata = snafu.readX(ids, command['fullpath'], category=command['category'], spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=group)
+    data = snafu.readX('all',command['fullpath'],category=command['category'], scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=True)
+    data.hierarchical()
+
+    for subnum, sub in enumerate(data.subs):
+        # this converts fluency list from ints to labels
+        labeled_lists = snafu.numToItemLabel(data.Xs[subnum],data.items[subnum])
+    
+        for listnum in range(len(data.Xs[subnum])):
+            csv_sub = sub
+            csv_listnum = listnum
+            csv_numitems = len(data.Xs[subnum][listnum])
+            csv_uniqueitem = len(set(data.Xs[subnum][listnum]))
+            
+            # parameters should come from snafu gui (scheme, clustertype)
+            clustersizes = snafu.clusterSize(labeled_lists[listnum], scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
+            csv_clusterswitch = len(clustersizes) - 1
+            csv_clusterlength = snafu.avgClusterSize(clustersizes)
+
+            # parameters should come from snafu gui (scheme)
+            csv_intrusions = len(snafu.intrusions(labeled_lists[listnum],scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes")))
+            csv_perseverations = len(snafu.perseverations(labeled_lists[listnum]))
+
+            csv_file += str(csv_sub)+','+str(csv_listnum)+','+str(csv_numitems)+','+str(csv_uniqueitem)+','+str(csv_clusterswitch)+','+str(round(csv_clusterlength,2))+','+str(csv_intrusions)+','+str(csv_perseverations)+'\n'
+
+
+    return csv_file
+
 
 def network_properties(command, root_path):
     subj_props = command['data_parameters']
