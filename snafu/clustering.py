@@ -114,6 +114,7 @@ def labelClusters(l, scheme):
                 labels.append(item[:maxletters])
     return labels
 
+# slow
 def intrusions(l, scheme):
     labels=labelClusters(l, scheme)
     if len(l) > 0:
