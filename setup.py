@@ -20,7 +20,7 @@ setup(name='snafu',
       keywords=['fluency', 'networks'],
       packages=['snafu'],
       include_package_data=True,
-      install_requires=['numpy','networkx','scipy'],
+      install_requires=['numpy','networkx>=2.1','scipy'],
       zip_safe=False,
       classifiers=[
             'Programming Language :: Python :: 2',

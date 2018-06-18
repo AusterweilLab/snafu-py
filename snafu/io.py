@@ -211,19 +211,19 @@ def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=False):
     onezero={True: '1', False: '0'}        
     import networkx as nx
     fh=open(fh,'w',0)
-
+    
     nodes = list(set(flatten_list([gs[i].nodes() for i in range(len(gs))])))
-
+    
     if header != False:
         fh.write('subj,item1,item2,'+ header+'\n')
-
+    
     for node1 in nodes:
         for node2 in nodes:
             if (node1 < node2) or ((directed) and (node1 != node2)):   # write edges in alphabetical order unless directed graph
                 edge = (node1,node2)
                 edgelist=""
                 for g in gs:
-                    edgelist=edgelist+"," + onezero[g.has_edge(edge[0],edge[1])]    # assumes graph is symmetrical if directed=True !!
+                    edgelist=edgelist+"," + onezero[g.has_edge(edge[0],edge[1])]    # assumes graph is symmetrical if directed=True !!               
                 extrainfo=""
                 if edge[0] in extra_data.keys():
                     if edge[1] in extra_data[edge[0]].keys():
@@ -232,8 +232,8 @@ def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=False):
                         else:
                             extrainfo=","+str(extra_data[sortededge[0]][sortededge[1]])
                 fh.write(subj    + "," +
-                        edge[0]  + "," +
-                        edge[1]  + 
+                        str(edge[0])  + "," +
+                        str(edge[1])  + 
                         edgelist + "," +
                         extrainfo + "\n")
     return

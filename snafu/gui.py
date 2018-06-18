@@ -2,6 +2,7 @@ import snafu as snafu
 import numpy as np
 import os, sys
 import networkx as nx
+from networkx.readwrite import json_graph
 import json
 
 def list_subjects_and_categories(command, root_path):
@@ -38,7 +39,6 @@ def list_subjects_and_categories(command, root_path):
              "group": groups[0] }
 
 def jsonGraph(g, items):
-    from networkx.readwrite import json_graph
     json_data = json_graph.node_link_data(g)
     
     json_data['edges'] = json_data['links']
@@ -268,7 +268,7 @@ def analyze_graph(command, root_path): # used when importing graphs
         multigraph = False,
         attrs=dict(source='source', target='target', name='id', key='nodes', link='edges')
     )
-    return graph_properties(nxg,nxg_json)
+    return graph_properties(nxg, nxg_json)
 
 def graph_properties(nxg,nxg_json): # separate function that calculates graph properties
     node_degree = np.mean(dict(nxg.degree()).values())
