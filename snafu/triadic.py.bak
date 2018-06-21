@@ -1,6 +1,6 @@
 # these functions need to be made more extensible
 
-
+from __future__ import print_function
 from numpy.linalg import inv
 import numpy as np
 
@@ -18,7 +18,7 @@ def commonNode(graph, items, node1, node2, numsims=100, jumpval=0.0):
         else:
             return np.random.choice(np.where(graph[pos]==1)[0])
 
-    inv_items = {v: k for k, v in items.items()}
+    inv_items = {v: k for k, v in items.iteritems()}
     common_items={}
     for sim in range(numsims):
         a_idx = a_cur = inv_items[node1]
@@ -112,7 +112,7 @@ def triadicMonteCarlo(graph, items, triad, numsims=100,jumpval=0.0):
         else:
             return np.random.choice(np.where(graph[pos]==1)[0])
 
-    inv_items = {v: k for k, v in items.items()}
+    inv_items = {v: k for k, v in items.iteritems()}
     ab = ac = bc = 0
     for sim in range(numsims):
         a_idx = a_cur = inv_items[triad[0]]
@@ -170,7 +170,7 @@ def triadicMonteCarlo(graph, items, triad, numsims=100,jumpval=0.0):
     return [ab/numsims, ac/numsims, bc/numsims]
 
 def similarity(a, items, start, choices, steps="inf", jumpval=0.0):
-    inv_items = {v: k for k, v in items.items()}
+    inv_items = {v: k for k, v in items.iteritems()}
     t=a/sum(a.astype(float))                                                                # link to transition matrix
     choices_idx=[inv_items[i] for i in choices]                                             # item labels to ids
     x=[i for i in range(len(a)) if ((i not in choices_idx) and (i != inv_items[start]))]    # item ids to transition across freely
@@ -182,7 +182,7 @@ def similarity(a, items, start, choices, steps="inf", jumpval=0.0):
     numchoices=len(choices)
     nonchoicelength = len(a)-numchoices
     start_idx = nonchoicelength-1
-    choice_idx = list(range(start_idx+1,len(x)))
+    choice_idx = range(start_idx+1,len(x))
   
     # add jumps
     if jumpval > 0.0:

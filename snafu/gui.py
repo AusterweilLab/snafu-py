@@ -271,7 +271,7 @@ def analyze_graph(command, root_path): # used when importing graphs
     return graph_properties(nxg, nxg_json)
 
 def graph_properties(nxg,nxg_json): # separate function that calculates graph properties
-    node_degree = np.mean(dict(nxg.degree()).values())
+    node_degree = np.mean(list(dict(nxg.degree()).values()))
     clustering_coefficient = nx.average_clustering(nxg)
     try:
         aspl = nx.average_shortest_path_length(nxg)
@@ -280,7 +280,7 @@ def graph_properties(nxg,nxg_json): # separate function that calculates graph pr
     density = nx.classes.function.density(nxg)
     betweenness_centrality_nodes = nx.algorithms.centrality.betweenness_centrality(nxg)
     avg_betweenness_centrality = 0.0
-    for node, bc in betweenness_centrality_nodes.items():
+    for node, bc in list(betweenness_centrality_nodes.items()):
         avg_betweenness_centrality += bc
     avg_betweenness_centrality /= len(betweenness_centrality_nodes)
 

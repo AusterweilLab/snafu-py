@@ -1,7 +1,7 @@
-
+from __future__ import print_function
 import networkx as nx
 import numpy as np
-from .core import *
+from core import *
 #from helper import *
 
 def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
@@ -32,12 +32,12 @@ def toyBatch(tg, td, outfile, irts=Irts({}), fitinfo=Fitinfo({}), start_seed=0,
     f=open(outfile,'a', 0)                # write/append to file with no buffering
     if header==1:
         objs=[tg, td, irts, fitinfo]
-        header_towrite=[str(i) for var in objs for i in list(var.keys()) if i!='data'] + globalvals + methodvals
+        header_towrite=[str(i) for var in objs for i in var.keys() if i!='data'] + globalvals + methodvals
         f.write(','.join(header_towrite) + '\n')
 
     # write all parameters to file except irts.data (too long for csv file! if they're toy irts, they can be re-generated from seed)
     objs=[tg, td, irts, fitinfo]
-    params_towrite=[str(var[i]) for var in objs for i in list(var.keys()) if i!='data']
+    params_towrite=[str(var[i]) for var in objs for i in var.keys() if i!='data']
 
     # how many graphs to run?
     seed_param=start_seed

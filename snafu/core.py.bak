@@ -1,5 +1,5 @@
-
-
+from __future__ import division
+from __future__ import print_function
 
 import pickle
 import networkx as nx
@@ -18,9 +18,8 @@ from datetime import datetime
 #import scipy.stats
 
 # sibling packages
-from .helper import *
-from .structs import *
-from functools import reduce
+from helper import *
+from structs import *
 
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
@@ -121,7 +120,7 @@ def chan(Xs, numnodes, valid=False, td=None):
         """The MST-pathfinder algorithm (Quirin et al. 2008) reduces the graph to the
         unions of all minimal spanning trees."""
         NG    = nx.Graph()
-        NG.add_nodes_from(list(range(numnodes)))
+        NG.add_nodes_from(range(numnodes))
         edges = sorted( ((G[a][b]['weight'],a,b) for a,b in G.edges()),
                             reverse=False)                          # smaller distances are more similar
         clusters = {node:i for i,node in enumerate(G.nodes())}
@@ -145,7 +144,7 @@ def chan(Xs, numnodes, valid=False, td=None):
                 cluster_1 = clusters[a]
                 cluster_2 = clusters[b]
                 clusters = {node:cluster_1 if i==cluster_2 else i
-                            for node,i in clusters.items()}
+                            for node,i in clusters.iteritems()}
         return NG
 
     if valid and not td:
@@ -285,7 +284,7 @@ def firstHits(walk):
     path=path_from_walk(walk)
     for i in observed_walk(walk):
         firsthit.append(path.index(i))
-    return list(zip(observed_walk(walk),firsthit))
+    return zip(observed_walk(walk),firsthit)
 
 def fullyConnected(numnodes):
     a=np.ones((numnodes,numnodes))
@@ -342,9 +341,9 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=Tru
                         pair = np.sort((item1,item2))
                     else:
                         pair = (item1,item2)
-                    if pair[0] not in list(priordict.keys()):
+                    if pair[0] not in priordict.keys():
                         priordict[pair[0]]={}
-                    if pair[1] not in list(priordict[pair[0]].keys()):
+                    if pair[1] not in priordict[pair[0]].keys():
                         priordict[pair[0]][pair[1]] = [a_start, b_start]
                     if j==1:
                         priordict[pair[0]][pair[1]][1] += 1.0 # increment b counts
@@ -362,7 +361,7 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=Tru
                         priordict[item1][item2] = betabinomial(a,b) # beta-binomial
                 else:
                     priordict[item1][item2] = 0.0   # if number of observations is less than mincount, make edge prior 0.0
-        if 'DEFAULTPRIOR' in list(priordict.keys()):
+        if 'DEFAULTPRIOR' in priordict.keys():
             raise ValueError('Sorry, you can\'t have a node called DEFAULTPRIOR. \
                               Sure, I should have coded this better, but I really didn\'t think this situation would ever occur.')
         else:
@@ -561,7 +560,7 @@ def goni(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=None):
         setXs=[list(set(x)) for x in Xs]                              # unique nodes in each list
         flatX=flatten_list(setXs)                                     # flattened
         xfreq=[flatX.count(i) for i in range(numnodes)]               # number of lists each item appears in (at least once)
-        listofedges=list(zip(*np.nonzero(graph)))                           # list of edges in graph to check
+        listofedges=zip(*np.nonzero(graph))                           # list of edges in graph to check
         numlists=float(len(Xs))
         meanlistlength=np.mean([len(x) for x in Xs])
     
@@ -627,7 +626,7 @@ def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({})
     nplocal=np.random.RandomState(seed) 
     fitinfoSG = fitinfo.startGraph  # fitinfo is mutable, need to revert at end of function... blah
     # create ids for all subjects
-    subs=list(range(len(Xs)))
+    subs=range(len(Xs))
     graphs=[[]]*len(subs)
 
     # cycle though participants
@@ -718,7 +717,7 @@ def kenett(Xs, numnodes, minlists=0, valid=False, td=None):
                 edgelist.pop()
     
     g = nx.Graph()
-    g.add_nodes_from(list(range(numnodes)))
+    g.add_nodes_from(range(numnodes))
     g.add_edges_from(edgelist)
     a=np.array(nx.to_numpy_matrix(g)).astype(int)
    
@@ -795,12 +794,12 @@ def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
     numnodes = len(items)
     a = np.zeros((numnodes, numnodes))
     
-    for item1 in list(priordict.keys()):
+    for item1 in priordict.keys():
         if item1 != 'DEFAULTPRIOR':
             for item2 in priordict[item1]:
                 if priordict[item1][item2] > cutoff:
-                    item1_idx = list(items.keys())[list(items.values()).index(item1)]    # syntax is a little convoluted in case dictionary keys are not in sequential order
-                    item2_idx = list(items.keys())[list(items.values()).index(item2)]
+                    item1_idx = items.keys()[items.values().index(item1)]    # syntax is a little convoluted in case dictionary keys are not in sequential order
+                    item2_idx = items.keys()[items.values().index(item2)]
                     a[item1_idx, item2_idx] = 1.0
                     if undirected:
                         a[item2_idx, item1_idx] = 1.0
@@ -1014,7 +1013,7 @@ def random_walk(g, td, priming_vector=[], seed=None):
         a=np.array(nx.to_numpy_matrix(g))
         t=a/sum(a).astype(float)
         statdist=stationary(t)
-        statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))
+        statdist=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
     
     if td.startX=="stationary":
         start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution
@@ -1355,7 +1354,7 @@ def smallToBigGraph(small_graph, small_items, large_items):
             if j==1:
                 i_label = small_items[inum]
                 j_label = small_items[jnum]
-                big_i = list(large_items.keys())[list(large_items.values()).index(i_label)] # wordy just in case dictionary keys are not in numerical order
-                big_j = list(large_items.keys())[list(large_items.values()).index(j_label)]
+                big_i = large_items.keys()[large_items.values().index(i_label)] # wordy just in case dictionary keys are not in numerical order
+                big_j = large_items.keys()[large_items.values().index(j_label)]
                 a[big_i, big_j] = 1
     return a

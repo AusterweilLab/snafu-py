@@ -1,7 +1,7 @@
 import numpy as np
 import networkx as nx
 
-from .helper import *
+from helper import *
 
 # frequency of each item in the data
 # count also use collections.Counter ?
@@ -10,13 +10,13 @@ def freq(Xs, perlist=0):
         Xs=[list(set(x)) for x in Xs]   # only count each item once per list
     Xflat=flatten_list(Xs)
     counts=[Xflat.count(i) for i in set(Xflat)]
-    return dict(list(zip(set(Xflat),counts)))
+    return dict(zip(set(Xflat),counts))
 
 # distribution of frequencies in the data (e.g., X items appeared once, Y items appeared twice, etc.)
 def freq_stat(Xs):
-    freqdist=list(freq(Xs).values())
+    freqdist=freq(Xs).values()
     counts=[freqdist.count(i) for i in set(freqdist)]
-    return dict(list(zip(set(freqdist),counts)))
+    return dict(zip(set(freqdist),counts))
 
 # ** UNTESTED // modified from usf_cogsci.py
 # num unique animals named across lists

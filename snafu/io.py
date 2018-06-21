@@ -7,10 +7,10 @@
 import numpy as np
 import csv
 from  more_itertools import unique_everseen
-from structs import *
+from .structs import *
 
 # sibling functions
-from helper import *
+from .helper import *
 
 # wrapper
 def graphToHash(a):
@@ -31,7 +31,7 @@ def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=Fals
         headerrow=fh.readline().split('\n')[0].split(',')
         cols=(headerrow.index(cols[0]),headerrow.index(cols[1]))
         filterrows={}
-        for i in filters.keys():
+        for i in list(filters.keys()):
             filterrows[headerrow.index(i)]=filters[i]
     else:
         filterrows={}
@@ -59,8 +59,8 @@ def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=Fals
 
 
     
-    items_rev = dict(zip(bigdict.keys(),range(len(bigdict.keys()))))
-    items = dict(zip(range(len(bigdict.keys())),bigdict.keys()))
+    items_rev = dict(list(zip(list(bigdict.keys()),list(range(len(list(bigdict.keys())))))))
+    items = dict(list(zip(list(range(len(list(bigdict.keys())))),list(bigdict.keys()))))
     
     if sparse:
         from scipy.sparse import csr_matrix
@@ -170,15 +170,15 @@ def readX(ids,filepath,category=None,removePerseverations=False,removeIntrusions
             if storerow == True:
 
                 # make sure dict keys exist
-                if not Xs.has_key(row[subj_col]):
+                if row[subj_col] not in Xs:
                     Xs[row[subj_col]] = dict()
                     if has_rt_col:
                         irts[row[subj_col]] = dict()
-                if not Xs[row[subj_col]].has_key(listnum_int):
+                if listnum_int not in Xs[row[subj_col]]:
                     Xs[row[subj_col]][listnum_int] = []
                     if has_rt_col:
                         irts[row[subj_col]][listnum_int] = []
-                if not items.has_key(row[subj_col]):
+                if row[subj_col] not in items:
                     items[row[subj_col]] = dict()
                     
                 # basic clean-up
@@ -186,17 +186,17 @@ def readX(ids,filepath,category=None,removePerseverations=False,removeIntrusions
                 badchars=" '-\"\\;?"
                 for char in badchars:
                     item=item.replace(char,"")
-                if item in spellingdict.keys():
+                if item in list(spellingdict.keys()):
                     item = spellingdict[item]
                 if has_rt_col:
                     irt=row[rt_col]
-                if item not in items[row[subj_col]].values():
+                if item not in list(items[row[subj_col]].values()):
                     if (item in validitems) or (not removeIntrusions):
                         next_idx = len(items[row[subj_col]])
                         items[row[subj_col]][next_idx]=item
                         
                 try:
-                    itemval=items[row[subj_col]].values().index(item)
+                    itemval=list(items[row[subj_col]].values()).index(item)
                     if (not removePerseverations) or (itemval not in Xs[row[subj_col]][listnum_int]):   # ignore any duplicates in same list resulting from spelling corrections
                         if (item in validitems) or (not removeIntrusions):
                             Xs[row[subj_col]][listnum_int].append(itemval)
@@ -225,8 +225,8 @@ def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=False):
                 for g in gs:
                     edgelist=edgelist+"," + onezero[g.has_edge(edge[0],edge[1])]    # assumes graph is symmetrical if directed=True !!               
                 extrainfo=""
-                if edge[0] in extra_data.keys():
-                    if edge[1] in extra_data[edge[0]].keys():
+                if edge[0] in list(extra_data.keys()):
+                    if edge[1] in list(extra_data[edge[0]].keys()):
                         if isinstance(extra_data[edge[0]][edge[1]],list):
                             extrainfo=","+",".join([str(i) for i in extra_data[sortededge[0]][sortededge[1]]])
                         else:

@@ -1,7 +1,7 @@
 #import numpy as np
 import networkx as nx
 import numpy as np
-from .core import *
+from core import *
 #from helper import *
 
 # stochastic search through graph by node degree (proxy for frequency)
@@ -14,7 +14,7 @@ def nodeDegreeSearch(g, td):
     
     # make list of nodes by frequency
     l=[]
-    for i, j in g.degree().items():
+    for i, j in g.degree().iteritems():
         l=l+[i]*j
     
     # simulate search
@@ -48,7 +48,7 @@ def cbdfs(g, td):
         a=np.array(nx.to_numpy_matrix(g))
         t=a/sum(a).astype(float)
         statdist=stationary(t)
-        statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))
+        statdist=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
     
     if td.startX=="stationary":
         start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution
@@ -89,7 +89,7 @@ def spreadingActivationSearch(g, td, decay):
         a=np.array(nx.to_numpy_matrix(g))
         t=a/sum(a).astype(float)
         statdist=stationary(t)
-        statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))
+        statdist=scipy.stats.rv_discrete(values=(range(len(t)),statdist))
     
     if td.startX=="stationary":
         start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution
@@ -98,13 +98,13 @@ def spreadingActivationSearch(g, td, decay):
     elif td.startX[0]=="specific":
         start=td.startX[1]
     
-    activations=dict.fromkeys(list(range(numnodes)), 0)
+    activations=dict.fromkeys(range(numnodes), 0)
 
     activations[start]=1.0
     walk=[start]
     
     while len(walk) < numtrim:
-        newacts=dict.fromkeys(list(range(numnodes)), 0)
+        newacts=dict.fromkeys(range(numnodes), 0)
         walknodes=[]
         for node in range(numnodes):
             nn=g.neighbors(node)
@@ -123,7 +123,7 @@ def spreadingActivationSearch(g, td, decay):
         for i in walk:
             probs[i]=0.0
 
-        newnode=np.random.choice(list(range(numnodes)),p=probs)
+        newnode=np.random.choice(range(numnodes),p=probs)
         walk.append(newnode)
         activations[newnode]=1.0
         

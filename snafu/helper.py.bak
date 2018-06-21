@@ -1,4 +1,4 @@
-
+from __future__ import print_function
 import numpy as np
 
 # http://stackoverflow.com/a/32107024/353278
@@ -12,11 +12,11 @@ class dotdict(dict):
         super(dotdict, self).__init__(*args, **kwargs)
         for arg in args:
             if isinstance(arg, dict):
-                for k, v in list(arg.items()):
+                for k, v in arg.items():
                     self[k] = v
 
         if kwargs:
-            for k, v in list(kwargs.items()):
+            for k, v in kwargs.items():
                 self[k] = v
 
     def __getattr__(self, attr):
@@ -39,7 +39,7 @@ class dotdict(dict):
 # from http://locallyoptimal.com/blog/2013/01/20/elegant-n-gram-generation-in-python/
 # generate list of ngrams
 def find_ngrams(input_list, n):
-    return list(zip(*[input_list[i:] for i in range(n)]))
+    return zip(*[input_list[i:] for i in range(n)])
 
 # modified from ExGUtils package by Daniel Gamermann <gamermann@gmail.com>
 # helper function generate flast lists from nested lists

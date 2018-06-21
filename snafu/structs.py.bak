@@ -2,7 +2,7 @@
 # fill in missing variables with defaults
 
 import warnings
-from .helper import *
+from helper import *
 import numpy as np
 from copy import deepcopy
 
@@ -17,8 +17,8 @@ class Data():
             groupitems={}
             idx=0
             for subitems in items:
-                for item in list(items[subitems].values()):
-                    if item not in list(groupitems.values()):
+                for item in items[subitems].values():
+                    if item not in groupitems.values():
                         groupitems[idx] = item
                         idx += 1
             return groupitems
@@ -76,7 +76,7 @@ class Data():
     
         
 def DataModel(data):
-    tdkeys=list(data.keys())
+    tdkeys=data.keys()
 
     # full factorial of any list params
     for i in tdkeys:
@@ -105,7 +105,7 @@ def DataModel(data):
     return dotdict(data)
 
 def Graphs(graphs):
-    tgkeys=list(graphs.keys())
+    tgkeys=graphs.keys()
     
     # full factorial of any list params
     for i in tgkeys:
@@ -127,7 +127,7 @@ def Graphs(graphs):
     return dotdict(graphs)
         
 def Irts(irts):
-    irtkeys=list(irts.keys())
+    irtkeys=irts.keys()
 
     # full factorial of any list params
     for i in irtkeys:
@@ -161,7 +161,7 @@ def Irts(irts):
     return dotdict(irts)
 
 def Fitinfo(fitinfo):
-    fitkeys=list(fitinfo.keys())
+    fitkeys=fitinfo.keys()
 
     # full factorial of any list params
     for i in fitkeys:

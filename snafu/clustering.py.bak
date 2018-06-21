@@ -1,4 +1,4 @@
-
+from __future__ import print_function
 import numpy as np
 
 # given list of cluster lengths, compute average cluster size of each list, then return avearge of that
@@ -95,7 +95,7 @@ def labelClusters(l, scheme):
             cat, item = line.split(',')
             cat=cat.lower().replace(' ','').replace("'","").replace("-","") # basic clean-up
             item=item.lower().replace(' ','').replace("'","").replace("-","")
-            if item not in list(cats.keys()):
+            if item not in cats.keys():
                 cats[item]=cat
             else:
                 if cat not in cats[item]:
@@ -107,7 +107,7 @@ def labelClusters(l, scheme):
         else:
             item=item.lower().replace(' ','')
             if clustertype == "semantic":
-                if item in list(cats.keys()):
+                if item in cats.keys():
                     labels.append(cats[item])
                 else:
                     labels.append("unknown")
