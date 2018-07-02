@@ -24,10 +24,3 @@ def numNgrams(data, ngram=1):
     animallists=[find_ngrams(data[i],ngram) for i in range(len(data))]
     animalsNamed=len(set(flatten_list(animallists)))
     return animalsNamed
-
-
-def numNgrams(data, ngram=1):
-    animallists=[snafu.find_ngrams(data[i],ngram) for i in range(len(data))]
-    animalsNamed=len(set(snafu.flatten_list(animallists)))
-    return animalsNamed
-
