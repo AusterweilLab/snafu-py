@@ -980,6 +980,9 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
     except:
         ll=-np.inf
 
+    #if caron_prior:
+    #    ll = ll + np.log(caron_prior(a, params))
+
     # include prior?
     if prior:
         if isinstance(prior, tuple):    # graph prior
@@ -994,6 +997,11 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                 ll = ll + np.log(priorprob)
 
     return ll, uinvite_probs
+
+#def caron_prior(a, params):
+#    # your model code here
+#    return prior_prob
+
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g, td, priming_vector=[], seed=None):

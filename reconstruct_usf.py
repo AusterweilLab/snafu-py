@@ -28,7 +28,7 @@ numsims = 10            # how many simulations to perform?
 methods=['uinvite_hierarchical']    # which methods to use for reconstructing network?
 
 # describe what your data should look like
-toydata=snafu.Data({
+toydata=snafu.DataModel({
         'jump': 0.0,
         'jumptype': "stationary",
         'priming': 0.0,

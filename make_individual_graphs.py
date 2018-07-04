@@ -14,7 +14,7 @@ import scipy.stats
 methods=["uinvite_flat"]
 
 # describe what your data should look like
-toydata=snafu.Data({
+toydata=snafu.DataModel({
         'jump': 0.0,
         'jumptype': "stationary",
         'priming': 0.0,
@@ -53,8 +53,12 @@ for method in methods:
     # add snafu.hierarhicalUinvite method here
     
     for sub in subs:
-        #Xs, items, irtdata, numnodes = snafu.readX(sub,filepath,category=category,removePerseverations=True,spellfile="spellfiles/animals_zemla_spellfile.csv")
-        Xs, items, irtdata, numnodes = snafu.readX(sub,filepath,category=category,removePerseverations=True,spellfile="spellfiles/animals_zemla_spellfile.csv")
+        filedata = snafu.readX(sub,filepath,category=category,removePerseverations=True,spellfile="spellfiles/animals_zemla_spellfile.csv")
+        filedata.nonhierarchical()
+        Xs = filedata.Xs
+        items = filedata.items
+        numnodes = filedata.numnodes
+        
         if method=="rw":
             graph = snafu.nrw(Xs, numnodes)
         if method=="goni":

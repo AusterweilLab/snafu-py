@@ -10,7 +10,7 @@ import scipy.stats
 methods=['uinvite_flat']
 
 # describe what your data should look like
-toydata=snafu.Data({
+toydata=snafu.DataModel({
         'jump': 0.0,
         'jumptype': "stationary",
         'priming': 0.0,
@@ -33,19 +33,26 @@ fitinfo=snafu.Fitinfo({
         'goni_size': 2,
         'goni_threshold': 2,
         'followtype': "avg", 
-        'prune_limit': np.inf,
-        'triangle_limit': np.inf,
-        'other_limit': np.inf })
+        'prune_limit': 100,
+        'triangle_limit': 100,
+        'other_limit': 100 })
 
 subs=["S"+str(i) for i in range(101,151)]
 filepath = "fluency/spring2017.csv"
 category="animals"
 
 # read in data from file, flattening all participants together
-Xs_flat, groupitems, irtdata, groupnumnodes = snafu.readX(subs,filepath,category=category,removePerseverations=True,spellfile="spellfiles/animals_zemla_spellfile.csv",flatten=True)
+filedata = snafu.readX(subs,filepath,category=category,removePerseverations=True,spellfile="spellfiles/animals_kendra_spellfile.csv")
 
-# read data from file, preserving hierarchical structure
-Xs_hier, items, irtdata, numnodes, groupitems, groupnumnodes = snafu.readX(subs,filepath,category=category,removePerseverations=True,spellfile="spellfiles/animals_zemla_spellfile.csv")
+filedata.nonhierarchical()
+Xs_flat = filedata.Xs
+groupnumnodes = filedata.numnodes
+groupitems = filedata.groupitems
+
+filedata.hierarchical()
+Xs_hier = filedata.Xs
+items = filedata.items
+numnodes = filedata.numnodes
 
 graphs=[]
 for method in methods:

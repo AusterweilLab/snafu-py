@@ -212,7 +212,7 @@ def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=False):
     import networkx as nx
     fh=open(fh,'w',0)
     
-    nodes = list(set(flatten_list([gs[i].nodes() for i in range(len(gs))])))
+    nodes = list(set(flatten_list([list(gs[i].nodes()) for i in range(len(gs))])))
     
     if header != False:
         fh.write('subj,item1,item2,'+ header+'\n')
