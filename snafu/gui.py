@@ -108,9 +108,12 @@ def data_properties(command, root_path):
     perseverations = []
     avg_num_perseverations = []
     
-    snafu.wordSetup(root_path)
+    snafu.wordSetup(freq_sub=float(command['freq_sub']),freqfile=label_to_filepath(command['freqfile'],root_path,"frequency"),aoafile=label_to_filepath(command['aoafile'],root_path,"aoa"))
+    totol_words = 0
     avg_word_freq = []
+    word_freq_excluded = []
     avg_word_aoa = []
+    word_aoa_excluded = []
 
     # kinda messy...
     for subjnum in range(len(Xs)):
@@ -132,8 +135,16 @@ def data_properties(command, root_path):
         avg_items_listed.append(np.mean([len(i) for i in Xs[subjnum]]))
         avg_unique_items_listed.append(np.mean([len(set(i)) for i in Xs[subjnum]]))
 
-        avg_word_freq.append(snafu.getWordFreq(Xs[subjnum]))
-        avg_word_aoa.append(snafu.getWordAoa(Xs[subjnum]))
+        tmp1, tmp2 = snafu.getWordFreq(Xs[subjnum],freq_sub=float(command['freq_sub']))
+        avg_word_freq.append(tmp1)
+        for i in tmp2:
+            word_freq_excluded.append(i)
+        tmp1, tmp2 = snafu.getWordAoa(Xs[subjnum])
+        avg_word_aoa.append(tmp1)
+        for i in tmp2:
+            word_aoa_excluded.append(i)
+        for i in Xs[subjnum]:
+            totol_words += len(i)
 
     # clean up / format data to send back, still messy
     intrusions = snafu.flatten_list(intrusions)
@@ -150,8 +161,16 @@ def data_properties(command, root_path):
         avg_unique_items_listed = format_output(avg_unique_items_listed)
         avg_word_freq=format_output(avg_word_freq)
         avg_word_aoa=format_output(avg_word_aoa)
-
-    csv_file = generate_csv_file(command, root_path);
+ 
+    word_freq_rate = 0
+    for i in word_freq_excluded:
+        word_freq_rate += len(i)
+    word_freq_rate = str(round(float(word_freq_rate)/totol_words*100,2))+'%'
+    word_aoa_rate = 0
+    for i in word_aoa_excluded:
+        word_aoa_rate += len(i)
+    word_aoa_rate = str(round(float(word_aoa_rate)/totol_words*100,2))+'%'
+    csv_file = generate_csv_file(command, root_path)
 
     return { "type": "data_properties", 
              "num_lists": num_lists,
@@ -165,6 +184,10 @@ def data_properties(command, root_path):
              "avg_cluster_size": avg_cluster_size,
              "avg_word_freq": avg_word_freq,
              "avg_word_aoa": avg_word_aoa,
+             "word_freq_rate": word_freq_rate,
+             "word_freq_excluded": word_freq_excluded,
+             "word_aoa_rate": word_aoa_rate,
+             "word_aoa_excluded": word_aoa_excluded,
              "csv_file": csv_file }
 
 def generate_csv_file(command, root_path):
@@ -193,8 +216,8 @@ def generate_csv_file(command, root_path):
             csv_intrusions = len(snafu.intrusions(labeled_lists[listnum],scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes")))
             csv_perseverations = len(snafu.perseverations(labeled_lists[listnum]))
 
-            csv_freq = snafu.getWordFreq([labeled_lists[listnum]])
-            csv_aoa = snafu.getWordAoa([labeled_lists[listnum]])
+            csv_freq, temp = snafu.getWordFreq([labeled_lists[listnum]],freq_sub=float(command['freq_sub']))
+            csv_aoa, temp = snafu.getWordAoa([labeled_lists[listnum]])
 
             csv_file += str(csv_sub)+','+str(csv_listnum)+','+str(csv_numitems)+','+str(csv_uniqueitem)+','+str(csv_clusterswitch)+','+str(round(csv_clusterlength,2))+','+str(csv_intrusions)+','+str(csv_perseverations)+','+str(round(csv_freq,2))+','+str(round(csv_aoa,2))+'\n'
 
