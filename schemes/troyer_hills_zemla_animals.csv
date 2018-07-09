@@ -364,6 +364,8 @@ Feline,tiger
 Feline,tomcat
 Feline,whitetiger
 Feline,wildcat
+Fish,anglerfish
+Fish,damselfish
 Fish,perch
 Fish,brimfish
 Fish,halibut
@@ -392,6 +394,8 @@ Fish,flyingfish
 Fish,freshwaterfish
 Fish,goldfish
 Fish,greatwhiteshark
+Fish,surgeonfish
+Fish,foureyebutterflyfish
 Fish,grenadier
 Fish,grouper
 Fish,grunt
@@ -545,6 +549,7 @@ NorthAmerican,skunk
 NorthAmerican,squirrel
 NorthAmerican,wolf
 NorthAmerican,graywolf
+NorthAmerican,grasssnake
 Pets,beagle
 Pets,bernesemountaindog
 Pets,bettafish
@@ -619,6 +624,7 @@ ReptileAmphibian,boaconstrictor
 ReptileAmphibian,bullfrog
 ReptileAmphibian,bullsnake
 ReptileAmphibian,caiman
+ReptileAmphibian,cornsnake
 ReptileAmphibian,chameleon
 ReptileAmphibian,cobra
 ReptileAmphibian,kingcobra
@@ -657,6 +663,7 @@ ReptileAmphibian,turtle
 ReptileAmphibian,velociraptor
 ReptileAmphibian,viper
 ReptileAmphibian,watersnake
+ReptileAmphibian,grasssnake
 Rodents,xerus
 Rodents,pika
 Rodents,nutria
@@ -786,6 +793,7 @@ Water,seaurchin
 Water,shark
 Water,skate
 Water,slug
+Water,bananaslug
 Water,smallmouthbass
 Water,snail
 Water,snappingturtle
