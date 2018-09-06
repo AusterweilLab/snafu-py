@@ -8,7 +8,7 @@ import sys
 import copy
 import csv
 
-from numpy.linalg import inv
+#from numpy.linalg import inv
 from itertools import *
 from datetime import datetime
 
@@ -17,6 +17,8 @@ from datetime import datetime
 # sibling packages
 from .helper import *
 from .structs import *
+from .pci import *
+
 from functools import reduce
 
 # TODO: when doing same phase twice in a row, don't re-try same failures
@@ -423,7 +425,7 @@ def genSteyvers(n,m, tail=True, seed=None):               # tail allows m-1 "nul
 # tries <- W-S parameter (number of tries to generate connected graph)
 # forcenew <- if 1, don't use cached prior
 def genSWPrior(tg, n, bins=100, forcenew=False):
-    import scipy.stats    
+    import scipy.stats
     # filename for prior
     if tg.graphtype=="steyvers":
         filename = "steyvers_" + str(tg.numnodes) + "_" + str(tg.numlinks) + ".prior"
@@ -526,8 +528,8 @@ def goni(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=None):
     if valid and not td:
         raise ValueError('Need to pass Data when generating \'valid\' goni()')
 
-    if c<1:
-        from statsmodels.stats.proportion import proportion_confint as pci
+    #if c<1:
+    #    from statsmodels.stats.proportion import proportion_confint as pci
 
     if w < 1:
         print("Error in goni(): w must be >= 1")
@@ -566,7 +568,8 @@ def goni(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=None):
         p_adj = (2.0/(meanlistlength*(meanlistlength-1))) * ((w*meanlistlength) - ((w*(w+1))/2.0))
         for i,j in listofedges:
             p_linked = (xfreq[i]/numlists) * (xfreq[j]/numlists) * p_adj
-            ci=pci(cooccur[i,j],numlists,alpha=c,method="beta")[0]    # lower bound of Clopper-Pearson binomial CI
+            #ci=pci(cooccur[i,j],numlists,alpha=c,method="beta")[0]    # lower bound of Clopper-Pearson binomial CI
+            ci = pci_lowerbound(cooccur[i,j], numlists, c)             # lower bound of Clopper-Pearson binomial CI
             if p_linked >= ci:                                        # if co-occurrence could be due to chance, remove edge
                 graph[i,j]=0
                 graph[j,i]=0
@@ -1005,7 +1008,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g, td, priming_vector=[], seed=None):
-    import scipy.stats    
+    import scipy.stats
     nplocal=np.random.RandomState(seed)    
 
     def jump():

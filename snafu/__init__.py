@@ -12,4 +12,6 @@ from .simulations import *
 from . import gui
 from .triadic import *
 from .word_properties import *
+from .pci import *
+
 #from draw import *

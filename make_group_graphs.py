@@ -39,10 +39,10 @@ fitinfo=snafu.Fitinfo({
 
 subs=["S"+str(i) for i in range(101,151)]
 filepath = "fluency/spring2017.csv"
-category="animals"
+category="tools"
 
 # read in data from file, flattening all participants together
-filedata = snafu.readX(subs,filepath,category=category,removePerseverations=True,spellfile="spellfiles/animals_kendra_spellfile.csv")
+filedata = snafu.readX(subs,filepath,category=category,removePerseverations=True,spellfile="spellfiles/tools_zemla_spellfile.csv")
 
 filedata.nonhierarchical()
 Xs_flat = filedata.Xs

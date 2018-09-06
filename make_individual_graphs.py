@@ -42,7 +42,7 @@ fitinfo=snafu.Fitinfo({
         'other_limit': np.inf })
 
 # the hierarchical model will take a long time to run!! to test it you can fit a smaller number of participants, e.g. range(101,111)
-subs=["S"+str(i) for i in range(101,151)]
+subs=["S"+str(i) for i in range(101,102)]
 filepath = "fluency/spring2017.csv"
 category="animals"
 
