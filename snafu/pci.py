@@ -29,7 +29,7 @@ def contfractbeta(a,b,x, ITMAX = 200):
         bz = 1.0
         if (abs(az-aold)<(EPS*abs(az))):
             return az
-    print 'a or b too large or given ITMAX too small for computing incomplete beta function.'
+    print ('a or b too large or given ITMAX too small for computing incomplete beta function.')
 
 # copied from https://malishoaib.wordpress.com/2014/04/15/the-beautiful-beta-functions-in-raw-python/
 # same as scipy.special.betainc within rounding
