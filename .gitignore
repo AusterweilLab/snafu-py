@@ -7,3 +7,5 @@ snafu.egg-info/
 snafu_py.egg-info/
 snet/BEAGLEdata.mat
 snet/dedyne.snet
+snet/swow.snet
+snet/swow_one.snet
