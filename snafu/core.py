@@ -1025,7 +1025,7 @@ def random_walk(g, td, priming_vector=[], seed=None):
         statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))
     
     if td.startX=="stationary":
-        start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution
+        start=statdist.rvs(random_state=seed)    # choose starting point from stationary distribution
     elif td.startX=="uniform":
         start=nplocal.choice(nx.nodes(g))        # choose starting point uniformly
     elif td.startX[0]=="specific":
@@ -1045,7 +1045,8 @@ def random_walk(g, td, priming_vector=[], seed=None):
 
     censoredcount=0                                # keep track of censored nodes and jump after td.jumponcensored censored nodes
 
-    while len(unused_nodes) > num_unused:       # covers td.trim nodes-- list could be longer if it has perseverations
+    numsteps = 0
+    while (len(unused_nodes) > num_unused) and ((numsteps < td.maxsteps) or (td.maxsteps == None)):       # covers td.trim nodes-- list could be longer if it has perseverations
 
         # jump after n censored nodes or with random probability (depending on parameters)
         if (censoredcount == td.jumponcensored) or (nplocal.random_sample() < td.jump):
@@ -1057,6 +1058,7 @@ def random_walk(g, td, priming_vector=[], seed=None):
                     idx=priming_vector.index(first)
                     second=priming_vector[idx+1]          # overwrite RW... kinda janky
         walk.append((first,second))
+        numsteps += 1
         if second in unused_nodes:
             unused_nodes.remove(second)
             censoredcount=0
