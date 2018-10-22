@@ -140,12 +140,14 @@ def readX(ids,filepath,category=None,removePerseverations=False,removeIntrusions
         else:
             with open(scheme,'r') as fh:
                 for line in fh:
+                    if line[0] == "#": pass         # skip commented lines
                     validitems.append(line.rstrip().split(',')[1].lower())
 
     # read in spelling correction dictionary when spellfile is specified
     if spellfile:
         with open(spellfile,'r') as spellfile:
             for line in spellfile:
+                if line[0] == "#": pass         # skip commented lines
                 correct, incorrect = line.rstrip().split(',')
                 spellingdict[incorrect] = correct
    
