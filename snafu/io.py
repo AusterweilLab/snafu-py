@@ -141,15 +141,21 @@ def readX(ids,filepath,category=None,removePerseverations=False,removeIntrusions
             with open(scheme,'r') as fh:
                 for line in fh:
                     if line[0] == "#": pass         # skip commented lines
-                    validitems.append(line.rstrip().split(',')[1].lower())
+                    try:
+                        validitems.append(line.rstrip().split(',')[1].lower())
+                    except:
+                        pass    # fail silently on wrong format
 
     # read in spelling correction dictionary when spellfile is specified
     if spellfile:
         with open(spellfile,'r') as spellfile:
             for line in spellfile:
                 if line[0] == "#": pass         # skip commented lines
-                correct, incorrect = line.rstrip().split(',')
-                spellingdict[incorrect] = correct
+                try:
+                    correct, incorrect = line.rstrip().split(',')
+                    spellingdict[incorrect] = correct
+                except:
+                    pass    # fail silently on wrong format
    
     with open(filepath,'rbU') as f:
         f.readline()    # discard header row

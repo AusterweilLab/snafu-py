@@ -1,5 +1,5 @@
 ﻿# Spellfile by Jeffrey Zemla, Kendra Lange, Maggie Parker, & Blake Chambers (UW-Madison)
-# Last known change Oct 22, 2018
+# Last known change Oct 23, 2018
 aardvark,aadvark
 aardvark,aadvarks
 aardvark,aardvaark
@@ -8,6 +8,7 @@ aardvark,advart
 aardvark,ardvaark
 aardvark,ardvark
 afghanhound,afghans
+airdaleterrier,airedaleterrier
 airedaleterrier,airdale
 airedaleterrier,airdales
 airedaleterrier,airedale
@@ -31,6 +32,7 @@ alligator,alligaotr
 alligator,alligaror
 alligator,alligatar
 alligator,alligater
+alligator,alligato
 alligator,alligators
 alligator,alliigator
 alligator,gator
@@ -99,6 +101,7 @@ aplysia,seaslugaplysia
 arcticfox,snowfox
 armadillo,admaridllo
 armadillo,ardmillo
+armadillo,armadilllo
 armadillo,armadillos
 armadillo,armadilo
 armadillo,armadilos
@@ -106,6 +109,7 @@ armadillo,armdilla
 armadillo,armiadillo
 armadillo,armidillo
 armadillo,rmadillo
+ascidians,seasquirt
 auk,awk
 baboon,babboon
 baboon,baboo
@@ -120,6 +124,7 @@ badger,bandger
 badger,bedger
 bananaslug,bananaslugs
 bananaslug,bananslug
+barnacle,barnowl
 barracuda,baracuda
 barracuda,barricuda
 bass,bash
@@ -150,13 +155,17 @@ beetle,beetles
 beetle,bettle
 beluga,baloogawhale
 beluga,baluga
+beluga,balugawhale
 beluga,beluga whale
 beluga,belugawhale
 beluga,boluga
 beluga,bolugawhale
+beluga,whitewhate
 bengaltiger,bangel
+bengaltiger,begaltiger
 bengaltiger,bengal
 bengaltiger,bengalitiger
+bengaltiger,bengel
 bernesemountaindog,burmesemountaindog
 bettafish,beta
 bettafish,betafish
@@ -166,17 +175,21 @@ bettafish,betta
 bettafish,bettafishes
 bettafish,betttafish
 bighorn,bighornsheep
+bilbie,bilbies
 bilbies,bilby
 binturong,bearcat
 binturong,binterrung
 binturong,binterung
+bird,bid
 bird,birb
 bird,birdf
 bird,birds
 bird,pajaro
+bird,redbird
 bison,[bison
 bison,bizon
 black-cappedchickadee,black-cappedchickodee
+black-cappedchickadee,blackcappedchickodee
 blackbear,blackbeare
 blackbear,blackbears
 blackbear,blackbeat
@@ -200,7 +213,10 @@ boar,board
 boar,bore
 boar,goar
 boar,wildboar
+boar,wildboard
+boar,wildbog
 boar,wildbore
+bobcat,babcat
 bobcat,bobacat
 bobcat,bobat
 bobcat,bobcats
@@ -213,7 +229,10 @@ booby,book
 boxer,boxers
 boxturtle,easternboxturtle
 brownbear,brownbair
+brownreclusespider,brownrecluse
 brownreclusespider,reclusespider
+buffalo,baffalo
+buffalo,baffulo
 buffalo,buaffalo
 buffalo,bufallo
 buffalo,bufalo
@@ -251,7 +270,9 @@ calf,calfe
 calf,calves
 calf,walf
 camel,camal
+camel,cambel
 camel,came
+camel,camellllllll
 camel,camels
 camel,cameo
 camel,camle
@@ -288,6 +309,7 @@ caribou,caribu
 caribou,caribus
 caribou,carrabou
 carp,carb
+carp,cat
 carp,crap
 carpenterant,carpenterants
 cat,ca
@@ -300,6 +322,7 @@ cat,ct
 cat,domesticatedcat
 cat,housecat
 cat,householdcat
+cat,kat
 cat,kitty
 cat,pussycat
 cat,tuxedocat
@@ -327,6 +350,7 @@ chameleon,chameloen
 chameleon,chamelon
 chameleon,chamileon
 cheetah,cheata
+cheetah,cheerta
 cheetah,cheeta
 cheetah,cheetach
 cheetah,cheetag
@@ -373,12 +397,15 @@ chimpanzee,chimpanzeee
 chimpanzee,chimpanzees
 chimpanzee,chimpanzes
 chimpanzee,chimpanziwe
+chimpanzee,chimpazee
+chimpanzee,chimpnazee
 chimpanzee,chimps
 chimpanzee,chipanzee
 chimpanzee,panzee
 chinchilla,chinchila
 chinchilla,chincilla
 chinchilla,chionchilla
+chinchilla,cinchilla
 chipmunk,ardilla
 chipmunk,chikmonk
 chipmunk,chimmunk
@@ -404,6 +431,7 @@ chipmunk,cipmunm
 civet,civets
 clam,clams
 clam,giantclam
+coati,koati
 coatimundi,cotimundi
 cobra,cobia
 cobra,cobr
@@ -412,6 +440,7 @@ cockatiel,cocateel
 cockatiel,cockateel
 cockatiel,cockateil
 cockatoo,cocatoo
+cockroach,cochroach
 cockroach,cockroaches
 cockroach,roach
 cockroach,roachbug
@@ -424,14 +453,17 @@ cod,tod
 coelacanth,ceolacanth
 collie,collies
 conch,conk
+condor,goldencondor
 copperheadsnake,copperhead
 coral,corral
 coralreefsnake,seasnake
 corgi,corgii
 corgi,corgis
+corgi,welshcorgi
 cornishgamehen,cornishhen
 cornsnake,cornsnakes
 cottontailrabbit,cottontail
+cougar,couager
 cougar,cougars
 cougar,cougat
 cougar,couger
@@ -449,11 +481,14 @@ coyote,cotote
 coyote,coty
 coyote,coyoe
 coyote,coyota
+coyote,coyotee
 coyote,coyotes
 coyote,coyoto
+coyote,coyotr
 coyote,coyotte
 coyote,coytoe
 coyote,coyty
+coyote,cpyote
 coyote,cyote
 coyote,cyotee
 coyote,cyotes
@@ -506,6 +541,7 @@ deer,deet
 deer,der
 deer,derr
 deer,eer
+degu,tegu
 dingo,dingodog
 dinosaur,dianosor
 dinosaur,dinasoar
@@ -513,6 +549,7 @@ dinosaur,dinasuar
 dinosaur,dinoars
 dinosaur,dinoaur
 dinosaur,dinosar
+dinosaur,dinosaurs
 dinosaur,dinosour
 dobermanpinscher,doberman
 dobermanpinscher,dobermanpincher
@@ -571,17 +608,20 @@ donkey,jackass
 donkey,wildass
 dormouse,doormous
 dormouse,doormouse
+double-crestedcormorant,doublecrestedcommorant
 dove,doves
 dragon,dragons
 dromedary,dramadary
 dromedary,dramaderie
 dromedary,dromdry
+duck,dick
 duck,duch
 duck,ducks
 duck,duk
 duck,dunk
 duck,fuck
 duck,pato
+dungbeetle,dungebeetle
 eagle,eagel
 eagle,eagl
 eagle,eagles
@@ -594,9 +634,11 @@ echidna,echindna
 echidna,encidna
 eel,eels
 eel,teel
+egret,grit
 elephant,africanelephant
 elephant,asianelephant
 elephant,ee[hant
+elephant,eelpwhant
 elephant,eephant
 elephant,elaphant
 elephant,eleaphant
@@ -606,6 +648,7 @@ elephant,elepant
 elephant,elephamt
 elephant,elephan
 elephant,elephang
+elephant,elephanit
 elephant,elephants
 elephant,elephany
 elephant,elephat
@@ -613,11 +656,13 @@ elephant,elephatn
 elephant,elephnat
 elephant,elepohant
 elephant,elphant
+elephant,elphants
 elk,el
 elk,elki
 elk,elkk
 emu,emus
 emu,enu
+emu,imu
 emu,remus
 ermine,ermin
 falcon,facon
@@ -654,6 +699,7 @@ firefly,fireflies
 fish,f5sh
 fish,fidh
 fish,fishes
+fish,fisk
 fish,fissh
 fish,fush
 fish,ish
@@ -690,7 +736,9 @@ fox,foz
 fox,fozx
 fox,fozxes
 fox,fozxs
+fox,fpx
 frenchbulldog,frenchbulldogs
+frenchbulldog,frenchie
 frog,forg
 frog,frof
 frog,frogs
@@ -725,6 +773,7 @@ gerbil,gerbel
 gerbil,gerber
 gerbil,gerbi
 gerbil,gerbile
+gerbil,gerbill
 gerbil,gerbils
 gerbil,gerbit
 gerbil,gerbits
@@ -751,10 +800,12 @@ gilamonster,gillmonster
 gilamonster,guillamonster
 gilamonster,villamonster
 giraffe,firaffe
+giraffe,firagee
 giraffe,garaffi
 giraffe,garafii
 giraffe,garrafe
 giraffe,garriff
+giraffe,giarffe
 giraffe,giraf
 giraffe,girafe
 giraffe,girafee
@@ -763,6 +814,8 @@ giraffe,giraffee
 giraffe,giraffees
 giraffe,giraffes
 giraffe,girafffe
+giraffe,giraffie
+giraffe,giraft
 giraffe,giragge
 giraffe,girarfee
 giraffe,girffe
@@ -798,6 +851,7 @@ goose,goos
 goose,gooser
 goose,goosr
 goose,gppse
+gopher,gofer
 gopher,goper
 gopher,gophers
 gopher,gpher
@@ -805,8 +859,10 @@ gorilla,garrila
 gorilla,gorialla
 gorilla,goriila
 gorilla,gorila
+gorilla,gorill
 gorilla,gorillas
 gorilla,gorillla
+gorilla,gorillllla
 gorilla,gorrila
 gorilla,gorrilla
 gorilla,gorrillas
@@ -825,6 +881,7 @@ graywhale,graywhales
 graywhale,greywhale
 graywhale,greywhales
 graywolf,greywolf
+greatpyrenees,greatpyrennes
 greatwhiteshark,whiteshakr
 greyhound,grayhound
 greysquirrel,greysquirrels
@@ -878,6 +935,7 @@ guineapig,gunieapig
 guineapig,gunieapigs
 guineapig,guniepig
 guineapig,gunniepig
+guppy,guppie
 halibut,halibuts
 hammerheadshark,hammerhead
 hammerheadshark,hammerheadwhale
@@ -898,6 +956,7 @@ hedgehog,hedgehod
 hedgehog,hedgehoge
 hedgehog,hedgehogs
 hedgehog,hedghog
+hedgehog,hegehog
 hen,henc
 hen,hens
 hermitcrab,hermetbrab
@@ -909,16 +968,22 @@ hippopotamus,hipopotamus
 hippopotamus,hipopotimus
 hippopotamus,hipp
 hippopotamus,hipp[
+hippopotamus,hippipolimus
+hippopotamus,hippipolomus
+hippopotamus,hippipolum
 hippopotamus,hippo
 hippopotamus,hippol
+hippopotamus,hippopantamuses
 hippopotamus,hippopatamis
 hippopotamus,hippopatamus
 hippopotamus,hippopatomaus
 hippopotamus,hippopatomus
 hippopotamus,hippopatumus
+hippopotamus,hippopatus
 hippopotamus,hippopotamos
 hippopotamus,hippopotamous
 hippopotamus,hippopotatmus
+hippopotamus,hippopotaums
 hippopotamus,hippopotomos
 hippopotamus,hippopotomous
 hippopotamus,hippopotomus
@@ -947,6 +1012,7 @@ horse,hose
 horse,hosr
 horse,hourse
 horse,house
+horse-fly,horse-fly
 horse-fly,horsefly
 horseshoecrab,horshoecrab
 hound,hounddog
@@ -955,6 +1021,7 @@ howlermonkey,howler
 howlermonkey,howlermonkeys
 howlermonkey,howlingmonkey
 howlermonkey,howlingmonkeys
+human,girl
 human,homosapien
 human,homosapiens
 human,humanbeing
@@ -974,6 +1041,8 @@ husky,huiskies
 husky,huskie
 husky,huskies
 husky,huskys
+hydrax,hyrax
+hyena,hayena
 hyena,henna
 hyena,hiena
 hyena,hiene
@@ -984,6 +1053,7 @@ hyena,hyaena
 hyena,hyeana
 hyena,hyeena
 hyena,hyeenas
+hyena,hyen
 hyena,hyenaa
 hyena,hyenae
 hyena,hyenas
@@ -995,6 +1065,8 @@ hyena,hyenna
 hyena,hynea
 ibex,abex
 ibex,ibix
+ibex,libex
+iguana,igauna
 iguana,iguanas
 iguana,iquana
 insect,insects
@@ -1054,7 +1126,9 @@ koala,koalabear
 koala,koalas
 koala,kolabear
 koala,kooala
+koala,kowalah
 koala,kuala
+kodiak,kodiakbear
 koi,coi
 koi,koifish
 koi,kois
@@ -1098,6 +1172,7 @@ lemur,lema
 lemur,lemar
 lemur,lemmer
 lemur,lemor
+lemur,lemu
 lemur,lemure
 lemur,lemurs
 lemur,lemux
@@ -1119,10 +1194,14 @@ leopard,lerpard
 leopard,lipord
 leopard,loeopard
 leopard,loepard
+leopard,lopear
 leopardseal,leapardseal
 leopardseal,leapardseals
 leopardseal,leopardseals
+lhasaapso,lasaapsa
+liger,ligar
 liger,lyger
+lion,junglelions
 lion,liion
 lion,lino
 lion,lio
@@ -1138,6 +1217,7 @@ lizard,lizards
 lizard,lizrd
 lizard,lizzard
 lizard,llizard
+lizard,llzard
 llama,lama
 llama,lamma
 llama,llam
@@ -1166,6 +1246,7 @@ mahimahi,mahi
 malamute,malmute
 maltese,malteses
 manatee,manate
+manatee,manatees
 manatee,manatie
 manatee,manetee
 manatee,manitee
@@ -1185,12 +1266,14 @@ marmot,marmont
 meerkat,mearcats
 meerkat,mearkat
 meerkat,mearkats
+meerkat,meekat
 meerkat,meercar
 meerkat,meercat
 meerkat,meercats
 meerkat,meerkats
 meerkat,meerkcat
 meerkat,meerket
+meerkat,mercat
 meerkat,merecat
 meerkat,merecats
 meerkat,merekat
@@ -1236,6 +1319,7 @@ moose,moos
 moose,moosde
 moose,mooses
 moose,moost
+morayeel,moreyeel
 mosquito,mequito
 mosquito,mesquito
 mosquito,misquito
@@ -1266,6 +1350,7 @@ muskox,muskee
 muskrat,muscrat
 muskrat,muscrats
 muskrat,muskrats
+muskrat,mustrat
 mussel,muscle
 mussel,mussell
 mussel,mussels
@@ -1276,16 +1361,21 @@ nakedmolerat,molerat
 narwhal,narwahl
 narwhal,narwhale
 narwhal,narwhol
+narwhal,norwal
+narwhal,norwhal
+neanderthal,neandertal
 northernpike,northernpikee
 northernpike,northernpikes
 nuthatch,nuthatcher
 nutria,neutrea
+nutria,nutrarat
 nutria,nutrea
 nutria,nutriaanimal
 ocelot,oceleot
 ocelot,ocelet
 ocelot,ocelots
 ocelot,ocerlot
+ocelot,oscilot
 ocelot,osolot
 octopus,ocopus
 octopus,ocotopus
@@ -1302,6 +1392,7 @@ octopus,octupus
 octopus,octupuses
 okapi,akapi
 okapi,orapi
+opossum,opossume
 opossum,opossums
 opossum,oposum
 opossum,oppasum
@@ -1318,6 +1409,7 @@ orangutan,oragutan
 orangutan,oranatan
 orangutan,oranatang
 orangutan,orangantan
+orangutan,orangatain
 orangutan,orangatan
 orangutan,orangatang
 orangutan,orangataun
@@ -1329,10 +1421,12 @@ orangutan,orangoutang
 orangutan,oranguatan
 orangutan,oranguatn
 orangutan,oranguntan
+orangutan,oranguta
 orangutan,orangutang
 orangutan,orangutauang
 orangutan,orangutuan
 orangutan,orantagan
+orangutan,orantutang
 orangutan,organgutan
 orangutan,organgutang
 orangutan,organgutuan
@@ -1358,6 +1452,7 @@ ostrich,ostriche
 ostrich,ostriches
 ostrich,ostrichh
 ostrich,ostrichs
+ostrich,ostrichw
 ostrich,ostrict
 ostrich,ostrictch
 ostrich,ostrictches
@@ -1374,6 +1469,7 @@ otter,ottor
 otter,ottors
 otter,seaotter
 otter,seaotters
+owl,owil
 owl,owkl
 owl,owkls
 owl,owls
@@ -1385,6 +1481,7 @@ oxen,oxxen
 oyster,oyste
 oyster,oysters
 panda,*anda
+panda,pand
 panda,pandaa
 panda,pandabear
 panda,pandabears
@@ -1393,6 +1490,7 @@ panda,pander
 panther,oanther
 panther,pantehr
 panther,panter
+panther,panthar
 panther,panthers
 panther,pather
 panther,pnather
@@ -1421,11 +1519,13 @@ peacock,peecock
 peacock,peecocks
 peacock,peecok
 peacock,peocock
+peccary,havelina
 peccary,javalina
 peccary,javelina
 pelican,pelecan
 pelican,pelicans
 pelican,peligan
+pelican,pellican
 pelican,pelocan
 penguin,enguine
 penguin,peguin
@@ -1458,14 +1558,19 @@ pheasant,pheasent
 pheasant,phesant
 pig,hog
 pig,hogs
+pig,pg
+pig,pib
 pig,pic
 pig,pigs
+pig,pigw
 pig,pin
 pig,pork
+pig,swine
 pigeon,igeon
 pigeon,passengerpigeon
 pigeon,pidgeon
 pigeon,pidgeons
+pigeon,piegan
 pigeon,piegeon
 pigeon,piegeons
 pigeon,piegon
@@ -1485,6 +1590,7 @@ piranha,piranna
 piranha,pirhana
 piranha,pirhanna
 piranha,pirrana
+piranha,pirranha
 piranha,prannah
 piranha,purana
 piranha,puranas
@@ -1561,9 +1667,11 @@ prairiedog,prairiedog!
 prairiedog,prairiedogs
 prairiedog,prairirdog
 prairiedog,prariedog
+prawn,prawns
 prayingmantis,paryingmantis
 prayingmantis,preyingmantis
 ptarmigan,tarmigan
+pteordactyl,pterodactyl
 pteordactyl,teradactil
 pteordactyl,teradactyl
 pteordactyl,teradactyle
@@ -1576,6 +1684,7 @@ puma,pumas
 puma,puna
 puppy,puppies
 puppy,puppt
+pygmygoat,miniaturegoat
 pygmymarmoset,pigmymarmasot
 python,ballpython
 python,pythons
@@ -1589,6 +1698,7 @@ rabbit,conejo
 rabbit,eabbit
 rabbit,nnnnrabbit
 rabbit,rabbbit
+rabbit,rabbi
 rabbit,rabbits
 rabbit,rabbitss
 rabbit,rabbitt
@@ -1619,16 +1729,20 @@ rattlesnake,rattlesnakes
 ray,rayh
 reddrum,redfish
 redkangaroo,ulturedinokngaoo
+redpanda,redpand
 redpanda,redpandabear
 redpanda,redpandas
 redtailedhawk,redtailhawk
 reindeer,raindeer
 reindeer,reighdeer
+reindeer,reinddr
 reindeer,reindear
+reindeer,reinder
 reptile,repilte
 reptile,reptiles
 rhesusmacaque,rhesus
 rhesusmacaque,rhesusmonkey
+rhesusmacaque,rhesusmonkeys
 rhinoceros,rgino
 rhinoceros,rhhino
 rhinoceros,rhincoceros
@@ -1648,6 +1762,7 @@ rhinoceros,rhinosarous
 rhinoceros,rhinosarus
 rhinoceros,rhinosaurs
 rhinoceros,rhinosaurus
+rhinoceros,rhinoscoeros
 rhinoceros,rhinosoraus
 rhinoceros,rhio
 rhinoceros,rhionceros
@@ -1663,6 +1778,7 @@ robin,redrobin
 robin,robins
 rockhead,rockheadfish
 rodent,rldent
+roly-poly,roly-poly
 roly-poly,rolypoly
 rooster,roosters
 russianblue,bluerussian
@@ -1690,6 +1806,7 @@ scallop,scallopp
 scallop,scallops
 scorpion,scoprion
 scorpion,scorpian
+scorpion,scorpin
 scorpion,scorpions
 scottishshetland,shelties
 seagull,seagaul
@@ -1709,6 +1826,7 @@ seal,seagal
 seal,seals
 seal,seel
 seal,segal
+seal,sesal
 seal,teal
 sealion,sealioins
 sealion,sealions
@@ -1721,6 +1839,7 @@ seaurchin,seaurchins
 seaurchin,seaurchon
 seaurchin,seaurchons
 shark,shank
+shark,share
 shark,sharkl
 shark,sharkls
 shark,sharks
@@ -1728,8 +1847,10 @@ shark,sharl
 shark,sharls
 shark,shrak
 shark,shrk
+shark,shsrk
 sheep,cheep
 sheep,dheep
+sheep,hseep
 sheep,lamb
 sheep,lamp
 sheep,lanm
@@ -1740,6 +1861,7 @@ sheep,sheeo
 sheep,sheepo
 sheep,sheepp
 sheep,shep
+sheep,sjeep
 shellfish,shellfishes
 shetlandsheepdog,sheltie
 shihtzu,shihtzus
@@ -1752,6 +1874,7 @@ shrimp,shromp
 shrimp,sphrimp
 siamesecat,siamese
 siberianbluerobin,bluerobin
+sidewinder,mojavesidewinder
 skink,skynk
 skunk,dkunk
 skunk,shunk
@@ -1767,8 +1890,10 @@ sloth,sloths
 sloth,slothss
 sloth,slotth
 sloth,threetoedsloth
+sloth,treesloth
 slug,sluh
 smallmouthbass,smallmouthbasses
+snail,smnil
 snail,snails
 snail,snal
 snail,snale
@@ -1782,17 +1907,25 @@ snake,snakes
 snake,snakk
 snake,sneak
 snake,snek
+snowcrab,opelio
 snowy owl,snow owl
+snowyowl,snowowl
 sparrow,brewstersparrow
+sparrow,brewsterssparrow
 sparrow,sparow
 sparrow,sparrows
 sparrow,sparrw
 sparrow,spartow
 spermwhale,spermwhales
+spider,pider
 spider,s[ider
 spider,sider
 spider,spide
 spider,spiders
+spider,spuder
+spider,spyder
+spidermonkey,spidermoney
+spinydogfish,mudshark
 springpeeper,peeper
 squid,quid
 squid,sqid
@@ -1821,6 +1954,8 @@ squirrel,squirrels
 squirrel,squirrl
 squirrel,squirrls
 squirrel,swuirrel
+stallion,stallikon
+star-nosedmole,star-nosedmole
 star-nosedmole,starnosedmole
 starfish,seastar
 starfish,star
@@ -1848,6 +1983,7 @@ swordfish,swardfish
 swordfish,swordfishes
 tadpole,tadpoles
 tamarin,cottontoptamaran
+tammarwallaby,tamar
 tapir,taper
 tapir,tapi
 tapir,tapier
@@ -1857,6 +1993,8 @@ tarantula,tarantual
 tarantula,tarantulas
 tarantula,tarrantula
 tarantula,torantula
+tarantula,turantula
+tarsier,tarseir
 tasmaniandevil,tamaniandevil
 tasmaniandevil,tasmaniandevils
 tasmaniandevil,tazmaniadevil
@@ -1886,6 +2024,7 @@ tortoise,galapagostortoise
 tortoise,tortes
 tortoise,tortiose
 tortoise,tortise
+tortoise,tortois
 tortoise,tortoises
 toucan,tocan
 toucan,tocans
@@ -1920,15 +2059,19 @@ tyrannosaurusrex,tyrannasaurusrex
 tyrannosaurusrex,tyranosaurus
 velociraptor,veliciraptor
 viper,vipers
+vole,woles
+vulture,bultur
 vulture,voluture
 vulture,vulcher
 vulture,vultures
 wallaby,walabee
+wallaby,walabi
 wallaby,walaby
 wallaby,walabys
 wallaby,wallabe
 wallaby,wallabee
 wallaby,wallabees
+wallaby,walloby
 wallaby,walobe
 wallaby,whallabee
 walleye,walleyes
@@ -1943,9 +2086,11 @@ walrus,walrun
 walrus,walruns
 walrus,walruses
 walrus,walurs
+warthog,warhog
 warthog,worthog
 wasp,wasps
 wasp,wast
+watermoccasin,watermocassin
 weasel,measel
 weasel,wasel
 weasel,weasal
@@ -1971,6 +2116,7 @@ whale,whlale
 whale,whole
 whaleshark,whalesharks
 whitetaileddeer,whitetaildeer
+whitewolf,arcticwolf
 wildcat,wildcats
 wildebeest,widebeest
 wildebeest,wildabeast
@@ -1984,6 +2130,7 @@ wildebeest,wildebeasts
 wildebeest,wilderbeast
 wildebeest,wilderbeasts
 wildebeest,wilderbeat
+wildebeest,wildybeast
 wildebeest,wldebeest
 wolf,wof
 wolf,wol
@@ -1992,6 +2139,7 @@ wolf,wolfe
 wolf,wolk
 wolf,wolve
 wolf,wolves
+wolverine,wolverines
 wombat,wambat
 wombat,wambats
 wombat,wombats
@@ -2009,6 +2157,7 @@ worm,wor
 worm,work
 worm,worms
 worm,worn
+worm,worwm
 worm,wrm
 wren,ren
 wren,wrens
