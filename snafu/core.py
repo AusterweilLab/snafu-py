@@ -1271,18 +1271,12 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
                 if (graph_ll != -np.inf) and (fitinfo.followtype != "random"):
                     if avg[node1] == -np.inf:
                         avg[node1] = graph_ll
-                    else:
-                        if fitinfo.followtype=="avg":
+                    else: # followtype == avg
                             avg[node1] = avg[node1] * ((count[node1]-1)/count[node1]) + (1.0/count[node1]) * graph_ll
-                        elif fitinfo.followtype=="max":
-                            avg[node1] = max(avg[node1], graph_ll)
                     if avg[node2] == -np.inf:
                         avg[node2] = graph_ll
-                    else:
-                        if fitinfo.followtype=="avg":
-                            avg[node2] = avg[node2] * ((count[node2]-1)/count[node2]) + (1.0/count[node2]) * graph_ll
-                        elif fitinfo.followtype=="max":
-                            avg[node2] = max(avg[node2], graph_ll)
+                    else:  # followtype == avg
+                        avg[node2] = avg[node2] * ((count[node2]-1)/count[node2]) + (1.0/count[node2]) * graph_ll
             else:                       # no edges on this node left to try!
                 avg[node1]=-np.inf      # so we don't try it again...
                 finishednodes += 1
