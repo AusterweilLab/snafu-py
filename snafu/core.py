@@ -256,15 +256,6 @@ def evalGraphPrior(a, prior, undirected=True):
     probs = sum(probs)
     return probs
 
-# calculate P(SW_graph|graph type) using pdf generated from genSWPrior
-def evalSWprior(val, prior):
-    # unpack dict for convenience
-    kde=prior['kde']
-    binsize=prior['binsize']
-
-    prob=kde.integrate_box_1d(val-(binsize/2.0),val+(binsize/2.0))
-    return prob
-
 # returns a vector of how many hidden nodes to expect between each Xi for each X in Xs
 def expectedHidden(Xs, a):
     numnodes=len(a)
@@ -1001,16 +992,8 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
 
     # include prior?
     if prior:
-        if isinstance(prior, tuple):    # graph prior
-            priorlogprob = evalGraphPrior(a, prior)
-            ll = ll + priorlogprob
-        else:                           # smallworld prior
-            sw=smallworld(a)
-            priorprob = evalSWprior(sw, prior)
-            if priorprob == 0.0:
-                return -np.inf, "prior"
-            else:
-                ll = ll + np.log(priorprob)
+        priorlogprob = evalGraphPrior(a, prior)
+        ll = ll + priorlogprob
 
     return ll, uinvite_probs
 
