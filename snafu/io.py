@@ -93,6 +93,9 @@ def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=Fals
 
     return graph, items
 
+def read_fluency_data(*args):
+    return readX(*args)
+
 # read Xs in from user files
 # this should be re-written with pandas or something more managable
 def readX(ids,filepath,category=None,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,group=False):

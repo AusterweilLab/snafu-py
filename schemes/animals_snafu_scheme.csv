@@ -284,6 +284,7 @@ Bird,rhea
 Bird,roadrunner
 Bird,robin
 Bird,rook
+Bird,sandhillcrane
 Bird,sandpiper
 Bird,scarletmacaw
 Bird,scrubjay
@@ -324,6 +325,7 @@ Bovine,buffalo
 Bovine,bullock
 Bovine,bulls
 Bovine,calf
+Bovine,capebuffalo
 Bovine,cattle
 Bovine,cow
 Bovine,heifer
@@ -335,6 +337,7 @@ Bovine,waterbuffalo
 Bovine,yak
 Canine,aardwolf
 Canine,afghanhound
+Canine,africandog
 Canine,airdaleterrier
 Canine,akita
 Canine,bassethound
@@ -540,6 +543,7 @@ Fish,billfish
 Fish,blobfish
 Fish,blowfish
 Fish,blueshark
+Fish,bream
 Fish,brimfish
 Fish,bullshark
 Fish,carp
@@ -1035,7 +1039,7 @@ UsedForFur,mink
 UsedForFur,rabbit
 UsedForFur,sable
 UsedForFur,vicuna
-Waer,sardine
+Water,sardine
 Water,Cockle
 Water,alga
 Water,alligator
@@ -1220,7 +1224,3 @@ Worms,mealworm
 Worms,tapeworm
 Worms,tubeworm
 Worms,worm
-bird,sandhillcrane
-bovine,capebuffalo
-canine,africandog
-fish,bream

@@ -195,7 +195,5 @@ def Fitinfo(fitinfo):
         fitinfo['goni_size'] = 2
     if 'goni_threshold' not in fitkeys:
         fitinfo['goni_threshold'] = 2
-    if 'record' not in fitkeys:
-        fitinfo['record'] = False
     return dotdict(fitinfo)
 

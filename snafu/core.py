@@ -26,6 +26,22 @@ from functools import reduce
 # TODO: get rid of setting td.numx? just calculate from Xs... only needed in genX()
 # TODO: Implement GOTM/ECN from Goni et al. 2011
 
+
+def pf(*args):
+    return chan(*args)
+
+def pathfinder(*args):
+    return chan(*args)
+
+def communityNetwork(*args):
+    return goni(*args)
+
+def cbn(*args):
+    return kenett(*args)
+       
+def correlationBasedNetwork(*args):
+    return kenett(*args)
+
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
     """
@@ -983,9 +999,6 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
     except:
         ll=-np.inf
 
-    #if caron_prior:
-    #    ll = ll + np.log(caron_prior(a, params))
-
     # include prior?
     if prior:
         if isinstance(prior, tuple):    # graph prior
@@ -1000,11 +1013,6 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                 ll = ll + np.log(priorprob)
 
     return ll, uinvite_probs
-
-#def caron_prior(a, params):
-#    # your model code here
-#    return prior_prob
-
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g, td, priming_vector=[], seed=None):
@@ -1133,7 +1141,7 @@ def trimX(trimprop, Xs, steps):
     return Xs, steps, alter_graph_size
 
 #@profile
-def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, recordname="records.csv", seed=None):
+def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, seed=None):
     nplocal=np.random.RandomState(seed) 
 
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
@@ -1164,7 +1172,6 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
     #@timer
     #@profile
     def pivot(graph, vmin=1, vmaj=0, best_ll=None, probmat=None, limit=np.inf, method=""):
-        record=[method] 
         numchanges=0     # number of changes in single pivot() call
 
         if (best_ll == None) or (np.any(probmat == None)):
@@ -1234,10 +1241,8 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
                 graph_ll, newprobmat=probX(Xs,graph,td,irts=irts,prior=prior,origmat=probmat,changed=[node1,node2])
 
                 if best_ll >= graph_ll:
-                    record.append(graph_ll)
                     graph=swapEdges(graph,[edge])
                 else:
-                    record.append(-graph_ll)
                     best_ll = graph_ll
                     probmat = newprobmat
                     numchanges += 1
@@ -1285,7 +1290,6 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
         if debug:
             print(numchanges, "changes")
 
-        records.append(record)
         return graph, best_ll, probmat, numchanges
 
     #    return graph
@@ -1340,13 +1344,7 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
         td.censor_fault = best_param
         
     best_ll, probmat = probX(Xs,graph,td,irts=irts,prior=prior)   # LL of starting graph
-    records=[]
     graph, best_ll = phases(graph, best_ll, probmat)
-    if fitinfo.record:
-        f=open(fitinfo.recorddir+recordname,'w')
-        wr=csv.writer(f)
-        for record in records:
-            wr.writerow(record)
 
     return graph, best_ll
 
