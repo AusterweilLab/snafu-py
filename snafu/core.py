@@ -816,7 +816,7 @@ def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
 # probability of observing Xs, including irts and prior
 #@profile
 #@nogc
-def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceCompute=False, pass_link_matrix=True):
+def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceCompute=False):
 
     numnodes=len(a)
     reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv instead of inv, but that's much slower
@@ -826,11 +826,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
 
     # generate transition matrix (from: column, to: row) if given link matrix
 
-    if pass_link_matrix:                    # function assumes you pass a link matrix (1s and 0s) unless specified
-        t=a/sum(a.astype(float))            # but you can pass a transition matrix if you really want to
-    else:                                    
-        t=a
-
+    t=a/sum(a.astype(float))            # but you can pass a transition matrix if you really want to
     t=np.nan_to_num(t)                      # jumping/priming models can have nan in matrix, need to change to 0
     
     if (td.jumptype=="stationary") or (td.startX=="stationary"):
