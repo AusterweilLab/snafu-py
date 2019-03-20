@@ -824,10 +824,9 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
 
     probs=[]
 
-    # generate transition matrix (from: column, to: row) if given link matrix
-
-    t=a/sum(a.astype(float))            # but you can pass a transition matrix if you really want to
-    t=np.nan_to_num(t)                      # jumping/priming models can have nan in matrix, need to change to 0
+    # generate transition matrix (from: column, to: row) from link matrix
+    t=a/sum(a.astype(float))
+    t=np.nan_to_num(t)                  # jumping/priming models can have nan in matrix, need to change to 0
     
     if (td.jumptype=="stationary") or (td.startX=="stationary"):
         statdist=stationary(t)

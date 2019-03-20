@@ -8,7 +8,6 @@ from .netstats import *
 from .clustering import *
 from .frequency import *
 from .search import *
-from .simulations import *
 from . import gui
 from .triadic import *
 from .word_properties import *
