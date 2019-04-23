@@ -93,21 +93,22 @@ def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=Fals
 
     return graph, items
 
-def read_fluency_data(*args):
-    return readX(*args)
+# deprecated function name
+def readX(*args):
+    return load_flueny_data(*args)
 
 # read Xs in from user files
 # this should be re-written with pandas or something more managable
-def readX(ids,filepath,category=None,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,group=False):
+def load_fluency_data(ids,filepath,category=None,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,group=False):
    
     # grab header col indices
-    mycsv = csv.reader(open(filepath,'rbU'))
+    mycsv = csv.reader(open(filepath,'rbU'))  # JZ change rbU to rt for python3.5?
     headers = next(mycsv, None)
-
     subj_col = headers.index('id')
     listnum_col = headers.index('listnum')
     item_col = headers.index('item')
     
+    # check for optional columns
     try:
         category_col = headers.index('category')
         has_category_col = True
@@ -160,7 +161,7 @@ def readX(ids,filepath,category=None,removePerseverations=False,removeIntrusions
                 except:
                     pass    # fail silently on wrong format
    
-    with open(filepath,'rbU') as f:
+    with open(filepath,'rbU') as f:          # JZ change rbU to rt for python3.5?
         f.readline()    # discard header row
         for line in f:
             row=line.rstrip().split(',')

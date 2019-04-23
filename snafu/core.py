@@ -26,7 +26,6 @@ from functools import reduce
 # TODO: get rid of setting td.numx? just calculate from Xs... only needed in genX()
 # TODO: Implement GOTM/ECN from Goni et al. 2011
 
-
 def pf(*args):
     return chan(*args)
 
