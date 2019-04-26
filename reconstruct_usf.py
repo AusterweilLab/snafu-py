@@ -42,7 +42,6 @@ toydata=snafu.DataModel({
 # some parameters of the fitting process
 fitinfo=snafu.Fitinfo({
         'startGraph': "goni_valid",
-        'record': False,
         'directed': False,
         'prior_method': "zeroinflatedbetabinomial",
         'zibb_p': 0.5,

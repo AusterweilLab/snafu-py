@@ -42,7 +42,7 @@ filepath = "fluency/spring2017.csv"
 category="tools"
 
 # read in data from file, flattening all participants together
-filedata = snafu.readX(subs,filepath,category=category,removePerseverations=True,spellfile="spellfiles/tools_zemla_spellfile.csv")
+filedata = snafu.load_fluency_data(filepath,category=category,removePerseverations=True,spellfile="spellfiles/tools_zemla_spellfile.csv",subject=subs)
 
 filedata.nonhierarchical()
 Xs_flat = filedata.Xs

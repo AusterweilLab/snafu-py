@@ -117,7 +117,7 @@ def data_properties(command, root_path):
 
     # kinda messy...
     for subjnum in range(len(Xs)):
-        Xs[subjnum] = snafu.numToAnimal(Xs[subjnum], items[subjnum])
+        Xs[subjnum] = snafu.numToLabel(Xs[subjnum], items[subjnum])
         if command['cluster_scheme'] != "None":
             cluster_sizes = snafu.clusterSize(Xs[subjnum], label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
             avg_cluster_size.append(snafu.avgClusterSize(cluster_sizes))

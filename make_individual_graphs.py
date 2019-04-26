@@ -53,7 +53,7 @@ for method in methods:
     # add snafu.hierarhicalUinvite method here
     
     for sub in subs:
-        filedata = snafu.readX(sub,filepath,category=category,removePerseverations=True,spellfile="spellfiles/animals_zemla_spellfile.csv")
+        filedata = snafu.load_fluency_data(filepath,category=category,removePerseverations=True,spellfile="spellfiles/animals_zemla_spellfile.csv",subjects=sub)
         filedata.nonhierarchical()
         Xs = filedata.Xs
         items = filedata.items

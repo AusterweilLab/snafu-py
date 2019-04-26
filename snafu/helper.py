@@ -214,3 +214,24 @@ def groupToIndividual(Xs, group_dict):
     Xs = [[convertX[i] for i in x] for x in Xs]
     
     return Xs, ss_items
+
+# take Xs and convert them from numbers (nodes) to labels
+def numToLabel(Xs, items):
+    for lnum, l in enumerate(Xs):
+        for inum, i in enumerate(l):
+            Xs[lnum][inum]=items[i]
+    return Xs
+
+# flat list from tuple walk
+def nodes_from_edges(walk):
+    path=list(zip(*walk)[0]) # first element from each tuple
+    path.append(walk[-1][1]) # second element from last tuple
+    return path
+
+# tuple walk from flat list
+def edges_from_nodes(path):
+    walk=[]
+    for i in range(len(path)-1):
+        walk.append((path[i],path[i+1])) 
+    return walk
+

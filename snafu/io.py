@@ -99,7 +99,7 @@ def readX(*args):
 
 # read Xs in from user files
 # this should be re-written with pandas or something more managable
-def load_fluency_data(ids,filepath,category=None,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,group=False):
+def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,group=None,subject=None,cleanBadChars=True):
    
     # grab header col indices
     mycsv = csv.reader(open(filepath,'rbU'))  # JZ change rbU to rt for python3.5?
@@ -119,7 +119,7 @@ def load_fluency_data(ids,filepath,category=None,removePerseverations=False,remo
         has_group_col = True
     except:
         has_group_col = False
-        if group and (ids != "all"):
+        if group:
             raise ValueError('Data file does not have grouping column, but you asked for a specific group.')
     try:
         rt_col = headers.index('rt')
@@ -127,9 +127,11 @@ def load_fluency_data(ids,filepath,category=None,removePerseverations=False,remo
     except:
         has_rt_col = False
 
-    # if ids is string wrap it in a list
+    # if ids or groups is string wrap it in a list
     if isinstance(ids,str):
-        ids=[ids]
+        subject=[subject]
+    if isinstance(group,str):
+        group=[group]
         
     Xs=dict()
     irts=dict()
@@ -164,58 +166,59 @@ def load_fluency_data(ids,filepath,category=None,removePerseverations=False,remo
     with open(filepath,'rbU') as f:          # JZ change rbU to rt for python3.5?
         f.readline()    # discard header row
         for line in f:
+            if line[0] == "#": pass         # skip commented lines
             row=line.rstrip().split(',')
 
-            listnum_int = int(row[listnum_col])
-            
-            storerow=False
-            if ((group==False) and (row[subj_col] in ids)) or ((group==True) and (ids!=["all"]) and (row[group_col] in ids)) or ((group==True) and (ids==["all"])):
-                if category == None:
-                    storerow = True 
-                elif (has_category_col == True) and (row[category_col] == category):
+            storerow=False  # if the row meets the filters specified then load it, else skip it
+            if (row[subj_col] in subject) or \
+               (row[group_col] in group) or \
+               ((group==None) and (subject==None)):
+                if ((has_category_col == True) and (row[category_col] == category)) or \
+                   (category == None):
                     storerow = True
-                else:
-                    storerow = False
-            else:
-                storerow = False
             
             if storerow == True:
 
+                idx = row[subj_col]
+                listnum_int = int(row[listnum_col])
+                
                 # make sure dict keys exist
-                if row[subj_col] not in Xs:
-                    Xs[row[subj_col]] = dict()
+                if idx not in Xs:
+                    Xs[idx] = dict()
                     if has_rt_col:
-                        irts[row[subj_col]] = dict()
-                if listnum_int not in Xs[row[subj_col]]:
-                    Xs[row[subj_col]][listnum_int] = []
+                        irts[idx] = dict()
+                if listnum_int not in Xs[idx]:
+                    Xs[idx][listnum_int] = []
                     if has_rt_col:
-                        irts[row[subj_col]][listnum_int] = []
-                if row[subj_col] not in items:
-                    items[row[subj_col]] = dict()
+                        irts[idx][listnum_int] = []
+                if idx not in items:
+                    items[idx] = dict()
                     
                 # basic clean-up
                 item=row[item_col].lower()
-                badchars=" '-\"\\;?"
-                for char in badchars:
-                    item=item.replace(char,"")
+                if cleanBadChars:
+                    badchars=" '-\"\\;?"
+                    for char in badchars:
+                        item=item.replace(char,"")
                 if item in list(spellingdict.keys()):
                     item = spellingdict[item]
                 if has_rt_col:
                     irt=row[rt_col]
-                if item not in list(items[row[subj_col]].values()):
+                if item not in list(items[idx].values()):
                     if (item in validitems) or (not removeIntrusions):
-                        next_idx = len(items[row[subj_col]])
-                        items[row[subj_col]][next_idx]=item
-                        
+                        item_count = len(items[idx])
+                        items[idx][item_count]=item
+
+                # add item to list
                 try:
-                    itemval=list(items[row[subj_col]].values()).index(item)
-                    if (not removePerseverations) or (itemval not in Xs[row[subj_col]][listnum_int]):   # ignore any duplicates in same list resulting from spelling corrections
+                    itemval=list(items[idx].values()).index(item)
+                    if (not removePerseverations) or (itemval not in Xs[idx][listnum_int]):   # ignore any duplicates in same list resulting from spelling corrections
                         if (item in validitems) or (not removeIntrusions):
-                            Xs[row[subj_col]][listnum_int].append(itemval)
+                            Xs[idx][listnum_int].append(itemval)
                             if has_rt_col:
-                                irts[row[subj_col]][listnum_int].append(int(irt)/1000.0)
+                                irts[idx][listnum_int].append(int(irt)/1000.0)
                 except:
-                    pass                # bad practice
+                    pass                # bad practice to have empty except
    
     return Data({'Xs': Xs, 'items': items, 'irts': irts})
 

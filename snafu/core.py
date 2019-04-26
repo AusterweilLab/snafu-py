@@ -27,19 +27,28 @@ from functools import reduce
 # TODO: Implement GOTM/ECN from Goni et al. 2011
 
 def pf(*args):
-    return chan(*args)
+    return pathfinder(*args)
 
-def pathfinder(*args):
-    return chan(*args)
+def chan(*args):
+    return pathfinder(*args)
 
-def communityNetwork(*args):
-    return goni(*args)
+def trimX(*args):
+    return trim_lists(*args)
 
-def cbn(*args):
-    return kenett(*args)
+def genX(*args):
+    return gen_lists(*args)
+
+def goni(*args):
+    return communityNetwork(*args)
+
+def kenett(*args):
+    return cbn(*args)
        
 def correlationBasedNetwork(*args):
     return kenett(*args)
+
+def nrw(*args):
+    return naiveRandomWalk(*args)
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -77,58 +86,11 @@ def adjustPriming(probs, td, Xs):
                     probs[xnum+1][inum+1] = (probs[xnum+1][inum+1] * (1-td.priming))
     return probs
 
-def blockModel(Xs, td, numnodes, fitinfo=Fitinfo({}), prior=None, debug=True, seed=None):
-    nplocal=np.random.RandomState(seed)
-    import itertools
-
-    def swapEdges(graph,links):
-        for link in links:
-            graph[link[0],link[1]] = 1 - graph[link[0],link[1]]
-            graph[link[1],link[0]] = 1 - graph[link[1],link[0]]
-        return graph
-
-    # starting categories
-    categories = flatten_list([walk_from_path(x) for x in Xs])
-    categories = list({frozenset(i) for i in categories})
-    categories = [set(i) for i in categories]
-    nplocal.shuffle(categories)
- 
-    # since all categories are tuples of adjacent pairs, starting graph is equivalent to naive random walk 
-    a = noHidden(Xs, numnodes)
-    best_ll, probs = probX(Xs, a, td)
-
-    for cat in categories:
-        for catpair in categories:
-            if cat != catpair:
-                newset=set.union(cat,catpair)
-                edgeschanged = []
-                for i in itertools.combinations(newset, 2):
-                    if (a[i[0],i[1]] == 0) and (i[0] != i[1]):
-                        a = swapEdges(a,[i])
-                        edgeschanged.append(i)
-                nodeschanged = list({j for i in edgeschanged for j in i})
-                if len(nodeschanged) > 0:
-                    graph_ll, probs = probX(Xs, a, td, changed=nodeschanged)
-                    if graph_ll > best_ll:                                      # if merged categories are better, keep them merged
-                        best_ll = graph_ll
-                        #categories.remove(cat)
-                        #categories.remove(catpair)
-                        #categories.append(newset)
-                    else:                                                       # else keep categories separate
-                        a = swapEdges(a,edgeschanged)
-                else:                          
-                    pass
-                    # categories are already inter-connected, merge them
-                    #categories.remove(cat)
-                    #categories.append(newset)
-                    
-    return a
-
 # Chan, Butters, Paulsen, Salmon, Swenson, & Maloney (1993) jcogneuro (p. 256) + pathfinder (PF; Schvaneveldt)
 # + Chan, Butters, Salmon, Johnson, Paulsen, & Swenson (1995) neuropsychology
 # Returns only PF(q, r) = PF(n-1, inf) = minimum spanning tree (sparsest possible graph)
 # other parameterizations of PF(q, r) not implemented
-def chan(Xs, numnodes, valid=False, td=None):
+def pathfinder(Xs, numnodes, valid=False, td=None):
     
     # From https://github.com/evanmiltenburg/dm-graphs
     def MST_pathfinder(G):
@@ -255,26 +217,6 @@ def evalGraphPrior(a, prior, undirected=True):
     probs = sum(probs)
     return probs
 
-# returns a vector of how many hidden nodes to expect between each Xi for each X in Xs
-def expectedHidden(Xs, a):
-    numnodes=len(a)
-    expecteds=[]
-    t=a/sum(a.astype(float))                      # transition matrix (from: column, to: row)
-    identmat=np.identity(numnodes) * (1+1e-10)    # pre-compute for tiny speed-up
-    for x in Xs:
-        x2=np.array(x)
-        t2=t[x2[:,None],x2]                       # re-arrange transition matrix to be in list order
-        expected=[]
-        for curpos in range(1,len(x)):
-            Q=t2[:curpos,:curpos]
-            I=identmat[:len(Q),:len(Q)]
-            N=np.linalg.solve(I-Q,I[-1])
-            expected.append(sum(N))
-            #N=inv(I-Q)         # old way, a little slower
-            #expected.append(sum(N[:,curpos-1]))
-        expecteds.append(expected)        
-    return expecteds
-
 def firstEdge(Xs, numnodes):
     a=np.zeros((numnodes,numnodes))
     for x in Xs:
@@ -287,10 +229,10 @@ def firstEdge(Xs, numnodes):
 # TODO: Doesn't work with faulty censoring!!!
 def firstHits(walk):
     firsthit=[]
-    path=path_from_walk(walk)
-    for i in observed_walk(walk):
+    path=edges_from_nodes(walk)
+    for i in censored(walk):
         firsthit.append(path.index(i))
-    return list(zip(observed_walk(walk),firsthit))
+    return list(zip(censored(walk),firsthit))
 
 def fullyConnected(numnodes):
     a=np.ones((numnodes,numnodes))
@@ -298,26 +240,17 @@ def fullyConnected(numnodes):
         a[i,i]=0.0
     return a.astype(int)
 
-# generate a connected Watts-Strogatz small-world graph
-# (n,k,p) = (number of nodes, each node connected to k-nearest neighbors, probability of rewiring)
-# k has to be even, tries is number of attempts to make connected graph
-def genG(tg, seed=None):
-    if tg.graphtype=="wattsstrogatz":
-        g=nx.connected_watts_strogatz_graph(tg.numnodes,tg.numlinks,tg.prob_rewire,1000,seed) # networkx graph
-    elif tg.graphtype=="random":                               
-        g=nx.erdos_renyi_graph(tg.numnodes, tg.prob_rewire,seed)
-    elif tg.graphtype=="steyvers":
-        g=genSteyvers(tg.numnodes, tg.numlinks, seed=seed, tail=tg.steyvers_tail)
-    
-    a=np.array(nx.to_numpy_matrix(g)).astype(int)
-    return g, a
-
 # only returns adjacency matrix, not nx graph
-def genGfromZ(walk, numnodes):
+def naiveRandomWalk(Xs, numnodes=None, directed=False):
+    if numnodes == None:
+        numnodes = len(set(snafu.flatten_list(Xs)))
     a=np.zeros((numnodes,numnodes))
-    for i in set(walk):
-        a[i[0],i[1]]=1
-        a[i[1],i[0]]=1 # symmetry
+    for x in Xs:
+        walk = edges_from_nodes(x)
+        for i in set(walk):s
+            a[i[0],i[1]]=1
+            if directed==False:
+                a[i[1],i[0]]=1
     a=np.array(a.astype(int))
     return a
 
@@ -378,24 +311,16 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=Tru
     
     return priordict
 
-# Generate `numgraphs` graphs from data `Xs`, requiring `numnodes` (used in case not all nodes are covered in data)
-# Graphs are generated by sequentially adding filler nodes between two adjacent items with p=`theta`
-# When theta=0, returns a naive RW graph
-def genGraphs(numgraphs, theta, Xs, numnodes):
-    Zs=[reduce(operator.add,[genZfromX(x,theta) for x in Xs]) for i in range(numgraphs)]
-    As=[genGfromZ(z, numnodes) for z in Zs]
-    return As
-
 # generate starting graph for U-INVITE
 def genStartGraph(Xs, numnodes, td, fitinfo):
     if fitinfo.startGraph=="goni_valid":
-        graph = goni(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
+        graph = communityNetwork(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
     elif fitinfo.startGraph=="chan_valid":
-        graph = chan(Xs, numnodes, valid=True, td=td)
+        graph = pathfinder(Xs, numnodes, valid=True, td=td)
     elif fitinfo.startGraph=="kenett_valid":
-        graph = kenett(Xs, numnodes, valid=True, td=td)
-    elif fitinfo.startGraph=="rw":
-        graph = noHidden(Xs,numnodes)
+        graph = correlationBasedNetwork(Xs, numnodes, valid=True, td=td)
+    elif (fitinfo.startGraph=="rw" || fitinfo.startGraph=="nrw"):
+        graph = naiveRandomWalk(Xs,numnodes)
     elif fitinfo.startGraph=="fully_connected":
         graph = fullyConnected(numnodes)
     elif fitinfo.startGraph=="empty_graph":
@@ -404,127 +329,14 @@ def genStartGraph(Xs, numnodes, td, fitinfo):
         graph = np.copy(fitinfo.startGraph)                         # assume a graph has been passed as a starting point
     return graph
 
-def genSteyvers(n,m, tail=True, seed=None):               # tail allows m-1 "null" nodes in neighborhood of every node
-    nplocal=np.random.RandomState(seed)
-    a=np.zeros((n,n))                                  # initialize matrix
-    for i in range(m):                                 # complete m x m graph
-        for j in range(m):
-            if i!= j:
-                a[i,j]=1
-    for i in range(m,n):                               # for the rest of nodes, preferentially attach
-        nodeprob=sum(a)/sum(sum(a))                    # choose node to differentiate with this probability distribution
-        diffnode=nplocal.choice(n,p=nodeprob)        # node to differentiate
-        h=list(np.where(a[diffnode])[0]) + [diffnode]  # neighborhood of diffnode
-        if tail==True:
-            h=h + [-1]*(m-1)
-        #hprob=sum(a[:,h])/sum(sum(a[:,h]))                 # attach proportional to node degree?
-        #tolink=nplocal.choice(h,m,replace=False,p=hprob)
-        tolink=nplocal.choice(h,m,replace=False)          # or attach randomly
-        for j in tolink:
-            if j != -1:
-                a[i,j]=1
-                a[j,i]=1
-    return nx.to_networkx_graph(a)
-
-# generate pdf of small-world metric based on W-S criteria
-# n <- # samples (larger n == better fidelity)
-# tries <- W-S parameter (number of tries to generate connected graph)
-# forcenew <- if 1, don't use cached prior
-def genSWPrior(tg, n, bins=100, forcenew=False):
-    import scipy.stats
-    # filename for prior
-    if tg.graphtype=="steyvers":
-        filename = "steyvers_" + str(tg.numnodes) + "_" + str(tg.numlinks) + ".prior"
-    if tg.graphtype=="wattsstrogatz":
-        filename = "wattsstrogatz_" + str(tg.numnodes) + "_" + str(tg.numlinks) + "_" + str(tg.prob_rewire) + ".prior"
-    
-    def newPrior():
-        print("generating prior distribution...")
-        sw=[]
-        for i in range(n):
-            if tg.graphtype=="wattsstrogatz":
-                g=nx.connected_watts_strogatz_graph(tg.numnodes,tg.numlinks,tg.prob_rewire,tries=1000)
-                g=nx.to_numpy_matrix(g)
-            if tg.graphtype=="steyvers":
-                g=genSteyvers(tg.numnodes, tg.numlinks)
-            sw.append(smallworld(g))
-        kde=scipy.stats.gaussian_kde(sw)
-        binsize=(max(sw)-min(sw))/bins
-        print("...done")
-        prior={'kde': kde, 'binsize': binsize}
-        with open('./priors/' + filename,'wb') as fh:
-            pickle.dump(prior,fh)
-        return prior
-
-    if not forcenew:                                                 # use cached prior when available
-        try:                                                        # check if cached prior exist
-            with open('./priors/' + filename,'r') as fh:
-                prior=pickle.load(fh)
-            print("Retrieving cached prior...")
-        except:
-            prior=newPrior()
-    else:                                                            # don't use cached prior
-        prior=newPrior()
-    return prior
-
-# return simulated data on graph g
-# also return number of steps between first hits (to use for IRTs)
-def genX(g, td, seed=None):
-    Xs=[]
-    steps=[]
-    priming_vector=[]
-
-    for xnum in range(td.numx):
-        if seed == None:
-            seedy = None
-        else:
-            seedy = seed + xnum
-        rwalk=random_walk(g, td, priming_vector=priming_vector, seed=seedy)
-        x=observed_walk(rwalk, td)
-        fh=list(zip(*firstHits(rwalk))[1])
-        step=[fh[i]-fh[i-1] for i in range(1,len(fh))]
-        Xs.append(x)
-        if td.priming > 0.0:
-            priming_vector=x[:]
-        steps.append(step)
-    td.priming_vector = []      # reset mutable priming vector between participants; JCZ added 9/29, untested
-
-    alter_graph_size=0
-    if td.trim != 1.0:
-        numnodes=nx.number_of_nodes(g)
-        for i in range(numnodes):
-            if i not in set(flatten_list(Xs)):
-                alter_graph_size=1
-
-    return Xs, steps, alter_graph_size
-
-# generate random walk that results in observed x
-def genZfromX(x, theta, seed=None):
-    nplocal=np.random.RandomState(seed)    
-    
-    x2=x[:]                  # make a local copy
-    x2.reverse()
-    
-    path=[]                  # z to return
-    path.append(x2.pop())    # add first two x's to z
-    path.append(x2.pop())
-
-    while len(x2) > 0:
-        if nplocal.random_sample() < theta:     # might want to set random seed for replicability?
-            # add random hidden node
-            possibles=set(path) # choose equally from previously visited nodes
-            possibles.discard(path[-1]) # but exclude last node (node cant link to itself)
-            path.append(nplocal.choice(list(possibles)))
-        else:
-            # first hit!
-            path.append(x2.pop())
-    return walk_from_path(path)
-
 # w = window size; two items appear within +/- w steps of each other (where w=1 means adjacent items)
 # f = filter frequency; if two items don't fall within the same window more than f times, then no edge is inferred
 # c = confidence interval; retain the edge if there is a <= c probability that two items occur within the same window n times by chance alone
 # valid (t/f) ensures that graph can produce data using censored RW.
-def goni(Xs, numnodes, fitinfo=Fitinfo({}), c=0.05, valid=False, td=None):
+def communityNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), c=0.05, valid=False, td=None):
+    if numnodes == None:
+        numnodes = len(set(snafu.flatten_list(Xs)))
+        
     w=fitinfo.goni_size
     f=fitinfo.goni_threshold
     
@@ -691,7 +503,7 @@ def probXhierarchical(Xs, graphs, items, td, priordict=None, irts=Irts({})):
 # construct graph using method using item correlation matrix and planar maximally filtered graph (PMFG)
 # see Borodkin, Kenett, Faust, & Mashal (2016) and Kenett, Kenett, Ben-Jacob, & Faust (2011)
 # does not work well for small number of lists! many NaN correlations + when two correlations are equal, ordering is arbitrary
-def kenett(Xs, numnodes, minlists=0, valid=False, td=None):
+def correlationBasedNetwork(Xs, numnodes, minlists=0, valid=False, td=None):
     if valid and not td:
         raise ValueError('Need to pass Data when generating \'valid\' kenett()')
     
@@ -746,55 +558,6 @@ def makeValid(Xs, graph, td):
             raise ValueError('Unexpected error from makeValid()')
         check=probX(Xs, graph, td)
     return graph
-
-# wrapper returns one graph with theta=0
-# aka draw edge between all observed nodes in all lists
-def noHidden(Xs, numnodes):
-    return genGraphs(1, 0, Xs, numnodes)[0]
-
-# literally the same as noHidden but with a more semantic function name
-def nrw(Xs, numnodes):
-    return genGraphs(1, 0, Xs, numnodes)[0]
-
-# take Xs and convert them from numbers (nodes) to labels
-def numToAnimal(Xs, items):
-    for lnum, l in enumerate(Xs):
-        for inum, i in enumerate(l):
-            Xs[lnum][inum]=items[i]
-    return Xs
-
-# Unique nodes in random walk preserving order
-# (aka fake participant data)
-# http://www.peterbe.com/plog/uniqifiers-benchmark
-def observed_walk(walk, td=None, seed=None):
-    def addItem(item):
-        seen[item] = 1
-        result.append(item)
-    
-    nplocal=np.random.RandomState(seed)    
-    seen = {}
-    result = []
-    for item in path_from_walk(walk):
-        if item in seen:
-            try:
-                if nplocal.rand() <= td.censor_fault:
-                    addItem(item)
-            except: continue
-        else:
-            try:
-                if nplocal.rand() <= td.emission_fault:
-                    continue
-                else:
-                    addItem(item)
-            except:
-                addItem(item)
-    return result
-
-# flat list from tuple walk
-def path_from_walk(walk):
-    path=list(zip(*walk)[0]) # first element from each tuple
-    path.append(walk[-1][1]) # second element from last tuple
-    return path
 
 # converts priordict to graph if probability of edge is greater than cutoff value
 def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
@@ -991,91 +754,6 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
 
     return ll, uinvite_probs
 
-# given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
-def random_walk(g, td, priming_vector=[], seed=None):
-    import scipy.stats
-    nplocal=np.random.RandomState(seed)    
-
-    def jump():
-        if td.jumptype=="stationary":
-            second=statdist.rvs(random_state=seed)     # jump based on statdist
-        elif td.jumptype=="uniform":
-            second=nplocal.choice(nx.nodes(g))         # jump uniformly
-        return second
-
-    if (td.startX=="stationary") or (td.jumptype=="stationary"):
-        a=np.array(nx.to_numpy_matrix(g))
-        t=a/sum(a).astype(float)
-        statdist=stationary(t)
-        statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))
-    
-    if td.startX=="stationary":
-        start=statdist.rvs(random_state=seed)    # choose starting point from stationary distribution
-    elif td.startX=="uniform":
-        start=nplocal.choice(nx.nodes(g))        # choose starting point uniformly
-    elif td.startX[0]=="specific":
-        start=td.startX[1]
-
-    walk=[]
-    unused_nodes=set(nx.nodes(g))
-    unused_nodes.remove(start)
-    first=start
-    
-    numnodes=nx.number_of_nodes(g)
-    if td.trim <= 1:
-        numtrim=int(round(numnodes*td.trim))       # if <=1, paramater is proportion of a list
-    else:
-        numtrim=td.trim                            # else, parameter is length of a list
-    num_unused = numnodes - numtrim
-
-    censoredcount=0                                # keep track of censored nodes and jump after td.jumponcensored censored nodes
-
-    numsteps = 0
-    while (len(unused_nodes) > num_unused) and ((numsteps < td.maxsteps) or (td.maxsteps == None)):       # covers td.trim nodes-- list could be longer if it has perseverations
-
-        # jump after n censored nodes or with random probability (depending on parameters)
-        if (censoredcount == td.jumponcensored) or (nplocal.random_sample() < td.jump):
-            second=jump()
-        else:                                           # no jumping!
-            second=nplocal.choice([x for x in nx.all_neighbors(g,first)]) # follow random edge (actual random walk!)
-            if (td.priming > 0.0) and (len(priming_vector) > 0):
-                if (first in priming_vector[:-1]) & (nplocal.random_sample() < td.priming):      
-                    idx=priming_vector.index(first)
-                    second=priming_vector[idx+1]          # overwrite RW... kinda janky
-        walk.append((first,second))
-        numsteps += 1
-        if second in unused_nodes:
-            unused_nodes.remove(second)
-            censoredcount=0
-        else:
-            censoredcount += 1
-        first=second
-    return walk
-
-# return small world statistic of a graph
-# returns metric of largest component if disconnected
-def smallworld(a):
-    if isinstance(a,np.ndarray):
-        g_sm=nx.from_numpy_matrix(a)    # if matrix is passed, convert to networkx
-    else:
-        g_sm = a                        # else assume networkx graph was passed
-    g_sm=max(nx.connected_component_subgraphs(g_sm),key=len)   # largest component
-    numnodes=g_sm.number_of_nodes()
-    numedges=g_sm.number_of_edges()
-    nodedegree=(numedges*2.0)/numnodes
-    
-    c_sm=nx.average_clustering(g_sm)        # c^ws in H&G (2006)
-    #c_sm=sum(nx.triangles(usfg).values())/(# of paths of length 2) # c^tri
-    l_sm=nx.average_shortest_path_length(g_sm)
-    
-    # c_rand same as edge density for a random graph? not sure if "-1" belongs in denominator, double check
-    #c_rand= (numedges*2.0)/(numnodes*(numnodes-1))   # c^ws_rand?  
-    c_rand= float(nodedegree)/numnodes                  # c^tri_rand?
-    l_rand= np.log(numnodes)/np.log(nodedegree)    # approximation, see humphries & gurney (2008) eq 11
-    #l_rand= (np.log(numnodes)-0.5772)/(np.log(nodedegree)) + .5 # alternative ASPL from fronczak, fronczak & holyst (2004)
-    s=(c_sm/c_rand)/(l_sm/l_rand)
-    return s
-
 def stationary(t,method="unweighted"):
     if method=="unweighted":                 # only works for unweighted matrices!
         return sum(t>0)/float(sum(sum(t>0)))   
@@ -1084,38 +762,6 @@ def stationary(t,method="unweighted"):
     else:                                       # buggy
         eigen=np.linalg.eig(t)[1][:,0]
         return np.real(eigen/sum(eigen))
-
-# generates fake IRTs from # of steps in a random walk, using gamma distribution
-def stepsToIRT(irts, seed=None):
-    nplocal=np.random.RandomState(seed)        # to generate the same IRTs each time
-    new_irts=[]
-    for irtlist in irts.data:
-        if irts.irttype=="gamma":
-            newlist=[nplocal.gamma(irt, (1.0/irts.gamma_beta)) for irt in irtlist]  # beta is rate, but random.gamma uses scale (1/rate)
-        if irts.irttype=="exgauss":
-            newlist=[rand_exg(irt, irts.exgauss_sigma, irts.exgauss_lambda) for irt in irtlist] 
-        new_irts.append(newlist)
-    return new_irts
-
-# ** this function is not really needed anymore since moving functionality to genX, 
-# ** but there may be some niche cases where needed...
-# trim Xs to proportion of graph size, the trim graph to remove any nodes that weren't hit
-# used to simulate human data that doesn't cover the whole graph every time
-def trimX(trimprop, Xs, steps):
-    numnodes=len(Xs[0])             # since Xs haven't been trimmed, we know list covers full graph
-    alter_graph_size=0              # report if graph size changes-- may result in disconnected graph!
-
-    if trimprop <= 1:
-        numtrim=int(round(numnodes*trimprop))       # if <=1, paramater is proportion of a list
-    else:
-        numtrim=trimprop                            # else, parameter is length of a list
-
-    Xs=[i[0:numtrim] for i in Xs]
-    steps=[i[0:(numtrim-1)] for i in steps]
-    for i in range(numnodes):
-        if i not in set(flatten_list(Xs)):
-            alter_graph_size=1
-    return Xs, steps, alter_graph_size
 
 #@profile
 def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, seed=None):
@@ -1318,23 +964,3 @@ def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, de
     graph, best_ll = phases(graph, best_ll, probmat)
 
     return graph, best_ll
-
-# tuple walk from flat list
-def walk_from_path(path):
-    walk=[]
-    for i in range(len(path)-1):
-        walk.append((path[i],path[i+1])) 
-    return walk
-
-def smallToBigGraph(small_graph, small_items, large_items):
-    numnodes = len(large_items)
-    a=np.zeros((numnodes,numnodes))
-    for inum, i in enumerate(small_graph):
-        for jnum, j in enumerate(i):
-            if j==1:
-                i_label = small_items[inum]
-                j_label = small_items[jnum]
-                big_i = list(large_items.keys())[list(large_items.values()).index(i_label)] # wordy just in case dictionary keys are not in numerical order
-                big_j = list(large_items.keys())[list(large_items.values()).index(j_label)]
-                a[big_i, big_j] = 1
-    return a

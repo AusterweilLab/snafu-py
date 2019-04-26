@@ -12,5 +12,6 @@ from . import gui
 from .triadic import *
 from .word_properties import *
 from .pci import *
-
-#from draw import *
+from .generate_lists import *
+from .generate_graphs import *
+from .irts import *
