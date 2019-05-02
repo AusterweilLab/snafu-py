@@ -145,11 +145,3 @@ def perseverations(l):
 
 def avgNumPerseverations(l):
     return np.mean([len(i)-len(set(i)) for i in l])
-
-
-# ** UNTESTED // modified from usf_cogsci.py
-# avg num cluster types per list
-def numClusters(data):
-    numclusts_real=np.mean([len(set(flatten_list([j.split(';') for j in i]))) for i in labelClusters(data,scheme)])
-    return numclusts_real
-

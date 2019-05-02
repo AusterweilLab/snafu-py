@@ -26,8 +26,6 @@ def list_subjects_and_categories(command, root_path):
                 categories.append(line[cat_idx])
             if group_idx > -1:
                 group_label = line[group_idx]
-                if group_label == "all":        # "all" is a reserved group label, if user uses
-                    group_label = "all.b"       # this label it will be replaced by "all.b", even though it won't compute statistics for that group in snafu
                 if group_label not in groups:
                     groups.append(group_label)
     return { "type": "list_subjects_and_categories",

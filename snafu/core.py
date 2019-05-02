@@ -247,7 +247,7 @@ def naiveRandomWalk(Xs, numnodes=None, directed=False):
     a=np.zeros((numnodes,numnodes))
     for x in Xs:
         walk = edges_from_nodes(x)
-        for i in set(walk):s
+        for i in set(walk):
             a[i[0],i[1]]=1
             if directed==False:
                 a[i[1],i[0]]=1
@@ -319,7 +319,7 @@ def genStartGraph(Xs, numnodes, td, fitinfo):
         graph = pathfinder(Xs, numnodes, valid=True, td=td)
     elif fitinfo.startGraph=="kenett_valid":
         graph = correlationBasedNetwork(Xs, numnodes, valid=True, td=td)
-    elif (fitinfo.startGraph=="rw" || fitinfo.startGraph=="nrw"):
+    elif (fitinfo.startGraph=="rw" or fitinfo.startGraph=="nrw"):
         graph = naiveRandomWalk(Xs,numnodes)
     elif fitinfo.startGraph=="fully_connected":
         graph = fullyConnected(numnodes)

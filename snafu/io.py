@@ -99,10 +99,10 @@ def readX(*args):
 
 # read Xs in from user files
 # this should be re-written with pandas or something more managable
-def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,group=None,subject=None,cleanBadChars=True):
+def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,group=None,subject=None,cleanBadChars=False):
    
     # grab header col indices
-    mycsv = csv.reader(open(filepath,'rbU'))  # JZ change rbU to rt for python3.5?
+    mycsv = csv.reader(open(filepath,'rt'))
     headers = next(mycsv, None)
     subj_col = headers.index('id')
     listnum_col = headers.index('listnum')
@@ -127,12 +127,6 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
     except:
         has_rt_col = False
 
-    # if ids or groups is string wrap it in a list
-    if isinstance(ids,str):
-        subject=[subject]
-    if isinstance(group,str):
-        group=[group]
-        
     Xs=dict()
     irts=dict()
     items=dict()
@@ -144,7 +138,7 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
         if not scheme:
             raise ValueError('You need to provide a category scheme if you want to ignore intrusions!')
         else:
-            with open(scheme,'r') as fh:
+            with open(scheme,'rt') as fh:
                 for line in fh:
                     if line[0] == "#": pass         # skip commented lines
                     try:
@@ -154,7 +148,7 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
 
     # read in spelling correction dictionary when spellfile is specified
     if spellfile:
-        with open(spellfile,'r') as spellfile:
+        with open(spellfile,'rt') as spellfile:
             for line in spellfile:
                 if line[0] == "#": pass         # skip commented lines
                 try:
@@ -163,19 +157,19 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                 except:
                     pass    # fail silently on wrong format
    
-    with open(filepath,'rbU') as f:          # JZ change rbU to rt for python3.5?
+    with open(filepath,'rt') as f:
         f.readline()    # discard header row
         for line in f:
             if line[0] == "#": pass         # skip commented lines
-            row=line.rstrip().split(',')
+            row = line.rstrip().split(',')
 
-            storerow=False  # if the row meets the filters specified then load it, else skip it
-            if (row[subj_col] in subject) or \
-               (row[group_col] in group) or \
-               ((group==None) and (subject==None)):
-                if ((has_category_col == True) and (row[category_col] == category)) or \
-                   (category == None):
-                    storerow = True
+            storerow = True  # if the row meets the filters specified then load it, else skip it
+            if (subject != None) and (row[subj_col] not in subject):
+                storerow = False
+            if (group != None) and (row[group_col] not in group):
+                storerow = False
+            if (category != None) and (row[category_col] not in category):
+                storerow = False
             
             if storerow == True:
 

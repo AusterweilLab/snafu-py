@@ -37,6 +37,8 @@ class Data():
         items = deepcopy(self.rawdata['items'])
         self.items = [items[i] for i in sorted(items.keys())]
 
+        self.labeledXs = [numToItemLabel(self.Xs[i],self.items[i]) for i in range(len(self.Xs))]
+
         try:
             irts = deepcopy(self.rawdata['irts'])
             self.irts = [[irts[i][j] for j in sorted(irts[i].keys())] for i in self.subs]
@@ -68,6 +70,7 @@ class Data():
         self.numnodes = self.groupnumnodes
         self.items = self.groupitems
         self.structure = "nonhierarchical"
+        self.labeledXs = numToItemLabel(self.Xs, self.items)
         
         return self
 
@@ -99,33 +102,11 @@ def DataModel(data):
         data['jumponcensored']=None
     if 'censor_fault' not in tdkeys:
         data['censor_fault'] = 0.0
-    if 'emission_fault' not in tdkeys:
-        data['emission_fault'] = 0.0
+    #if 'emission_fault' not in tdkeys:
+    #    data['emission_fault'] = 0.0
     
     return dotdict(data)
 
-def Graphs(graphs):
-    tgkeys=list(graphs.keys())
-    
-    # full factorial of any list params
-    for i in tgkeys:
-        if isinstance(graphs[i],list):
-            return flatten_list([Graphs(dict(graphs, **{i: j})) for j in graphs[i]])
-
-    if 'numgraphs' not in tgkeys:
-        graphs['numgraphs'] = 1
-    if 'graphtype' not in tgkeys:
-        raise ValueError("Must specify 'graphtype' in graphs!")
-    if 'numnodes' not in tgkeys:
-        raise ValueError("Must specify 'numnodes' in graphs!")
-    if graphs['graphtype'] == "wattsstrogatz":
-        if 'numlinks' not in tgkeys:
-            raise ValueError("Must specify 'numlinks' in graphs!")
-        if 'prob_rewire' not in tgkeys:
-            raise ValueError("Must specify 'prob_rewire' in graphs!")
-
-    return dotdict(graphs)
-        
 def Irts(irts):
     irtkeys=list(irts.keys())
 
