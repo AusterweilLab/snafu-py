@@ -3,37 +3,38 @@ import numpy as np
 
 # given list of cluster lengths, compute average cluster size of each list, then return avearge of that
 # also works on single list
-def avgClusterSize(clist):
-    avglist=[]
-    for l in clist:
-        avglist.append(np.mean(l))
-    return np.mean(avglist)
-
-def avgNumIntrusions(ilist):
-    if len(ilist) > 0:
-        if isinstance(ilist[0],list):
-            return np.mean([len(i) for i in ilist])
-        else:
-            return len(ilist)
-    else:
-        return 0
+def clusterSize(l, scheme, clustertype='fluid'):
+    clist = findClusters(l, scheme, clustertype)
+    
+    avglists=[]
+    for i in clist:
+        avglist=[]
+        for l in i:
+            avglist.append(np.mean(l))
+        avglists.append(np.mean(avglist))
+    return avglists
 
 # given list of cluster lengths, compute average number of cluster switches of each list, then return avearge of that
 # also works on single list
-def avgNumClusterSwitches(clist):
-    avgnum=[]
-    if len(clist) > 0:
-        if isinstance(clist[0], list):
-            for l in clist:
-                avgnum.append(len(l)-1)
-            return np.mean(avgnum)
+def clusterSwitch(l, scheme, clustertype='fluid'):
+    clist = findClusters(l, scheme, clustertype)
+    
+    avglists=[]
+    for i in clist:
+        avgnum=[]
+        if len(i) > 0:
+            if isinstance(i[0], list):
+                for l in clist:
+                    avgnum.append(len(l)-1)
+                avglists.append(np.mean(avgnum))
+            else:
+                avglists.append(len(i)-1)
         else:
-            return len(clist)-1
-    else:
-        return 0
+            avglists.append(0)
+    return avglists
 
 # report average cluster size for list or nested lists
-def clusterSize(l, scheme, clustertype='fluid'):
+def findClusters(l, scheme, clustertype='fluid'):
     # only convert items to labels if list of items, not list of lists
     if len(l) > 0:
         if isinstance(l[0], list):
@@ -50,7 +51,7 @@ def clusterSize(l, scheme, clustertype='fluid'):
     firstitem=1
     for inum, item in enumerate(clusters):
         if isinstance(item, list):
-            clustList.append(clusterSize(item, scheme, clustertype=clustertype))
+            clustList.append(findClusters(item, scheme, clustertype=clustertype))
         else:
             newcats=set(item.split(';'))
             if 'unknown' in newcats:
@@ -92,6 +93,7 @@ def labelClusters(l, scheme):
         cats={}
         for line in cf:
             line=line.rstrip()
+            if line[0] == "#": continue         # skip commented lines
             cat, item = line.split(',')
             cat=cat.lower().replace(' ','').replace("'","").replace("-","") # basic clean-up
             item=item.lower().replace(' ','').replace("'","").replace("-","")
@@ -115,8 +117,8 @@ def labelClusters(l, scheme):
                 labels.append(item[:maxletters])
     return labels
 
-# slow
-def intrusions(l, scheme):
+# broken
+def intrusionsList(l, scheme):
     labels=labelClusters(l, scheme)
     if len(l) > 0:
         if isinstance(labels[0], list):
@@ -128,9 +130,19 @@ def intrusions(l, scheme):
     else:
         intrusion_items = []
     return intrusion_items
+  
+
+# broken
+def intrusions(l, scheme):
+    ilist = intrusionsList(l, scheme)
     
-# only works on labels, not indices. is there a need to work on indices?
-def perseverations(l):
+    if isinstance(ilist[0],list):
+        return np.mean([len(i) for i in ilist])
+    else:
+        return len(ilist)
+
+# broken
+def perseverationsList(l):
     if len(l) > 0:
         if isinstance(l[0], list):
             perseveration_items=[] 
@@ -143,5 +155,8 @@ def perseverations(l):
     return perseveration_items
 
 
-def avgNumPerseverations(l):
-    return np.mean([len(i)-len(set(i)) for i in l])
+def perseverations(l):
+    if isinstance(l[0][0],list):
+        return [np.mean([len(i)-len(set(i)) for i in l2]) for l2 in l]
+    else:
+        return [len(i)-len(set(i)) for i in l]

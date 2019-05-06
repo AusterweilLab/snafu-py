@@ -176,5 +176,8 @@ def Fitinfo(fitinfo):
         fitinfo['goni_size'] = 2
     if 'goni_threshold' not in fitkeys:
         fitinfo['goni_threshold'] = 2
+    if 'goni_c' not in fitkeys:
+        fitinfo['goni_c'] = 0.05
+
     return dotdict(fitinfo)
 

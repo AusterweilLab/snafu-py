@@ -99,7 +99,7 @@ def readX(*args):
 
 # read Xs in from user files
 # this should be re-written with pandas or something more managable
-def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spellfile=None,scheme=None,group=None,subject=None,cleanBadChars=False):
+def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spell=None,scheme=None,group=None,subject=None,cleanBadChars=False):
    
     # grab header col indices
     mycsv = csv.reader(open(filepath,'rt'))
@@ -140,17 +140,17 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
         else:
             with open(scheme,'rt') as fh:
                 for line in fh:
-                    if line[0] == "#": pass         # skip commented lines
+                    if line[0] == "#": continue         # skip commented lines
                     try:
                         validitems.append(line.rstrip().split(',')[1].lower())
                     except:
                         pass    # fail silently on wrong format
 
-    # read in spelling correction dictionary when spellfile is specified
-    if spellfile:
-        with open(spellfile,'rt') as spellfile:
-            for line in spellfile:
-                if line[0] == "#": pass         # skip commented lines
+    # read in spelling correction dictionary when spell is specified
+    if spell:
+        with open(spell,'rt') as spell:
+            for line in spell:
+                if line[0] == "#": continue         # skip commented lines
                 try:
                     correct, incorrect = line.rstrip().split(',')
                     spellingdict[incorrect] = correct
@@ -160,7 +160,7 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
     with open(filepath,'rt') as f:
         f.readline()    # discard header row
         for line in f:
-            if line[0] == "#": pass         # skip commented lines
+            if line[0] == "#": continue         # skip commented lines
             row = line.rstrip().split(',')
 
             storerow = True  # if the row meets the filters specified then load it, else skip it

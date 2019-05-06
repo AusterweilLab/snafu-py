@@ -55,21 +55,21 @@ def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
     """
     This is a test docstring
     """
-    if (td.jumptype=="uniform") and (numnodes==None):
+    if (td.jumptype == "uniform") and (numnodes == None):
         raise ValueError("Must specify 'numnodes' when jumptype is uniform [addJumps]")
-    if (td.jumptype=="stationary") and (np.any(statdist==None) or (Xs==None)):
+    if (td.jumptype == "stationary") and (np.any(statdist == None) or (Xs == None)):
         raise ValueError("Must specify 'statdist' and 'Xs' when jumptype is stationary [addJumps]")
 
-    if td.jumptype=="uniform":
-        jumpprob=float(td.jump)/numnodes                     # uniform jumping
+    if td.jumptype == "uniform":
+        jumpprob = float(td.jump)/numnodes                     # uniform jumping
     
-    for l in range(len(probs)):                              # loop through all lists (l)
-        for inum, i in enumerate(probs[l][1:]):              # loop through all items (i) excluding first (don't jump to item 1)
+    for l in range(len(probs)):                                # loop through all lists (l)
+        for inum, i in enumerate(probs[l][1:]):                # loop through all items (i) excluding first (don't jump to item 1)
             if td.jumptype=="stationary":
-                jumpprob=statdist[Xs[l][inum+1]]             # stationary probability jumping
-                if np.isnan(jumpprob):                       # if node is disconnected, jumpprob is nan
-                    jumpprob=0.0
-            probs[l][inum+1]=jumpprob + (1-td.jump)*i        # else normalize existing probability and add jumping probability
+                jumpprob = statdist[Xs[l][inum+1]]             # stationary probability jumping
+                if np.isnan(jumpprob):                         # if node is disconnected, jumpprob is nan
+                    jumpprob = 0.0
+            probs[l][inum+1] = jumpprob + (1-td.jump)*i        # else normalize existing probability and add jumping probability
     return probs
 
 # mix U-INVITE with priming model
@@ -90,7 +90,9 @@ def adjustPriming(probs, td, Xs):
 # + Chan, Butters, Salmon, Johnson, Paulsen, & Swenson (1995) neuropsychology
 # Returns only PF(q, r) = PF(n-1, inf) = minimum spanning tree (sparsest possible graph)
 # other parameterizations of PF(q, r) not implemented
-def pathfinder(Xs, numnodes, valid=False, td=None):
+def pathfinder(Xs, numnodes=None, valid=False, td=None):
+    if numnodes == None:
+        numnodes = len(set(snafu.flatten_list(Xs)))
     
     # From https://github.com/evanmiltenburg/dm-graphs
     def MST_pathfinder(G):
@@ -125,9 +127,8 @@ def pathfinder(Xs, numnodes, valid=False, td=None):
         return NG
 
     if valid and not td:
-        raise ValueError('Need to pass Data when generating \'valid\' chan()')
+        raise ValueError('Need to pass DataModel when generating \'valid\' pathfinder()')
         
-    #import scipy.sparse
     N = float(len(Xs))
     distance_mat = np.zeros((numnodes, numnodes))
     for item1 in range(numnodes):
@@ -217,7 +218,9 @@ def evalGraphPrior(a, prior, undirected=True):
     probs = sum(probs)
     return probs
 
-def firstEdge(Xs, numnodes):
+def firstEdge(Xs, numnodes=None):
+    if numnodes == None:
+        numnodes = len(set(snafu.flatten_list(Xs)))
     a=np.zeros((numnodes,numnodes))
     for x in Xs:
         a[x[0],x[1]]=1
@@ -317,8 +320,6 @@ def genStartGraph(Xs, numnodes, td, fitinfo):
         graph = communityNetwork(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
     elif fitinfo.startGraph=="chan_valid":
         graph = pathfinder(Xs, numnodes, valid=True, td=td)
-    elif fitinfo.startGraph=="kenett_valid":
-        graph = correlationBasedNetwork(Xs, numnodes, valid=True, td=td)
     elif (fitinfo.startGraph=="rw" or fitinfo.startGraph=="nrw"):
         graph = naiveRandomWalk(Xs,numnodes)
     elif fitinfo.startGraph=="fully_connected":
@@ -333,12 +334,13 @@ def genStartGraph(Xs, numnodes, td, fitinfo):
 # f = filter frequency; if two items don't fall within the same window more than f times, then no edge is inferred
 # c = confidence interval; retain the edge if there is a <= c probability that two items occur within the same window n times by chance alone
 # valid (t/f) ensures that graph can produce data using censored RW.
-def communityNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), c=0.05, valid=False, td=None):
+def communityNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=None):
     if numnodes == None:
         numnodes = len(set(snafu.flatten_list(Xs)))
         
-    w=fitinfo.goni_size
-    f=fitinfo.goni_threshold
+    w = fitinfo.goni_size
+    f = fitinfo.goni_threshold
+    c = fitinfo.goni_c
     
     if f<1:                 # if <1 treat as proportion of total lists; if >1 treat as absolute # of lists
         f=int(round(len(Xs)*f))
@@ -578,7 +580,7 @@ def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
 # probability of observing Xs, including irts and prior
 #@profile
 #@nogc
-def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceCompute=False):
+def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[]):
 
     numnodes=len(a)
     reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv instead of inv, but that's much slower
@@ -604,7 +606,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
             prob.append(1.0/numnodes)
 
         # if impossible starting point, return immediately
-        if (prob[-1]==0.0) and (not forceCompute):
+        if (prob[-1]==0.0):
             return -np.inf, (x[0], x[1])
 
         if (len(changed) > 0) and isinstance(origmat,list):        # if updating prob. matrix based on specific link changes
@@ -617,7 +619,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
             list_has_perseverations = True
 
         for curpos in range(1,len(x)):
-            if (len(changed) > 0) and isinstance    (origmat,list):
+            if (len(changed) > 0) and isinstance(origmat,list):
                 if update==0:                                      # first check if probability needs to be updated
                     if (Xs[xnum][curpos-1] in changed):            # (only AFTER first changed node has been reached)
                         update=1
@@ -716,7 +718,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
                 #prob.append(B[0,curpos-1])
 
             # if there's an impossible transition and no jumping/priming, return immediately
-            if (prob[-1]==0.0) and (td.jump == 0.0) and (td.priming == 0.0) and (not forceCompute):
+            if (prob[-1]==0.0) and (td.jump == 0.0) and (td.priming == 0.0):
                 return -np.inf, (x[curpos-1], x[curpos])
 
         probs.append(prob)
@@ -734,13 +736,12 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
         probs=adjustPriming(probs, td, Xs)
 
     # check for impossible transitions after priming and jumping
-    if not forceCompute:    
-        for xnum, x in enumerate(probs):
-            for inum, i in enumerate(x):
-                if (i==0.0) and (inum==0):
-                    return -np.inf, (Xs[xnum][inum], Xs[xnum][inum+1])  # link to next item when first item is unreachable
-                elif (i==0.0) and (inum > 0):
-                    return -np.inf, (Xs[xnum][inum-1], Xs[xnum][inum])  # link to previous item otherwise
+    for xnum, x in enumerate(probs):
+        for inum, i in enumerate(x):
+            if (i==0.0) and (inum==0):
+                return -np.inf, (Xs[xnum][inum], Xs[xnum][inum+1])  # link to next item when first item is unreachable
+            elif (i==0.0) and (inum > 0):
+                return -np.inf, (Xs[xnum][inum-1], Xs[xnum][inum])  # link to previous item otherwise
                 
     try:
         ll=sum([sum([np.log(j) for j in probs[i]]) for i in range(len(probs))])
@@ -757,15 +758,16 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[], forceC
 def stationary(t,method="unweighted"):
     if method=="unweighted":                 # only works for unweighted matrices!
         return sum(t>0)/float(sum(sum(t>0)))   
-    elif method=="power":                       # slow?
-        return np.linalg.matrix_power(t,500)[:,0]
     else:                                       # buggy
         eigen=np.linalg.eig(t)[1][:,0]
         return np.real(eigen/sum(eigen))
 
 #@profile
-def uinvite(Xs, td, numnodes, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, seed=None):
+def uinvite(Xs, td, numnodes=None, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, seed=None):
     nplocal=np.random.RandomState(seed) 
+
+    if numnodes == None:
+        numnodes = len(set(snafu.flatten_list(Xs)))
 
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
     # i.e., an edge between i and any item in nn forms a triangle
