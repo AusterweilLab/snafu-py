@@ -23,7 +23,7 @@ def hashToGraph(graphhash):
 # reads in graph from CSV
 # row order not preserved; could be optimized more
 def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False):
-    fh=open(fh,'r')
+    fh=open(fh,'rt', encoding='utf-8-sig')
     idx=0
     bigdict={}
 
@@ -99,10 +99,10 @@ def readX(*args):
 
 # read Xs in from user files
 # this should be re-written with pandas or something more managable
-def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spell=None,scheme=None,group=None,subject=None,cleanBadChars=False):
+def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spell=None,scheme=None,group=None,subject=None,cleanBadChars=False,hierarchical=False):
    
     # grab header col indices
-    mycsv = csv.reader(open(filepath,'rt'))
+    mycsv = csv.reader(open(filepath,'rt', encoding='utf-8-sig'))
     headers = next(mycsv, None)
     subj_col = headers.index('id')
     listnum_col = headers.index('listnum')
@@ -138,7 +138,7 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
         if not scheme:
             raise ValueError('You need to provide a category scheme if you want to ignore intrusions!')
         else:
-            with open(scheme,'rt') as fh:
+            with open(scheme,'rt', encoding='utf-8-sig') as fh:
                 for line in fh:
                     if line[0] == "#": continue         # skip commented lines
                     try:
@@ -148,7 +148,7 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
 
     # read in spelling correction dictionary when spell is specified
     if spell:
-        with open(spell,'rt') as spell:
+        with open(spell,'rt', encoding='utf-8-sig') as spell:
             for line in spell:
                 if line[0] == "#": continue         # skip commented lines
                 try:
@@ -157,7 +157,7 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                 except:
                     pass    # fail silently on wrong format
    
-    with open(filepath,'rt') as f:
+    with open(filepath,'rt', encoding='utf-8-sig') as f:
         f.readline()    # discard header row
         for line in f:
             if line[0] == "#": continue         # skip commented lines
@@ -214,12 +214,12 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                 except:
                     pass                # bad practice to have empty except
    
-    return Data({'Xs': Xs, 'items': items, 'irts': irts})
+    return Data({'Xs': Xs, 'items': items, 'irts': irts, 'structure': hierarchical})
 
 def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=False):
     onezero={True: '1', False: '0'}        
     import networkx as nx
-    fh=open(fh,'w',0)
+    fh=open(fh,'w')
     
     nodes = list(set(flatten_list([list(gs[i].nodes()) for i in range(len(gs))])))
     

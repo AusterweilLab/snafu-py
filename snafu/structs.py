@@ -26,7 +26,13 @@ class Data():
         self.groupitems = generateGroupSpace()
         self.groupnumnodes = len(self.groupitems)
         self.subs = sorted(data['Xs'].keys())
-            
+        
+        if data['structure']:
+            self.structure = "hierarchical"
+            self.hierarchical()
+        else:
+            self.structure = "nonhierarchical"
+            self.nonhierarchical()
         return
 
     def hierarchical(self):
@@ -91,19 +97,19 @@ def DataModel(data):
     if 'jump' not in tdkeys:
         data['jump'] = 0.0           # no jumping in data by default
     if 'jumptype' not in tdkeys:
-        data['jumptype']="uniform"   # or stationary
+        data['jumptype'] = "uniform"   # or stationary
     if 'startX' not in tdkeys:
-        data['startX']="stationary"      # or stationary
+        data['startX'] = "stationary"      # or stationary
     if 'numx' not in tdkeys:
         raise ValueError("Must specify 'numx' in data!")
     if 'priming' not in tdkeys:
-        data['priming']=0.0
+        data['priming'] = 0.0
     if 'jumponcensored' not in tdkeys:
-        data['jumponcensored']=None
-    if 'censor_fault' not in tdkeys:
+        data['jumponcensored'] = None
+    if 'censor_fault' not in tdkeys:    # for generative process only, not inferring graphs
         data['censor_fault'] = 0.0
-    #if 'emission_fault' not in tdkeys:
-    #    data['emission_fault'] = 0.0
+    if 'emission_fault' not in tdkeys:  # for generative process only, not inferring graphs
+        data['emission_fault'] = 0.0
     
     return dotdict(data)
 
@@ -172,12 +178,12 @@ def Fitinfo(fitinfo):
         fitinfo['triangle_limit'] = np.inf
     if 'other_limit' not in fitkeys:
         fitinfo['other_limit'] = np.inf
-    if 'goni_size' not in fitkeys:
-        fitinfo['goni_size'] = 2
-    if 'goni_threshold' not in fitkeys:
-        fitinfo['goni_threshold'] = 2
-    if 'goni_c' not in fitkeys:
-        fitinfo['goni_c'] = 0.05
+    if 'cn_windowsize' not in fitkeys:
+        fitinfo['cn_windowsize'] = 2
+    if 'cn_threshold' not in fitkeys:
+        fitinfo['cn_threshold'] = 2
+    if 'cn_alpha' not in fitkeys:
+        fitinfo['cn_alpha'] = 0.05
 
     return dotdict(fitinfo)
 

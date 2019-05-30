@@ -1,53 +1,36 @@
 import csv
 import numpy as np
 
-def wordSetup(freqfile,aoafile,freq_sub): #freqfile and aoafile are paths to the csv files containing word frequency and aoa dictionary
-	global d_freq
-	global d_aoa
-	d_freq = {}
-	d_aoa = {}
-	with open(freqfile, 'rb') as csvfile:
-		reader = csv.DictReader(csvfile)
-		for row in reader:
-                    d_freq[row['word']]= float(row['freq'])
+def wordFrequency(subj,missing=None,data=None):
+    return wordStat(subj,missing=freq_sub,data=data)
 
-	with open(aoafile, 'rb') as csvfile:
-		reader = csv.DictReader(csvfile)
-		for row in reader:
-                    d_aoa[row['word']]= float(row['aoa_mean'])
+def ageOfAquisition(subj,missing=None,data=None):
+    return wordStat(subj,missing=aoa_sub,data=data)
 
+def wordStat(subj,missing=None,data=None):
+    # load dictionary
+    d_val = {}
+    with open(data, 'rt', encoding='utf-8-sig') as csvfile:
+        # allows comments in file thanks to https://stackoverflow.com/a/14158869/353278
+        reader = csv.DictReader(filter(lambda row: row[0]!='#', csvfile), fieldnames=['word','val'])
+        for row in reader:
+            d_val[row['word']]= float(row['val'])
 
-def getWordFreq(subj,freq_sub):
-	word_freq = []
-	words_excluded = []
-	for i in subj: # each list
-		temp=[]
-		excluded=[]
-		for j in i: # each word
-			if (j in d_freq): # case 1: in the list
-                            temp.append(d_freq[j])
-			else: 
-                            if(j not in d_freq and freq_sub!=-1): # case 2: not in the list, substituted by freq_sub
-                                    temp.append(freq_sub)
-                            else: # case 3: excluded
-                                    excluded.append(j)
-		if(len(temp)>0):
-			word_freq.append(np.mean(temp))
-		words_excluded.append(excluded)
-	return np.mean(word_freq), words_excluded
-
-def getWordAoa(subj):
-	word_aoa = []
-	words_excluded = []
-	for i in subj: # each list
-		temp=[]
-		excluded=[]
-		for j in i: # each word
-                    if (j in d_aoa): # word must be in the list
-                        temp.append(d_aoa[j])
-                    else: # or their would be excluded
+    word_val = []
+    words_excluded = []
+    for i in subj: # each list
+            temp=[]
+            excluded=[]
+            for j in i: # each word
+                if (j in d_val): # word must be in the list
+                    temp.append(d_val[j])
+                else: # or their would be excluded
+                    if (missing!=None): # case 2: not in the list, substituted by missing
+                        temp.append(missing)
+                    else:
                         excluded.append(j)
-		if(len(temp)>0):
-                    word_aoa.append(np.mean(temp))
-		words_excluded.append(excluded)
-	return np.mean(word_aoa), words_excluded
+            if(len(temp)>0):
+                word_val.append(np.mean(temp))
+            words_excluded.append(excluded)
+    return np.mean(word_val), words_excluded
+

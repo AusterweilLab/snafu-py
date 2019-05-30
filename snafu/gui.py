@@ -10,8 +10,8 @@ def list_subjects_and_categories(command, root_path):
     categories=[]
     groups=["all"]
     
-    with open(command['fullpath'],'r') as fh:
-        header=fh.readline().strip().decode("utf-8-sig").encode("utf-8").split(',')
+    with open(command['fullpath'],'rt',encoding="utf-8-sig") as fh:
+        header=fh.readline().strip().split(',')
         subj_idx = header.index("id")
         cat_idx = header.index("category")
         try:
@@ -47,10 +47,16 @@ def jsonGraph(g, items):
     
     for i, j in enumerate(json_data['edges']):
         json_data['edges'][i]['id'] = i
-    
+        
+        # this line fixes a bug (JSON not serializable) i don't know why it's not serializable without it (py3.5)
+        json_data['edges'][i]['target'] = int(json_data['edges'][i]['target']) 
+   
     for i, j in enumerate(json_data['nodes']):
-        json_data['nodes'][i]['label']=items[j['id']]
-    
+        json_data['nodes'][i]['label'] = items[j['id']]
+   
+    # works when edges['target'] aren't in dict
+    #json_data.pop('edges',None)
+
     return json_data
 
 def label_to_filepath(x, root_path, filetype):
@@ -85,7 +91,10 @@ def data_properties(command, root_path):
         subject = str(command['subject'])
         group = None
     elif command['factor_type'] == "group":
-        group = str(command['group'])            # without str() causes unicode issues for "all" :(
+        if command['group'] != "all":
+            group = command['group']
+        else:
+            group = None                             # reserved group label in GUI for all subjects
         subject = None
 
     filedata = snafu.load_fluency_data(command['fullpath'], category=command['category'], spell=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=group, subject=subject)
@@ -106,15 +115,41 @@ def data_properties(command, root_path):
     intrusions = []
     avg_num_perseverations = []
     perseverations = []
+   
+    if not command['freq_ignore']:
+        try:
+            freq_sub = float(command['freq_sub'])
+        except:
+            freq_sub = None
+    else:
+        freq_sub = None
+
+    if not command['aoa_ignore']:
+        try:
+            aoa_sub = float(command['aoa_sub'])
+        except:
+            aoa_sub = None
+    else:
+        aoa_sub = None
+
+
+    freqfile = label_to_filepath(command['freqfile'], root_path,"frequency")
+    aoafile = label_to_filepath(command['aoafile'], root_path,"aoa")
     
-    snafu.wordSetup(freq_sub=float(command['freq_sub']),freqfile=label_to_filepath(command['freqfile'],root_path,"frequency"),aoafile=label_to_filepath(command['aoafile'],root_path,"aoa"))
+    preset_schemes = {"Phonemic: 1 letter": 1,
+                      "Phonemic: 2 letters": 2,
+                      "Phonemic: 3 letters": 3}
+    if command['cluster_scheme'] in preset_schemes.keys():
+        schemefile = preset_schemes[command['cluster_scheme']]
+    else:
+        schemefile = label_to_filepath(command['cluster_scheme'], root_path, "schemes")
+    
     total_words = 0
     avg_word_freq = []
     word_freq_excluded = []
     avg_word_aoa = []
     word_aoa_excluded = []
 
-    schemefile = label_to_filepath(command['cluster_scheme'], root_path, "schemes")
     if command['cluster_scheme'] != "None":
         avg_cluster_size = snafu.clusterSize(labeledXs, schemefile, clustertype=command['cluster_type'])
         avg_num_cluster_switches = snafu.clusterSwitch(labeledXs, schemefile, clustertype=command['cluster_type'])
@@ -128,11 +163,11 @@ def data_properties(command, root_path):
         avg_items_listed.append(np.mean([len(i) for i in labeledXs[subjnum]]))
         avg_unique_items_listed.append(np.mean([len(set(i)) for i in labeledXs[subjnum]]))
 
-        tmp1, tmp2 = snafu.getWordFreq(labeledXs[subjnum],freq_sub=float(command['freq_sub']))
+        tmp1, tmp2 = snafu.wordFrequency(labeledXs[subjnum],freq_sub=freq_sub,statfile=freqfile)
         avg_word_freq.append(tmp1)
         for i in tmp2:
             word_freq_excluded.append(i)
-        tmp1, tmp2 = snafu.getWordAoa(labeledXs[subjnum])
+        tmp1, tmp2 = snafu.ageOfAquisition(labeledXs[subjnum],aoa_sub=aoa_sub,statfile=aoafile)
         avg_word_aoa.append(tmp1)
         for i in tmp2:
             word_aoa_excluded.append(i)
@@ -207,8 +242,8 @@ def generate_csv_file(command, root_path):
             csv_intrusions = snafu.intrusions(labeledXs,scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"))
             csv_perseverations = snafu.perseverations(labeledXs)
 
-            csv_freq, temp = snafu.getWordFreq([labeledXs[listnum]],freq_sub=float(command['freq_sub']))
-            csv_aoa, temp = snafu.getWordAoa([labeledXs[listnum]])
+            csv_freq, temp = snafu.wordFrequency([labeledXs[listnum]],freq_sub=float(command['freq_sub']))
+            csv_aoa, temp = snafu.ageOfAquisition([labeledXs[listnum]])
 
             csv_file += str(csv_sub)+','+str(csv_listnum)+','+str(csv_numitems)+','+str(csv_uniqueitem)+','+str(csv_clusterswitch)+','+str(round(csv_clusterlength,2))+','+str(csv_intrusions)+','+str(csv_perseverations)+','+str(round(csv_freq,2))+','+str(round(csv_aoa,2))+'\n'
 
@@ -232,7 +267,7 @@ def network_properties(command, root_path):
         subject = None
         group = str(subj_props['group'])
 
-    filedata = snafu.load_fluency_data(subj_props['fullpath'], category=subj_props['category'], spellfile=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations, subject=subject, group=group)
+    filedata = snafu.load_fluency_data(subj_props['fullpath'], category=subj_props['category'], spell=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations, subject=subject, group=group)
     filedata.nonhierarchical()
     Xs = filedata.Xs
     items = filedata.items
@@ -252,8 +287,8 @@ def network_properties(command, root_path):
             'prior_b': 2,
             'zibb_p': 0.5,
             'startGraph': command['starting_graph'],
-            'goni_size': int(command['goni_windowsize']),
-            'goni_threshold': int(command['goni_threshold']),
+            'windowsize': int(command['cn_windowsize']),
+            'threshold': int(command['cn_threshold']),
             'followtype': "avg", 
             'prune_limit': 100,
             'triangle_limit': 100,
@@ -273,7 +308,7 @@ def network_properties(command, root_path):
     if command['network_method']=="Naive Random Walk":
         bestgraph = snafu.naiveRandomWalk(Xs, numnodes=numnodes)
     elif command['network_method']=="Community Network":
-        bestgraph = snafu.communityNetwork(Xs, td=toydata, valid=0, fitinfo=fitinfo, numnodes=numnodes)
+        bestgraph = snafu.communityNetwork(Xs, td=toydata, fitinfo=fitinfo, numnodes=numnodes)
     elif command['network_method']=="Pathfinder":
         bestgraph = snafu.pathfinder(Xs, numnodes=numnodes)
     elif command['network_method']=="Correlation-based Network":
@@ -289,7 +324,7 @@ def network_properties(command, root_path):
     return graph_properties(nxg,nxg_json)
 
 def analyze_graph(command, root_path): # used when importing graphs
-    nxg_json = json.load(open(command['fullpath']))
+    nxg_json = json.load(open(command['fullpath'],'rt',encoding="utf-8-sig"))
     nxg = nx.readwrite.json_graph.node_link_graph(
         nxg_json,
         multigraph = False,

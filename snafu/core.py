@@ -338,9 +338,9 @@ def communityNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=Non
     if numnodes == None:
         numnodes = len(set(snafu.flatten_list(Xs)))
         
-    w = fitinfo.goni_size
-    f = fitinfo.goni_threshold
-    c = fitinfo.goni_c
+    w = fitinfo.cn_windowsize
+    f = fitinfo.cn_threshold
+    c = fitinfo.cn_alpha
     
     if f<1:                 # if <1 treat as proportion of total lists; if >1 treat as absolute # of lists
         f=int(round(len(Xs)*f))

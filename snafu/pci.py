@@ -1,4 +1,4 @@
-# This file is used to implement the 95% CI Clopper-Pearson method used by Goni method.
+# This file is used to implement the 95% CI Clopper-Pearson method used by Community Network method.
 # Originally, it relied on statsmodels/scipy, which is a very large package
 import math 
 import numpy as np
