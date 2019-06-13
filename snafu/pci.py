@@ -1,7 +1,6 @@
 # This file is used to implement the 95% CI Clopper-Pearson method used by Community Network method.
 # Originally, it relied on statsmodels/scipy, which is a very large package
-import math 
-import numpy as np
+from . import *
 
 # copied from https://malishoaib.wordpress.com/2014/04/15/the-beautiful-beta-functions-in-raw-python/
 def contfractbeta(a,b,x, ITMAX = 200):

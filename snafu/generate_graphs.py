@@ -1,3 +1,5 @@
+from . import *
+
 def genG(*args):
     return gen_graph(*args)
 

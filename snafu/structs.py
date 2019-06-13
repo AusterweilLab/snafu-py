@@ -1,10 +1,7 @@
 # create dicts for passing instead of passing many variables
 # fill in missing variables with defaults
 
-import warnings
-from .helper import *
-import numpy as np
-from copy import deepcopy
+from . import *
 
 class Data():
     
@@ -37,16 +34,16 @@ class Data():
 
     def hierarchical(self):
 
-        Xs = deepcopy(self.rawdata['Xs'])
+        Xs = copy.deepcopy(self.rawdata['Xs'])
         self.Xs = [[Xs[i][j] for j in sorted(Xs[i].keys())] for i in self.subs]
 
-        items = deepcopy(self.rawdata['items'])
+        items = copy.deepcopy(self.rawdata['items'])
         self.items = [items[i] for i in sorted(items.keys())]
 
         self.labeledXs = [numToItemLabel(self.Xs[i],self.items[i]) for i in range(len(self.Xs))]
 
         try:
-            irts = deepcopy(self.rawdata['irts'])
+            irts = copy.deepcopy(self.rawdata['irts'])
             self.irts = [[irts[i][j] for j in sorted(irts[i].keys())] for i in self.subs]
         except:
             self.irts = []
@@ -59,9 +56,9 @@ class Data():
     def nonhierarchical(self):
         # map everyone to group space
         reverseGroup = reverseDict(self.groupitems)
-        Xs = deepcopy(self.rawdata['Xs'])
-        items = deepcopy(self.rawdata['items'])
-        irts = deepcopy(self.rawdata['irts'])
+        Xs = copy.deepcopy(self.rawdata['Xs'])
+        items = copy.deepcopy(self.rawdata['items'])
+        irts = copy.deepcopy(self.rawdata['irts'])
 
         for sub in Xs:
             for listnum in Xs[sub]:

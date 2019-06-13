@@ -1,8 +1,4 @@
-#import numpy as np
-import networkx as nx
-import numpy as np
-from .core import *
-#from helper import *
+from . import *
 
 # stochastic search through graph by node degree (proxy for frequency)
 def nodeDegreeSearch(g, td):
@@ -51,7 +47,7 @@ def cbdfs(g, td):
         statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))
     
     if td.startX=="stationary":
-        start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution
+        start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution #TODO: no definition of seed
     elif td.startX=="uniform":
         start=np.random.choice(nx.nodes(g))        # choose starting point uniformly
     elif td.startX[0]=="specific":
@@ -92,7 +88,7 @@ def spreadingActivationSearch(g, td, decay):
         statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))
     
     if td.startX=="stationary":
-        start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution
+        start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution #TODO: no definition of seed
     elif td.startX=="uniform":
         start=np.random.choice(nx.nodes(g))        # choose starting point uniformly
     elif td.startX[0]=="specific":

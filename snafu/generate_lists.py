@@ -1,3 +1,5 @@
+from . import *
+
 
 # return simulated data on graph g
 # also return number of steps between first hits (to use for IRTs)
@@ -13,12 +15,12 @@ def gen_lists(g, td, seed=None):
             seedy = seed + xnum
         rwalk=random_walk(g, td, priming_vector=priming_vector, seed=seedy)
         x=censored(rwalk, td)
-        fh=list(zip(*firstHits(rwalk))[1])
-        step=[fh[i]-fh[i-1] for i in range(1,len(fh))]
+        # fh=list(zip(*firstHits(rwalk)))[1]
+        # step=[fh[i]-fh[i-1] for i in range(1,len(fh))]
         Xs.append(x)
         if td.priming > 0.0:
             priming_vector=x[:]
-        steps.append(step)
+        # steps.append(step)
     td.priming_vector = []      # reset mutable priming vector between participants; JCZ added 9/29, untested
 
     alter_graph_size=0
@@ -70,7 +72,7 @@ def random_walk(g, td, priming_vector=[], seed=None):
     censoredcount=0                                # keep track of censored nodes and jump after td.jumponcensored censored nodes
 
     numsteps = 0
-    while (len(unused_nodes) > num_unused) and ((numsteps < td.maxsteps) or (td.maxsteps == None)):       # covers td.trim nodes-- list could be longer if it has perseverations
+    while (len(unused_nodes) > num_unused) and ((td.maxsteps == None) or (numsteps < td.maxsteps)):       # covers td.trim nodes-- list could be longer if it has perseverations
 
         # jump after n censored nodes or with random probability (depending on parameters)
         if (censoredcount == td.jumponcensored) or (nplocal.random_sample() < td.jump):
@@ -90,30 +92,3 @@ def random_walk(g, td, priming_vector=[], seed=None):
             censoredcount += 1
         first=second
     return walk
-
-# Unique nodes in random walk preserving order
-# (aka fake participant data)
-# http://www.peterbe.com/plog/uniqifiers-benchmark
-def censored(walk, td=None, seed=None):
-    def addItem(item):
-        seen[item] = 1
-        result.append(item)
-    
-    nplocal=np.random.RandomState(seed)    
-    seen = {}
-    result = []
-    for item in edges_from_nodes(walk):
-        if item in seen:
-            try:
-                if nplocal.rand() <= td.censor_fault:
-                    addItem(item)
-            except: continue
-        else:
-            try:
-                if nplocal.rand() <= td.emission_fault:
-                    continue
-                else:
-                    addItem(item)
-            except:
-                addItem(item)
-    return result

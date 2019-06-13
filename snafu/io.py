@@ -4,13 +4,7 @@
 # * Write graph to file
 # * Read fluency data from file
 
-import numpy as np
-import csv
-from  more_itertools import unique_everseen
-from .structs import *
-
-# sibling functions
-from .helper import *
+from . import *
 
 # wrapper
 def graphToHash(a):
@@ -95,7 +89,7 @@ def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=Fals
 
 # deprecated function name
 def readX(*args):
-    return load_fluency_datas(*args)
+    return load_fluency_data(*args)
 
 # read Xs in from user files
 # this should be re-written with pandas or something more managable

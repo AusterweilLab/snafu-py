@@ -1,9 +1,4 @@
-import snafu as snafu
-import numpy as np
-import os, sys
-import networkx as nx
-from networkx.readwrite import json_graph
-import json
+from . import *
 
 def list_subjects_and_categories(command, root_path):
     subjects=[]
@@ -37,7 +32,7 @@ def list_subjects_and_categories(command, root_path):
              "group": groups[0] }
 
 def jsonGraph(g, items):
-    json_data = json_graph.node_link_data(g)
+    json_data = nx.readwrite.json_graph.node_link_data(g)
     
     json_data['edges'] = json_data['links']
     json_data.pop('links', None)
@@ -97,7 +92,7 @@ def data_properties(command, root_path):
             group = None                             # reserved group label in GUI for all subjects
         subject = None
 
-    filedata = snafu.load_fluency_data(command['fullpath'], category=command['category'], spell=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=group, subject=subject)
+    filedata = load_fluency_data(command['fullpath'], category=command['category'], spell=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=group, subject=subject)
     filedata.hierarchical()
     Xs = filedata.Xs
     labeledXs = filedata.labeledXs
@@ -151,23 +146,23 @@ def data_properties(command, root_path):
     word_aoa_excluded = []
 
     if command['cluster_scheme'] != "None":
-        avg_cluster_size = snafu.clusterSize(labeledXs, schemefile, clustertype=command['cluster_type'])
-        avg_num_cluster_switches = snafu.clusterSwitch(labeledXs, schemefile, clustertype=command['cluster_type'])
-        avg_num_intrusions = snafu.intrusions(labeledXs, schemefile)
-        intrusions = snafu.intrusionsList(labeledXs, schemefile)
-    avg_num_perseverations = snafu.perseverations(labeledXs)
-    perseverations = snafu.perseverationsList(labeledXs)
+        avg_cluster_size = clusterSize(labeledXs, schemefile, clustertype=command['cluster_type'])
+        avg_num_cluster_switches = clusterSwitch(labeledXs, schemefile, clustertype=command['cluster_type'])
+        avg_num_intrusions = intrusions(labeledXs, schemefile)
+        intrusions = intrusionsList(labeledXs, schemefile)
+    avg_num_perseverations = perseverations(labeledXs)
+    perseverations = perseverationsList(labeledXs)
 
     for subjnum in range(len(labeledXs)):
         num_lists.append(len(labeledXs[subjnum]))
         avg_items_listed.append(np.mean([len(i) for i in labeledXs[subjnum]]))
         avg_unique_items_listed.append(np.mean([len(set(i)) for i in labeledXs[subjnum]]))
 
-        tmp1, tmp2 = snafu.wordFrequency(labeledXs[subjnum],freq_sub=freq_sub,statfile=freqfile)
+        tmp1, tmp2 = wordFrequency(labeledXs[subjnum],freq_sub=freq_sub,statfile=freqfile)
         avg_word_freq.append(tmp1)
         for i in tmp2:
             word_freq_excluded.append(i)
-        tmp1, tmp2 = snafu.ageOfAquisition(labeledXs[subjnum],aoa_sub=aoa_sub,statfile=aoafile)
+        tmp1, tmp2 = ageOfAquisition(labeledXs[subjnum],aoa_sub=aoa_sub,statfile=aoafile)
         avg_word_aoa.append(tmp1)
         for i in tmp2:
             word_aoa_excluded.append(i)
@@ -175,8 +170,8 @@ def data_properties(command, root_path):
             total_words += len(i)
 
     # clean up / format data to send back, still messy
-    intrusions = snafu.flatten_list(intrusions)
-    perseverations = snafu.flatten_list(perseverations)
+    intrusions = flatten_list(intrusions)
+    perseverations = flatten_list(perseverations)
 
     if len(labeledXs) > 1:
         if command['cluster_scheme'] != "None":
@@ -223,7 +218,7 @@ def data_properties(command, root_path):
 def generate_csv_file(command, root_path):
     return ### temporary, function is broken JZ
     csv_file = "id,listnum,num_items_listed,num_unique_items,num_cluster_switches,avg_cluster_size,num_intrusions,num_perseverations,avg_word_freq,avg_word_aoa\n"
-    filedata = snafu.load_fluency_data(command['fullpath'],category=command['category'], scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"))
+    filedata = load_fluency_data(command['fullpath'],category=command['category'], scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), spellfile=label_to_filepath(command['spellfile'], root_path, "spellfiles"))
     filedata.hierarchical()
     
     for subnum, sub in enumerate(filedata.subs):
@@ -235,15 +230,15 @@ def generate_csv_file(command, root_path):
             csv_uniqueitem = len(set(filedata.Xs[subnum][listnum]))
             
             # parameters should come from snafu gui (scheme, clustertype)
-            csv_clusterlength = snafu.clusterSize(labeledXs, scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
-            csv_clusterswitch = snafu.clusterSwitch(labeledXs, scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
+            csv_clusterlength = clusterSize(labeledXs, scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
+            csv_clusterswitch = clusterSwitch(labeledXs, scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
 
             # parameters should come from snafu gui (scheme)
-            csv_intrusions = snafu.intrusions(labeledXs,scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"))
-            csv_perseverations = snafu.perseverations(labeledXs)
+            csv_intrusions = intrusions(labeledXs,scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"))
+            csv_perseverations = perseverations(labeledXs)
 
-            csv_freq, temp = snafu.wordFrequency([labeledXs[listnum]],freq_sub=float(command['freq_sub']))
-            csv_aoa, temp = snafu.ageOfAquisition([labeledXs[listnum]])
+            csv_freq, temp = wordFrequency([labeledXs[listnum]],freq_sub=float(command['freq_sub']))
+            csv_aoa, temp = ageOfAquisition([labeledXs[listnum]])
 
             csv_file += str(csv_sub)+','+str(csv_listnum)+','+str(csv_numitems)+','+str(csv_uniqueitem)+','+str(csv_clusterswitch)+','+str(round(csv_clusterlength,2))+','+str(csv_intrusions)+','+str(csv_perseverations)+','+str(round(csv_freq,2))+','+str(round(csv_aoa,2))+'\n'
 
@@ -267,21 +262,21 @@ def network_properties(command, root_path):
         subject = None
         group = str(subj_props['group'])
 
-    filedata = snafu.load_fluency_data(subj_props['fullpath'], category=subj_props['category'], spell=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations, subject=subject, group=group)
+    filedata = load_fluency_data(subj_props['fullpath'], category=subj_props['category'], spell=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations, subject=subject, group=group)
     filedata.nonhierarchical()
     Xs = filedata.Xs
     items = filedata.items
     irts = filedata.irts
     numnodes = filedata.numnodes
     
-    toydata=snafu.DataModel({
+    toydata=DataModel({
             'numx': len(Xs),
             'trim': 1,
             'jump': float(command['jump_probability']),
             'jumptype': command['jump_type'],
             'priming': float(command['priming_probability']),
             'startX': command['first_item']})
-    fitinfo=snafu.Fitinfo({
+    fitinfo=Fitinfo({
             'prior_method': "zeroinflatedbetabinomial",
             'prior_a': 1,
             'prior_b': 2,
@@ -300,23 +295,23 @@ def network_properties(command, root_path):
         usf_file_path = "/snet/USF_animal_subset.snet"
         filename = root_path + usf_file_path
         
-        usf_graph, usf_items = snafu.read_graph(filename)
+        usf_graph, usf_items = read_graph(filename)
         usf_numnodes = len(usf_items)
-        priordict = snafu.genGraphPrior([usf_graph], [usf_items], fitinfo=fitinfo)
+        priordict = genGraphPrior([usf_graph], [usf_items], fitinfo=fitinfo)
         prior = (priordict, usf_items)
         
     if command['network_method']=="Naive Random Walk":
-        bestgraph = snafu.naiveRandomWalk(Xs, numnodes=numnodes)
+        bestgraph = naiveRandomWalk(Xs, numnodes=numnodes)
     elif command['network_method']=="Community Network":
-        bestgraph = snafu.communityNetwork(Xs, td=toydata, fitinfo=fitinfo, numnodes=numnodes)
+        bestgraph = communityNetwork(Xs, td=toydata, fitinfo=fitinfo, numnodes=numnodes)
     elif command['network_method']=="Pathfinder":
-        bestgraph = snafu.pathfinder(Xs, numnodes=numnodes)
+        bestgraph = pathfinder(Xs, numnodes=numnodes)
     elif command['network_method']=="Correlation-based Network":
-        bestgraph = snafu.correlationBasedNetwork(Xs, numnodes=numnodes)
+        bestgraph = correlationBasedNetwork(Xs, numnodes=numnodes)
     elif command['network_method']=="First Edge":
-        bestgraph = snafu.firstEdge(Xs, numnodes=numnodes)
+        bestgraph = firstEdge(Xs, numnodes=numnodes)
     elif command['network_method']=="U-INVITE":
-        bestgraph, ll = snafu.uinvite(Xs, toydata, numnodes=numnodes, fitinfo=fitinfo, debug=False, prior=prior)
+        bestgraph, ll = uinvite(Xs, toydata, numnodes=numnodes, fitinfo=fitinfo, debug=False, prior=prior)
     
     nxg = nx.to_networkx_graph(bestgraph)
     nxg_json = jsonGraph(nxg, items)
@@ -325,7 +320,7 @@ def network_properties(command, root_path):
 
 def analyze_graph(command, root_path): # used when importing graphs
     nxg_json = json.load(open(command['fullpath'],'rt',encoding="utf-8-sig"))
-    nxg = nx.readwrite.json_graph.node_link_graph(
+    nxg = nx.readwrite.nx.readwrite.json_graph.node_link_graph(
         nxg_json,
         multigraph = False,
         attrs=dict(source='source', target='target', name='id', key='nodes', link='edges')

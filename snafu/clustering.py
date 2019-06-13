@@ -1,5 +1,6 @@
 
-import numpy as np
+from . import *
+
 
 # given list of cluster lengths, compute average cluster size of each list, then return avearge of that
 # also works on single list

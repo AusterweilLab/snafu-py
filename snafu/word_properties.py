@@ -1,5 +1,4 @@
-import csv
-import numpy as np
+from . import *
 
 def wordFrequency(subj,missing=None,data=None):
     return wordStat(subj,missing=freq_sub,data=data)

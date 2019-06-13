@@ -1,4 +1,4 @@
-import numpy as np
+from . import *
 
 # returns a vector of how many hidden nodes to expect between each Xi for each X in Xs
 def expectedHidden(Xs, a):

@@ -1,5 +1,5 @@
 
-import numpy as np
+from . import *
 
 # http://stackoverflow.com/a/32107024/353278
 # use dot notation on dicts for convenience
@@ -33,7 +33,7 @@ class dotdict(dict):
         self.__delitem__(item)
 
     def __delitem__(self, key):
-        super(Map, self).__delitem__(key)
+        super(Map, self).__delitem__(key)  # TODO: no definition of Map
         del self.__dict__[key]
 
 # from http://locallyoptimal.com/blog/2013/01/20/elegant-n-gram-generation-in-python/
@@ -224,7 +224,7 @@ def numToLabel(Xs, items):
 
 # flat list from tuple walk
 def nodes_from_edges(walk):
-    path=list(zip(*walk)[0]) # first element from each tuple
+    path=list(list(zip(*walk))[0]) # first element from each tuple
     path.append(walk[-1][1]) # second element from last tuple
     return path
 
@@ -235,3 +235,47 @@ def edges_from_nodes(path):
         walk.append((path[i],path[i+1])) 
     return walk
 
+def stationary(t, method="unweighted"):
+    if method=="unweighted":                 # only works for unweighted matrices!
+        return sum(t>0)/float(sum(sum(t>0)))
+    else:                                       # buggy
+        eigen=np.linalg.eig(t)[1][:,0]
+        return np.real(eigen/sum(eigen))
+
+
+# Unique nodes in random walk preserving order
+# (aka fake participant data)
+# http://www.peterbe.com/plog/uniqifiers-benchmark
+def censored(walk, td=None, seed=None):
+    def addItem(item):
+        seen[item] = 1
+        result.append(item)
+
+    nplocal = np.random.RandomState(seed)
+    seen = {}
+    result = []
+    for item in nodes_from_edges(walk):
+        if item in seen:
+            try:
+                if nplocal.rand() <= td.censor_fault:
+                    addItem(item)
+            except:
+                continue
+        else:
+            try:
+                if nplocal.rand() <= td.emission_fault:
+                    continue
+                else:
+                    addItem(item)
+            except:
+                addItem(item)
+    return result
+
+# first hitting times for each node
+# TODO: Doesn't work with faulty censoring!!!
+def firstHits(walk):
+    firsthit=[]
+    path=edges_from_nodes(walk)
+    for i in censored(walk):
+        firsthit.append(path.index(i))
+    return list(zip(censored(walk),firsthit))

@@ -1,23 +1,5 @@
-import pickle
-import networkx as nx
-import numpy as np
-import operator
-import math
-#import scipy.cluster
-import sys
-import copy
-import csv
+from . import *
 
-#from numpy.linalg import inv
-from itertools import *
-from datetime import datetime
-
-#import scipy.stats
-
-# sibling packages
-from .helper import *
-from .structs import *
-from .pci import *
 
 from functools import reduce
 
@@ -78,7 +60,7 @@ def adjustPriming(probs, td, Xs):
     for xnum, x in enumerate(Xs[1:]):         # check all items starting with 2nd list
         for inum, i in enumerate(x[:-1]):     # except last item
             if i in Xs[xnum][:-1]:            # is item in previous list? if so, prime next item
-                # follow prime with P td.priming, follow RW with P (1-td.priming)
+                # follow prime with calc_prob_adjacent td.priming, follow RW with calc_prob_adjacent (1-td.priming)
                 idx=Xs[xnum].index(i) # index of item in previous list
                 if Xs[xnum][idx+1]==Xs[xnum+1][inum+1]:
                     probs[xnum+1][inum+1] = (probs[xnum+1][inum+1] * (1-td.priming)) + td.priming
@@ -92,7 +74,7 @@ def adjustPriming(probs, td, Xs):
 # other parameterizations of PF(q, r) not implemented
 def pathfinder(Xs, numnodes=None, valid=False, td=None):
     if numnodes == None:
-        numnodes = len(set(snafu.flatten_list(Xs)))
+        numnodes = len(set(flatten_list(Xs)))
     
     # From https://github.com/evanmiltenburg/dm-graphs
     def MST_pathfinder(G):
@@ -220,22 +202,13 @@ def evalGraphPrior(a, prior, undirected=True):
 
 def firstEdge(Xs, numnodes=None):
     if numnodes == None:
-        numnodes = len(set(snafu.flatten_list(Xs)))
+        numnodes = len(set(flatten_list(Xs)))
     a=np.zeros((numnodes,numnodes))
     for x in Xs:
         a[x[0],x[1]]=1
         a[x[1],x[0]]=1 # symmetry
     a=np.array(a.astype(int))
     return a
-
-# first hitting times for each node
-# TODO: Doesn't work with faulty censoring!!!
-def firstHits(walk):
-    firsthit=[]
-    path=edges_from_nodes(walk)
-    for i in censored(walk):
-        firsthit.append(path.index(i))
-    return list(zip(censored(walk),firsthit))
 
 def fullyConnected(numnodes):
     a=np.ones((numnodes,numnodes))
@@ -246,7 +219,7 @@ def fullyConnected(numnodes):
 # only returns adjacency matrix, not nx graph
 def naiveRandomWalk(Xs, numnodes=None, directed=False):
     if numnodes == None:
-        numnodes = len(set(snafu.flatten_list(Xs)))
+        numnodes = len(set(flatten_list(Xs)))
     a=np.zeros((numnodes,numnodes))
     for x in Xs:
         walk = edges_from_nodes(x)
@@ -336,7 +309,7 @@ def genStartGraph(Xs, numnodes, td, fitinfo):
 # valid (t/f) ensures that graph can produce data using censored RW.
 def communityNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=None):
     if numnodes == None:
-        numnodes = len(set(snafu.flatten_list(Xs)))
+        numnodes = len(set(flatten_list(Xs)))
         
     w = fitinfo.cn_windowsize
     f = fitinfo.cn_threshold
@@ -755,19 +728,12 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[]):
 
     return ll, uinvite_probs
 
-def stationary(t,method="unweighted"):
-    if method=="unweighted":                 # only works for unweighted matrices!
-        return sum(t>0)/float(sum(sum(t>0)))   
-    else:                                       # buggy
-        eigen=np.linalg.eig(t)[1][:,0]
-        return np.real(eigen/sum(eigen))
-
 #@profile
 def uinvite(Xs, td, numnodes=None, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, seed=None):
     nplocal=np.random.RandomState(seed) 
 
     if numnodes == None:
-        numnodes = len(set(snafu.flatten_list(Xs)))
+        numnodes = len(set(flatten_list(Xs)))
 
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
     # i.e., an edge between i and any item in nn forms a triangle

@@ -1,5 +1,4 @@
-import numpy as np
-import networkx as nx
+from . import *
 
 def degree_dist(g):
     if isinstance(g,np.ndarray):

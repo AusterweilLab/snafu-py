@@ -1,8 +1,6 @@
 # these functions need to be made more extensible
 
-
-from numpy.linalg import inv
-import numpy as np
+from . import *
 
 def commonNode(graph, items, node1, node2, numsims=100, jumpval=0.0):
     import scipy.sparse as sp
