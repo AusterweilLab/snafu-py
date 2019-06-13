@@ -95,7 +95,7 @@ def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=Fals
 
 # deprecated function name
 def readX(*args):
-    return load_flueny_data(*args)
+    return load_fluency_datas(*args)
 
 # read Xs in from user files
 # this should be re-written with pandas or something more managable
