@@ -275,7 +275,7 @@ def network_properties(command, root_path):
             'jump': float(command['jump_probability']),
             'jumptype': command['jump_type'],
             'priming': float(command['priming_probability']),
-            'startX': command['first_item']})
+            'start_node': command['first_item']})
     fitinfo=Fitinfo({
             'prior_method': "zeroinflatedbetabinomial",
             'prior_a': 1,

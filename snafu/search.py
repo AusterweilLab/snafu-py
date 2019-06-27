@@ -16,8 +16,8 @@ def nodeDegreeSearch(g, td):
     # simulate search
     walk=[]
     
-    if td.startX[0]=="specific":
-        newnode=td.startX[1]
+    if td.start_node[0]=="specific":
+        newnode=td.start_node[1]
         walk.append(newnode)
         l[:] = [j for j in l if j != newnode]
     
@@ -40,18 +40,18 @@ def cbdfs(g, td):
     # simulate search
     walk=[]
     
-    if (td.startX=="stationary") or (td.jumptype=="stationary"):
+    if (td.start_node=="stationary") or (td.jumptype=="stationary"):
         a=np.array(nx.to_numpy_matrix(g))
         t=a/sum(a).astype(float)
         statdist=stationary(t)
         statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))
     
-    if td.startX=="stationary":
+    if td.start_node=="stationary":
         start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution #TODO: no definition of seed
-    elif td.startX=="uniform":
+    elif td.start_node=="uniform":
         start=np.random.choice(nx.nodes(g))        # choose starting point uniformly
-    elif td.startX[0]=="specific":
-        start=td.startX[1]
+    elif td.start_node[0]=="specific":
+        start=td.start_node[1]
     
     unused_nodes=g.nodes()
     walk.append(start)
@@ -81,18 +81,18 @@ def spreadingActivationSearch(g, td, decay):
     else:
         numtrim=td.trim                            # else, parameter is length of a list
     
-    if (td.startX=="stationary") or (td.jumptype=="stationary"):
+    if (td.start_node=="stationary") or (td.jumptype=="stationary"):
         a=np.array(nx.to_numpy_matrix(g))
         t=a/sum(a).astype(float)
         statdist=stationary(t)
         statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))
     
-    if td.startX=="stationary":
+    if td.start_node=="stationary":
         start=statdist.rvs(random_state=seed)      # choose starting point from stationary distribution #TODO: no definition of seed
-    elif td.startX=="uniform":
+    elif td.start_node=="uniform":
         start=np.random.choice(nx.nodes(g))        # choose starting point uniformly
-    elif td.startX[0]=="specific":
-        start=td.startX[1]
+    elif td.start_node[0]=="specific":
+        start=td.start_node[1]
     
     activations=dict.fromkeys(list(range(numnodes)), 0)
 

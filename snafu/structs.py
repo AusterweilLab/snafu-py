@@ -95,8 +95,8 @@ def DataModel(data):
         data['jump'] = 0.0           # no jumping in data by default
     if 'jumptype' not in tdkeys:
         data['jumptype'] = "uniform"   # or stationary
-    if 'startX' not in tdkeys:
-        data['startX'] = "stationary"      # or stationary
+    if 'start_node' not in tdkeys:
+        data['start_node'] = "stationary"      # or stationary
     if 'numx' not in tdkeys:
         raise ValueError("Must specify 'numx' in data!")
     if 'priming' not in tdkeys:
@@ -168,7 +168,7 @@ def Fitinfo(fitinfo):
     if 'directed' not in fitkeys:
         fitinfo['directed'] = False
     if 'startGraph' not in fitkeys:
-        fitinfo['startGraph'] = "goni_valid"
+        fitinfo['startGraph'] = "cn_valid"
     if 'prune_limit' not in fitkeys:
         fitinfo['prune_limit'] = np.inf
     if 'triangle_limit' not in fitkeys:

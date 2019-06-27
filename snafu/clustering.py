@@ -1,4 +1,3 @@
-
 from . import *
 
 
@@ -132,8 +131,10 @@ def intrusionsList(l, scheme):
 def intrusions(l, scheme):
     ilist = intrusionsList(l, scheme)
     
+    # if fluency data are hierarchical, report mean per individual
     if isinstance(ilist[0],list):
         return np.mean([len(i) for i in ilist])
+    # if fluency data are non-hierarchical, report mean per list
     else:
         return len(ilist)
 
@@ -152,12 +153,9 @@ def perseverationsList(l):
 
 
 def perseverations(l):
+    # if fluency data are hierarchical, report mean per individual
     if isinstance(l[0][0],list):
         return [np.mean([len(i)-len(set(i)) for i in l2]) for l2 in l]
+    # if fluency data are non-hierarchical, report mean per list
     else:
         return [float(len(i)-len(set(i))) for i in l]
-
-# not implemented yet
-def numItems(l):
-    totals = 0
-    return totals

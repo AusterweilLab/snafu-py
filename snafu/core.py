@@ -289,7 +289,7 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=Tru
 
 # generate starting graph for U-INVITE
 def genStartGraph(Xs, numnodes, td, fitinfo):
-    if fitinfo.startGraph=="goni_valid":
+    if fitinfo.startGraph=="cn_valid":
         graph = communityNetwork(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
     elif fitinfo.startGraph=="chan_valid":
         graph = pathfinder(Xs, numnodes, valid=True, td=td)
@@ -565,7 +565,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[]):
     t=a/sum(a.astype(float))
     t=np.nan_to_num(t)                  # jumping/priming models can have nan in matrix, need to change to 0
     
-    if (td.jumptype=="stationary") or (td.startX=="stationary"):
+    if (td.jumptype=="stationary") or (td.start_node=="stationary"):
         statdist=stationary(t)
 
     # U-INVITE probability excluding jumps, prior, and priming adjustments -- those come later
@@ -573,9 +573,9 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[]):
         x2=np.array(x)
         t2=t[x2[:,None],x2]                                        # re-arrange transition matrix to be in list order
         prob=[]
-        if td.startX=="stationary":
+        if td.start_node=="stationary":
             prob.append(statdist[x[0]])                            # probability of X_1
-        elif td.startX=="uniform":
+        elif td.start_node=="uniform":
             prob.append(1.0/numnodes)
 
         # if impossible starting point, return immediately

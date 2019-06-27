@@ -3,7 +3,7 @@ import networkx as nx
 import numpy as np
 #import scipy.cluster
 #import scipy.stats
-import scipy
+#import scipy
 import operator
 import math
 import sys

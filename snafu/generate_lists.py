@@ -44,18 +44,18 @@ def random_walk(g, td, priming_vector=[], seed=None):
             second=nplocal.choice(nx.nodes(g))         # jump uniformly
         return second
 
-    if (td.startX=="stationary") or (td.jumptype=="stationary"):
+    if (td.start_node=="stationary") or (td.jumptype=="stationary"):
         a=np.array(nx.to_numpy_matrix(g))
         t=a/sum(a).astype(float)
         statdist=stationary(t)
         statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))
     
-    if td.startX=="stationary":
+    if td.start_node=="stationary":
         start=statdist.rvs(random_state=seed)    # choose starting point from stationary distribution
-    elif td.startX=="uniform":
+    elif td.start_node=="uniform":
         start=nplocal.choice(nx.nodes(g))        # choose starting point uniformly
-    elif td.startX[0]=="specific":
-        start=td.startX[1]
+    elif td.start_node[0]=="specific":
+        start=td.start_node[1]
 
     walk=[]
     unused_nodes=set(nx.nodes(g))
