@@ -25,14 +25,15 @@ from .helper import *
 from .structs import *
 from .io import *
 from .generate_lists import *
-from .core import *
 from .netstats import *
 from .clustering import *
 from .frequency import *
 from .search import *
-from . import gui
 from .triadic import *
 from .word_properties import *
 from .pci import *
 from .generate_graphs import *
 from .irts import *
+
+from .core import *
+from . import gui

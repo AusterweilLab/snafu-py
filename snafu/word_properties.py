@@ -1,10 +1,10 @@
 from . import *
 
 def wordFrequency(subj,missing=None,data=None):
-    return wordStat(subj,missing=freq_sub,data=data)
+    return wordStat(subj,missing=missing,data=data)
 
 def ageOfAquisition(subj,missing=None,data=None):
-    return wordStat(subj,missing=aoa_sub,data=data)
+    return wordStat(subj,missing=missing,data=data)
 
 def wordStat(subj,missing=None,data=None):
     # load dictionary

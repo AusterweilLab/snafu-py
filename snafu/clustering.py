@@ -1,6 +1,5 @@
 from . import *
 
-
 # given list of cluster lengths, compute average cluster size of each list, then return avearge of that
 # also works on single list
 def clusterSize(l, scheme, clustertype='fluid'):
@@ -76,7 +75,7 @@ def findClusters(l, scheme, clustertype='fluid'):
 
 # returns labels in place of items for list or nested lists
 # provide list (l) and coding scheme (external file)
-def labelClusters(l, scheme):
+def labelClusters(l, scheme, labelintrusions=False):
     if isinstance(scheme,str):
         clustertype = "semantic"    # reads clusters from a fixed file
     elif isinstance(scheme,int):
@@ -102,60 +101,57 @@ def labelClusters(l, scheme):
     labels=[]
     for inum, item in enumerate(l):
         if isinstance(item, list):
-            labels.append(labelClusters(item, scheme))
+            labels.append(labelClusters(item, scheme, labelintrusions=labelintrusions))
         else:
             item=item.lower().replace(' ','')
             if clustertype == "semantic":
-                if item in list(cats.keys()):       # if item not in dict, just skip over it
+                if item in list(cats.keys()):
                     labels.append(cats[item])
+                elif labelintrusions:               # if item not in dict, either ignore it or label is as category "intrusion"
+                    labels.append("intrusion")
             elif clustertype == "letter":
                 labels.append(item[:maxletters])
     return labels
 
-# broken
 def intrusionsList(l, scheme):
-    labels=labelClusters(l, scheme)
     if len(l) > 0:
-        if isinstance(labels[0][0], list):
-            intrusion_items=[]
-            for listnum, nested_list in enumerate(labels):
-                intrusion_items.append([l[listnum][i] for i, j in enumerate(nested_list) if j=="unknown"])
+        if isinstance(l[0][0], list):
+            intrusion_items = [intrusionsList(i, scheme) for i in l]
         else:
-            intrusion_items = [l[i] for i, j in enumerate(labels) if j=="unknown"]
+            labels = labelClusters(l, scheme, labelintrusions=True)
+            intrusion_items = [[l[listnum][i] for i, j in enumerate(eachlist) if j=="intrusion"] for listnum, eachlist in enumerate(labels)]
     else:
         intrusion_items = []
     return intrusion_items
-  
 
-# broken
 def intrusions(l, scheme):
     ilist = intrusionsList(l, scheme)
     
     # if fluency data are hierarchical, report mean per individual
-    if isinstance(ilist[0],list):
-        return np.mean([len(i) for i in ilist])
+    if isinstance(ilist[0][0],list):
+        return [np.mean([len(i) for i in subj]) for subj in ilist]
     # if fluency data are non-hierarchical, report mean per list
     else:
-        return len(ilist)
+        return [float(len(i)) for i in ilist]
 
-# broken
 def perseverationsList(l):
     if len(l) > 0:
         if isinstance(l[0][0], list):
-            perseveration_items=[] 
-            for ls in l:
-                perseveration_items.append(list(set([item for item in ls if ls.count(item) > 1])))
+            perseveration_items = [perseverationsList(i) for i in l]
         else:
-            perseveration_items = list(set([item for item in l if l.count(item) > 1]))
+            perseveration_items = [list(set([item for item in ls if ls.count(item) > 1])) for ls in l]
     else:
         perseveration_items = []
     return perseveration_items
 
 
 def perseverations(l):
+    def processList(l2):
+        return [float(len(i)-len(set(i))) for i in l2]
+    
     # if fluency data are hierarchical, report mean per individual
     if isinstance(l[0][0],list):
-        return [np.mean([len(i)-len(set(i)) for i in l2]) for l2 in l]
+        return [np.mean(processList(subj)) for subj in l]
     # if fluency data are non-hierarchical, report mean per list
     else:
-        return [float(len(i)-len(set(i))) for i in l]
+        return processList(l)

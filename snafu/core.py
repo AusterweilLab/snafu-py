@@ -1,6 +1,4 @@
 from . import *
-
-
 from functools import reduce
 
 # TODO: when doing same phase twice in a row, don't re-try same failures
@@ -83,7 +81,7 @@ def pathfinder(Xs, numnodes=None, valid=False, td=None):
         NG    = nx.Graph()
         NG.add_nodes_from(list(range(numnodes)))
         edges = sorted( ((G[a][b]['weight'],a,b) for a,b in G.edges()),
-                            reverse=False)                          # smaller distances are more similar
+                            reverse=False)                                                # smaller distances are more similar
         clusters = {node:i for i,node in enumerate(G.nodes())}
         while not edges == []:
             w1,a,b = edges[0]

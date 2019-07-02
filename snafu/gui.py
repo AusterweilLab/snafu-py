@@ -13,8 +13,9 @@ def list_subjects_and_categories(command, root_path):
             group_idx = header.index("group")
         except:
             group_idx = -1
-        for line in fh:
-            line=line.rstrip().split(',')
+
+        from csv import reader
+        for line in reader(fh):
             if line[subj_idx] not in subjects:
                 subjects.append(line[subj_idx])
             if line[cat_idx] not in categories:
@@ -92,8 +93,7 @@ def data_properties(command, root_path):
             group = None                             # reserved group label in GUI for all subjects
         subject = None
 
-    filedata = load_fluency_data(command['fullpath'], category=command['category'], spell=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=group, subject=subject)
-    filedata.hierarchical()
+    filedata = load_fluency_data(command['fullpath'], category=command['category'], spell=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=group, subject=subject, hierarchical=True)
     Xs = filedata.Xs
     labeledXs = filedata.labeledXs
     items = filedata.items
@@ -107,9 +107,9 @@ def data_properties(command, root_path):
     num_lists = []
     avg_items_listed = []
     avg_unique_items_listed = []
-    intrusions = []
+    list_of_intrusions = []
     avg_num_perseverations = []
-    perseverations = []
+    list_of_perseverations = []
    
     if not command['freq_ignore']:
         try:
@@ -149,20 +149,20 @@ def data_properties(command, root_path):
         avg_cluster_size = clusterSize(labeledXs, schemefile, clustertype=command['cluster_type'])
         avg_num_cluster_switches = clusterSwitch(labeledXs, schemefile, clustertype=command['cluster_type'])
         avg_num_intrusions = intrusions(labeledXs, schemefile)
-        intrusions = intrusionsList(labeledXs, schemefile)
+        list_of_intrusions = intrusionsList(labeledXs, schemefile)
     avg_num_perseverations = perseverations(labeledXs)
-    perseverations = perseverationsList(labeledXs)
+    list_of_perseverations = perseverationsList(labeledXs)
 
     for subjnum in range(len(labeledXs)):
         num_lists.append(len(labeledXs[subjnum]))
         avg_items_listed.append(np.mean([len(i) for i in labeledXs[subjnum]]))
         avg_unique_items_listed.append(np.mean([len(set(i)) for i in labeledXs[subjnum]]))
 
-        tmp1, tmp2 = wordFrequency(labeledXs[subjnum],freq_sub=freq_sub,statfile=freqfile)
+        tmp1, tmp2 = wordFrequency(labeledXs[subjnum],missing=freq_sub,data=freqfile)
         avg_word_freq.append(tmp1)
         for i in tmp2:
             word_freq_excluded.append(i)
-        tmp1, tmp2 = ageOfAquisition(labeledXs[subjnum],aoa_sub=aoa_sub,statfile=aoafile)
+        tmp1, tmp2 = ageOfAquisition(labeledXs[subjnum],missing=aoa_sub,data=aoafile)
         avg_word_aoa.append(tmp1)
         for i in tmp2:
             word_aoa_excluded.append(i)
@@ -170,8 +170,8 @@ def data_properties(command, root_path):
             total_words += len(i)
 
     # clean up / format data to send back, still messy
-    intrusions = flatten_list(intrusions)
-    perseverations = flatten_list(perseverations)
+    list_of_intrusions = flatten_list(list_of_intrusions)
+    list_of_perseverations = flatten_list(list_of_perseverations)
 
     if len(labeledXs) > 1:
         if command['cluster_scheme'] != "None":
@@ -199,8 +199,8 @@ def data_properties(command, root_path):
     return { "type": "data_properties", 
              "num_lists": num_lists,
              "avg_items_listed": avg_items_listed,
-             "intrusions": intrusions,
-             "perseverations": perseverations,
+             "intrusions": list_of_intrusions,
+             "perseverations": list_of_perseverations,
              "avg_num_intrusions": avg_num_intrusions,
              "avg_num_perseverations": avg_num_perseverations,
              "avg_unique_items_listed": avg_unique_items_listed,
@@ -282,8 +282,9 @@ def network_properties(command, root_path):
             'prior_b': 2,
             'zibb_p': 0.5,
             'startGraph': command['starting_graph'],
-            'windowsize': int(command['cn_windowsize']),
-            'threshold': int(command['cn_threshold']),
+            'cn_windowsize': int(command['cn_windowsize']),
+            'cn_threshold': int(command['cn_threshold']),
+            'cn_alpha': float(command['cn_alpha']),
             'followtype': "avg", 
             'prune_limit': 100,
             'triangle_limit': 100,
@@ -303,7 +304,7 @@ def network_properties(command, root_path):
     if command['network_method']=="Naive Random Walk":
         bestgraph = naiveRandomWalk(Xs, numnodes=numnodes)
     elif command['network_method']=="Community Network":
-        bestgraph = communityNetwork(Xs, td=toydata, fitinfo=fitinfo, numnodes=numnodes)
+        bestgraph = communityNetwork(Xs, fitinfo=fitinfo, numnodes=numnodes)
     elif command['network_method']=="Pathfinder":
         bestgraph = pathfinder(Xs, numnodes=numnodes)
     elif command['network_method']=="Correlation-based Network":

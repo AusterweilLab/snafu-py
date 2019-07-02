@@ -210,15 +210,21 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
    
     return Data({'Xs': Xs, 'items': items, 'irts': irts, 'structure': hierarchical})
 
-def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=False):
+def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=True):
     onezero={True: '1', False: '0'}        
     import networkx as nx
     fh=open(fh,'w')
     
+    # if gs is not a list of graphs, then it should be a single graph
+    if not isinstance(gs,list):
+        gs = [gs]
+
     nodes = list(set(flatten_list([list(gs[i].nodes()) for i in range(len(gs))])))
     
-    if header != False:
-        fh.write('subj,item1,item2,'+ header+'\n')
+    if header == True:
+        fh.write('subj,item1,item2,edge,\n')            # default header
+    elif type(header) is str:
+        fh.write('subj,item1,item2,'+ header+'\n')      # manual header if string is specified
     
     for node1 in nodes:
         for node2 in nodes:
