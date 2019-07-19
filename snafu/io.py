@@ -210,15 +210,24 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
    
     return Data({'Xs': Xs, 'items': items, 'irts': irts, 'structure': hierarchical})
 
-def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=True):
+def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=True, labels=None):
     onezero={True: '1', False: '0'}        
     import networkx as nx
     fh=open(fh,'w')
     
     # if gs is not a list of graphs, then it should be a single graph
-    if not isinstance(gs,list):
+    if not isinstance(gs, list):
         gs = [gs]
 
+    # turn them all into networkx graphs if they aren't already
+    gs = [g if type(g) == nx.classes.graph.Graph else nx.to_networkx_graph(g) for g in gs]
+
+    # label nodes if labels are provided
+    if labels != None:
+        if not isinstance(labels, list):
+            labels = [labels]
+        gs = [nx.relabel_nodes(i[0], i[1], copy=False) for i in zip(gs, labels)]
+    
     nodes = list(set(flatten_list([list(gs[i].nodes()) for i in range(len(gs))])))
     
     if header == True:

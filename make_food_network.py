@@ -42,13 +42,9 @@ fitinfo = snafu.Fitinfo({'cn_windowsize': 2,           # items co-occur if they 
 
 foodsnetwork = snafu.communityNetwork(fluencydata.Xs, fitinfo=fitinfo)
 
-# convert to a NetworkX graph and label nodes using dictionary
-
-foodsnetwork = nx.to_networkx_graph(foodsnetwork)
-nx.relabel_nodes(foodsnetwork, fluencydata.groupitems, copy=False)
-
 # write edge list to file
 
 snafu.write_graph(foodsnetwork,
                   "foods_network.csv",      # filename of edge list
-                  subj="Group")             # an identifier for the graph in the file (e.g., "S101", "Bilinguals", etc.)
+                  labels = fluencydata.groupitems,
+                  subj = "Group")             # an identifier for the graph in the file (e.g., "S101", "Bilinguals", etc.)
