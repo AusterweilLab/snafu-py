@@ -210,7 +210,7 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
    
     return Data({'Xs': Xs, 'items': items, 'irts': irts, 'structure': hierarchical})
 
-def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=True, labels=None):
+def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=True, labels=None, sparse=False):
     onezero={True: '1', False: '0'}        
     import networkx as nx
     fh=open(fh,'w')
@@ -240,18 +240,26 @@ def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=True, l
             if (node1 < node2) or ((directed) and (node1 != node2)):   # write edges in alphabetical order unless directed graph
                 edge = (node1,node2)
                 edgelist=""
+                if sparse:
+                    write_edge = 0
+                else:
+                    write_edge = 1
                 for g in gs:
-                    edgelist=edgelist+"," + onezero[g.has_edge(edge[0],edge[1])]    # assumes graph is symmetrical if directed=True !!               
-                extrainfo=""
-                if edge[0] in list(extra_data.keys()):
-                    if edge[1] in list(extra_data[edge[0]].keys()):
-                        if isinstance(extra_data[edge[0]][edge[1]],list):
-                            extrainfo=","+",".join([str(i) for i in extra_data[sortededge[0]][sortededge[1]]])
-                        else:
-                            extrainfo=","+str(extra_data[sortededge[0]][sortededge[1]])
-                fh.write(subj    + "," +
-                        str(edge[0])  + "," +
-                        str(edge[1])  + 
-                        edgelist + "," +
-                        extrainfo + "\n")
+                    hasedge = onezero[g.has_edge(edge[0],edge[1])]
+                    edgelist=edgelist+"," + hasedge    # assumes graph is symmetrical if directed=True !!
+                    write_edge += int(hasedge)
+                
+                if write_edge > 0:
+                    extrainfo=""
+                    if edge[0] in list(extra_data.keys()):
+                        if edge[1] in list(extra_data[edge[0]].keys()):
+                            if isinstance(extra_data[edge[0]][edge[1]],list):
+                                extrainfo=","+",".join([str(i) for i in extra_data[sortededge[0]][sortededge[1]]])
+                            else:
+                                extrainfo=","+str(extra_data[sortededge[0]][sortededge[1]])
+                    fh.write(subj    + "," +
+                            str(edge[0])  + "," +
+                            str(edge[1])  + 
+                            edgelist + "," +
+                            extrainfo + "\n")
     return

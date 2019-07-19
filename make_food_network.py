@@ -47,4 +47,5 @@ foodsnetwork = snafu.communityNetwork(fluencydata.Xs, fitinfo=fitinfo)
 snafu.write_graph(foodsnetwork,
                   "foods_network.csv",      # filename of edge list
                   labels = fluencydata.groupitems,
+                  sparse = False,           # list all edge pairs, even if graph has no edge
                   subj = "Group")             # an identifier for the graph in the file (e.g., "S101", "Bilinguals", etc.)
