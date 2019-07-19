@@ -14510,7 +14510,7 @@ C113,5,tools,paintroller,9552,145463,Experiment3
 C113,5,tools,paintedger,6697,152160,Experiment3
 C113,5,tools,trowel,13888,166048,Experiment3
 C113,5,tools,scraper,4807,170855,Experiment3
-C113,6,foods,"onions,",6127,6127,Experiment3
+C113,6,foods,onions,6127,6127,Experiment3
 C113,6,foods,pecans,2441,8568,Experiment3
 C113,6,foods,almonds,2631,11199,Experiment3
 C113,6,foods,bananas,4632,15831,Experiment3
@@ -15534,7 +15534,8 @@ C117,8,tools,drill,2736,16528,Experiment3
 C117,8,tools,saw,6360,22888,Experiment3
 C118,0,foods,beets,7006,7006,Experiment3
 C118,0,foods,apples,3529,10535,Experiment3
-C118,0,foods,noodlescarrots,7010,17545,Experiment3
+C118,0,foods,noodles,0,0,Experiment3
+C118,0,foods,carrots,0,0,Experiment3
 C118,0,foods,cheese,4786,22331,Experiment3
 C118,0,foods,apricots,5662,27993,Experiment3
 C118,0,foods,salad,6462,34455,Experiment3
@@ -18595,7 +18596,7 @@ C129,4,foods,pasta,1367,6409,Experiment3
 C129,4,foods,fetuccini,2058,8467,Experiment3
 C129,4,foods,tomato,4062,12529,Experiment3
 C129,4,foods,salad,1680,14209,Experiment3
-C129,4,foods,"cici,ber",2256,16465,Experiment3
+C129,4,foods,cucumber,2256,16465,Experiment3
 C129,4,foods,apple,2408,18873,Experiment3
 C129,4,foods,organge,2000,20873,Experiment3
 C129,4,foods,orange,1984,22857,Experiment3
@@ -19668,7 +19669,7 @@ C132,5,foods,cereal,1712,120424,Experiment3
 C132,5,foods,crumpets,6464,126888,Experiment3
 C132,5,foods,chicken,7192,134080,Experiment3
 C132,5,foods,pie,3880,137960,Experiment3
-C132,5,foods,"icecream,",3160,141120,Experiment3
+C132,5,foods,icecream,3160,141120,Experiment3
 C132,5,foods,riblets,6816,147936,Experiment3
 C132,5,foods,sushi,7200,155136,Experiment3
 C132,5,foods,rice,2656,157792,Experiment3

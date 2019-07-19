@@ -25,7 +25,6 @@ perseverations_list = snafu.perseverationsList(fluencydata.labeledXs)
 
 # Community Network is not a hierarchical method, so let's flatten our data
 # before we make a network
-
 fluencydata.nonhierarchical()
 
 # specify some free parameters for generating Community Network below are the
@@ -43,7 +42,7 @@ fitinfo = snafu.Fitinfo({'cn_windowsize': 2,           # items co-occur if they 
 
 foodsnetwork = snafu.communityNetwork(fluencydata.Xs, fitinfo=fitinfo)
 
-# convert to a NetworkX graph so that nodes have labels
+# convert to a NetworkX graph and label nodes using dictionary
 
 foodsnetwork = nx.to_networkx_graph(foodsnetwork)
 nx.relabel_nodes(foodsnetwork, fluencydata.groupitems, copy=False)

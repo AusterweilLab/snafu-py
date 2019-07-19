@@ -46,9 +46,11 @@ def find_ngrams(input_list, n):
 # modified from http://stackoverflow.com/a/952952/353278
 # flattens list of list one level only, preserving non-list items
 # flattens type list and type np.ndarray, nothing else (on purpose)
-def flatten_list(l):
-    l1=[item for sublist in l if isinstance(sublist,list) or isinstance(sublist,np.ndarray) for item in sublist]
-    l=l1+[item for item in l if not isinstance(item,list) and not isinstance(item,np.ndarray)]
+def flatten_list(l, numtimes=1):
+    l1 = [item for sublist in l if isinstance(sublist,list) or isinstance(sublist,np.ndarray) for item in sublist]
+    l = l1+[item for item in l if not isinstance(item,list) and not isinstance(item,np.ndarray)]
+    if numtimes > 1:
+        l = flatten_list(l, numtimes-1)
     return l
 
 # log trick given list of log-likelihoods **UNUSED

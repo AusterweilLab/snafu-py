@@ -23,6 +23,7 @@ class Data():
         self.groupitems = generateGroupSpace()
         self.groupnumnodes = len(self.groupitems)
         self.subs = sorted(data['Xs'].keys())
+        self.listnums = [(sub, listnum) for sub in self.subs for listnum in sorted(self.rawdata['Xs'][sub].keys())]
         
         if data['structure']:
             self.structure = "hierarchical"

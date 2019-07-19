@@ -159,11 +159,11 @@ def data_properties(command, root_path):
         avg_unique_items_listed.append(np.mean([len(set(i)) for i in labeledXs[subjnum]]))
 
         tmp1, tmp2 = wordFrequency(labeledXs[subjnum],missing=freq_sub,data=freqfile)
-        avg_word_freq.append(tmp1)
+        avg_word_freq.append(np.mean(tmp1))
         for i in tmp2:
             word_freq_excluded.append(i)
         tmp1, tmp2 = ageOfAquisition(labeledXs[subjnum],missing=aoa_sub,data=aoafile)
-        avg_word_aoa.append(tmp1)
+        avg_word_aoa.append(np.mean(tmp1))
         for i in tmp2:
             word_aoa_excluded.append(i)
         for i in labeledXs[subjnum]:
@@ -239,6 +239,8 @@ def generate_csv_file(command, root_path):
 
             csv_freq, temp = wordFrequency([labeledXs[listnum]],freq_sub=float(command['freq_sub']))
             csv_aoa, temp = ageOfAquisition([labeledXs[listnum]])
+            csv_freq = np.mean(csv_freq)
+            csv_aoa = np.mean(csv_aoa)
 
             csv_file += str(csv_sub)+','+str(csv_listnum)+','+str(csv_numitems)+','+str(csv_uniqueitem)+','+str(csv_clusterswitch)+','+str(round(csv_clusterlength,2))+','+str(csv_intrusions)+','+str(csv_perseverations)+','+str(round(csv_freq,2))+','+str(round(csv_aoa,2))+'\n'
 
@@ -254,16 +256,18 @@ def network_properties(command, root_path):
         removePerseverations=True
     else:
         removePerseverations=False
-    
-    if subj_props['factor_type'] == "subject":
-        subject = str(subj_props['subject'])
+   
+    if command['factor_type'] == "subject":
+        subject = str(command['subject'])
         group = None
-    elif subj_props['factor_type'] == "group":
+    elif command['factor_type'] == "group":
+        if command['group'] != "all":
+            group = command['group']
+        else:
+            group = None                             # reserved group label in GUI for all subjects
         subject = None
-        group = str(subj_props['group'])
 
     filedata = load_fluency_data(subj_props['fullpath'], category=subj_props['category'], spell=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations, subject=subject, group=group)
-    filedata.nonhierarchical()
     Xs = filedata.Xs
     items = filedata.items
     irts = filedata.irts

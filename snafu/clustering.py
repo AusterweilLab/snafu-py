@@ -128,7 +128,7 @@ def intrusions(l, scheme):
     ilist = intrusionsList(l, scheme)
     
     # if fluency data are hierarchical, report mean per individual
-    if isinstance(ilist[0][0],list):
+    if isinstance(l[0][0], list):
         return [np.mean([len(i) for i in subj]) for subj in ilist]
     # if fluency data are non-hierarchical, report mean per list
     else:

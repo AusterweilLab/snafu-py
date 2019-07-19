@@ -142,8 +142,8 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
 
     # read in spelling correction dictionary when spell is specified
     if spell:
-        with open(spell,'rt', encoding='utf-8-sig') as spell:
-            for line in spell:
+        with open(spell,'rt', encoding='utf-8-sig') as spellfile:
+            for line in spellfile:
                 if line[0] == "#": continue         # skip commented lines
                 try:
                     correct, incorrect = line.rstrip().split(',')

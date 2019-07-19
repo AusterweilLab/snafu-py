@@ -1,6 +1,6 @@
 from . import *
 
-def wordFrequency(subj,missing=None,data=None):
+def wordFrequency(subj,missing=0.5,data=None):
     return wordStat(subj,missing=missing,data=data)
 
 def ageOfAquisition(subj,missing=None,data=None):
@@ -31,5 +31,5 @@ def wordStat(subj,missing=None,data=None):
             if(len(temp)>0):
                 word_val.append(np.mean(temp))
             words_excluded.append(excluded)
-    return np.mean(word_val), words_excluded
+    return word_val, words_excluded
 
