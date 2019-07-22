@@ -15,12 +15,12 @@ import numpy as np
 datamodel = snafu.DataModel({
         'jump': 0.0,
         'jumptype': "stationary",
-        'start_node': "stationary" 
+        'start_node': "stationary"
 })
 
 # These fitting parameters are used for U-INVITE and/or Community Network
-fitinfo=snafu.Fitinfo({
-        'startGraph': "goni_valid",
+fitinfo = snafu.Fitinfo({
+        'startGraph': "cn_valid",
         'cn_alpha': 0.05,
         'cn_size': 2,
         'cn_threshold': 2,
@@ -32,39 +32,31 @@ filepath = "fluency_data/snafu_sample.csv"
 category="animals"
 
 # read in data from file, flattening all participants together
-filedata = snafu.load_fluency_data(filepath,category=category,removePerseverations=True,spell="spellfiles/animals_snafu_spellfile.csv",hierarchical=False)
+fluencydata = snafu.load_fluency_data(filepath,category=category,removePerseverations=True,spell="spellfiles/animals_snafu_spellfile.csv",hierarchical=False,group="Experiment1")
 
-filedata.nonhierarchical()
-Xs_flat = filedata.Xs
-groupnumnodes = filedata.numnodes
-groupitems = filedata.groupitems
-    
 # Estimate the best network using a Naive Random Walk
-graph = snafu.nrw(Xs_flat, groupnumnodes)
+nrw_graph = snafu.naiveRandomWalk(fluencydata.Xs, numnodes=fluencydata.groupnumnodes)
 
-# Estimate the best network using Goni
-graph = snafu.goni(Xs_flat, groupnumnodes, fitinfo=fitinfo)
+# Estimate the best network using Community Network (Goni et al)
+cn_graph = snafu.communityNetwork(fluencydata.Xs, numnodes=fluencydata.groupnumnodes, fitinfo=fitinfo)
     
-# Estimate the best network using Chan
-graph = snafu.chan(Xs_flat, groupnumnodes)
+# Estimate the best network using Pathfinder (Chan et al)
+pf_graph = snafu.pathfinder(fluencydata.Xs, numnodes=fluencydata.groupnumnodes)
 
-# Estimate the best network using Kenett
-graph = snafu.kenett(Xs_flat, groupnumnodes)
+# Estimate the best network using correlation-based Network (Kenett et al)
+# Requires the 'planarity' module for Python
+cbn_graph = snafu.correlationBasedNetwork(fluencydata.Xs, numnodes=fluencydata.groupnumnodes)
 
-# Estimate the best network using First-Edge
-graph = snafu.firstEdge(Xs_flat, groupnumnodes)
-    
-# Estimate the best network using a non-hierarchical U-INVITE
-graph, ll = snafu.uinvite(Xs_flat, toydata, groupnumnodes, fitinfo=fitinfo)
+# Estimate the best network using First-Edge (Abrahao et al)
+fe_graph = snafu.firstEdge(fluencydata.Xs, numnodes=fluencydata.groupnumnodes)
+
+# Estimate the best network using a non-hierarchical U-INVITE (Zemla et al)
+uinvite_graph, ll = snafu.uinvite(fluencydata.Xs, datamodel, numnodes=fluencydata.groupnumnodes, fitinfo=fitinfo, debug=True)
     
 # Estimate the best network using hierarchical U-INVITE
-#sub_graphs, priordict = snafu.hierarchicalUinvite(Xs_hier, items, numnodes, toydata, fitinfo=fitinfo)
-#graph = snafu.priorToGraph(priordict, groupitems)
+fluencydata.hierarchical()
+individual_graphs, priordict = snafu.hierarchicalUinvite(fluencydata.Xs, fluencydata.items, fluencydata.numnodes, datamodel, fitinfo=fitinfo)
+hierarchical_uinvite_graph = snafu.priorToGraph(priordict, fluencydata.groupitems)
 
-# convert numpy matrix to networkx graph and replace indices with semantic labels
-#graph = nx.to_networkx_graph(graph)
-#nx.relabel_nodes(graph, groupitems, copy=False)
-#graphs.append(graph)
-
-#header=','.join(methods)
-#snafu.write_graph(graphs, "human_graphs.csv",header=header)
+# write Pathfinder graph, as an example
+snafu.write_graph(pf_graph, "pathfinder_graph.csv", labels=fluencydata.groupitems)

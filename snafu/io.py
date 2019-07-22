@@ -88,13 +88,20 @@ def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=Fals
     return graph, items
 
 # deprecated function name
-def readX(*args):
-    return load_fluency_data(*args)
+def readX(*args, **kwargs):
+    return load_fluency_data(*args, **kwargs)
 
 # read Xs in from user files
 # this should be re-written with pandas or something more managable
 def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spell=None,scheme=None,group=None,subject=None,cleanBadChars=False,hierarchical=False):
    
+    if type(group) is str:
+        group = [group]
+    if type(subject) is str:
+        subject = [subject]
+    if type(category) is str:
+        category = [category]
+
     # grab header col indices
     mycsv = csv.reader(open(filepath,'rt', encoding='utf-8-sig'))
     headers = next(mycsv, None)

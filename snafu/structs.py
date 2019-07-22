@@ -98,8 +98,8 @@ def DataModel(data):
         data['jumptype'] = "uniform"   # or stationary
     if 'start_node' not in tdkeys:
         data['start_node'] = "stationary"      # or stationary
-    if 'numx' not in tdkeys:
-        raise ValueError("Must specify 'numx' in data!")
+    #if 'numx' not in tdkeys:
+    #    raise ValueError("Must specify 'numx' in data!")
     if 'priming' not in tdkeys:
         data['priming'] = 0.0
     if 'jumponcensored' not in tdkeys:

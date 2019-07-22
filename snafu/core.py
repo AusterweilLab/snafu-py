@@ -3,32 +3,31 @@ from functools import reduce
 
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
-# TODO: get rid of setting td.numx? just calculate from Xs... only needed in genX()
 # TODO: Implement GOTM/ECN from Goni et al. 2011
 
-def pf(*args):
-    return pathfinder(*args)
+def pf(*args, **kwargs):
+    return pathfinder(*args, **kwargs)
 
-def chan(*args):
-    return pathfinder(*args)
+def chan(*args, **kwargs):
+    return pathfinder(*args, **kwargs)
 
-def trimX(*args):
-    return trim_lists(*args)
+def trimX(*args, **kwargs):
+    return trim_lists(*args, **kwargs)
 
-def genX(*args):
-    return gen_lists(*args)
+def genX(*args, **kwargs):
+    return gen_lists(*args, **kwargs)
 
-def goni(*args):
-    return communityNetwork(*args)
+def goni(*args, **kwargs):
+    return communityNetwork(*args, **kwargs)
 
-def kenett(*args):
-    return cbn(*args)
+def kenett(*args, **kwargs):
+    return cbn(*args, **kwargs)
        
-def correlationBasedNetwork(*args):
-    return kenett(*args)
+def correlationBasedNetwork(*args, **kwargs):
+    return kenett(*args, **kwargs)
 
-def nrw(*args):
-    return naiveRandomWalk(*args)
+def nrw(*args, **kwargs):
+    return naiveRandomWalk(*args, **kwargs)
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
@@ -289,7 +288,7 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=Tru
 def genStartGraph(Xs, numnodes, td, fitinfo):
     if fitinfo.startGraph=="cn_valid":
         graph = communityNetwork(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
-    elif fitinfo.startGraph=="chan_valid":
+    elif fitinfo.startGraph=="pf_valid":
         graph = pathfinder(Xs, numnodes, valid=True, td=td)
     elif (fitinfo.startGraph=="rw" or fitinfo.startGraph=="nrw"):
         graph = naiveRandomWalk(Xs,numnodes)
