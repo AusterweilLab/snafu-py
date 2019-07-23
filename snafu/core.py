@@ -517,15 +517,22 @@ def correlationBasedNetwork(Xs, numnodes, minlists=0, valid=False, td=None):
    
     return a
 
-def makeValid(Xs, graph, td):
+def makeValid(Xs, graph, td, seed=None):
     # add direct edges when transition is impossible
     check=probX(Xs, graph, td)
     while check[0] == -np.inf:
         if isinstance(check[1],tuple):
             graph[check[1][0], check[1][1]] = 1
             graph[check[1][1], check[1][0]] = 1
-        elif check[1] == "prior":
-            raise ValueError('Starting graph has prior probability of 0.0')
+        # i think these 2 lines are no longer necessary
+        #elif check[1] == "prior":
+        #    raise ValueError('Starting graph has prior probability of 0.0')
+        elif isinstance(check[1],int):
+            # when list contains one item and node is unreachable, connect to random node
+            nplocal = np.random.RandomState(seed)
+            randnode = nplocal.choice(range(len(graph)))
+            graph[check[1], randnode] = 1
+            graph[randnode, check[1]] = 1
         else:
             raise ValueError('Unexpected error from makeValid()')
         check=probX(Xs, graph, td)
@@ -577,7 +584,10 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[]):
 
         # if impossible starting point, return immediately
         if (prob[-1]==0.0):
-            return -np.inf, (x[0], x[1])
+            try:
+                return -np.inf, (x[0], x[1])
+            except:
+                return -np.inf, x[0]
 
         if (len(changed) > 0) and isinstance(origmat,list):        # if updating prob. matrix based on specific link changes
             update=0                                               # reset for each list
