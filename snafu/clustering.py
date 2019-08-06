@@ -75,12 +75,15 @@ def findClusters(l, scheme, clustertype='fluid'):
 
 # returns labels in place of items for list or nested lists
 # provide list (l) and coding scheme (external file)
-def labelClusters(l, scheme, labelintrusions=False):
+def labelClusters(l, scheme, labelIntrusions=False, targetLetter=None):
     if isinstance(scheme,str):
         clustertype = "semantic"    # reads clusters from a fixed file
     elif isinstance(scheme,int):
         clustertype = "letter"      # if an int is given, use the first N letters as a clustering scheme
         maxletters = scheme
+        if targetLetter:
+            targetLetter = targetLetter.lower()
+        
     else:
         raise Exception('Unknown clustering type in labelClusters()')
 
@@ -101,24 +104,30 @@ def labelClusters(l, scheme, labelintrusions=False):
     labels=[]
     for inum, item in enumerate(l):
         if isinstance(item, list):
-            labels.append(labelClusters(item, scheme, labelintrusions=labelintrusions))
+            labels.append(labelClusters(item, scheme, labelIntrusions=labelIntrusions, targetLetter=targetLetter))
         else:
             item=item.lower().replace(' ','')
             if clustertype == "semantic":
                 if item in list(cats.keys()):
                     labels.append(cats[item])
-                elif labelintrusions:               # if item not in dict, either ignore it or label is as category "intrusion"
+                elif labelIntrusions:               # if item not in dict, either ignore it or label is as category "intrusion"
                     labels.append("intrusion")
             elif clustertype == "letter":
-                labels.append(item[:maxletters])
+                if item[0] == targetLetter:
+                    labels.append(item[:maxletters])
+                elif labelIntrusions:
+                    labels.append("intrusion")
     return labels
 
-def intrusionsList(l, scheme):
+def intrusionsList(l, scheme):  
     if len(l) > 0:
         if isinstance(l[0][0], list):
             intrusion_items = [intrusionsList(i, scheme) for i in l]
         else:
-            labels = labelClusters(l, scheme, labelintrusions=True)
+            if len(scheme) == 1:
+                labels = labelClusters(l, 1, labelIntrusions=True, targetLetter=scheme)
+            else:
+                labels = labelClusters(l, scheme, labelIntrusions=True)
             intrusion_items = [[l[listnum][i] for i, j in enumerate(eachlist) if j=="intrusion"] for listnum, eachlist in enumerate(labels)]
     else:
         intrusion_items = []
