@@ -257,12 +257,12 @@ def network_properties(command, root_path):
     else:
         removePerseverations=False
    
-    if command['factor_type'] == "subject":
-        subject = str(command['subject'])
+    if subj_props['factor_type'] == "subject":
+        subject = str(subj_props['subject'])
         group = None
-    elif command['factor_type'] == "group":
-        if command['group'] != "all":
-            group = command['group']
+    elif subj_props['factor_type'] == "group":
+        if subj_props['group'] != "all":
+            group = subj_props['group']
         else:
             group = None                             # reserved group label in GUI for all subjects
         subject = None
