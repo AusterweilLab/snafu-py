@@ -93,7 +93,7 @@ def readX(*args, **kwargs):
 
 # read Xs in from user files
 # this should be re-written with pandas or something more managable
-def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spell=None,scheme=None,group=None,id=None,cleanBadChars=False,hierarchical=False,targetletter=None):
+def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spell=None,scheme=None,group=None,subject=None,cleanBadChars=False,hierarchical=False,targetletter=None):
    
     if targetletter:
         targetletter = targetletter.lower()
