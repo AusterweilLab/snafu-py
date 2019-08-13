@@ -359,9 +359,10 @@ def communityNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=Non
         for i,j in listofedges:
             p_linked = (xfreq[i]/numlists) * (xfreq[j]/numlists) * p_adj
             #ci=pci(cooccur[i,j],numlists,alpha=c,method="beta")[0]    # lower bound of Clopper-Pearson binomial CI
-            if cooccur[i,j] > 0:
+            bvar = float((numlists - cooccur[i,j] + 1))    # jcz sloppy -- gets passed to pci.py, cant be 0
+            if bvar > 0.0:
                 ci = pci_lowerbound(cooccur[i,j], numlists, c)             # lower bound of Clopper-Pearson binomial CI
-            if (cooccur[i,j] == 0) or (p_linked >= ci):                                        # if co-occurrence could be due to chance, remove edge
+            if (bvar == 0.0) or (p_linked >= ci):                                        # if co-occurrence could be due to chance, remove edge
                 graph[i,j]=0
                 graph[j,i]=0
 
