@@ -213,7 +213,7 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                         if (item in validitems) or (not removeIntrusions) or (item[0] == targetletter):
                             Xs[idx][listnum_int].append(itemval)
                             if has_rt_col:
-                                irts[idx][listnum_int].append(int(irt)/1000.0)
+                                irts[idx][listnum_int].append(int(irt))
                 except:
                     pass                # bad practice to have empty except
    
