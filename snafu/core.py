@@ -559,7 +559,10 @@ def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
 #@nogc
 def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[]):
 
-    numnodes=len(a)
+    try:
+        numnodes=len(a)
+    except TypeError:
+        raise Exception(a)
     reg=(1+1e-10)                           # nuisance parameter to prevent errors; can also use pinv instead of inv, but that's much slower
     identmat=np.identity(numnodes) * reg    # pre-compute for tiny speed-up (only for non-IRT)
 
