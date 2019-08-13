@@ -11,19 +11,19 @@ if mo:
 else:
     raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
 
-setup(name='snafu',
+setup(name='pysnafu',
       version=verstr,
       description='Generate semantic networks from fluency data',
       url='https://github.com/AusterweilLab/snafu-py',
       author='The Austerweil Lab at UW-Madison',
       author_email='jeffzemla@gmail.com',
-      keywords=['fluency', 'networks'],
+      keywords=['fluency', 'networks','psychology','recall'],
       packages=['snafu'],
       include_package_data=True,
       install_requires=['numpy','networkx>=2.1','more_itertools'],
+      python_requires='>=3.5',
       zip_safe=False,
       classifiers=[
-            'Programming Language :: Python :: 2',
-            'Programming Language :: Python :: 2.7'
+            'Programming Language :: Python :: 3.5'
       ]
       )

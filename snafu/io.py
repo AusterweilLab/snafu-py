@@ -93,8 +93,10 @@ def readX(*args, **kwargs):
 
 # read Xs in from user files
 # this should be re-written with pandas or something more managable
-def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spell=None,scheme=None,group=None,subject=None,cleanBadChars=False,hierarchical=False):
+def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spell=None,scheme=None,group=None,id=None,cleanBadChars=False,hierarchical=False,targetletter=None):
    
+    if targetletter:
+        targetletter = targetletter.lower()
     if type(group) is str:
         group = [group]
     if type(subject) is str:
@@ -136,9 +138,9 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
     
     # read in list of valid items when removeIntrusions = True
     if removeIntrusions:
-        if not scheme:
-            raise ValueError('You need to provide a category scheme if you want to ignore intrusions!')
-        else:
+        if (not scheme) and (not targetletter):
+            raise ValueError('You need to provide a scheme or targetletter if you want to ignore intrusions!')
+        elif scheme:
             with open(scheme,'rt', encoding='utf-8-sig') as fh:
                 for line in fh:
                     if line[0] == "#": continue         # skip commented lines
@@ -200,7 +202,7 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                 if has_rt_col:
                     irt=row[rt_col]
                 if item not in list(items[idx].values()):
-                    if (item in validitems) or (not removeIntrusions):
+                    if (item in validitems) or (not removeIntrusions) or (item[0] == targetletter):
                         item_count = len(items[idx])
                         items[idx][item_count]=item
 
@@ -208,7 +210,7 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                 try:
                     itemval=list(items[idx].values()).index(item)
                     if (not removePerseverations) or (itemval not in Xs[idx][listnum_int]):   # ignore any duplicates in same list resulting from spelling corrections
-                        if (item in validitems) or (not removeIntrusions):
+                        if (item in validitems) or (not removeIntrusions) or (item[0] == targetletter):
                             Xs[idx][listnum_int].append(itemval)
                             if has_rt_col:
                                 irts[idx][listnum_int].append(int(irt)/1000.0)
