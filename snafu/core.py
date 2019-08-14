@@ -329,11 +329,15 @@ def communityNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=Non
 
     # frequency of co-occurrences within window (w)
     for x in Xs:                                             # for each list
+        cooccur_within_list = []                             # only count one cooccurence per list (for binomial test)
         for pos in range(len(x)):                            # for each item in list
             for i in range(1, w+1):                          # for each window size
                 if pos+i<len(x):
-                    graph[x[pos],x[pos+i]] += 1
-                    graph[x[pos+i],x[pos]] += 1
+                    if (x[pos], x[pos+i]) not in cooccur_within_list:
+                        graph[x[pos],x[pos+i]] += 1
+                        graph[x[pos+i],x[pos]] += 1
+                        cooccur_within_list.append((x[pos], x[pos+i]))
+                        cooccur_within_list.append((x[pos+i], x[pos]))
 
     # exclude edges with co-occurrences less than frequency (f) and binarize
     # but first save co-occurence frequencies
@@ -359,10 +363,8 @@ def communityNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=Non
         for i,j in listofedges:
             p_linked = (xfreq[i]/numlists) * (xfreq[j]/numlists) * p_adj
             #ci=pci(cooccur[i,j],numlists,alpha=c,method="beta")[0]    # lower bound of Clopper-Pearson binomial CI
-            bvar = float((numlists - cooccur[i,j] + 1))    # jcz sloppy -- gets passed to pci.py, cant be 0
-            if bvar > 0.0:
-                ci = pci_lowerbound(cooccur[i,j], numlists, c)             # lower bound of Clopper-Pearson binomial CI
-            if (bvar == 0.0) or (p_linked >= ci):                                        # if co-occurrence could be due to chance, remove edge
+            ci = pci_lowerbound(cooccur[i,j], numlists, c)             # lower bound of Clopper-Pearson binomial CI
+            if (p_linked >= ci):                                        # if co-occurrence could be due to chance, remove edge
                 graph[i,j]=0
                 graph[j,i]=0
 
