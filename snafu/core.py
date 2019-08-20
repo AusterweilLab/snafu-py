@@ -479,12 +479,15 @@ def probXhierarchical(Xs, graphs, items, td, priordict=None, irts=Irts({})):
 # construct graph using method using item correlation matrix and planar maximally filtered graph (PMFG)
 # see Borodkin, Kenett, Faust, & Mashal (2016) and Kenett, Kenett, Ben-Jacob, & Faust (2011)
 # does not work well for small number of lists! many NaN correlations + when two correlations are equal, ordering is arbitrary
-def correlationBasedNetwork(Xs, numnodes, minlists=0, valid=False, td=None):
+def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None):
     if valid and not td:
         raise ValueError('Need to pass Data when generating \'valid\' kenett()')
     
     import planarity
     
+    if numnodes == None:
+        numnodes = len(set(flatten_list(Xs)))
+ 
     # construct matrix of list x item where each cell indicates whether that item is in that list
     list_by_item = np.zeros((numnodes,len(Xs)))
     for node in range(numnodes):

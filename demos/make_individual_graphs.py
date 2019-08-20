@@ -6,12 +6,18 @@ import sys
 import numpy as np
 import scipy.stats
 
-# these are different methods for generating graphs from fluency data
-# our methods are the uinvite_* methods
+# STEP 1: Choose a method!
+#
+# CHOICES: naiveRandomWalk, communityNetwork, pathfinder, correlationBasedNetwork, firstEdge, uinvite
+#          Don't know which method to choose? Read Zemla & Austerweil (2018):
+#          "Estimating semantic networks of groups and individuals from fluency data"
+method= "uinvite"
 
-#methods=['rw','fe','goni','chan','kenett','uinvite_flat','uinvite_hierarchical']
-#methods=['rw','fe','goni','chan','kenett','uinvite_flat']
-methods=["uinvite_flat"]
+# STEP 2: Where's your data?
+filepath = "../fluency_data/snafu_sample.csv"
+
+# STEP 3: Make networks for which subject?
+subj = "A101"
 
 # describe what your data should look like
 toydata=snafu.DataModel({
@@ -27,56 +33,43 @@ toydata=snafu.DataModel({
 
 # some parameters of the fitting process
 fitinfo=snafu.Fitinfo({
-        'startGraph': "goni_valid",
-        'record': False,
+        'startGraph': "cn_valid",
         'directed': False,
         'prior_method': "zeroinflatedbetabinomial",
         'zibb_p': 0.5,
         'prior_a': 2,
         'prior_b': 1,
-        'goni_size': 2,
-        'goni_threshold': 2,
+        'cn_size': 2,
+        'cn_threshold': 2,
         'followtype': "avg", 
         'prune_limit': np.inf,
         'triangle_limit': np.inf,
         'other_limit': np.inf })
 
-# the hierarchical model will take a long time to run!! to test it you can fit a smaller number of participants, e.g. range(101,111)
-subs=["A"+str(i) for i in range(101,102)]
-filepath = "../fluency/snafu_sample.csv"
-category="animals"
 
-fo=open('individual_graphs.csv','w')
-fo.write('subj,method,item1,item2,edge\n')
+# Load the data, grab some info
+filedata = snafu.load_fluency_data(filepath,
+                                   removePerseverations=True,
+                                   spell="../spellfiles/animals_snafu_spellfile.csv",
+                                   subject=subj)
+filedata.nonhierarchical()
+Xs = filedata.Xs
+items = filedata.items
+numnodes = filedata.numnodes
 
-for method in methods:
-    # add snafu.hierarhicalUinvite method here
-    
-    for sub in subs:
-        filedata = snafu.load_fluency_data(filepath,category=category,removePerseverations=True,spellfile="../spellfiles/animals_snafu_spellfile.csv",subjects=sub)
-        filedata.nonhierarchical()
-        Xs = filedata.Xs
-        items = filedata.items
-        numnodes = filedata.numnodes
-        
-        if method=="rw":
-            graph = snafu.nrw(Xs, numnodes)
-        if method=="goni":
-            graph = snafu.goni(Xs, numnodes, fitinfo=fitinfo)
-        if method=="chan":
-            graph = snafu.chan(Xs, numnodes)
-        if method=="kenett":
-            graph = snafu.kenett(Xs, numnodes)
-        if method=="fe":
-            graph = snafu.firstEdge(Xs, numnodes)
-        if method=="uinvite_flat":
-            graph, ll = snafu.uinvite(Xs, toydata, numnodes, fitinfo=fitinfo)
+# Make the network
+if method=="naiveRandomWalk":
+    graph = snafu.naiveRandomWalk(Xs, numnodes=numnodes)
+if method=="communityNetwork":
+    graph = snafu.communityNetwork(Xs, numnodes, fitinfo=fitinfo)
+if method=="pathfinder":
+    graph = snafu.pathfinder(Xs, numnodes=numnodes)
+if method=="correlationBasedNetwork":
+    graph = snafu.correlationBasedNetwork(Xs, numnodes=numnodes)
+if method=="firstEdge":
+    graph = snafu.firstEdge(Xs, numnodes=numnodes)
+if method=="uinvite":
+    graph, ll = snafu.uinvite(Xs, toydata, numnodes=numnodes, fitinfo=fitinfo, debug=True)
 
-        for i in range(len(graph)):
-            for j in range(len(graph)):
-                if i>j:
-                    item1=items[i]
-                    item2=items[j]
-                    itempair=np.sort([item1,item2])
-                    fo.write(sub + "," + method + "," + itempair[0] + "," + itempair[1] +  "," + str(graph[i,j]) + "\n")
-fo.close()
+# Write the network to file
+snafu.write_graph(graph, "individual_graph.csv", subj=subj, labels=items, sparse=True)
