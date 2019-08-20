@@ -162,7 +162,7 @@ def data_properties(command, root_path):
         avg_word_freq.append(np.mean(tmp1))
         for i in tmp2:
             word_freq_excluded.append(i)
-        tmp1, tmp2 = ageOfAquisition(labeledXs[subjnum],missing=aoa_sub,data=aoafile)
+        tmp1, tmp2 = ageOfAcquisition(labeledXs[subjnum],missing=aoa_sub,data=aoafile)
         avg_word_aoa.append(np.mean(tmp1))
         for i in tmp2:
             word_aoa_excluded.append(i)
@@ -238,7 +238,7 @@ def generate_csv_file(command, root_path):
             csv_perseverations = perseverations(labeledXs)
 
             csv_freq, temp = wordFrequency([labeledXs[listnum]],freq_sub=float(command['freq_sub']))
-            csv_aoa, temp = ageOfAquisition([labeledXs[listnum]])
+            csv_aoa, temp = ageOfAcquisition([labeledXs[listnum]])
             csv_freq = np.mean(csv_freq)
             csv_aoa = np.mean(csv_aoa)
 

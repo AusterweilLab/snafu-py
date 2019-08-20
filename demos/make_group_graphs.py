@@ -28,11 +28,11 @@ fitinfo = snafu.Fitinfo({
         'triangle_limit': 100,
         'other_limit': 100 })
 
-filepath = "fluency_data/snafu_sample.csv"
+filepath = "../fluency_data/snafu_sample.csv"
 category="animals"
 
 # read in data from file, flattening all participants together
-fluencydata = snafu.load_fluency_data(filepath,category=category,removePerseverations=True,spell="spellfiles/animals_snafu_spellfile.csv",hierarchical=False,group="Experiment1")
+fluencydata = snafu.load_fluency_data(filepath,category=category,removePerseverations=True,spell="../spellfiles/animals_snafu_spellfile.csv",hierarchical=False,group="Experiment1")
 
 # Estimate the best network using a Naive Random Walk
 nrw_graph = snafu.naiveRandomWalk(fluencydata.Xs, numnodes=fluencydata.groupnumnodes)

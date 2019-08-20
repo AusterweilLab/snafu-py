@@ -3,7 +3,7 @@ from . import *
 def wordFrequency(subj,missing=0.5,data=None):
     return wordStat(subj,missing=missing,data=data)
 
-def ageOfAquisition(subj,missing=None,data=None):
+def ageOfAcquisition(subj,missing=None,data=None):
     return wordStat(subj,missing=missing,data=data)
 
 def wordStat(subj,missing=None,data=None):

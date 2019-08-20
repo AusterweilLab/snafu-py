@@ -3,9 +3,9 @@ import networkx as nx
 
 # load FOODS fluency lists, correcting spelling mistakes, grouping by participant
 
-fluencydata = snafu.load_fluency_data("fluency_data/snafu_sample.csv",
+fluencydata = snafu.load_fluency_data("../fluency_data/snafu_sample.csv",
                                       category="foods",
-                                      spell="spellfiles/foods_snafu_spellfile.csv",
+                                      spell="../spellfiles/foods_snafu_spellfile.csv",
                                       hierarchical=True)
 
 # check for any "intrusions". many times, these are just items that are
@@ -13,8 +13,8 @@ fluencydata = snafu.load_fluency_data("fluency_data/snafu_sample.csv",
 # misspellings to your spellfile and provide at least one category for them in
 # your scheme file, then re-run!
 
-intrusions_num = snafu.intrusions(fluencydata.labeledXs, scheme="schemes/foods_snafu_scheme.csv")
-intrusions_list = snafu.intrusionsList(fluencydata.labeledXs, scheme="schemes/foods_snafu_scheme.csv")
+intrusions_num = snafu.intrusions(fluencydata.labeledXs, scheme="../schemes/foods_snafu_scheme.csv")
+intrusions_list = snafu.intrusionsList(fluencydata.labeledXs, scheme="../schemes/foods_snafu_scheme.csv")
 
 # check for perseverations... keep in mind some of these may be due to spelling
 # corrections e.g., if a participant lists "fry" and "french fries", the latter

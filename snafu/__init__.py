@@ -27,6 +27,8 @@ from .io import *
 from .generate_lists import *
 from .netstats import *
 from .clustering import *
+from .perseverations import *
+from .intrusions import *
 from .frequency import *
 from .search import *
 from .triadic import *

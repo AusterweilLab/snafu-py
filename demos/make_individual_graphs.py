@@ -42,8 +42,8 @@ fitinfo=snafu.Fitinfo({
         'other_limit': np.inf })
 
 # the hierarchical model will take a long time to run!! to test it you can fit a smaller number of participants, e.g. range(101,111)
-subs=["S"+str(i) for i in range(101,102)]
-filepath = "fluency/spring2017.csv"
+subs=["A"+str(i) for i in range(101,102)]
+filepath = "../fluency/snafu_sample.csv"
 category="animals"
 
 fo=open('individual_graphs.csv','w')
@@ -53,7 +53,7 @@ for method in methods:
     # add snafu.hierarhicalUinvite method here
     
     for sub in subs:
-        filedata = snafu.load_fluency_data(filepath,category=category,removePerseverations=True,spellfile="spellfiles/animals_zemla_spellfile.csv",subjects=sub)
+        filedata = snafu.load_fluency_data(filepath,category=category,removePerseverations=True,spellfile="../spellfiles/animals_snafu_spellfile.csv",subjects=sub)
         filedata.nonhierarchical()
         Xs = filedata.Xs
         items = filedata.items
