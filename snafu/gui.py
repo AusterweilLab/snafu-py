@@ -158,14 +158,14 @@ def data_properties(command, root_path):
         avg_items_listed.append(np.mean([len(i) for i in labeledXs[subjnum]]))
         avg_unique_items_listed.append(np.mean([len(set(i)) for i in labeledXs[subjnum]]))
 
-        tmp1, tmp2 = wordFrequency(labeledXs[subjnum],missing=freq_sub,data=freqfile)
-        avg_word_freq.append(np.mean(tmp1))
-        for i in tmp2:
-            word_freq_excluded.append(i)
-        tmp1, tmp2 = ageOfAcquisition(labeledXs[subjnum],missing=aoa_sub,data=aoafile)
-        avg_word_aoa.append(np.mean(tmp1))
-        for i in tmp2:
-            word_aoa_excluded.append(i)
+        freq, excluded = wordFrequency(labeledXs[subjnum],missing=freq_sub,data=freqfile)
+        avg_word_freq.append(freq)
+        for word in excluded:
+            word_freq_excluded.append(word)
+        aoa, excluded = ageOfAcquisition(labeledXs[subjnum], missing=aoa_sub, data=aoafile)
+        avg_word_aoa.append(aoa)
+        for word in excluded:
+            word_aoa_excluded.append(word)
         for i in labeledXs[subjnum]:
             total_words += len(i)
 

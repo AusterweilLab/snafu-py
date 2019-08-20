@@ -1,12 +1,39 @@
+import numpy as np
 from . import *
 
-def wordFrequency(subj,missing=0.5,data=None):
-    return wordStat(subj,missing=missing,data=data)
+def wordFrequency(subj, missing=0.5, data=None):
+    # if fluency data are hierarchical, report mean per individual
+    if isinstance(subj[0][0], list):
+        freqs = []
+        excludeds = []
+        for l in subj:
+            freq, excluded = wordStat(l, missing=missing, data=data)
+            freqs.append(np.mean(freq))
+            excludeds.append(flatten_list(excluded))
+        return np.mean(freqs), excludeds
 
-def ageOfAcquisition(subj,missing=None,data=None):
-    return wordStat(subj,missing=missing,data=data)
+    # if fluency data are non-hierarchical, report mean per list
+    else:
+        freq, excluded = wordStat(subj, missing=missing, data=data)
+        return np.mean(freq), excluded
 
-def wordStat(subj,missing=None,data=None):
+def ageOfAcquisition(subj, missing=None, data=None):
+    # if fluency data are hierarchical, report mean per individual
+    if isinstance(subj[0][0], list):
+        aoa = []
+        excludeds = []
+        for l in subj:
+            aoa, excluded = wordStat(l, missing=missing, data=data)
+            aoas.append(np.mean(aoa))
+            excludeds.append(flatten_list(excluded))
+        return np.mean(aoa), excludeds
+    # if fluency data are non-hierarchical, report mean per list
+    else:
+        aoa, excluded = wordStat(subj, missing=missing, data=data)
+        return np.mean(aoa), excluded
+
+def wordStat(subj, missing=None, data=None):
+    
     # load dictionary
     d_val = {}
     with open(data, 'rt', encoding='utf-8-sig') as csvfile:
@@ -31,5 +58,5 @@ def wordStat(subj,missing=None,data=None):
             if(len(temp)>0):
                 word_val.append(np.mean(temp))
             words_excluded.append(excluded)
+    
     return word_val, words_excluded
-

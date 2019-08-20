@@ -1,3 +1,6 @@
+import numpy as np
+from . import *
+
 def intrusionsList(l, scheme):  
     if len(l) > 0:
         if isinstance(l[0][0], list):

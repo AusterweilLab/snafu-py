@@ -1,3 +1,6 @@
+import numpy as np
+from . import *
+
 def perseverationsList(l):
     if len(l) > 0:
         if isinstance(l[0][0], list):
