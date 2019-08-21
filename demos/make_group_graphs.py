@@ -1,8 +1,4 @@
 import snafu
-import networkx as nx
-import numpy as np
-import pickle
-import sys
 import numpy as np
 
 # These parameters are used for U-INVITE variants only

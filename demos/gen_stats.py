@@ -1,8 +1,6 @@
 # DEMO 
 
 import snafu
-import networkx as nx
-import numpy as np
 
 filepath = "../fluency_data/snafu_sample.csv"
 
@@ -22,3 +20,8 @@ snafu.intrusions(filedata.labeledXs, "../schemes/animals_snafu_scheme.csv")
 snafu.clusterSize(filedata.labeledXs, "../schemes/animals_snafu_scheme.csv", clustertype="fluid")
 snafu.clusterSwitch(filedata.labeledXs, "../schemes/animals_snafu_scheme.csv", clustertype="fluid")
 snafu.wordFrequency(filedata.labeledXs, data="../frequency/subtlex-us.csv", missing=0.5)
+
+
+snafu.clusterSize(filedata.labeledXs, 2, clustertype="fluid")
+snafu.clusterSwitch(filedata.labeledXs, 2, clustertype="fluid")
+

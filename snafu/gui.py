@@ -131,9 +131,9 @@ def data_properties(command, root_path):
     freqfile = label_to_filepath(command['freqfile'], root_path,"frequency")
     aoafile = label_to_filepath(command['aoafile'], root_path,"aoa")
     
-    preset_schemes = {"Phonemic: 1 letter": 1,
-                      "Phonemic: 2 letters": 2,
-                      "Phonemic: 3 letters": 3}
+    preset_schemes = {"1 letter": 1,
+                      "2 letters": 2,
+                      "3 letters": 3}
     if command['cluster_scheme'] in preset_schemes.keys():
         schemefile = preset_schemes[command['cluster_scheme']]
     else:
@@ -148,8 +148,12 @@ def data_properties(command, root_path):
     if command['cluster_scheme'] != "None":
         avg_cluster_size = clusterSize(labeledXs, schemefile, clustertype=command['cluster_type'])
         avg_num_cluster_switches = clusterSwitch(labeledXs, schemefile, clustertype=command['cluster_type'])
-        avg_num_intrusions = intrusions(labeledXs, schemefile)
-        list_of_intrusions = intrusionsList(labeledXs, schemefile)
+        if command['fluency_type'] == "semantic":
+            avg_num_intrusions = intrusions(labeledXs, schemefile)
+            list_of_intrusions = intrusionsList(labeledXs, schemefile)
+        elif command['fluency_type'] == "letter":
+            avg_num_intrusions = intrusions(labeledXs, command['target_letter'])
+            list_of_intrusions = intrusionsList(labeledXs, command['target_letter'])
     avg_num_perseverations = perseverations(labeledXs)
     list_of_perseverations = perseverationsList(labeledXs)
 

@@ -23,7 +23,7 @@ def clusterSwitch(l, scheme, clustertype='fluid'):
         avgnum=[]
         if len(i) > 0:
             if isinstance(i[0], list):
-                for l in clist:
+                for l in i:
                     avgnum.append(len(l)-1)
                 avglists.append(np.mean(avgnum))
             else:
@@ -113,8 +113,11 @@ def labelClusters(l, scheme, labelIntrusions=False, targetLetter=None):
                 elif labelIntrusions:               # if item not in dict, either ignore it or label is as category "intrusion"
                     labels.append("intrusion")
             elif clustertype == "letter":
-                if item[0] == targetLetter:
+                if (item[0] == targetLetter) or ((targetLetter == None) and (labelIntrusions == False)):
                     labels.append(item[:maxletters])
                 elif labelIntrusions:
-                    labels.append("intrusion")
+                    if targetLetter == None:
+                        raise Exception('Cant label intrusions without a target letter [labelClusters]')
+                    else:
+                         labels.append("intrusion")     # if item not in dict, either ignore it or label is as category "intrusion"
     return labels

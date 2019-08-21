@@ -1,10 +1,5 @@
 import snafu
-import networkx as nx
 import numpy as np
-import pickle
-import sys
-import numpy as np
-import scipy.stats
 
 # STEP 1: Choose a method!
 #
