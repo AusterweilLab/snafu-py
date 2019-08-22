@@ -10,12 +10,12 @@ def wordFrequency(subj, missing=0.5, data=None):
             freq, excluded = wordStat(l, missing=missing, data=data)
             freqs.append(np.mean(freq))
             excludeds.append(flatten_list(excluded))
-        return np.mean(freqs), excludeds
+        return freqs, excludeds
 
     # if fluency data are non-hierarchical, report mean per list
     else:
         freq, excluded = wordStat(subj, missing=missing, data=data)
-        return np.mean(freq), excluded
+        return freq, excluded
 
 def ageOfAcquisition(subj, missing=None, data=None):
     # if fluency data are hierarchical, report mean per individual
@@ -26,11 +26,11 @@ def ageOfAcquisition(subj, missing=None, data=None):
             aoa, excluded = wordStat(l, missing=missing, data=data)
             aoas.append(np.mean(aoa))
             excludeds.append(flatten_list(excluded))
-        return np.mean(aoa), excludeds
+        return aoa, excludeds
     # if fluency data are non-hierarchical, report mean per list
     else:
         aoa, excluded = wordStat(subj, missing=missing, data=data)
-        return np.mean(aoa), excluded
+        return aoa, excluded
 
 def wordStat(subj, missing=None, data=None):
     

@@ -163,11 +163,11 @@ def data_properties(command, root_path):
         avg_unique_items_listed.append(np.mean([len(set(i)) for i in labeledXs[subjnum]]))
 
         freq, excluded = wordFrequency(labeledXs[subjnum],missing=freq_sub,data=freqfile)
-        avg_word_freq.append(freq)
+        avg_word_freq.append(np.mean(freq))
         for word in excluded:
             word_freq_excluded.append(word)
         aoa, excluded = ageOfAcquisition(labeledXs[subjnum], missing=aoa_sub, data=aoafile)
-        avg_word_aoa.append(aoa)
+        avg_word_aoa.append(np.mean(aoa))
         for word in excluded:
             word_aoa_excluded.append(word)
         for i in labeledXs[subjnum]:
