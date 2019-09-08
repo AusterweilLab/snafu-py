@@ -37,12 +37,14 @@ class Data():
 
         Xs = copy.deepcopy(self.rawdata['Xs'])
         self.Xs = [[Xs[i][j] for j in sorted(Xs[i].keys())] for i in self.subs]
-
+        self.lists = self.Xs
+        
         items = copy.deepcopy(self.rawdata['items'])
         self.items = [items[i] for i in sorted(items.keys())]
 
         self.labeledXs = [numToItemLabel(self.Xs[i],self.items[i]) for i in range(len(self.Xs))]
-
+        self.labeledlists = self.labeledXs
+        
         try:
             irts = copy.deepcopy(self.rawdata['irts'])
             self.irts = [[irts[i][j] for j in sorted(irts[i].keys())] for i in self.subs]
@@ -67,6 +69,7 @@ class Data():
                 
         try:
             self.Xs = flatten_list([[Xs[i][j] for j in sorted(Xs[i].keys())] for i in self.subs])
+            self.lists = self.Xs
             self.irts = flatten_list([[irts[i][j] for j in sorted(irts[i].keys())] for i in self.subs])
         except:
             self.irts = []
@@ -75,6 +78,7 @@ class Data():
         self.items = self.groupitems
         self.structure = "nonhierarchical"
         self.labeledXs = numToItemLabel(self.Xs, self.items)
+        self.labeledlists = self.labeledXs
         
         return self
 
