@@ -99,7 +99,7 @@ def DataModel(data):
     if 'jump' not in tdkeys:
         data['jump'] = 0.0           # no jumping in data by default
     if 'jumptype' not in tdkeys:
-        data['jumptype'] = "uniform"   # or stationary
+        data['jumptype'] = "stationary"   # or stationary
     if 'start_node' not in tdkeys:
         data['start_node'] = "stationary"      # or stationary
     #if 'numx' not in tdkeys:

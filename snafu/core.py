@@ -746,7 +746,7 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[]):
     return ll, uinvite_probs
 
 #@profile
-def uinvite(Xs, td, numnodes=None, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, seed=None):
+def uinvite(Xs, td=DataModel({}), numnodes=None, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, seed=None):
     nplocal=np.random.RandomState(seed) 
 
     if numnodes == None:
