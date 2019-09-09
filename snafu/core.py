@@ -417,7 +417,11 @@ def gtom(graph):
     return gtom_mat
 
  
-def hierarchicalUinvite(Xs, items, numnodes, td, irts=False, fitinfo=Fitinfo({}), seed=None, debug=True):
+def hierarchicalUinvite(Xs, items, numnodes=None, td=DataModel({}), irts=False, fitinfo=Fitinfo({}), seed=None, debug=True):
+
+    if numnodes == None:
+        numnodes = [len(set(flatten_list(x))) for x in Xs]
+    
     nplocal=np.random.RandomState(seed) 
     fitinfoSG = fitinfo.startGraph  # fitinfo is mutable, need to revert at end of function... blah
     # create ids for all subjects
