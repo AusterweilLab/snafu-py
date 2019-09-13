@@ -209,7 +209,7 @@ def similarity(a, items, start, choices, steps="inf", jumpval=0.0):
             for k in range(nonchoicelength):
                 num1=newQ[k]
                 for choicenum, choice in enumerate(choice_idx):
-                    num2=t2[choice,k]                          # probability transitioning from k to absorbing node    
+                    num2=t2[choice,k]                          # probability transitioning from k to absorbing node
                     ptmp[choicenum] += (num1*num2)
             newQ=np.inner(newQ,Q)
             probs.append(ptmp)
