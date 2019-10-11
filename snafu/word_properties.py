@@ -2,6 +2,18 @@ import numpy as np
 from . import *
 
 def wordFrequency(subj, missing=0.5, data=None):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     # if fluency data are hierarchical, report mean per individual
     if isinstance(subj[0][0], list):
         freqs = []
@@ -18,6 +30,18 @@ def wordFrequency(subj, missing=0.5, data=None):
         return freq, excluded
 
 def ageOfAcquisition(subj, missing=None, data=None):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     # if fluency data are hierarchical, report mean per individual
     if isinstance(subj[0][0], list):
         aoa = []
@@ -33,6 +57,18 @@ def ageOfAcquisition(subj, missing=None, data=None):
         return aoa, excluded
 
 def wordStat(subj, missing=None, data=None):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     
     # load dictionary
     d_val = {}

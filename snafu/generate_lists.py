@@ -4,6 +4,18 @@ from . import *
 # return simulated data on graph g
 # also return number of steps between first hits (to use for IRTs)
 def gen_lists(g, td, seed=None):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     Xs=[]
     steps=[]
     priming_vector=[]
@@ -34,6 +46,18 @@ def gen_lists(g, td, seed=None):
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g, td, priming_vector=[], seed=None):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     import scipy.stats
     nplocal=np.random.RandomState(seed)    
 

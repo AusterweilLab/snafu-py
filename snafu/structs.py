@@ -87,12 +87,19 @@ class Data():
     
         
 def DataModel(data):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     tdkeys=list(data.keys())
-
-    # full factorial of any list params
-    for i in tdkeys:
-        if isinstance(data[i],list):
-            return flatten_list([Data(dict(data, **{i: j})) for j in data[i]])
 
     if 'trim' not in tdkeys:
         data['trim'] = 1.0           # each list covers full graph by default
@@ -116,12 +123,19 @@ def DataModel(data):
     return dotdict(data)
 
 def Irts(irts):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     irtkeys=list(irts.keys())
-
-    # full factorial of any list params
-    for i in irtkeys:
-        if (isinstance(irts[i],list)) and (i != 'data'):       # 'data' is an exception to the rule
-            return flatten_list([Irts(dict(irts, **{i: j})) for j in irts[i]])
 
     if 'data' not in irtkeys:
         irts['data']=[]
@@ -150,13 +164,20 @@ def Irts(irts):
     return dotdict(irts)
 
 def Fitinfo(fitinfo):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     fitkeys=list(fitinfo.keys())
 
-    # full factorial of any list params
-    for i in fitkeys:
-        if isinstance(fitinfo[i],list):
-            return flatten_list([Fitinfo(dict(fitinfo, **{i: j})) for j in fitinfo[i]])
-    
     if 'followtype' not in fitkeys:
         fitinfo['followtype'] = "avg"   # or max or random
     if 'prior_method' not in fitkeys:
@@ -188,4 +209,3 @@ def Fitinfo(fitinfo):
         fitinfo['cn_alpha'] = 0.05
 
     return dotdict(fitinfo)
-

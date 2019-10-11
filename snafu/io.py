@@ -8,15 +8,51 @@ from . import *
 
 # wrapper
 def graphToHash(a):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     return nx.generate_sparse6(nx.to_networkx_graph(a),header=False)
 
 # wrapper
 def hashToGraph(graphhash):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     return nx.to_numpy_matrix(nx.parse_graph6(graphhash))
 
 # reads in graph from CSV
 # row order not preserved; could be optimized more
 def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     fh=open(fh,'rt', encoding='utf-8-sig')
     idx=0
     bigdict={}
@@ -89,14 +125,50 @@ def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=Fals
 
 # deprecated function name
 def readX(*args, **kwargs):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     return load_fluency_data(*args, **kwargs)
 
 def load_graph(*args, **kwargs):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     return read_graph(*args, **kwargs)
 
 # read Xs in from user files
 # this should be re-written with pandas or something more managable
 def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spell=None,scheme=None,group=None,subject=None,cleanBadChars=False,hierarchical=False,targetletter=None):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
    
     if targetletter:
         targetletter = targetletter.lower()
@@ -223,6 +295,18 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
     return Data({'Xs': Xs, 'items': items, 'irts': irts, 'structure': hierarchical})
 
 def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=True, labels=None, sparse=False):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     onezero={True: '1', False: '0'}        
     import networkx as nx
     fh=open(fh,'w')

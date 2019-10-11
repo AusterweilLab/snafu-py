@@ -3,6 +3,18 @@ from . import *
 # given list of cluster lengths, compute average cluster size of each list, then return avearge of that
 # also works on single list
 def clusterSize(l, scheme, clustertype='fluid'):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     clist = findClusters(l, scheme, clustertype)
     
     avglists=[]
@@ -16,6 +28,18 @@ def clusterSize(l, scheme, clustertype='fluid'):
 # given list of cluster lengths, compute average number of cluster switches of each list, then return avearge of that
 # also works on single list
 def clusterSwitch(l, scheme, clustertype='fluid'):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     clist = findClusters(l, scheme, clustertype)
     
     avglists=[]
@@ -34,6 +58,18 @@ def clusterSwitch(l, scheme, clustertype='fluid'):
 
 # report average cluster size for list or nested lists
 def findClusters(l, scheme, clustertype='fluid'):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     # only convert items to labels if list of items, not list of lists
     if len(l) > 0:
         if isinstance(l[0], list):
@@ -76,6 +112,18 @@ def findClusters(l, scheme, clustertype='fluid'):
 # returns labels in place of items for list or nested lists
 # provide list (l) and coding scheme (external file)
 def labelClusters(l, scheme, labelIntrusions=False, targetLetter=None):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     if isinstance(scheme,str):
         clustertype = "semantic"    # reads clusters from a fixed file
     elif isinstance(scheme,int):

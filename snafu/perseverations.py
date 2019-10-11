@@ -2,6 +2,18 @@ import numpy as np
 from . import *
 
 def perseverationsList(l):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     if len(l) > 0:
         if isinstance(l[0][0], list):
             perseveration_items = [perseverationsList(i) for i in l]
@@ -13,6 +25,18 @@ def perseverationsList(l):
 
 
 def perseverations(l):
+    """One line description here.
+    
+        Detailed description here. Detailed description here.  Detailed 
+        description here.  
+    
+        Args:
+            arg1 (type): Description here.
+            arg2 (type): Description here.
+        Returns:
+            Detailed description here. Detailed description here.  Detailed 
+            description here. 
+    """
     def processList(l2):
         return [float(len(i)-len(set(i))) for i in l2]
     
