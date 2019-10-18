@@ -246,7 +246,7 @@ def data_properties(command, root_path):
         word_aoa_rate += len(i)
     word_aoa_rate = str(round(float(word_aoa_rate)/total_words*100,2))+'%'
     # fix
-    csv_file = generate_csv_file(command, root_path)
+    csv_file = generate_csv_file(command, root_path, group, subject)
 
     return { "type": "data_properties", 
              "num_lists": num_lists,
@@ -267,7 +267,7 @@ def data_properties(command, root_path):
              "csv_file": csv_file }
 
 # broken
-def generate_csv_file(command, root_path):
+def generate_csv_file(command, root_path, group, subject):
     """One line description here.
     
         Detailed description here. Detailed description here.  Detailed 
@@ -285,7 +285,7 @@ def generate_csv_file(command, root_path):
     aoafile = label_to_filepath(command['aoafile'], root_path,"aoa")
 
     csv_file = "id,listnum,num_items_listed,num_unique_items,num_cluster_switches,avg_cluster_size,num_intrusions,num_perseverations,avg_word_freq,avg_word_aoa\n"
-    filedata = load_fluency_data(command['fullpath'],category=command['category'], scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), spell=label_to_filepath(command['spellfile'], root_path, "spellfiles"))
+    filedata = load_fluency_data(command['fullpath'],category=command['category'], scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), group=group, subject=subject, spell=label_to_filepath(command['spellfile'], root_path, "spellfiles"))
     filedata.hierarchical()
 
     for subnum, sub in enumerate(filedata.subs):
@@ -297,12 +297,12 @@ def generate_csv_file(command, root_path):
             csv_uniqueitem = len(set(filedata.Xs[subnum][listnum]))
             
             # parameters should come from snafu gui (scheme, clustertype)
-            csv_clusterlength = clusterSize(labeledXs, scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
-            csv_clusterswitch = clusterSwitch(labeledXs, scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
+            csv_clusterlength = clusterSize([labeledXs[listnum]], scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])[0]
+            csv_clusterswitch = clusterSwitch([labeledXs[listnum]], scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])[0]
 
             # parameters should come from snafu gui (scheme)
-            csv_intrusions = intrusions(labeledXs,scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"))
-            csv_perseverations = perseverations(labeledXs)
+            csv_intrusions = intrusions([labeledXs[listnum]],scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"))[0]
+            csv_perseverations = perseverations([labeledXs[listnum]])[0]
 
             csv_freq, temp = wordFrequency([labeledXs[listnum]],missing=float(command['freq_sub']), data=freqfile)
             csv_aoa, temp = ageOfAcquisition([labeledXs[listnum]], data=aoafile)
