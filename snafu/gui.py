@@ -246,6 +246,7 @@ def data_properties(command, root_path):
     subs = list(subsandlists[0])
     listnums = list(subsandlists[1])
     
+    # make csv file
     from collections import OrderedDict
     csv_data = OrderedDict()
     csv_data["subject"] = subs
@@ -259,6 +260,11 @@ def data_properties(command, root_path):
     csv_data["avg_word_aoa"] = aoa_list
     csv_file = generate_csv_file(csv_data)
 
+    # list of spelling corrections
+    spell_corrected = flatten_list(filedata.spell_corrected)
+    spell_corrected = [[list(i) for i in l] for l in spell_corrected]
+    num_spell_corrections = sum([len(l) for l in spell_corrected])
+    
     return { "type": "data_properties", 
              "listnums": filedata.listnums,
              "num_lists": num_lists,
@@ -275,6 +281,8 @@ def data_properties(command, root_path):
              "word_freq_excluded": word_freq_excluded,
              "word_aoa_rate": word_aoa_rate,
              "word_aoa_excluded": word_aoa_excluded,
+             "spell_corrected": spell_corrected,
+             "num_spell_corrections": num_spell_corrections,
              "csv_file": csv_file }
 
 def generate_csv_file(json_file):

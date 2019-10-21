@@ -209,6 +209,9 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
     irts=dict()
     items=dict()
     spellingdict=dict()
+    spell_corrected = dict()
+    perseverations = dict()
+    intrusions = dict()
     validitems=[]
     
     # read in list of valid items when removeIntrusions = True
@@ -257,10 +260,16 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                 # make sure dict keys exist
                 if idx not in Xs:
                     Xs[idx] = dict()
+                    spell_corrected[idx] = dict()
+                    perseverations[idx] = dict()
+                    intrusions[idx] = dict()
                     if has_rt_col:
                         irts[idx] = dict()
                 if listnum_int not in Xs[idx]:
                     Xs[idx][listnum_int] = []
+                    spell_corrected[idx][listnum_int] = []
+                    perseverations[idx][listnum_int] = []
+                    intrusions[idx][listnum_int] = []
                     if has_rt_col:
                         irts[idx][listnum_int] = []
                 if idx not in items:
@@ -273,13 +282,17 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                     for char in badchars:
                         item=item.replace(char,"")
                 if item in list(spellingdict.keys()):
-                    item = spellingdict[item]
+                    newitem = spellingdict[item]
+                    spell_corrected[idx][listnum_int].append((item, newitem))
+                    item = newitem
                 if has_rt_col:
                     irt=row[rt_col]
                 if item not in list(items[idx].values()):
                     if (item in validitems) or (not removeIntrusions) or (item[0] == targetletter):
                         item_count = len(items[idx])
                         items[idx][item_count]=item
+                    else:
+                        intrusions[idx][listnum_int].append(item) # record as intrusion
 
                 # add item to list
                 try:
@@ -289,10 +302,13 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                             Xs[idx][listnum_int].append(itemval)
                             if has_rt_col:
                                 irts[idx][listnum_int].append(int(irt))
+                    else:
+                        perseverations[idx][listnum_int].append(item) # record as perseveration
                 except:
                     pass                # bad practice to have empty except
    
-    return Data({'Xs': Xs, 'items': items, 'irts': irts, 'structure': hierarchical})
+    return Data({'Xs': Xs, 'items': items, 'irts': irts, 'structure': hierarchical, 
+                 'spell_corrected': spell_corrected, 'perseverations': perseverations, 'intrusions': intrusions})
 
 def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=True, labels=None, sparse=False):
     """One line description here.
