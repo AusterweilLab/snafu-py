@@ -15,13 +15,14 @@ filedata = snafu.load_fluency_data(filepath,
                                    group=["Experiment1"],
                                    hierarchical=True)
 
-snafu.perseverations(filedata.labeledXs)
-snafu.intrusions(filedata.labeledXs, "../schemes/animals_snafu_scheme.csv")
-snafu.clusterSize(filedata.labeledXs, "../schemes/animals_snafu_scheme.csv", clustertype="fluid")
-snafu.clusterSwitch(filedata.labeledXs, "../schemes/animals_snafu_scheme.csv", clustertype="fluid")
-snafu.wordFrequency(filedata.labeledXs, data="../frequency/subtlex-us.csv", missing=0.5)
+perseverations = snafu.perseverations(filedata.labeledXs)
+intrusions = snafu.intrusions(filedata.labeledXs, "../schemes/animals_snafu_scheme.csv")
+cluster_sizes = snafu.clusterSize(filedata.labeledXs, "../schemes/animals_snafu_scheme.csv", clustertype="fluid")
+cluster_switches = snafu.clusterSwitch(filedata.labeledXs, "../schemes/animals_snafu_scheme.csv", clustertype="fluid")
+word_frequency = snafu.wordFrequency(filedata.labeledXs, data="../frequency/subtlex-us.csv", missing=0.5)
 
 
-snafu.clusterSize(filedata.labeledXs, 2, clustertype="fluid")
-snafu.clusterSwitch(filedata.labeledXs, 2, clustertype="fluid")
+# for letter fluency
+#snafu.clusterSize(filedata.labeledXs, 2, clustertype="fluid")
+#snafu.clusterSwitch(filedata.labeledXs, 2, clustertype="fluid")
 
