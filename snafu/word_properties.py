@@ -44,13 +44,13 @@ def ageOfAcquisition(subj, missing=None, data=None):
     """
     # if fluency data are hierarchical, report mean per individual
     if isinstance(subj[0][0], list):
-        aoa = []
+        aoas = []
         excludeds = []
         for l in subj:
             aoa, excluded = wordStat(l, missing=missing, data=data)
             aoas.append(np.mean(aoa))
             excludeds.append(flatten_list(excluded))
-        return aoa, excludeds
+        return aoas, excludeds
     # if fluency data are non-hierarchical, report mean per list
     else:
         aoa, excluded = wordStat(subj, missing=missing, data=data)
