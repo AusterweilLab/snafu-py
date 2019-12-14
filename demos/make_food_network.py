@@ -23,13 +23,13 @@ intrusions_list = snafu.intrusionsList(fluencydata.labeledXs, scheme="../schemes
 perseverations_num = snafu.perseverations(fluencydata.labeledXs)
 perseverations_list = snafu.perseverationsList(fluencydata.labeledXs)
 
-# Community Network is not a hierarchical method, so let's flatten our data
+# Conceptual Network is not a hierarchical method, so let's flatten our data
 # before we make a network
 fluencydata.nonhierarchical()
 
-# specify some free parameters for generating Community Network below are the
+# specify some free parameters for generating Conceptual Network below are the
 # defaults (if you don't specify them), but they are re-listed here for
-# transparency For more details on the Community Network method, see Goni et
+# transparency For more details on the Conceptual Network method, see Goni et
 # al. (2011) [in journal Cognitive Processing] and Zemla & Austerweil (2018)
 # [in Computational Brain and Behavior]
 
@@ -37,10 +37,10 @@ fitinfo = snafu.Fitinfo({'cn_windowsize': 2,           # items co-occur if they 
                          'cn_threshold': 2,            # an item must appear in this many lists, else it is excluded 
                          'cn_alpha': 0.05})            # co-occurence p-value must be below this alpha to accept edge
 
-# generate network using Community Network method
+# generate network using Conceptual Network method
 # may take a couple minutes, be patient...
 
-foodsnetwork = snafu.communityNetwork(fluencydata.Xs, fitinfo=fitinfo)
+foodsnetwork = snafu.conceptualNetwork(fluencydata.Xs, fitinfo=fitinfo)
 
 # write edge list to file
 

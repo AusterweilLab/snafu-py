@@ -14,7 +14,7 @@ datamodel = snafu.DataModel({
         'start_node': "stationary"
 })
 
-# These fitting parameters are used for U-INVITE and/or Community Network
+# These fitting parameters are used for U-INVITE and/or Conceptual Network
 fitinfo = snafu.Fitinfo({
         'startGraph': "cn_valid",
         'cn_alpha': 0.05,
@@ -33,8 +33,8 @@ fluencydata = snafu.load_fluency_data(filepath,category=category,removePersevera
 # Estimate the best network using a Naive Random Walk
 nrw_graph = snafu.naiveRandomWalk(fluencydata.Xs, numnodes=fluencydata.groupnumnodes)
 
-# Estimate the best network using Community Network (Goni et al)
-cn_graph = snafu.communityNetwork(fluencydata.Xs, numnodes=fluencydata.groupnumnodes, fitinfo=fitinfo)
+# Estimate the best network using Conceptual Network (Goni et al)
+cn_graph = snafu.conceptualNetwork(fluencydata.Xs, numnodes=fluencydata.groupnumnodes, fitinfo=fitinfo)
     
 # Estimate the best network using Pathfinder (Chan et al)
 pf_graph = snafu.pathfinder(fluencydata.Xs, numnodes=fluencydata.groupnumnodes)

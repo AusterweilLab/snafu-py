@@ -382,8 +382,8 @@ def network_properties(command, root_path):
         
     if command['network_method']=="Naive Random Walk":
         bestgraph = naiveRandomWalk(Xs, numnodes=numnodes)
-    elif command['network_method']=="Community Network":
-        bestgraph = communityNetwork(Xs, fitinfo=fitinfo, numnodes=numnodes)
+    elif command['network_method']=="Conceptual Network":
+        bestgraph = conceptualNetwork(Xs, fitinfo=fitinfo, numnodes=numnodes)
     elif command['network_method']=="Pathfinder":
         bestgraph = pathfinder(Xs, numnodes=numnodes)
     elif command['network_method']=="Correlation-based Network":

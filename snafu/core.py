@@ -5,6 +5,9 @@ from functools import reduce
     # (pass dict of failures, don't try if numchanges==0)
 # TODO: Implement GOTM/ECN from Goni et al. 2011
 
+# alias for backwards compatibility
+communitynetwork = conceptualNetwork
+
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
     """Adjust transition matrix of network to allow for jumps
@@ -391,7 +394,7 @@ def genStartGraph(Xs, numnodes, td, fitinfo):
             description here. 
     """
     if fitinfo.startGraph=="cn_valid":
-        graph = communityNetwork(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
+        graph = conceptualNetwork(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
     elif fitinfo.startGraph=="pf_valid":
         graph = pathfinder(Xs, numnodes, valid=True, td=td)
     elif (fitinfo.startGraph=="rw" or fitinfo.startGraph=="nrw"):
@@ -408,7 +411,7 @@ def genStartGraph(Xs, numnodes, td, fitinfo):
 # f = filter frequency; if two items don't fall within the same window more than f times, then no edge is inferred
 # c = confidence interval; retain the edge if there is a <= c probability that two items occur within the same window n times by chance alone
 # valid (t/f) ensures that graph can produce data using censored RW.
-def communityNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=None):
+def conceptualNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=None):
     """One line description here.
     
         Detailed description here. Detailed description here.  Detailed 
@@ -1139,7 +1142,7 @@ def uinvite(Xs, td=DataModel({}), numnodes=None, irts=Irts({}), fitinfo=Fitinfo(
         if (td.censor_fault == 0.0) and (not fitinfo.estimatePerseveration):
             raise Exception('''Your data contains perseverations, but \
                             censor_fault = 0.0; Set to some value 0.0 < x <= 1.0 or
-                            set estimatePerseverations to True''')
+                            set estimatePerseveration to True''')
 
     try:
         firstedges=[(x[0], x[1]) for x in Xs]

@@ -27,7 +27,7 @@ def clusterSize(l, scheme, clustertype='fluid'):
 
 # given list of cluster lengths, compute average number of cluster switches of each list, then return avearge of that
 # also works on single list
-def clusterSwitch(l, scheme, clustertype='fluid'):
+def clusterSwitch(l, scheme, clustertype='fluid',switchrate=False):
     """One line description here.
     
         Detailed description here. Detailed description here.  Detailed 
@@ -43,15 +43,21 @@ def clusterSwitch(l, scheme, clustertype='fluid'):
     clist = findClusters(l, scheme, clustertype)
     
     avglists=[]
-    for i in clist:
+    for inum, i in enumerate(clist):
         avgnum=[]
         if len(i) > 0:
             if isinstance(i[0], list):
-                for l in i:
-                    avgnum.append(len(l)-1)
+                for lstnum, lst in enumerate(i):
+                    switches = len(lst)-1
+                    if switchrate:
+                        switches = switches / len(l[inum][lstnum])
+                    avgnum.append(switches)
                 avglists.append(np.mean(avgnum))
             else:
-                avglists.append(len(i)-1)
+                switches = len(i)-1
+                if switchrate:
+                    switches = switches / len(l[inum])
+                avglists.append(switches)
         else:
             avglists.append(0)
     return avglists

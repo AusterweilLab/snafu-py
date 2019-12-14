@@ -1,4 +1,4 @@
-# This file is used to implement the 95% CI Clopper-Pearson method used by Community Network method.
+# This file is used to implement the 95% CI Clopper-Pearson method used by Conceptual Network method.
 # Originally, it relied on statsmodels/scipy, which is a very large package
 from . import *
 
