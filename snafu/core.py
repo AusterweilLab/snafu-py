@@ -5,6 +5,9 @@ from functools import reduce
     # (pass dict of failures, don't try if numchanges==0)
 # TODO: Implement GOTM/ECN from Goni et al. 2011
 
+# alias for backwards compatibility
+communitynetwork = conceptualNetwork
+
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
     """Adjust transition matrix of network to allow for jumps

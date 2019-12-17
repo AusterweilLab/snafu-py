@@ -3,7 +3,7 @@ import numpy as np
 
 # STEP 1: Choose a method!
 #
-# CHOICES: naiveRandomWalk, communityNetwork, pathfinder, correlationBasedNetwork, firstEdge, uinvite
+# CHOICES: naiveRandomWalk, conceptualNetwork, pathfinder, correlationBasedNetwork, firstEdge, uinvite
 #          Don't know which method to choose? Read Zemla & Austerweil (2018):
 #          "Estimating semantic networks of groups and individuals from fluency data"
 method= "uinvite"
@@ -55,8 +55,8 @@ numnodes = filedata.numnodes
 # Make the network
 if method=="naiveRandomWalk":
     graph = snafu.naiveRandomWalk(Xs, numnodes=numnodes)
-if method=="communityNetwork":
-    graph = snafu.communityNetwork(Xs, numnodes, fitinfo=fitinfo)
+if method=="conceptualNetwork":
+    graph = snafu.conceptualNetwork(Xs, numnodes, fitinfo=fitinfo)
 if method=="pathfinder":
     graph = snafu.pathfinder(Xs, numnodes=numnodes)
 if method=="correlationBasedNetwork":

@@ -7,7 +7,7 @@ dist/
 snafu.egg-info/
 snafu_py.egg-info/
 snet/BEAGLEdata.mat
-snet/dedyne.snet
+snet/dedeyne.snet
 snet/swow.snet
 snet/swow_one.snet
 snet/swow_animals.snet
