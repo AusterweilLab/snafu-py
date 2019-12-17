@@ -14,17 +14,13 @@ def list_subjects_and_categories(command, root_path):
             description here. 
     """
     subjects=[]
-    #categories=["all"]
-    categories = []
+    categories=[]
     groups=["all"]
     
     with open(command['fullpath'],'rt',encoding="utf-8-sig") as fh:
         header=fh.readline().strip().split(',')
         subj_idx = header.index("id")
-        try:
-            cat_idx = header.index("category")
-        except:
-            cat_idx = -1
+        cat_idx = header.index("category")
         try:
             group_idx = header.index("group")
         except:
@@ -34,9 +30,8 @@ def list_subjects_and_categories(command, root_path):
         for line in reader(fh):
             if line[subj_idx] not in subjects:
                 subjects.append(line[subj_idx])
-            if cat_idx > -1:
-                if line[cat_idx] not in categories:
-                    categories.append(line[cat_idx])
+            if line[cat_idx] not in categories:
+                categories.append(line[cat_idx])
             if group_idx > -1:
                 group_label = line[group_idx]
                 if group_label not in groups:
@@ -125,14 +120,65 @@ def data_properties(command, root_path):
             description here. 
     """
    
-    # data parameters shorthand
-    command = command['data_parameters']
-
-    # Initialize some filenames
-    freqfile = label_to_filepath(command['freqfile'], root_path, "frequency")
-    aoafile = label_to_filepath(command['aoafile'], root_path, "aoa")
+    # turns array into string: "Mean (Std) [Min - Max]"
+    def format_output(x):
+        x_mean = str(round(np.mean(x),2))
+        x_std = str(round(np.std(x),2))
+        x_min = str(round(np.min(x),2))
+        x_max = str(round(np.max(x),2))
+        
+        return x_mean + " (" + x_std + ") [" + x_min + " -- " + x_max + "]"
     
-    # Letter fluency scheme or semantic fluency scheme?
+    command = command['data_parameters']
+  
+    if command['factor_type'] == "subject":
+        subject = str(command['subject'])
+        group = None
+    elif command['factor_type'] == "group":
+        if command['group'] != "all":
+            group = command['group']
+        else:
+            group = None                             # reserved group label in GUI for all subjects
+        subject = None
+
+    filedata = load_fluency_data(command['fullpath'], category=command['category'], spell=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=group, subject=subject, hierarchical=True)
+    Xs = filedata.Xs
+    labeledXs = filedata.labeledXs
+    items = filedata.items
+    irts = filedata.irts
+    numnodes = filedata.numnodes
+
+    # initialize
+    avg_cluster_size = ["n/a"]
+    avg_num_cluster_switches = ["n/a"]
+    avg_num_intrusions = ["n/a"]
+    num_lists = []
+    avg_items_listed = []
+    avg_unique_items_listed = []
+    list_of_intrusions = []
+    avg_num_perseverations = []
+    list_of_perseverations = []
+   
+    if not command['freq_ignore']:
+        try:
+            freq_sub = float(command['freq_sub'])
+        except:
+            freq_sub = None
+    else:
+        freq_sub = None
+
+    if not command['aoa_ignore']:
+        try:
+            aoa_sub = float(command['aoa_sub'])
+        except:
+            aoa_sub = None
+    else:
+        aoa_sub = None
+
+
+    freqfile = label_to_filepath(command['freqfile'], root_path,"frequency")
+    aoafile = label_to_filepath(command['aoafile'], root_path,"aoa")
+    
     preset_schemes = {"1 letter": 1,
                       "2 letters": 2,
                       "3 letters": 3}
@@ -141,147 +187,75 @@ def data_properties(command, root_path):
     else:
         schemefile = label_to_filepath(command['cluster_scheme'], root_path, "schemes")
     
-    # Import a single subject or group of subjects?
-    if command['factor_type'] == "subject":
-        subject = str(command['subject'])
-        group = None
-    elif command['factor_type'] == "group":
-        if command['group'] != "all":
-            group = command['group']
-        else:
-            group = None
-        subject = None
-    if command['category'] == "all":
-        category = None
-    else:
-        category = command['category']
+    total_words = 0
+    avg_word_freq = []
+    word_freq_excluded = []
+    avg_word_aoa = []
+    word_aoa_excluded = []
 
-    # Load fluency data
-    filedata = load_fluency_data(command['fullpath'], category=category, spell=label_to_filepath(command['spellfile'], root_path, "spellfiles"), group=group, subject=subject, hierarchical=True)
-    labeledXs = filedata.labeledXs
-
-    # Set imputation value for word frequency
-    if not command['freq_ignore']:
-        try: freq_sub = float(command['freq_sub'])
-        except: return error("Missing frequency value must be a number")
-    else: freq_sub = None
-
-    # Set imputation value for age-of-acquisition
-    if not command['aoa_ignore']:
-        try: aoa_sub = float(command['aoa_sub'])
-        except: return error("Missing age-of-acquisition value must be a number")
-    else: aoa_sub = None
-
-    # List of perseverations and calculate average perseverations per participant
-    list_of_perseverations = perseverationsList(labeledXs)
-    avg_num_perseverations_list = [[len(l) for l in subj] for subj in list_of_perseverations]
-    avg_num_perseverations = np.mean([np.mean(i) for i in avg_num_perseverations_list])
-    avg_num_perseverations_list = flatten_list(avg_num_perseverations_list)
-    list_of_perseverations = flatten_list(list_of_perseverations)
-    
     if command['cluster_scheme'] != "None":
-        # calculate cluster sizes
-        list_of_clusters = findClusters(labeledXs, schemefile, clustertype=command['cluster_type'])
-        avg_cluster_size_list = [[np.mean(l) for l in subj] for subj in list_of_clusters]
-        avg_cluster_size = np.mean([np.mean(i) for i in avg_cluster_size_list])
-        avg_cluster_size_list = flatten_list(avg_cluster_size_list)
-        
-        # calculate cluster switches
-        avg_num_cluster_switches_list = [[len(l)-1 for l in subj] for subj in list_of_clusters]
-        avg_num_cluster_switches = np.mean([np.mean(i) for i in avg_num_cluster_switches_list])
-        avg_num_cluster_switches_list = flatten_list(avg_num_cluster_switches_list)
-        
-        # calculate intrusions
+        avg_cluster_size = clusterSize(labeledXs, schemefile, clustertype=command['cluster_type'])
+        avg_num_cluster_switches = clusterSwitch(labeledXs, schemefile, clustertype=command['cluster_type'])
         if command['fluency_type'] == "semantic":
+            avg_num_intrusions = intrusions(labeledXs, schemefile)
             list_of_intrusions = intrusionsList(labeledXs, schemefile)
         elif command['fluency_type'] == "letter":
+            avg_num_intrusions = intrusions(labeledXs, command['target_letter'])
             list_of_intrusions = intrusionsList(labeledXs, command['target_letter'])
-        avg_num_intrusions_list = [[len(l) for l in subj] for subj in list_of_intrusions]
-        avg_num_intrusions = np.mean([np.mean(i) for i in avg_num_intrusions_list])
-        avg_num_intrusions_list = flatten_list(avg_num_intrusions_list)
-        list_of_intrusions = flatten_list(list_of_intrusions)
-    else:
-        # if no cluster scheme is provided, set defaults for cluster size/switches and intrusions
-        list_of_intrusions = []
-        avg_num_intrusions = "n/a"
-        avg_cluster_size = "n/a"
-        avg_num_cluster_switches = "n/a"
-        # arbitrarily use `avg_num_perseverations_list` to create empty lists with correct number of elements
-        avg_num_intrusions_list = ["" for i in range(len(avg_num_perseverations_list))]
-        avg_num_cluster_switches_list = ["" for i in range(len(avg_num_perseverations_list))]
-        avg_cluster_size_list = ["" for i in range(len(avg_num_perseverations_list))]
+    avg_num_perseverations = perseverations(labeledXs)
+    list_of_perseverations = perseverationsList(labeledXs)
 
-    # count number of lists per participant
-    num_lists_list = [len(subj) for subj in labeledXs]
-    num_lists = np.mean(num_lists_list)
-  
-    # number of items listed for each participant
-    avg_items_listed_list = [[len(l) for l in subj] for subj in labeledXs]
-    avg_items_listed = np.mean([np.mean(i) for i in avg_items_listed_list])
-    avg_items_listed_list = flatten_list(avg_items_listed_list)
-  
-    # calculate age-of-acquisition and word frequency
-    # loads word lists for each subject which could be optimized...
-    aoa_list = []
-    word_aoa_excluded = []
-    freq_list = []
-    word_freq_excluded = []
-    
-    for subj in labeledXs:
-        aoa, excluded = wordStat(subj, missing=aoa_sub, data=aoafile)
-        aoa_list.append(aoa)
-        word_aoa_excluded.append(excluded)
+    for subjnum in range(len(labeledXs)):
+        num_lists.append(len(labeledXs[subjnum]))
+        avg_items_listed.append(np.mean([len(i) for i in labeledXs[subjnum]]))
+        avg_unique_items_listed.append(np.mean([len(set(i)) for i in labeledXs[subjnum]]))
 
-        freq, excluded = wordStat(subj, missing=freq_sub, data=freqfile)
-        freq_list.append(freq)
-        word_freq_excluded.append(excluded)
-        
-    avg_word_freq = np.mean([np.mean(i) for i in freq_list])
-    avg_word_aoa = np.mean([np.mean(i) for i in aoa_list])
-    freq_list = flatten_list(freq_list)
-    aoa_list = flatten_list(aoa_list)
-    word_freq_excluded = flatten_list(word_freq_excluded)
-    word_aoa_excluded = flatten_list(word_aoa_excluded)
+        freq, excluded = wordFrequency(labeledXs[subjnum],missing=freq_sub,data=freqfile)
+        avg_word_freq.append(np.mean(freq))
+        for word in excluded:
+            word_freq_excluded.append(word)
+        aoa, excluded = ageOfAcquisition(labeledXs[subjnum], missing=aoa_sub, data=aoafile)
+        avg_word_aoa.append(np.mean(aoa))
+        for word in excluded:
+            word_aoa_excluded.append(word)
+        for i in labeledXs[subjnum]:
+            total_words += len(i)
+
+    # clean up / format data to send back, still messy
+    list_of_intrusions = flatten_list(list_of_intrusions)
+    list_of_perseverations = flatten_list(list_of_perseverations)
+
+    if len(labeledXs) > 1:
+        if command['cluster_scheme'] != "None":
+            avg_cluster_size = format_output(avg_cluster_size)
+            avg_num_cluster_switches = format_output(avg_num_cluster_switches)
+            avg_num_intrusions = format_output(avg_num_intrusions)
+            avg_num_perseverations = format_output(avg_num_perseverations)
+        num_lists = format_output(num_lists)
+        avg_items_listed = format_output(avg_items_listed)
+        avg_unique_items_listed = format_output(avg_unique_items_listed)
+        avg_word_freq=format_output(avg_word_freq)
+        avg_word_aoa=format_output(avg_word_aoa)
  
-    # calculate % of missing word tokens from age-of-acquisition and word frequency dictionaries
-    total_words = len(flatten_list(labeledXs,2))
-    word_freq_rate = len(flatten_list(word_freq_excluded)) / float(total_words)
-    word_freq_rate = str(round(word_freq_rate * 100, 2))+'%'
-    word_aoa_rate = len(flatten_list(word_aoa_excluded)) / float(total_words)
-    word_aoa_rate = str(round(word_aoa_rate * 100, 2))+'%'
-   
-    # list of subjects and list nums
-    subsandlists = list(zip(*filedata.listnums))
-    subs = list(subsandlists[0])
-    listnums = list(subsandlists[1])
-    
-    # make csv file
-    from collections import OrderedDict
-    csv_data = OrderedDict()
-    csv_data["subject"] = subs
-    csv_data["list_number"] = listnums
-    csv_data["num_responses"] = avg_items_listed_list
-    csv_data["num_intrusions"] = avg_num_intrusions_list
-    csv_data["num_perseverations"] = avg_num_perseverations_list
-    csv_data["num_cluster_switches"] = avg_num_cluster_switches_list
-    csv_data["avg_cluster_size"] = avg_cluster_size_list
-    csv_data["avg_word_freq"] = freq_list
-    csv_data["avg_word_aoa"] = aoa_list
-    csv_file = generate_csv_file(csv_data)
+    word_freq_rate = 0
+    for i in word_freq_excluded:
+        word_freq_rate += len(i)
+    word_freq_rate = str(round(float(word_freq_rate)/total_words*100,2))+'%'
+    word_aoa_rate = 0
+    for i in word_aoa_excluded:
+        word_aoa_rate += len(i)
+    word_aoa_rate = str(round(float(word_aoa_rate)/total_words*100,2))+'%'
+    # fix
+    csv_file = generate_csv_file(command, root_path)
 
-    # list of spelling corrections
-    spell_corrected = flatten_list(filedata.spell_corrected)
-    spell_corrected = [[list(i) for i in l] for l in spell_corrected]
-    num_spell_corrections = sum([len(l) for l in spell_corrected])
-    
     return { "type": "data_properties", 
-             "listnums": filedata.listnums,
              "num_lists": num_lists,
              "avg_items_listed": avg_items_listed,
              "intrusions": list_of_intrusions,
              "perseverations": list_of_perseverations,
              "avg_num_intrusions": avg_num_intrusions,
              "avg_num_perseverations": avg_num_perseverations,
+             "avg_unique_items_listed": avg_unique_items_listed,
              "avg_num_cluster_switches": avg_num_cluster_switches,
              "avg_cluster_size": avg_cluster_size,
              "avg_word_freq": avg_word_freq,
@@ -290,11 +264,10 @@ def data_properties(command, root_path):
              "word_freq_excluded": word_freq_excluded,
              "word_aoa_rate": word_aoa_rate,
              "word_aoa_excluded": word_aoa_excluded,
-             "spell_corrected": spell_corrected,
-             "num_spell_corrections": num_spell_corrections,
              "csv_file": csv_file }
 
-def generate_csv_file(json_file):
+# broken
+def generate_csv_file(command, root_path):
     """One line description here.
     
         Detailed description here. Detailed description here.  Detailed 
@@ -307,17 +280,38 @@ def generate_csv_file(json_file):
             Detailed description here. Detailed description here.  Detailed 
             description here. 
     """
-    keys = list(json_file.keys())
-    header_row = ",".join(keys)
+ 
+    freqfile = label_to_filepath(command['freqfile'], root_path,"frequency")
+    aoafile = label_to_filepath(command['aoafile'], root_path,"aoa")
 
-    csv_file = header_row + "\n"
-    
-    to_write = [",".join([str(j) for j in i])+"\n" for i in list(zip(*list(json_file.values())))]
-    for line in to_write:
-        csv_file += line
-    
+    csv_file = "id,listnum,num_items_listed,num_unique_items,num_cluster_switches,avg_cluster_size,num_intrusions,num_perseverations,avg_word_freq,avg_word_aoa\n"
+    filedata = load_fluency_data(command['fullpath'],category=command['category'], scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), spell=label_to_filepath(command['spellfile'], root_path, "spellfiles"))
+    filedata.hierarchical()
+
+    for subnum, sub in enumerate(filedata.subs):
+        labeledXs = filedata.labeledXs[subnum]
+        for listnum in range(len(filedata.Xs[subnum])):
+            csv_sub = sub
+            csv_listnum = listnum
+            csv_numitems = len(filedata.Xs[subnum][listnum])
+            csv_uniqueitem = len(set(filedata.Xs[subnum][listnum]))
+            
+            # parameters should come from snafu gui (scheme, clustertype)
+            csv_clusterlength = clusterSize(labeledXs, scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
+            csv_clusterswitch = clusterSwitch(labeledXs, scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"), clustertype=command['cluster_type'])
+
+            # parameters should come from snafu gui (scheme)
+            csv_intrusions = intrusions(labeledXs,scheme=label_to_filepath(command['cluster_scheme'], root_path, "schemes"))
+            csv_perseverations = perseverations(labeledXs)
+
+            csv_freq, temp = wordFrequency([labeledXs[listnum]],missing=float(command['freq_sub']), data=freqfile)
+            csv_aoa, temp = ageOfAcquisition([labeledXs[listnum]], data=aoafile)
+            csv_freq = np.mean(csv_freq)
+            csv_aoa = np.mean(csv_aoa)
+
+            csv_file += str(csv_sub)+','+str(csv_listnum)+','+str(csv_numitems)+','+str(csv_uniqueitem)+','+str(csv_clusterswitch)+','+str(round(csv_clusterlength,2))+','+str(csv_intrusions)+','+str(csv_perseverations)+','+str(round(csv_freq,2))+','+str(round(csv_aoa,2))+'\n'
+
     return csv_file
-
 
 
 def network_properties(command, root_path):
@@ -355,6 +349,7 @@ def network_properties(command, root_path):
     filedata = load_fluency_data(subj_props['fullpath'], category=subj_props['category'], spell=label_to_filepath(subj_props['spellfile'], root_path, "spellfiles"), removePerseverations=removePerseverations, subject=subject, group=group)
     Xs = filedata.Xs
     items = filedata.items
+    irts = filedata.irts
     numnodes = filedata.numnodes
     
     toydata=DataModel({
@@ -391,8 +386,8 @@ def network_properties(command, root_path):
         
     if command['network_method']=="Naive Random Walk":
         bestgraph = naiveRandomWalk(Xs, numnodes=numnodes)
-    elif command['network_method']=="Conceptual Network":
-        bestgraph = conceptualNetwork(Xs, fitinfo=fitinfo, numnodes=numnodes)
+    elif command['network_method']=="Community Network":
+        bestgraph = communityNetwork(Xs, fitinfo=fitinfo, numnodes=numnodes)
     elif command['network_method']=="Pathfinder":
         bestgraph = pathfinder(Xs, numnodes=numnodes)
     elif command['network_method']=="Correlation-based Network":
@@ -421,7 +416,7 @@ def analyze_graph(command, root_path): # used when importing graphs
             description here. 
     """
     nxg_json = json.load(open(command['fullpath'],'rt',encoding="utf-8-sig"))
-    nxg = nx.readwrite.json_graph.node_link_graph(
+    nxg = nx.readwrite.nx.readwrite.json_graph.node_link_graph(
         nxg_json,
         multigraph = False,
         attrs=dict(source='source', target='target', name='id', key='nodes', link='edges')
@@ -494,4 +489,4 @@ def error(msg):
             description here. 
     """
     return { "type": "error",
-             "msg": str(msg) }
+             "msg": msg }

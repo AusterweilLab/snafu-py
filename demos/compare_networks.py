@@ -1,3 +1,7 @@
+# This file load a semantic network and perturbs it (randomly changes some edges)
+# It then simulates fluency data using censored random walks on both networks
+# Finally, it compares the likelihood of generating each data set under each network
+
 import snafu
 import numpy as np
 import random
@@ -5,7 +9,7 @@ import networkx as nx
 
 
 # Load animal component of USF semantic network (Nelson et al, 1999)
-usf_network, usf_items = snafu.read_graph('snet/usf_animal_subset.snet')
+usf_network, usf_items = snafu.read_graph('../snet/usf_animal_subset.snet')
 
 # Perturb this network by randomly changing ~10% of the edges to non-edges and an equivalent
 # number of non-edges to edges

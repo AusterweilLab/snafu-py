@@ -29,7 +29,6 @@ from .netstats import *
 from .clustering import *
 from .perseverations import *
 from .intrusions import *
-from .frequency import *
 from .search import *
 from .triadic import *
 from .word_properties import *

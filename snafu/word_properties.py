@@ -44,13 +44,13 @@ def ageOfAcquisition(subj, missing=None, data=None):
     """
     # if fluency data are hierarchical, report mean per individual
     if isinstance(subj[0][0], list):
-        aoa = []
+        aoas = []
         excludeds = []
         for l in subj:
             aoa, excluded = wordStat(l, missing=missing, data=data)
             aoas.append(np.mean(aoa))
             excludeds.append(flatten_list(excluded))
-        return aoa, excludeds
+        return aoas, excludeds
     # if fluency data are non-hierarchical, report mean per list
     else:
         aoa, excluded = wordStat(subj, missing=missing, data=data)
@@ -81,18 +81,18 @@ def wordStat(subj, missing=None, data=None):
     word_val = []
     words_excluded = []
     for i in subj: # each list
-            temp=[]
-            excluded=[]
-            for j in i: # each word
-                if (j in d_val): # word must be in the list
-                    temp.append(d_val[j])
-                else: # or their would be excluded
-                    if (missing!=None): # case 2: not in the list, substituted by missing
-                        temp.append(missing)
-                    else:
-                        excluded.append(j)
-            if(len(temp)>0):
-                word_val.append(np.mean(temp))
-            words_excluded.append(excluded)
+        temp=[]
+        excluded=[]
+        for j in i: # each word
+            if (j in d_val): # word must be in the list
+                temp.append(d_val[j])
+            else: # or their would be excluded
+                if (missing!=None): # case 2: not in the list, substituted by missing
+                    temp.append(missing)
+                else:
+                    excluded.append(j)
+        if(len(temp)>0):
+            word_val.append(np.mean(temp))
+        words_excluded.append(excluded)
     
     return word_val, words_excluded

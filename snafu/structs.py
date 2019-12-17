@@ -24,7 +24,7 @@ class Data():
         self.groupnumnodes = len(self.groupitems)
         self.subs = sorted(data['Xs'].keys())
         self.listnums = [(sub, listnum) for sub in self.subs for listnum in sorted(self.rawdata['Xs'][sub].keys())]
-        
+
         if data['structure']:
             self.structure = "hierarchical"
             self.hierarchical()
@@ -44,7 +44,16 @@ class Data():
 
         self.labeledXs = [numToItemLabel(self.Xs[i],self.items[i]) for i in range(len(self.Xs))]
         self.labeledlists = self.labeledXs
-        
+       
+        spell_corrected = copy.deepcopy(self.rawdata['spell_corrected'])
+        self.spell_corrected = [[spell_corrected[i][j] for j in sorted(spell_corrected[i].keys())] for i in self.subs]
+       
+        perseverations = copy.deepcopy(self.rawdata['perseverations'])
+        self.perseverations = [[perseverations[i][j] for j in sorted(perseverations[i].keys())] for i in self.subs]
+
+        intrusions = copy.deepcopy(self.rawdata['intrusions'])
+        self.intrusions = [[intrusions[i][j] for j in sorted(intrusions[i].keys())] for i in self.subs]
+
         try:
             irts = copy.deepcopy(self.rawdata['irts'])
             self.irts = [[irts[i][j] for j in sorted(irts[i].keys())] for i in self.subs]
@@ -62,6 +71,9 @@ class Data():
         Xs = copy.deepcopy(self.rawdata['Xs'])
         items = copy.deepcopy(self.rawdata['items'])
         irts = copy.deepcopy(self.rawdata['irts'])
+        spell_corrected = copy.deepcopy(self.rawdata['spell_corrected'])
+        perseverations = copy.deepcopy(self.rawdata['perseverations'])
+        intrusions = copy.deepcopy(self.rawdata['intrusions'])
 
         for sub in Xs:
             for listnum in Xs[sub]:
@@ -70,6 +82,10 @@ class Data():
         try:
             self.Xs = flatten_list([[Xs[i][j] for j in sorted(Xs[i].keys())] for i in self.subs])
             self.lists = self.Xs
+            self.spell_corrected = flatten_list([[spell_corrected[i][j] for j in sorted(spell_corrected[i].keys())] for i in self.subs])
+            self.perseverations = flatten_list([[perseverations[i][j] for j in sorted(perseverations[i].keys())] for i in self.subs])
+            self.intrusions = flatten_list([[intrusions[i][j] for j in sorted(intrusions[i].keys())] for i in self.subs])
+            
             self.irts = flatten_list([[irts[i][j] for j in sorted(irts[i].keys())] for i in self.subs])
         except:
             self.irts = []

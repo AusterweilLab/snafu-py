@@ -12,7 +12,7 @@ import networkx as nx
 import numpy as np
 
 # import the USF network and dictionary of items
-usf_graph, usf_items = snafu.read_graph("./snet/USF_animal_subset.snet")
+usf_graph, usf_items = snafu.read_graph("../snet/USF_animal_subset.snet")
 
 # convert network from adjacency matrix to networkx format
 usf_graph_nx = nx.from_numpy_matrix(usf_graph)
@@ -41,7 +41,7 @@ toydata=snafu.DataModel({
 
 # some parameters of the fitting process
 fitinfo=snafu.Fitinfo({
-        'startGraph': "goni_valid",
+        'startGraph': "cn_valid",
         'directed': False,
         'prior_method': "zeroinflatedbetabinomial",
         'zibb_p': 0.5,
@@ -57,7 +57,7 @@ fitinfo=snafu.Fitinfo({
 # generate data for `numsub` participants, each having `numlists` lists of `listlengths` items
 seednum=0
 
-with open('usf_reconstruction_results.csv','w',0) as fh:
+with open('usf_reconstruction_results.csv','w') as fh:
     fh.write("method,simnum,ssnum,hit,miss,falsealarms,correctrejections,cost,startseed\n")
 
     for simnum in range(numsims):
@@ -70,7 +70,7 @@ with open('usf_reconstruction_results.csv','w',0) as fh:
         for sub in range(numsubs):
             
             # generate lists for each participant
-            Xs = snafu.genX(usf_graph_nx, toydata, seed=seednum)[0]
+            Xs = snafu.gen_lists(usf_graph_nx, toydata, seed=seednum)[0]
             data.append(Xs)
 
             # record number of unique nodes traversed by each participant's data
@@ -86,7 +86,7 @@ with open('usf_reconstruction_results.csv','w',0) as fh:
             seednum += numlists         # increment random seed so we dont get the same lists next time
 
         for ssnum in range(1,len(data)+1):
-            print simnum, ssnum
+            print(simnum, ssnum)
             flatdata = snafu.flatten_list(data[:ssnum])  # flatten list of lists as if they came from the same participant
             
             # Generate Naive Random Walk graph from data
