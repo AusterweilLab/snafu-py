@@ -6,7 +6,8 @@ from functools import reduce
 # TODO: Implement GOTM/ECN from Goni et al. 2011
 
 # alias for backwards compatibility
-communitynetwork = conceptualNetwork
+def communitynetwork(*args, **kwargs):
+    return conceptualNetwork(*args, **kwargs)
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
