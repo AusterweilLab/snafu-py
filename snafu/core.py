@@ -335,8 +335,8 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=Tru
     
     priordict={}
   
-    def betabinomial(a,b):
-        return (b / (a + b))
+    #def betabinomial(a,b):
+    #    return (b / (a + b))
     
     def zeroinflatedbetabinomial(a,b,p):
         return (b / ((1-p)*a+b))
@@ -367,20 +367,20 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=Tru
             for item2 in priordict[item1]:
                 a, b = priordict[item1][item2]      # a=number of participants without link, b=number of participants with link
                 if (a+b) >= (mincount + a_start + b_start):
-                    if method == "zeroinflatedbetabinomial":
-                        priordict[item1][item2] = zeroinflatedbetabinomial(a,b,p) # zero-inflated beta-binomial
-                    elif method == "betabinomial":
-                        priordict[item1][item2] = betabinomial(a,b) # beta-binomial
+                    #if method == "zeroinflatedbetabinomial":
+                    priordict[item1][item2] = zeroinflatedbetabinomial(a,b,p) # zero-inflated beta-binomial
+                    #elif method == "betabinomial":
+                    #    priordict[item1][item2] = betabinomial(a,b) # beta-binomial
                 else:
                     priordict[item1][item2] = 0.0   # if number of observations is less than mincount, make edge prior 0.0
         if 'DEFAULTPRIOR' in list(priordict.keys()):
             raise ValueError('Sorry, you can\'t have a node called DEFAULTPRIOR. \
                               Sure, I should have coded this better, but I really didn\'t think this situation would ever occur.')
         else:
-            if method == "zeroinflatedbetabinomial":
-                priordict['DEFAULTPRIOR'] = zeroinflatedbetabinomial(a_start, b_start, p)
-            elif method=="betabinomial":
-                priordict['DEFAULTPRIOR'] = betabinomial(a_start, b_start)
+            #if method == "zeroinflatedbetabinomial":
+            priordict['DEFAULTPRIOR'] = zeroinflatedbetabinomial(a_start, b_start, p)
+            #elif method=="betabinomial":
+            #    priordict['DEFAULTPRIOR'] = betabinomial(a_start, b_start)
     
     return priordict
 
@@ -591,7 +591,6 @@ def hierarchicalUinvite(Xs, items, numnodes=None, td=DataModel({}), irts=False, 
         for sub in [i for i in subs if i not in exclude_subs]:
             if debug: print("SS: ", sub)
             
-            #td.numx = len(Xs[sub])
             if graphs[sub] == []:
                 fitinfo.startGraph = fitinfoSG      # on first pass for subject, use default fitting method (e.g., NRW, goni, etc)
             else:
@@ -1095,7 +1094,8 @@ def uinvite(Xs, td=DataModel({}), numnodes=None, irts=Irts({}), fitinfo=Fitinfo(
                                 probmat = newprobmat
                                 best_param = censor_param
                         td.censor_fault = best_param
-                        print("parameter old:", old_censor, " new: ", best_param)
+                        if debug:
+                            print("censor_fault old:", old_censor, " censor_fault new: ", best_param)
 
                 v[node1].remove(node2)   # remove edge from possible choices
                 if not fitinfo.directed:

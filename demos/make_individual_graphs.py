@@ -34,7 +34,7 @@ fitinfo=snafu.Fitinfo({
         'zibb_p': 0.5,
         'prior_a': 2,
         'prior_b': 1,
-        'cn_size': 2,
+        'cn_windowsize': 2,
         'cn_threshold': 2,
         'followtype': "avg", 
         'prune_limit': np.inf,

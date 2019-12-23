@@ -365,7 +365,7 @@ def network_properties(command, root_path):
             'priming': float(command['priming_probability']),
             'start_node': command['first_item']})
     fitinfo=Fitinfo({
-            'prior_method': "zeroinflatedbetabinomial",
+            #'prior_method': "zeroinflatedbetabinomial",
             'prior_a': 1,
             'prior_b': 2,
             'zibb_p': 0.5,

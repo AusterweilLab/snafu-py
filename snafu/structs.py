@@ -120,22 +120,34 @@ def DataModel(data):
     tdkeys=list(data.keys())
 
     if 'trim' not in tdkeys:
-        data['trim'] = 1.0           # each list covers full graph by default
+        # FOR GENERATIVE PROCESS ONLY, NOT INFERRING GRAPHS.
+        # Used to specify the length of a list as number of nodes (when 2+), OR
+        # what proportion of network (when 0.0--1.0) 
+        data['trim'] = 1.0
     if 'jump' not in tdkeys:
-        data['jump'] = 0.0           # no jumping in data by default
+        # jump with what probability?
+        data['jump'] = 0.0
     if 'jumptype' not in tdkeys:
-        data['jumptype'] = "stationary"   # or stationary
+        # when jump > 0, is jumping 'uniform' probability or according to 'stationary' distribution?
+        data['jumptype'] = "stationary"
     if 'start_node' not in tdkeys:
-        data['start_node'] = "stationary"      # or stationary
-    #if 'numx' not in tdkeys:
-    #    raise ValueError("Must specify 'numx' in data!")
+        # is start node chosen with 'uniform' probability or according to 'stationary' distribution?
+        data['start_node'] = "stationary"
     if 'priming' not in tdkeys:
+        # used to account for short-term memory priming when multiple fluency
+        # lists are completed in one session. see Zemla & Austerweil (2017;
+        # cogsci proceedings) for details
         data['priming'] = 0.0
     if 'jumponcensored' not in tdkeys:
+        # FOR GENERATIVE PROCESS ONLY, NOT INFERRING GRAPHS.
+        # instead of specifying a jump probability, you can jump after a fixed number of censored nodes
         data['jumponcensored'] = None
-    if 'censor_fault' not in tdkeys:    # for generative process only, not inferring graphs
+    if 'censor_fault' not in tdkeys:
+        # with a fixed probability, repeated nodes are not censored
         data['censor_fault'] = 0.0
-    if 'emission_fault' not in tdkeys:  # for generative process only, not inferring graphs
+    if 'emission_fault' not in tdkeys:
+        # FOR GENERATIVE PROCESS ONLY, NOT INFERRING GRAPHS.
+        # with a fixed probability, new nodes are not emitted
         data['emission_fault'] = 0.0
     
     return dotdict(data)
@@ -198,16 +210,16 @@ def Fitinfo(fitinfo):
 
     if 'followtype' not in fitkeys:
         fitinfo['followtype'] = "avg"   # or max or random
-    if 'prior_method' not in fitkeys:
-        fitinfo['prior_method'] = "zeroinflatedbetabinomial"
+    #if 'prior_method' not in fitkeys:
+    #    fitinfo['prior_method'] = "zeroinflatedbetabinomial"
     if 'zibb_p' not in fitkeys:
         fitinfo['zibb_p'] = 0.5
     if 'prior_b' not in fitkeys:
         fitinfo['prior_b'] = 1
     if 'prior_a' not in fitkeys:        # adjust default prior_a depending on BB or ZIBB, to make edge prior .5
-        if fitinfo['prior_method'] == "betabinomial":
+        if fitinfo['zibb_p'] == 0.0:    # non-zero inflated betabinomial
             fitinfo['prior_a'] = fitinfo['prior_b']
-        if fitinfo['prior_method'] == "zeroinflatedbetabinomial":
+        else:
             fitinfo['prior_a'] = fitinfo['prior_b'] / float(fitinfo['zibb_p'])
     if 'directed' not in fitkeys:
         fitinfo['directed'] = False
@@ -225,5 +237,7 @@ def Fitinfo(fitinfo):
         fitinfo['cn_threshold'] = 2
     if 'cn_alpha' not in fitkeys:
         fitinfo['cn_alpha'] = 0.05
+    if 'estimatePerseveration' not in fitkeys:
+        fitinfo['estimatePerseveration'] = False
 
     return dotdict(fitinfo)

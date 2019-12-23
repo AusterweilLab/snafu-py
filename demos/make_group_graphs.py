@@ -18,7 +18,7 @@ datamodel = snafu.DataModel({
 fitinfo = snafu.Fitinfo({
         'startGraph': "cn_valid",
         'cn_alpha': 0.05,
-        'cn_size': 2,
+        'cn_windowsize': 2,
         'cn_threshold': 2,
         'prune_limit': 100,
         'triangle_limit': 100,
