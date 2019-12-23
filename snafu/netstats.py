@@ -36,7 +36,7 @@ def smallworld(a):
             description here. 
     """
     g_sm=nx.from_numpy_matrix(a)
-    g_sm=max(nx.connected_component_subgraphs(g_sm),key=len)   # largest component
+    g_sm=g_sm.subgraph(max(nx.connected_components(g_sm),key=len))   # largest component
     numnodes=g_sm.number_of_nodes()
     numedges=g_sm.number_of_edges()
     nodedegree=(numedges*2.0)/numnodes

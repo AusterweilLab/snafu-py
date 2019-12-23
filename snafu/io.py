@@ -6,6 +6,22 @@
 
 from . import *
 
+# alias for backwards compatibility
+def write_graph(*args, **kwargs):
+    return write_network(*args, **kwargs)
+
+# alias for backwards compatibility
+def readX(*args, **kwargs):
+    return load_fluency_data(*args, **kwargs)
+
+# alias for backwards compatibility
+def load_graph(*args, **kwargs):
+    return load_network(*args, **kwargs)
+
+# alias for backwards compatibility
+def load_graph(*args, **kwargs):
+    return load_network(*args, **kwargs)
+
 # wrapper
 def graphToHash(a):
     """One line description here.
@@ -40,7 +56,7 @@ def hashToGraph(graphhash):
 
 # reads in graph from CSV
 # row order not preserved; could be optimized more
-def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False):
+def load_network(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False):
     """One line description here.
     
         Detailed description here. Detailed description here.  Detailed 
@@ -123,40 +139,9 @@ def read_graph(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=Fals
 
     return graph, items
 
-# deprecated function name
-def readX(*args, **kwargs):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
-    return load_fluency_data(*args, **kwargs)
-
-def load_graph(*args, **kwargs):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
-    return read_graph(*args, **kwargs)
-
 # read Xs in from user files
 # this should be re-written with pandas or something more managable
-def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spell=None,scheme=None,group=None,subject=None,cleanBadChars=False,hierarchical=False,targetletter=None):
+def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spell=None,scheme=None,group=None,subject=None,removeNonAlphaChars=False,hierarchical=False,targetletter=None):
     """One line description here.
     
         Detailed description here. Detailed description here.  Detailed 
@@ -277,10 +262,12 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                     
                 # basic clean-up
                 item=row[item_col].lower()
-                if cleanBadChars:
-                    badchars=" '-\"\\;?"
-                    for char in badchars:
-                        item=item.replace(char,"")
+                if removeNonAlphaChars:
+                    goodchars = []
+                    for char in item:
+                        if char.isalpha():
+                            goodchars.append(char)
+                    item = "".join(goodchars)
                 if item in list(spellingdict.keys()):
                     newitem = spellingdict[item]
                     spell_corrected[idx][listnum_int].append((item, newitem))
@@ -310,7 +297,7 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
     return Data({'Xs': Xs, 'items': items, 'irts': irts, 'structure': hierarchical, 
                  'spell_corrected': spell_corrected, 'perseverations': perseverations, 'intrusions': intrusions})
 
-def write_graph(gs, fh, subj="NA", directed=False, extra_data={}, header=True, labels=None, sparse=False):
+def write_network(gs, fh, subj="NA", directed=False, extra_data={}, header=True, labels=None, sparse=False):
     """One line description here.
     
         Detailed description here. Detailed description here.  Detailed 

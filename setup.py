@@ -20,7 +20,7 @@ setup(name='pysnafu',
       keywords=['fluency', 'networks','psychology','recall'],
       packages=['snafu'],
       include_package_data=True,
-      install_requires=['numpy','networkx>=2.1','more_itertools'],
+      install_requires=['numpy','networkx>=2.4','more_itertools'],
       python_requires='>=3.5',
       zip_safe=False,
       classifiers=[

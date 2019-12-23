@@ -9,6 +9,10 @@ from functools import reduce
 def communitynetwork(*args, **kwargs):
     return conceptualNetwork(*args, **kwargs)
 
+# alias for backwards compatibility
+def priorToGraph(*args, **kwargs):
+    return priorToNetwork(*args, **kwargs) 
+
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
     """Adjust transition matrix of network to allow for jumps
@@ -734,7 +738,7 @@ def makeValid(Xs, graph, td, seed=None):
     return graph
 
 # converts priordict to graph if probability of edge is greater than cutoff value
-def priorToGraph(priordict, items, cutoff=0.5, undirected=True):
+def priorToNetwork(priordict, items, cutoff=0.5, undirected=True):
     """One line description here.
     
         Detailed description here. Detailed description here.  Detailed 

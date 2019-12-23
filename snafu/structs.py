@@ -47,7 +47,8 @@ class Data():
        
         spell_corrected = copy.deepcopy(self.rawdata['spell_corrected'])
         self.spell_corrected = [[spell_corrected[i][j] for j in sorted(spell_corrected[i].keys())] for i in self.subs]
-       
+        self.spelling_corrections = self.spell_corrected
+        
         perseverations = copy.deepcopy(self.rawdata['perseverations'])
         self.perseverations = [[perseverations[i][j] for j in sorted(perseverations[i].keys())] for i in self.subs]
 
@@ -83,6 +84,7 @@ class Data():
             self.Xs = flatten_list([[Xs[i][j] for j in sorted(Xs[i].keys())] for i in self.subs])
             self.lists = self.Xs
             self.spell_corrected = flatten_list([[spell_corrected[i][j] for j in sorted(spell_corrected[i].keys())] for i in self.subs])
+            self.spelling_corrections = self.spell_corrected
             self.perseverations = flatten_list([[perseverations[i][j] for j in sorted(perseverations[i].keys())] for i in self.subs])
             self.intrusions = flatten_list([[intrusions[i][j] for j in sorted(intrusions[i].keys())] for i in self.subs])
             
