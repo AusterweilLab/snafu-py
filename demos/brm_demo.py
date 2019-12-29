@@ -64,3 +64,24 @@ avg_word_freq = snafu.wordFrequency(fluencydata.labeledlists, data="../frequency
 # Example 12: Returns the averagea age-of-acquisition per list (or participant) and a list of words not factored into this calculation (when missing is set to None)
 avg_aoa = snafu.ageOfAcquisition(fluencydata.labeledlists, data="../aoa/kuperman.csv", missing=None)
 
+# grab order of subject ids and list nums
+sub_list = fluencydata.subs
+# if data is list-level instead of participant-level, you can use this instead
+#sub_list, listnum_list = zip(*fluencydata.listnums)
+
+# create a list of tuples, with each tuple being a row you can write to CSV
+to_write = list(zip(
+            sub_list,
+            avg_num_cluster_switches,
+            avg_switch_rate,
+            avg_cluster_sizes,
+            avg_num_perseverations,
+            avg_num_intrusions,
+            avg_word_freq[0],
+            avg_aoa[0]
+            ))
+
+# write data to a file!
+#with open('stats.csv','w') as fo:
+#    for line in to_write:
+#        fo.write(",".join([str(i) for i in line]) + "\n")
