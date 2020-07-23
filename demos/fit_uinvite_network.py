@@ -79,7 +79,7 @@ fitinfo = snafu.Fitinfo({
         'cn_threshold': 2,                  # At least this many co-occurrences to add an edge. See Goni et al (2011) Table 1 'Hits'
         
         # U-INVITE will toggle edges in a network to see if the data are more
-        # likely under that new network. When set to 'np.inf', it will
+        # likely under that new network. When set to np.inf, it will
         # exhaustively toggle all edges. Because U-INVITE prioritizes togling
         # edges that are likely to affect the maximum-likelihood solution, you
         # can drastically cut down on compute time by setting a threshold.
@@ -150,4 +150,3 @@ def example3():
     uinvite_network, ll = snafu.uinvite(fluencydata.lists[0],
                                     prior=(usf_prior, fluencydata.items[0]))
     return uinvite_network
-

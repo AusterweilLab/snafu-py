@@ -46,4 +46,3 @@ snafu.write_graph(cn_graph, "cn_graph.csv", labels=fluencydata.groupitems, subj=
 snafu.write_graph(pf_graph, "pf_graph.csv", labels=fluencydata.groupitems, subj="GROUP")
 snafu.write_graph(cbn_graph, "cbn_graph.csv", labels=fluencydata.groupitems, subj="GROUP")
 snafu.write_graph(fe_graph, "fe_graph.csv", labels=fluencydata.groupitems, subj="GROUP")
-
