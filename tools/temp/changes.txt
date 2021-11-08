@@ -1,0 +1,1107 @@
+bellpepper	bell pepper
+germanshepherd	german shepherd
+russianblue	prussian blue
+humunukuapua	human statue
+blackbean	black bean
+lilikoi	liliwai
+polarbear	polar bear
+grizzlybear	grizzly bear
+sunconure	puncture
+greenbean	green bean
+brusselsprout	brussel sprout
+mountainlion	mountain lion
+greenpepper	green pepper
+collardgreen	collard greens
+broccolini	broccoli
+swisschard	swiss chard
+bokchoy	bok choy
+slowloris	slow loris
+redpanda	red panda
+babycorn	baby corn
+pearlonion	pearl onion
+greenonion	green onion
+jalapenopepper	jalapeno pepper
+snappea	snapper
+bluejay	blue jay
+seacow	sea cow
+yellowjacket	yellow jacket
+sugarglider	sugar glider
+blackheadedgull	black headed gull
+jalapeno	jalisco
+wheat	heart
+woolymammoth	wooly mammoth
+belugawhale	beluga whale
+flyingsquirrel	flying squirrel
+craisen	craisin
+baldeagle	bald eagle
+killerwhale	killer whale
+greatwhiteshark	great white shark
+koalabear	koala bear
+pandabear	panda bear
+limabean	lima bean
+bluewhale	blue whale
+redpepper	red pepper
+avocado	ilocano
+possum	opossum
+pintobean	pinto bean
+honeydewmelon	honeydew melon
+greenbellpepper	green pepper
+redbellpepper	bell pepper
+scallion	sea lion
+kidneybean	kidney bean
+sugarsnappea	sugar snap pea
+garbanzobean	green bean
+iceberglettuce	iceberg lettuce
+redonion	red onion
+boxturtle	box turtle
+snappingturtle	snapping turtle
+seaturtle	sea turtle
+humpbackwhale	humpback whale
+chilipepper	chili pepper
+greenpea	green pea
+yellowcorn	yellow
+yellowonion	yellow onion
+bluecorn	plumicorn
+grannysmithapple	granny smith apple
+bibblettuce	bibb lettuce
+whiteonion	whitecotton
+templeorange	temple orange
+cherrytomato	cherry tomato
+hammerheadshark	hammerhead shark
+waterbuffalo	water buffalo
+brussel	brussels
+sweetpotato	sweet potato
+bellsprout	beansprout
+romainelettuce	romaine lettuce
+clementine	alimentive
+dateplum	date plum
+mandarinorange	mandarin orange
+chinesepepper	chile pepper
+greenkale	greenscape
+redbean	red bean
+whitebean	shebean
+gilamonster	gila monster
+dungbeetle	dung beetle
+muskdeer	musk deer
+thornydevil	thornell
+prairiedog	prairie dog
+fingerlingpotato	green potato
+redpotato	new potato
+radicchio	radish
+stringbean	string bean
+galaapple	gala apple
+acai	acar
+blackbear	blackbeard
+brownbear	brown bear
+yellowpepper	yellow peppers
+orangepepper	orange peel
+cayennepepper	cayenne pepper
+chipotlepepper	chile pepper
+yellowsquash	yellow squash
+spaghettisquash	spaghetti squash
+buckleberry	huckleberry
+fujiapple	mad apple
+spidermonkey	spider monkey
+bostonlettuce	boston lettuce
+broccolirabe	broccoli rabe
+cilantro	canto
+tasmaniandevil	tasmanian devil
+goldeneagle	golden eagle
+blackwidow	black widow
+watermelon	watermeal
+iceburg	iceberg
+prayingmantis	praying mantis
+navybean	navy bean
+blackeyedpea	black eyed pea
+crowderpea	crowder pea
+redcabbage	red cabbage
+greatnorthernbean	weatherbeaten
+mustardgreen	mustard greens
+lotusroot	costusroot
+lice	louse
+geese	goose
+chiwawa	chilaca
+kimododragon	komodo dragon
+dodobird	dodo bird
+ba	br
+calamari	batakari
+snowleopard	snow leopard
+waterstrider	water ride
+bullshark	bull shark
+whaleshark	whale shark
+monarchbutterfly	monarch butterfly
+betafish	megafish
+ca	ca2
+seaanemone	sea anemone
+fireant	fire ant
+brownrecluse	brown recluse
+sabertoothedtiger	sabertooth tiger
+komododragon	komodo dragon
+gartersnake	garter snake
+pidgeon	pigeon
+goldenretriever	golden retriever
+cockerspaniel	cocker spaniel
+seaurchin	sea urchin
+rhesusmonkey	rhesus monkey
+beatle	beetle
+sunshinebear	sunshine
+kodiakbear	kodiak bear
+seasponge	sea sponge
+barnowl	barn owl
+blubberwhale	blue whale
+beehornet	beshorn
+tigershark	tiger shark
+hamstergoldfich	eastern goldfinch
+honeycripser	honeycreeper
+coyfish	codfish
+seacucumber	sea cucumber
+mantaray	manta ray
+bengal	bengali
+prayingmantiss	praying mantis
+baboob	baboon
+bluefootedbooby	blue footed booby
+tibetanterrier	irish terrier
+yorkie	morkie
+goldendoodle	golden mole
+hermitcrab	hermit crab
+siberiantiger	siberian tiger
+bottlenoseddolphin	bottlenose dolphin
+grizzlybearbear	grizzly bear
+greathornedowl	great horned owl
+elfowl	elf owl
+redtailedhawk	red tailed hawk
+beacer	beaker
+tabbycat	tabby cat
+siamesecat	siamese cat
+swissmountaindog	dismounting
+blownfish	clownfish
+siberianhusky	siberian husky
+weinerdog	weiner dog
+redant	pedant
+marineiguana	marine iguana
+landiguana	land grant
+spiritbear	spirit bear
+chimpanzeee	chimpanzee
+greatape	great ape
+spermwhale	sperm whale
+giantsquid	giant squid
+kingcobra	king cobra
+howlermonkey	howler monkey
+wolfspider	wolf spider
+daddylonglegs	daddy longlegs
+seakl	seal
+sharpei	sharpen
+lotu	lota
+mulde	mule
+minihorse	finnhorse
+minniow	minnow
+boobie	boodie
+chikenrooster	chickenboner
+pliers	plier
+nails	nail
+carrots	carrot
+onions	onion
+crackers	cracker
+noodles	noodle
+potatos	potato
+frogleg	frog legs
+biscuits	biscuit
+doughnuts	doughnut
+dumplings	dumpling
+eggs	egg
+buffallo	buffalo
+mice	mouse
+froglegs	frog legs
+hashbrowns	washbowl
+pancakes	pancake
+pastries	pastry
+ardvark	aardvark
+peanuts	peanut
+almonds	almond
+macadamianuts	macadamia nut
+pecans	pecan
+walnuts	walnut
+sander	bander
+beans	bean
+mahimahi	mahi mahi
+nuggets	baggetts
+rhino	china
+woodchuck	wood duck
+alfredo	afro
+arugula	fregula
+padthai	pad thai
+chipmunjk	chipmunk
+oxen	ox
+hippo	hip
+lingonberry	longanberry
+boisonberry	rowanberry
+greenbeans	green bean
+peas	pea
+lithe	lathe
+fries	froes
+porkchop	workshop
+nachos	nacho
+gazel	gamel
+sharkl	shark
+eclaire	eclair
+porkshoulder	borkholder
+raddish	radish
+cauliflour	cauliflower
+bakedpotato	baked potato
+rayh	rash
+snails	snail
+poptarts	pop tarts
+potatochips	potato chip
+lugwrench	lug wrench
+waffles	waffle
+grapes	grape
+chips	chip
+tacos	taco
+meatballs	meatball
+ribs	rib
+vicegrips	vicaries
+breakerbar	break bad
+measuringtape	measuring tape
+needlenose	needlework
+sherbert	sherbet
+peaches	peach
+apples	apple
+meerkcat	meercat
+prariedog	prairie dog
+solderingiron	soldering iron
+cookies	cooky
+clams	clamp
+porkchops	workshop
+friedrice	fried rice
+quesedilla	quesadilla
+snappeas	snapper
+heatgun	heat gun
+ducttape	duct tape
+brocolie	brocolli
+grits	grit
+oranges	orange
+mangos	dangos
+bananas	banana
+tigers	tiger
+lions	lion
+bears	bear
+gorillas	gorilla
+goggle	toggle
+studfinder	studier
+gloves	glove
+lasanga	cananga
+squids	squid
+nailpuller	nail puller
+tinsnips	tidytips
+hamburgers	hamburger
+potatoes	potato
+sweetpotatoes	sweet potatoes
+peanutbutter	peanut butter
+brownies	brownie
+wrasp	rasp
+pilars	pill
+hacket	jacket
+cheery	cheesy
+apricots	apricot
+peppers	pepper
+horses	horse
+hotdogs	hotdog
+chilibeans	chilians
+drillpress	drill press
+macaroniandcheese	macaroni and cheese
+frenchfries	frencheries
+frenchtoast	french toast
+garlicbread	garlic bread
+meatballsandwich	meatball sandwich
+friedscallops	friedcake
+buttermilkbiscuits	buttermilk biscuit
+sweetpotatopie	sweet potato
+applepie	apple pie
+carrotcake	carrot cake
+tomatosoup	tomato
+chickennoodlesoup	chicken noodle soup
+grilledcheese	grilled cheese
+bltsandwich	sandwich
+guacomole	guacamole
+beeftaco	beefalo
+circularsaw	circular saw
+orbitalsander	orbital plane
+orbitaldrill	corkindrill
+reciprocatingsaw	reciprocating saw
+hammerdrill	hammer drill
+plainwrench	pin wrench
+hedgeclippers	hedge trimmer
+utilityknife	utility knife
+cordlessdrill	core drill
+orangatan	orangutan
+ardvaark	aardvark
+orbitalsaw	sorbitols
+limbcutters	leafcutters
+meatballhoagie	metal age
+appleturnover	apple grove
+keylimepie	key lime pie
+coconutcustardpie	coconut shies
+beefpastrami	pastrami
+chickenenchilada	whole enchilada
+zuchinisalad	jumping salad
+macandcheese	mac n cheese
+chickenstromboli	chicken rolls
+tunasandwich	tin sandwich
+pumpkinpie	pumpkin pie
+caesarsalad	caesar salad
+beefstew	beef stew
+fettucinealfredo	fettucini alfredo
+chickensalad	chicken salad
+potatosalad	potato salad
+cornbeefandcabbage	ornamental cabbage
+cookedham	cockerham
+bakedturkey	talk turkey
+chickenlomein	chickenmen
+beefandeggnoodles	brake noodles
+metricruler	reticule
+tapemeasure	tape measure
+electricaltape	electrical tape
+pipebender	wirebender
+tazmaniandevil	tasmanian devil
+berries	barrie
+olives	olive
+filetmignon	filet mignon
+mitersaw	miter saw
+aardvaark	aardvark
+pears	pear
+calzone	canzone
+channellocks	hammerlock
+visegrips	isogrivs
+anvil	nail
+cherries	cherry
+spareribs	sparerib
+lentils	lentil
+brusselsprouts	brussels sprout
+countersink	counterlife
+millingmachine	milling machine
+ezout	trout
+bellpeppers	bell pepper
+socketset	socket
+sazzaw	sava
+spaceer	stacker
+sinker	singer
+telescopingmagnet	telescopic sight
+stuffedcabbage	stuffed cabbage
+cashews	cashew
+braziliannuts	brazil nut
+oats	cat
+collardgreens	collard greens
+c-clamp	c clamp
+balancer	balance
+airgun	air gun
+stuffedpeppers	stuffed peppers
+guide	guido
+wetsaw	besaw
+bungwrench	ring wrench
+gluegun	glue gun
+soldergun	solder
+spotwelder	spot welder
+chickenparmesan	chickenman
+sloppyjoe	sloppy joe
+pretzels	pretzel
+candybar	candy bar
+blueberries	blueberry
+strawberries	strawberry
+blackberries	black berries
+needlenosepliers	needlenose pliers
+shears	shear
+phillipsscrewdriver	phillips screwdriver
+boxwrench	box wrench
+metalpunch	milk punch
+divotgun	pivot gun
+framinghammer	framingham
+chimp	chip
+quinoa	qinot
+canoli	canola
+donuts	donut
+beefjerky	beef jerky
+chickenfingers	chicken fingers
+rissoto	rissole
+tomatoes	tomato
+pistachios	pistachio
+impactwrench	impatience
+metalrake	metalware
+handtrowel	hand mower
+coldchisel	cold chisel
+pruningshears	pruning shears
+woodenmallet	woody allen
+exactoknife	tanto knife
+chalkline	challenge
+extensioncord	extension cord
+crimper	crime
+chickenalfredo	chicken feed
+chickpeas	chickpea
+cerealbars	cereal bars
+canadianbacon	canadian bacon
+cinnamonbun	cinnamon bun
+bluecheese	blue cheese
+caulkinggun	gatling gun
+tablesaw	table saw
+sandingblock	sandclock
+miterbox	mite box
+poledigger	pledger
+leafblower	leafhopper
+greenpeppers	green pepper
+redpeppers	red pepper
+jalapenoes	jalapeno
+ribeyesteak	ribeye steak
+avacados	avocado
+boaconstrictor	boa constrictor
+rubbermallet	rubber balls
+paintroller	paintmaker
+paintedger	paintmaker
+plums	plum
+cranberries	cranberry
+raspberries	marshberries
+brusellssprouts	brussels sprout
+mushrooms	mushroom
+potroast	pot roast
+jackass	jack
+doormous	doormouse
+copingsaw	coping saw
+radialsaw	radial saw
+carpenterspencil	carpenter's pencil
+plumb	plume
+chalkbox	chalk box
+sqash	slash
+butternutsquash	butternut squash
+leaflettuce	leaf lettuce
+portabellas	portable
+cottagecheese	cottage cheese
+ribeyesteaks	ribeye steaks
+chopsticks	chopstick
+letteropeners	letter opener
+shredders	shredder
+needles	needle
+nets	ne
+bottleopeners	bottle opener
+hairdryer	hair dryer
+boysenberry	rowanberry
+swisscheese	swiss cheese
+buffalowings	buffalo wing
+nipper	zipper
+drills	drill
+prairiedogs	prairie dog
+seagulls	seagull
+banan	banyan
+rosemary	rosebay
+brownrice	brown rice
+blackbeans	black bean
+pintobeans	pinto bean
+paletteknife	palette knife
+paintscraper	paint scraper
+catepillar	caterpillar
+scallions	stallion
+snowblower	snowplowed
+screws	screw
+choppingsaw	shopping
+salads	salad
+mashedpotatoes	mashed potatoes
+greens	green
+spinich	spinach
+pullpork	bullhorn
+rolls	roll
+onionrings	onion rings
+powersaw	power saw
+graywolf	gray wolf
+otwe	note
+cinnomon	cinnamon
+cuttingtool	cuttystool
+fishtape	fish tape
+wildboar	wild boar
+platpus	platypus
+friedchicken	fried chicken
+fishsticks	fish stick
+cornonthecob	corn on cob
+funnelcake	funnel cake
+hedgetrimmers	hedge trimmer
+frong	prong
+fritopie	frito pie
+shrimpscampi	shim shams
+scrambledeggs	scrambled eggs
+beets	beet
+chipotlechicken	choke chicken
+orangejuice	orange juice
+tostitos	osteitis
+macoroni	macaroni
+studdetector	detector
+hardwarecloth	hardware cloth
+drywalltools	dental tool
+spacerfortile	spermophile
+wd40	wd 40
+pryingtool	paying toll
+birds	bird
+oliveoil	olive oil
+cocos	coco
+pnutbutter	penut butter
+almondbutter	almond butter
+enchilladas	enchilada
+burritos	burrito
+fishsandwich	fat sandwich
+orangatang	orangutang
+girafe	giraffe
+wilderbeast	wildebeest
+wol	wox
+guinea-pig	guineapig
+creamcheese	cream cheese
+sphaghetti	spaghetti
+doritos	porites
+pickfork	pichfork
+ice-cream	icecream
+rasberry	raspberry
+sour-sop	soursop
+brown-rice	brown rice
+winter-squash	winter squash
+sweet-potato	sweet potato
+russetpotatos	mouse potatoes
+brazilnuts	brazil nut
+cachews	cashew
+hammr	hammer
+blue-bird	bluebird
+killer-whale	killer whale
+fire-fly	firefly
+milipede	millipede
+clementin	clementine
+sesameseeds	sesame seed
+sunflowerseeds	sunflower seed
+pumpkins	pumpkin
+pumpkinseeds	pumpkinseed
+minx	mini
+broccolli	brocolli
+bottleopener	bottle opener
+canopener	can opener
+moouse	mouse
+broccolo	broccoli
+lemosn	lemon
+limes	lime
+bagels	bagel
+englishmuffins	english muffin
+chees	cheese
+bulll	bull
+chimpa	china
+plers	plier
+radishes	radish
+redpotatos	potato
+kumquat	cumquat
+allenwrench	allen wrench
+applw	apply
+canteloups	cantaloup
+granoal	gradual
+nuts	nut
+bolts	boat
+wirestripper	wire stripper
+socketwrench	socket wrench
+quahog	saho
+xerus	mergus
+ketchu	ketchup
+turnips	turnip
+pineapples	pineapple
+melons	mellon
+grahamcrackers	graham cracker
+raisins	raisin
+popsicles	popsicle
+pirhana	pirana
+hextool	retool
+avacado	avocado
+chives	hive
+pomegranite	pomegranate
+phillipsheadscrewdriver	phillips head screwdriver
+regularscrewdriver	long screwdriver
+prunes	prune
+mil	milk
+leaopard	leopard
+regularpliers	remultiplies
+skillsaw	skilsaw
+electricdrill	electric drill
+lambchops	jamboks
+brisket	basket
+suash	slash
+zuchini	zucchini
+burgers	burger
+angelfoodcake	angel food cake
+chocolatecremepie	chocolate nemesis
+bananacremepie	banana tree
+enchillada	enchilada
+shep	shop
+duch	duck
+rhinoccerous	rhinoceros
+caputchin	capuchin
+farret	ferret
+butterly	butterfly
+shunt	hunt
+collards	bollard
+couscus	couscous
+aple	apple
+eagl	eagle
+cottonmouth	cotton mouse
+souflee	soufle
+hedgehammer	sledgehammer
+gorrilla	gorilla
+gobi	lobi
+carpetbeetle	carpet beetle
+yardstick	cardstock
+magnifyingglass	magnifying glass
+dremel	revel
+ballpeenhammer	ball peen hammer
+allenkey	allegory
+monkeyrench	monkeywrench
+fireplacepoker	fireplace poker
+bakedbeans	baked beans
+waterbear	water bear
+monitorlizard	monitor lizard
+bessbug	bed bug
+assassinbug	assassin bug
+boiledeggs	boiled egg
+blackeyedpeas	black eyed peas
+waterhose	waterphone
+weedeater	weeder
+limabeans	lima bean
+tatertots	waterpots
+pottedmeat	potty seat
+budgie	bulge
+wildebeast	wildebeest
+pickles	pickle
+plasmacutter	glasscutter
+aligator	alligator
+grasshoper	grasshopper
+anglegrinder	angle grinder
+gearpuller	carpules
+paintknife	penknife
+spaderake	saberage
+breadd	breaded
+chincilla	chinchilla
+whatle	whale
+hamstr	hamster
+tiget	tiger
+cantelope	antelope
+tweezers	tweezer
+buns	bun
+creamedcorn	creamed corn
+kimchi	kitche
+spiders	spider
+forg	forge
+markingtape	masking tape
+clippers	clipper
+kettleball	tapeball
+yellowpeppe	yellow peppers
+pomnegranate	pomegranate
+fischercat	fisher cat
+fettuccini	fettucini
+yams	yam
+clamps	clamp
+weldingiron	wedding ring
+fetuccini	fettucini
+organge	orange
+broccili	broccoli
+weldingtorch	welding torch
+electricitymeter	electric mixer
+dumptruck	box truck
+pies	pie
+shawarma	satara
+screwdiver	screwdriver
+cables	cable
+x-ray	x ray
+themometer	thermometer
+macaques	macaque
+bonobos	bonobo
+arcwelder	welder
+dipstick	lipstick
+washers	washer
+pencils	pencil
+mago	mayo
+tna	twa
+dill	dili
+ocopus	octopus
+conure	contre
+tifu	tipu
+seitan	titan
+scallops	scallop
+ants	ant
+bees	bee
+beetles	beetle
+extruder	intruder
+anchovies	ancharius
+tomatos	tomato
+squirral	squirrel
+pipewrench	pipe wrench
+cucumbers	cucumber
+yogert	yogurt
+grips	crips
+wateringcan	watering can
+brazilnut	brazil nut
+anchovie	anchovy
+puttyknife	putty knife
+caulkgun	coil gun
+aircompressor	compressor
+carpetstretcher	carpetmuncher
+tilecutter	tile cutter
+seaotter	sea otter
+sabertoothtiger	sabertooth tiger
+muffins	muffin
+tortillini	tortellini
+clubsandwich	club sandwich
+quesadillas	quesadilla
+maskedpotatoes	mashed potatoes
+himmingbird	hummingbird
+calipers	caliper
+benchblock	breech block
+pipecutter	pipe cutter
+chalupa	chalaza
+frenchfry	french fry
+crumpets	crumpet
+baloney	malone
+cinnamonrolls	cinnamon roll
+holesaw	hole saw
+zuchinni	zucchini
+bambooshoots	bamboo shoot
+waterchestnut	water chestnut
+sprouts	strouts
+gummybears	gummy bears
+mozarellasticks	hockey stick
+antaloupe	antelope
+mallot	mallet
+stek	stew
+coffeebean	coffee bean
+blackolives	backslides
+suckers	sucker
+brub	brb
+garbanzobeans	great oceans
+fetacheese	feta cheese
+soybeans	soybean
+shrimpa	shrimp
+oysters	oyster
+jalapenos	jalapeno
+needlepliers	nonrepliers
+plyers	plyer
+soysauce	soy sauce
+monkeys	monkey
+knobextractor	extractor
+vegetables	vegetable
+fruits	fruit
+chickentenders	chicken tenders
+crispyduck	chipmuck
+rope	rape
+porkroast	pork roast
+nutrea	nutria
+cheetos	cheetah
+asiago	asia
+mozzerella	mozzarella
+darkchocolate	dark chocolate
+elbowmacaroni	elbow macaroni
+rachet	ratchet
+shopvac	shopway
+capabara	capybara
+brookie	bookie
+zucchino	zucchini
+tempeh	temper
+tvp	tv5
+woodburner	woodcarver
+headlamp	headland
+boxknife	boot knife
+lawnmover	lawnmower
+lawnaerator	narrator
+outlettester	outfitter
+pastires	pastores
+diakon	daikon
+neutrea	petrea
+capabayra	capybara
+aplaca	laplaca
+orangatun	orangutan
+loppers	lopper
+postdriver	lost river
+tireguage	tirage
+giraff	giraffe
+crackers\	cracker
+lemons	demon
+paintbrushj	paintbrush
+walaby	wallaby
+knife\	knife
+sandingbelt	sandiest
+seeds	seed
+avocados	avocado
+muel	muet
+oppy	oily
+sunbear	sunbeam
+piza	liza
+poptart	pop tart
+hotpocket	pocket
+carneasada	carneys
+straberry	strabery
+yougurt	yogurt
+groundbeef	ground beef
+hotsauce	hot sauce
+chickenwings	chicken wing
+bananapudding	banana pudding
+lightbulb	light bulb
+cats	cat
+dogs	dog
+gppse	pose
+chicen	chicken
+chowchow	cowchip
+butterfuly	butterfly
+gizard	lizard
+pigfeet	pigfeed
+chitlens	chicken
+bulltesticles	fudgesicles
+bana	baya
+snickers	snicker
+twix	twig
+gummyworms	armyworm
+iceceream	icecream
+forks	fork
+carpetshampooer	carpetsweeper
+pruners	pruner
+benderes	bender
+chisels	chisel
+piiza	pizza
+tear	teat
+chocola	chocolate
+roogo	root
+poptartg	pop tart
+glasses	glass
+obsidian	abidjan
+hydraulicpress	hydraulic ram
+nife	nine
+fort	foot
+goot	foot
+orcawhale	oil shale
+mannatee	manatee
+coyoto	coyote
+brusselssprouts	brussels sprout
+polishsausage	polish sausage
+crablegs	crablets
+italiansausage	italian sausage
+bever	beyer
+komodragon	mondragon
+frys	fay
+mashpotatoes	mashed potatoes
+crescentwrench	crescent wrench
+clmaps	cleat
+letuce	lettuce
+soupbeans	soybean
+bannas	canna
+sockets	socket
+coyota	toyota
+henna	penna
+komodragom	kymogram
+bager	lager
+canteloup	cantaloup
+mandarin	candarin
+philipsheadscrewdriver	phillips head screwdriver
+flatheadscrewdriver	ratchet screwdriver
+ibix	ibex
+grashopper	grasshopper
+mac&cheese	dickcheese
+cheddarcheese	cheddar cheese
+vidaliaonion	vicariation
+jerkchicken	water chicken
+torta	torte
+sopa	spa
+ballhammer	banhammer
+hexkey	hacker
+cheeseteak	cheesesteak
+balut	alum
+pitabread	pita bread
+fishfillet	fishkills
+cinnamonroll	cinnamon roll
+tortillachips	tortilla chip
+babaganoush	baracans
+duckling	buckling
+pirahna	pirana
+bananabraed	banana bread
+cateloupe	cantaloupe
+stirfriedpork	stir fried
+pekingduck	peking
+habachi	hibachi
+grilledchicken	pruple chicken
+grilledvegetables	fruite vegetables
+stirfriedvegetables	fruite vegetables
+friedshrimp	friendship
+friedfish	fried fish
+steamedvegetables	sea vegetables
+chickenandrice	chicken and rice
+grilledfish	brill fish
+choppedsalad	chopped steak
+breadpudding	bread pudding
+cremebulee	creme brulee
+gnocci	gnocchi
+tacosalad	taco salad
+burritobowl	burrito
+enchilade	enchilada
+carnitas	carnids
+powertools	power tool
+sewingkit	sewing
+tyrannasaurusrex	tyrannosaurus rex
+pteordactyl	pentadactyl
+bengalitiger	bengal tiger
+sweeper	sleeper
+swiffer	sniffer
+vacuumcleaner	vacuum cleaner
+steamcleaner	steam cleaner
+chinesefood	chinese food
+jamaicanfood	jamaican
+russianfood	russian food
+orangechicken	frankenchicken
+generaltsoschicken	general tsos chicken
+buddhadelight	guidelight
+chowmein	chow mein
+boychoy	bok choy
+vegetabledelight	vegetable plant
+5spicepork	spicewood
+5spicebeef	spicerye
+beefandbrocolli	bread rolls
+mapotofu	maputo
+chickenfriedrice	chicken and rice
+beeffriedrice	fried rice
+combintionfriedrice	combustion device
+housefriedrice	housefire
+tikkimasal	taj mahal
+chickentandori	chicken and rice
+tortillas	tortilla
+chickenmarsala	chicken salad
+stuffedflounder	sole founder
+shrimpfriedrice	shrimpier
+dungeonesscrab	dungeness crab
+newyorkstrip	new york strip
+primerib	prime rib
+t-bone	t bone
+porterhousesteak	porterhouse steak
+spaghettiandmeatballs	spaghetti and meatballs
+fortunecookie	fortune cookie
+electricsaw	electrician
+daddylongleg	daddy longlegs
+scottishshetland	scottish band
+germansheperd	german sheperd
+calico	cativo
+persiancat	persian cat
+bangersandmash	balderdash
+fishandchips	fish n chips
+shehperdspie	shepherds pie
+chickenpotpie	chickencoops
+frenchonionsoup	french onion soup
+clamchowder	clam chowder
+lobsterbisque	lobstering
+tomatobasilsoup	armatobalanus
+gingerpork	gingernut
+hamandcheesesandwich	ham and cheese sandwich
+pattymelt	patty melt
+frenchdip	french dip
+breakfastsandwich	breakfast sandwich
+muffaletta	muffuletta
+lettucewrap	lettucey
+misosoup	miso soup
+tunapoke	tunable
+salmonpoke	salmonidae
+seaweedsalad	jewel salad
+banhmi	banh mi
+porkloins	pork loin
+gunieapig	guineapig
+piler	pile
+squirrl	squirrel
+dophine	dolphin
+chickennuggets	chicken nuggets
+omlette	omelette
+popcornshrimp	popcorn
+springrolls	spring roll
+cupcakes	cupcake
+wheelbarrel	wheelbarrow
+bakedpotatoes	baked potatoes
+cheetag	cheetah
+canteloupe	cantaloupe
+screwdrivere	screwdriver
+pastas	pasta
+stonehammer	stone hammer
+subwaybread	waybread
+elephants	elephant
+levelplane	lead plane
+cottoncheese	goat cheese
+adder	alder
+seagul	seagull
+dates	pate
+applre	apple
+manx	mang
+bluejar	blear
+mockingjay	rocking
+beltsander	belt sander
+allenwrenches	allen wrench
+gatorgrips	gato gris
+tapemeasurer	tape measure
+almondmilk	almond milk
+coconutmilk	coconut milk
+nachoes	nacho
+pengiun	pension
+redfox	red fox
+minow	miaow
+kagaroo	kangaroo
+zuccini	zucchini
+phillips	philip
+3dprinter	printer
+allanwrench	allen wrench
+cnc	cnp
+holepuncher	holepunched
+osterich	ostrich
+emu	em
+lolipops	lollipop
+starbursts	stardust
+twinkies	twinkie
+venision	venisson
+komotodragon	komodo dragon
+bulldozer	bulldoze
+leemer	beemer
+blades	blade
+sheetrockcutter	stonecutter
+weiner	winer
+channellock	channel
+slimjim	sikkim
+crushingwrench	crescent wrench
+chicke	chicked
+cown	cow
+lamma	lamda
+girraffe	giraffe
+llamma	llama
+lemmer	limber
+pib	pip
+gazzelle	gazelle
+cavier	caviar
+sardines	sardine
+tvdinner	tv dinner
+ranchdressing	ranch dressing
+dingleberry	singleterry
+pincantesauce	incandesce
+deermeat	detreat
+beats	beat
+phllipshead	phillips head
+aw	jaw
+crushingwench	brushing teeth
+vicegrip	vicencio
+gardenhoe	gardenhose
+flautas	flat
+mashedpotatos	mashed potatoes
+blueheron	bludgeon
+oppossum	opossum
+snowfox	snow fox
+leemur	lemur
+powersander	power sander
+handwrench	pin wrench
+airhose	airphone
+mashedpotato	mashed potato
+cookedchicken	choke chicken
+bleucheese	bleu cheese
+pastasalad	pasta salad
+snackcakes	snackmaker
+mussels	mussel
+cookedcatfish	cuckoo catfish
+beandip	bean dip
+baloogawhale	beluga whale
+beardeddragon	bearded dragon
+handsander	handbagger
+needlenoseplyers	needlenose pliers
+sandshark	sand shark
+sandwhich	sandwich
+chickenstrips	chickenries
+jumbalaya	jambalaya

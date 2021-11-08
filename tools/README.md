@@ -1,0 +1,2 @@
+`preprocess.py` is a script written for removing typos from `fluency_data/snafu_sample.csv` based on words from ConceptNet. The typos are replaced with the words in ConceptNet closest to them and closeness is found by Levenshtein edit distance. In case of a tie, the word found first is used. The cleaned version is in `snafu_sample_cleaned.csv`.
+For more information, please go through the very small code in `preprocess.py` which also has instructions for installation of required packages.
