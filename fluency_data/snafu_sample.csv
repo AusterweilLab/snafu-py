@@ -1,4 +1,4 @@
-id,listnum,category,item,RT,RTstart,group
+id,listnum,category,item,rt,RTstart,group
 A101,0,fruits,strawberry,67072,67072,Experiment1
 A101,0,fruits,kiwi,0,67072,Experiment1
 A101,0,fruits,banana,0,67072,Experiment1

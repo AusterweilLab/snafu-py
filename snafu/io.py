@@ -19,7 +19,7 @@ def load_graph(*args, **kwargs):
     return load_network(*args, **kwargs)
 
 # alias for backwards compatibility
-def load_graph(*args, **kwargs):
+def read_graph(*args, **kwargs):
     return load_network(*args, **kwargs)
 
 # wrapper
