@@ -51,7 +51,7 @@ with open("temp/allWords-level2", "r") as f:
 fo = open("snafu_sample_cleaned.csv", "w+")
 fint = open("temp/changes.txt", "w+")
 typos = set()
-with open("../fluency_data/snafu_sample.csv", "r") as f:
+with open("../../fluency_data/snafu_sample.csv", "r") as f:
     fo.write(f.readline())
     for line in tqdm.tqdm(f.readlines()):
         line = line.split(",")
