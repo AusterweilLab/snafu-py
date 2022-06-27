@@ -1,0 +1,13 @@
+Metadata-Version: 1.2
+Name: pysnafu
+Version: 2.4.2
+Summary: Generate semantic networks from fluency data
+Home-page: https://github.com/AusterweilLab/snafu-py
+Author: The Austerweil Lab at UW-Madison
+Author-email: jeffzemla@gmail.com
+License: UNKNOWN
+Description: UNKNOWN
+Keywords: fluency,networks,psychology,recall
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3.5
+Requires-Python: >=3.5
