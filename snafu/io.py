@@ -24,51 +24,15 @@ def read_graph(*args, **kwargs):
 
 # wrapper
 def graphToHash(a):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     return nx.generate_sparse6(nx.to_networkx_graph(a),header=False)
 
 # wrapper
 def hashToGraph(graphhash):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     return nx.to_numpy_matrix(nx.parse_graph6(graphhash))
 
 # reads in graph from CSV
 # row order not preserved; could be optimized more
 def load_network(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=False):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     fh=open(fh,'rt', encoding='utf-8-sig')
     idx=0
     bigdict={}
@@ -139,22 +103,7 @@ def load_network(fh,cols=(0,1),header=False,filters={},undirected=True,sparse=Fa
 
     return graph, items
 
-# read Xs in from user files
-# this should be re-written with pandas or something more managable
 def load_fluency_data(filepath,category=None,removePerseverations=False,removeIntrusions=False,spell=None,scheme=None,group=None,subject=None,removeNonAlphaChars=False,hierarchical=False,targetletter=None):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
-   
     if targetletter:
         targetletter = targetletter.lower()
     if type(group) is str:
@@ -192,6 +141,7 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
 
     Xs=dict()
     irts=dict()
+    categories=dict()
     items=dict()
     spellingdict=dict()
     spell_corrected = dict()
@@ -250,6 +200,8 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                     intrusions[idx] = dict()
                     if has_rt_col:
                         irts[idx] = dict()
+                    if has_category_col:
+                        categories[idx] = dict()
                 if listnum_int not in Xs[idx]:
                     Xs[idx][listnum_int] = []
                     spell_corrected[idx][listnum_int] = []
@@ -257,6 +209,8 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                     intrusions[idx][listnum_int] = []
                     if has_rt_col:
                         irts[idx][listnum_int] = []
+                    if has_category_col:
+                        categories[idx][listnum_int] = row[category_col]
                 if idx not in items:
                     items[idx] = dict()
                     
@@ -294,22 +248,10 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                 except:
                     pass                # bad practice to have empty except
    
-    return Data({'Xs': Xs, 'items': items, 'irts': irts, 'structure': hierarchical, 
+    return Data({'Xs': Xs, 'items': items, 'irts': irts, 'structure': hierarchical, 'categories': categories,
                  'spell_corrected': spell_corrected, 'perseverations': perseverations, 'intrusions': intrusions})
 
 def write_network(gs, fh, subj="NA", directed=False, extra_data={}, header=True, labels=None, sparse=False):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     onezero={True: '1', False: '0'}        
     import networkx as nx
     fh=open(fh,'w')

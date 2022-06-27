@@ -24,7 +24,7 @@ class Data():
         self.groupnumnodes = len(self.groupitems)
         self.subs = sorted(data['Xs'].keys())
         self.listnums = [(sub, listnum) for sub in self.subs for listnum in sorted(self.rawdata['Xs'][sub].keys())]
-
+        
         if data['structure']:
             self.structure = "hierarchical"
             self.hierarchical()
@@ -56,6 +56,12 @@ class Data():
         self.intrusions = [[intrusions[i][j] for j in sorted(intrusions[i].keys())] for i in self.subs]
 
         try:
+            categories = copy.deepcopy(self.rawdata['categories'])
+            self.categories = [[categories[i][j] for j in sorted(categories[i].keys())] for i in self.subs]
+        except:
+            self.categories = []
+            
+        try:
             irts = copy.deepcopy(self.rawdata['irts'])
             self.irts = [[irts[i][j] for j in sorted(irts[i].keys())] for i in self.subs]
         except:
@@ -75,19 +81,25 @@ class Data():
         spell_corrected = copy.deepcopy(self.rawdata['spell_corrected'])
         perseverations = copy.deepcopy(self.rawdata['perseverations'])
         intrusions = copy.deepcopy(self.rawdata['intrusions'])
+        categories = copy.deepcopy(self.rawdata['categories'])
 
         for sub in Xs:
             for listnum in Xs[sub]:
                 Xs[sub][listnum] = [reverseGroup[items[sub][i]] for i in Xs[sub][listnum]]
                 
+        self.Xs = flatten_list([[Xs[i][j] for j in sorted(Xs[i].keys())] for i in self.subs])
+        self.lists = self.Xs
+        self.spell_corrected = flatten_list([[spell_corrected[i][j] for j in sorted(spell_corrected[i].keys())] for i in self.subs])
+        self.spelling_corrections = self.spell_corrected
+        self.perseverations = flatten_list([[perseverations[i][j] for j in sorted(perseverations[i].keys())] for i in self.subs])
+        self.intrusions = flatten_list([[intrusions[i][j] for j in sorted(intrusions[i].keys())] for i in self.subs])
+
         try:
-            self.Xs = flatten_list([[Xs[i][j] for j in sorted(Xs[i].keys())] for i in self.subs])
-            self.lists = self.Xs
-            self.spell_corrected = flatten_list([[spell_corrected[i][j] for j in sorted(spell_corrected[i].keys())] for i in self.subs])
-            self.spelling_corrections = self.spell_corrected
-            self.perseverations = flatten_list([[perseverations[i][j] for j in sorted(perseverations[i].keys())] for i in self.subs])
-            self.intrusions = flatten_list([[intrusions[i][j] for j in sorted(intrusions[i].keys())] for i in self.subs])
-            
+            self.categories = flatten_list([[categories[i][j] for j in sorted(categories[i].keys())] for i in self.subs])
+        except:
+            self.categories = []
+        
+        try:
             self.irts = flatten_list([[irts[i][j] for j in sorted(irts[i].keys())] for i in self.subs])
         except:
             self.irts = []
@@ -105,18 +117,6 @@ class Data():
     
         
 def DataModel(data):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     tdkeys=list(data.keys())
 
     if 'trim' not in tdkeys:
@@ -153,18 +153,6 @@ def DataModel(data):
     return dotdict(data)
 
 def Irts(irts):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     irtkeys=list(irts.keys())
 
     if 'data' not in irtkeys:
@@ -194,18 +182,6 @@ def Irts(irts):
     return dotdict(irts)
 
 def Fitinfo(fitinfo):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     fitkeys=list(fitinfo.keys())
 
     if 'followtype' not in fitkeys:
