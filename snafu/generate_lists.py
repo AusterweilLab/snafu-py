@@ -69,7 +69,7 @@ def random_walk(g, td, priming_vector=[], seed=None):
         return second
 
     if (td.start_node=="stationary") or (td.jumptype=="stationary"):
-        a=np.array(nx.to_numpy_matrix(g))
+        a=nx.to_numpy_array(g)
         t=a/sum(a).astype(float)
         statdist=stationary(t)
         statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))

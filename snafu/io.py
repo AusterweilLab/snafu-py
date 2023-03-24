@@ -22,13 +22,15 @@ def load_graph(*args, **kwargs):
 def read_graph(*args, **kwargs):
     return load_network(*args, **kwargs)
 
-# wrapper
+# DEFUNCT
 def graphToHash(a):
-    return nx.generate_sparse6(nx.to_networkx_graph(a),header=False)
+    print('This function is defunct, as it is no longer supported by NetworkX')
+    return #nx.generate_sparse6(nx.to_networkx_graph(a),header=False)
 
-# wrapper
+# DEFUNCT
 def hashToGraph(graphhash):
-    return nx.to_numpy_matrix(nx.parse_graph6(graphhash))
+    print('This function is defunct, as it is no longer supported by NetworkX')
+    return #nx.to_numpy_array(nx.parse_graph6(graphhash))
 
 # reads in graph from CSV
 # row order not preserved; could be optimized more

@@ -142,7 +142,7 @@ def pathfinder(Xs, numnodes=None, valid=False, td=None):
             distance_mat[item2, item1] = dij
 
     #graph = scipy.sparse.csgraph.minimum_spanning_tree(distance_mat)
-    graph = nx.to_numpy_matrix(MST_pathfinder(nx.Graph(distance_mat)))
+    graph = nx.to_numpy_array(MST_pathfinder(nx.Graph(distance_mat)))
 
     # binarize and make graph symmetric (undirected)... some redundancy but it's cheap
     #graph = np.where(graph.todense(), 1, 0)
@@ -431,7 +431,7 @@ def conceptualNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=No
             arg2 (type): Description here.
         Returns:
             Detailed description here. Detailed description here.  Detailed 
-            description here. 
+            description here.
     """
     if numnodes == None:
         numnodes = len(set(flatten_list(Xs)))
@@ -490,8 +490,8 @@ def conceptualNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=No
         p_adj = (2.0/(meanlistlength*(meanlistlength-1))) * ((w*meanlistlength) - ((w*(w+1))/2.0))
         for i,j in listofedges:
             p_linked = (xfreq[i]/numlists) * (xfreq[j]/numlists) * p_adj
-            #ci=pci(cooccur[i,j],numlists,alpha=c,method="beta")[0]    # lower bound of Clopper-Pearson binomial CI
-            ci = pci_lowerbound(cooccur[i,j], numlists, c)             # lower bound of Clopper-Pearson binomial CI
+            #ci=pci(cooccur[i,j],numlists,alpha=c,method="beta")[0]     # lower bound of Clopper-Pearson binomial CI
+            ci = pci_lowerbound(cooccur[i,j], numlists, c)              # lower bound of Clopper-Pearson binomial CI
             if (p_linked >= ci):                                        # if co-occurrence could be due to chance, remove edge
                 graph[i,j]=0
                 graph[j,i]=0
@@ -696,7 +696,7 @@ def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None)
     g = nx.Graph()
     g.add_nodes_from(list(range(numnodes)))
     g.add_edges_from(edgelist)
-    a=np.array(nx.to_numpy_matrix(g)).astype(int)
+    a=nx.to_numpy_array(g).astype(int)
    
     if valid:
         a = makeValid(Xs, a, td)

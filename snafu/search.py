@@ -65,7 +65,7 @@ def cbdfs(g, td):
     walk=[]
     
     if (td.start_node=="stationary") or (td.jumptype=="stationary"):
-        a=np.array(nx.to_numpy_matrix(g))
+        a=nx.to_numpy_array(g)
         t=a/sum(a).astype(float)
         statdist=stationary(t)
         statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))
@@ -118,7 +118,7 @@ def spreadingActivationSearch(g, td, decay):
         numtrim=td.trim                            # else, parameter is length of a list
     
     if (td.start_node=="stationary") or (td.jumptype=="stationary"):
-        a=np.array(nx.to_numpy_matrix(g))
+        a=nx.to_numpy_array(g)
         t=a/sum(a).astype(float)
         statdist=stationary(t)
         statdist=scipy.stats.rv_discrete(values=(list(range(len(t))),statdist))

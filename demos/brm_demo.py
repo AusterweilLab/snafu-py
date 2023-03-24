@@ -7,20 +7,20 @@
 import snafu
 
 # Example 1: Import data for the animal category of participant id A101
-fluencydata_a101 = snafu.load_fluency_data("../fluency_data/snafu_sample.csv", 
-                                        subject="A101",
-                                        category="animals",
-                                        scheme="../schemes/animals_snafu_scheme.csv",
-                                        removePerseverations=True,
-                                        removeIntrusions=True)
+fluencydata_a101 = snafu.load_fluency_data("../fluency_data/snafu_sample.csv",
+                                           subject="A101",
+                                           category="animals",
+                                           scheme="../schemes/animals_snafu_scheme.csv",
+                                           removePerseverations=True,
+                                           removeIntrusions=True)
 
 # Example 2: Import data for all categories of participants from group Experiment1 and Experiment2
-fluencydata = snafu.load_fluency_data("../fluency_data/snafu_sample.csv", 
-                                        category="animals",
-                                        removeNonAlphaChars=True,
-                                        spell="../spellfiles/animals_snafu_spellfile.csv", 
-                                        group=["Experiment1","Experiment2"],
-                                        hierarchical=True)
+fluencydata = snafu.load_fluency_data("../fluency_data/snafu_sample.csv",
+                                      category="animals",
+                                      removeNonAlphaChars=True,
+                                      spell="../spellfiles/animals_snafu_spellfile.csv",
+                                      group=["Experiment1","Experiment2"],
+                                      hierarchical=True)
 
 # Example 3: Calculate the number of static cluster switches using an animal cluster scheme
 #       - You may use another scheme file or create your own
