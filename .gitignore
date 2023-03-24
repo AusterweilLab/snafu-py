@@ -12,3 +12,4 @@ snet/swow.snet
 snet/swow_one.snet
 snet/swow_animals.snet
 transition_model_fresh.py
+pysnafu.egg-info/
