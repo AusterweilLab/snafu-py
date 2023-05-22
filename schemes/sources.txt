@@ -1,5 +1,20 @@
-Troyer, Moscovitch, & Winocur (1997), Appendix (p.145-156)
-http://psycnet.apa.org/journals/neu/11/1/138/
+* animals_snafu_scheme.csv
+    English animal scheme file originated by Troyer, Moscovitch, & Winocur (1997), Appendix (p.145-156)
+    http://psycnet.apa.org/journals/neu/11/1/138/
 
-Hills, Jones, & Todd (2012), Appendix 1
-http://supp.apa.org/psycarticles/supplemental/a0027373/Appendix1.pdf
+    Extended by Hills, Jones, & Todd (2012), Appendix 1
+    http://supp.apa.org/psycarticles/supplemental/a0027373/Appendix1.pdf
+
+    Extended by Jeffrey Zemla, Kendra Lange, Maggie Parker, & Blake Chambers (UW-Madison)
+
+* animals_dutch_snafu_scheme.csv
+    Dutch animal scheme
+    Please cite: Rofes, A., Beran, M., Jonkers, R., Geerlings, M.I., Vonk, J.M.J. (2023). What drives task performance in animal fluency in individuals without dementia? The SMART-MR study. Journal of Speech, Language, and Hearing Research (ASHA).
+    Retrieved from: https://github.com/jmjvonk/2022_Rofes_SMART-MR/blob/main/Dutch_animals_snafu_scheme.csv
+
+* animals_Scheme_Greek_Karousou_v.01.2.csv
+    Greek animal scheme 
+    Createdd by Alexandra Karousou
+    Retrieved from https://osf.io/k6h3v/ on March 24, 2023
+    
+
