@@ -9,7 +9,7 @@ def clusterSize(l, scheme, clustertype='fluid'):
         description here.  
     
         Args:
-            arg1 (type): Description here.
+            arg1 (type): Description here.split_array_by_token
             arg2 (type): Description here.
         Returns:
             Detailed description here. Detailed description here.  Detailed 
