@@ -1,18 +1,6 @@
 from . import *
 
 def list_subjects_and_categories(command, root_path):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     subjects=[]
     #categories=["all"]
     categories = []
@@ -50,18 +38,6 @@ def list_subjects_and_categories(command, root_path):
              "group": groups[0] }
 
 def jsonGraph(g, items):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     json_data = nx.readwrite.json_graph.node_link_data(g)
     
     json_data['edges'] = json_data['links']
@@ -85,18 +61,6 @@ def jsonGraph(g, items):
     return json_data
 
 def label_to_filepath(x, root_path, filetype):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     filedict=dict()
     folder = root_path + "/" + filetype + "/"
 
@@ -112,20 +76,6 @@ def label_to_filepath(x, root_path, filetype):
     return filename
 
 def data_properties(command, root_path):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
-   
-    # data parameters shorthand
     command = command['data_parameters']
 
     # Initialize some filenames
@@ -295,18 +245,6 @@ def data_properties(command, root_path):
              "csv_file": csv_file }
 
 def generate_csv_file(json_file):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     keys = list(json_file.keys())
     header_row = ",".join(keys)
 
@@ -321,18 +259,6 @@ def generate_csv_file(json_file):
 
 
 def network_properties(command, root_path):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     subj_props = command['data_parameters']
     command = command['network_parameters']
 
@@ -408,18 +334,6 @@ def network_properties(command, root_path):
     return graph_properties(nxg,nxg_json)
 
 def analyze_graph(command, root_path): # used when importing graphs
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     nxg_json = json.load(open(command['fullpath'],'rt',encoding="utf-8-sig"))
     nxg = nx.readwrite.json_graph.node_link_graph(
         nxg_json,
@@ -429,18 +343,6 @@ def analyze_graph(command, root_path): # used when importing graphs
     return graph_properties(nxg, nxg_json)
 
 def graph_properties(nxg,nxg_json): # separate function that calculates graph properties
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     node_degree = np.mean(list(dict(nxg.degree()).values()))
     clustering_coefficient = nx.average_clustering(nxg)
     try:
@@ -465,33 +367,9 @@ def graph_properties(nxg,nxg_json): # separate function that calculates graph pr
     }
 
 def quit(command, root_path): 
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     return { "type": "quit",
              "status": "success" }
 
 def error(msg):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     return { "type": "error",
              "msg": str(msg) }

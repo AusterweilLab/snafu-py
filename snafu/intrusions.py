@@ -2,18 +2,6 @@ import numpy as np
 from . import *
 
 def intrusionsList(l, scheme):  
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     if len(l) > 0:
         if isinstance(l[0][0], list):
             intrusion_items = [intrusionsList(i, scheme) for i in l]
@@ -28,18 +16,6 @@ def intrusionsList(l, scheme):
     return intrusion_items
 
 def intrusions(l, scheme):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     ilist = intrusionsList(l, scheme)
     
     # if fluency data are hierarchical, report mean per individual

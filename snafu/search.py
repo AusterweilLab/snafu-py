@@ -2,18 +2,6 @@ from . import *
 
 # stochastic search through graph by node degree (proxy for frequency)
 def nodeDegreeSearch(g, td):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     numnodes=nx.number_of_nodes(g)
     if td.trim <= 1:
         numtrim=int(round(numnodes*td.trim))       # if <=1, paramater is proportion of a list
@@ -43,18 +31,6 @@ def nodeDegreeSearch(g, td):
 # cluster-based depth first search: output all neighbors of starting node (random order), then all neighbors of most recently
 # outputted node, etc; when you reach a dead end, back through the list until a new node with neighbors is usable
 def cbdfs(g, td):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     import scipy    
     numnodes=nx.number_of_nodes(g)
     if td.trim <= 1:
@@ -98,18 +74,6 @@ def cbdfs(g, td):
     return walk
 
 def spreadingActivationSearch(g, td, decay):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     import scipy    
     numnodes=nx.number_of_nodes(g)
     if td.trim <= 1:

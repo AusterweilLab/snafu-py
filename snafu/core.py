@@ -15,17 +15,6 @@ def priorToGraph(*args, **kwargs):
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
-    """Adjust transition matrix of network to allow for jumps
-    
-        This function takes a network transition matrix and adjusts the transition probabilities from each edge to allow "jumps." 
-    
-        Args:
-            probs (type): Description here.
-            td (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     if (td.jumptype == "uniform") and (numnodes == None):
         raise ValueError("Must specify 'numnodes' when jumptype is uniform [addJumps]")
     if (td.jumptype == "stationary") and (np.any(statdist == None) or (Xs == None)):
@@ -46,18 +35,6 @@ def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
 # mix U-INVITE with priming model
 # code is confusing...
 def adjustPriming(probs, td, Xs):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     for xnum, x in enumerate(Xs[1:]):         # check all items starting with 2nd list
         for inum, i in enumerate(x[:-1]):     # except last item
             if i in Xs[xnum][:-1]:            # is item in previous list? if so, prime next item
@@ -74,18 +51,6 @@ def adjustPriming(probs, td, Xs):
 # Returns only PF(q, r) = PF(n-1, inf) = minimum spanning tree (sparsest possible graph)
 # other parameterizations of PF(q, r) not implemented
 def pathfinder(Xs, numnodes=None, valid=False, td=None):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     if numnodes == None:
         numnodes = len(set(flatten_list(Xs)))
     
@@ -162,18 +127,6 @@ def pathfinder(Xs, numnodes=None, valid=False, td=None):
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
 def cost(graph,a, undirected=True):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     cost = sum(sum(np.array(abs(graph-a))))
     if undirected:
         return cost/2.0
@@ -182,18 +135,6 @@ def cost(graph,a, undirected=True):
 
 # graph=estimated graph, a=target/comparison graph
 def costSDT(graph, a):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     hit=0; miss=0; fa=0; cr=0
     check=(graph==a)
     for rnum, r in enumerate(a):
@@ -211,18 +152,6 @@ def costSDT(graph, a):
     return [hit, miss, fa, cr]
 
 def evalGraphPrior(a, prior, undirected=True):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     probs = []
     priordict = prior[0]
     items = prior[1]
@@ -250,18 +179,6 @@ def evalGraphPrior(a, prior, undirected=True):
     return probs
 
 def firstEdge(Xs, numnodes=None):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     if numnodes == None:
         numnodes = len(set(flatten_list(Xs)))
     a=np.zeros((numnodes,numnodes))
@@ -272,18 +189,6 @@ def firstEdge(Xs, numnodes=None):
     return a
 
 def fullyConnected(numnodes):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     a=np.ones((numnodes,numnodes))
     for i in range(numnodes):
         a[i,i]=0.0
@@ -291,18 +196,6 @@ def fullyConnected(numnodes):
 
 # only returns adjacency matrix, not nx graph
 def naiveRandomWalk(Xs, numnodes=None, directed=False):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     if numnodes == None:
         numnodes = len(set(flatten_list(Xs)))
     a=np.zeros((numnodes,numnodes))
@@ -316,18 +209,6 @@ def naiveRandomWalk(Xs, numnodes=None, directed=False):
     return a
 
 def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=True, returncounts=False):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     a_start = fitinfo.prior_a
     b_start = fitinfo.prior_b
     method = fitinfo.prior_method
@@ -386,18 +267,6 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=Tru
 
 # generate starting graph for U-INVITE
 def genStartGraph(Xs, numnodes, td, fitinfo):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     if fitinfo.startGraph=="cn_valid":
         graph = conceptualNetwork(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
     elif fitinfo.startGraph=="pf_valid":
@@ -421,18 +290,6 @@ def communitynetwork(*args, **kwargs):
 # c = confidence interval; retain the edge if there is a <= c probability that two items occur within the same window n times by chance alone
 # valid (t/f) ensures that graph can produce data using censored RW.
 def conceptualNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=None):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here.
-    """
     if numnodes == None:
         numnodes = len(set(flatten_list(Xs)))
         
@@ -511,18 +368,6 @@ def conceptualNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=No
 # see Goni et al 2010
 # TODO unfinished: so far, creates GTOM matrix but doesn't "enrich" network... how to determine # of clusters?
 def gtom(graph):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
 
     # modified from uinvite(), copied for convenience (TODO consolidate by moving outside to its own function)
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
@@ -558,18 +403,6 @@ def gtom(graph):
 
  
 def hierarchicalUinvite(Xs, items, numnodes=None, td=DataModel({}), irts=False, fitinfo=Fitinfo({}), seed=None, debug=True):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
 
     if numnodes == None:
         numnodes = [len(set(flatten_list(x))) for x in Xs]
@@ -620,18 +453,6 @@ def hierarchicalUinvite(Xs, items, numnodes=None, td=DataModel({}), irts=False, 
     return graphs, priordict
 
 def probXhierarchical(Xs, graphs, items, td, priordict=None, irts=Irts({})):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     lls=[]
     for sub in range(len(Xs)):
         if priordict:
@@ -647,18 +468,6 @@ def probXhierarchical(Xs, graphs, items, td, priordict=None, irts=Irts({})):
 # see Borodkin, Kenett, Faust, & Mashal (2016) and Kenett, Kenett, Ben-Jacob, & Faust (2011)
 # does not work well for small number of lists! many NaN correlations + when two correlations are equal, ordering is arbitrary
 def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     if valid and not td:
         raise ValueError('Need to pass Data when generating \'valid\' kenett()')
     
@@ -704,18 +513,6 @@ def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None)
     return a
 
 def makeValid(Xs, graph, td, seed=None):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     # add direct edges when transition is impossible
     check=probX(Xs, graph, td)
     while check[0] == -np.inf:
@@ -738,18 +535,6 @@ def makeValid(Xs, graph, td, seed=None):
 
 # converts priordict to graph if probability of edge is greater than cutoff value
 def priorToNetwork(priordict, items, cutoff=0.5, undirected=True):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     numnodes = len(items)
     a = np.zeros((numnodes, numnodes))
     
@@ -768,19 +553,6 @@ def priorToNetwork(priordict, items, cutoff=0.5, undirected=True):
 #@profile
 #@nogc
 def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[]):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
-
     try:
         numnodes=len(a)
     except TypeError:
@@ -962,18 +734,6 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[]):
 
 #@profile
 def uinvite(Xs, td=DataModel({}), numnodes=None, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, seed=None):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     nplocal=np.random.RandomState(seed) 
 
     if numnodes == None:

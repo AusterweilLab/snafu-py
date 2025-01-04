@@ -4,18 +4,6 @@ from . import *
 
 # copied from https://malishoaib.wordpress.com/2014/04/15/the-beautiful-beta-functions-in-raw-python/
 def contfractbeta(a,b,x, ITMAX = 200):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     """ contfractbeta() evaluates the continued fraction form of the incomplete Beta function; incompbeta().  
     (Code translated from: Numerical Recipes in C.)"""
     EPS = 3.0e-7
@@ -46,18 +34,6 @@ def contfractbeta(a,b,x, ITMAX = 200):
 # same as scipy.special.betainc within rounding
 # normalized incomplete beta is same as beta cdf
 def incomplete_beta(a, b, x):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     ''' incompbeta(a,b,x) evaluates incomplete beta function, here a, b > 0 and 0 <= x <= 1. This function requires contfractbeta(a,b,x, ITMAX = 200) 
     (Code translated from: Numerical Recipes in C.)'''
     if (x == 0):
@@ -74,18 +50,6 @@ def incomplete_beta(a, b, x):
 # implements beta ppf
 # same result as stats.beta.ppf(alpha_2, a, b)
 def ppf(alpha_2, a, b, lower=0.0, upper=1.0, span=11, maxiter=20):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     if alpha_2 == 1.0:
         return 1.0
     elif alpha_2 == 0.0:
@@ -105,17 +69,5 @@ def ppf(alpha_2, a, b, lower=0.0, upper=1.0, span=11, maxiter=20):
 
 # same result as stats.beta.ppf(alpha_2, count, nobs - count + 1) (from statsmodels)
 def pci_lowerbound(cooccur, total, alpha):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     alpha_2 = alpha * 0.5
     return ppf(alpha_2, cooccur, total - cooccur + 1)

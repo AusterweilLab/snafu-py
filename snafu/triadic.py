@@ -3,18 +3,6 @@
 from . import *
 
 def commonNode(graph, items, node1, node2, numsims=100, jumpval=0.0):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     import scipy.sparse as sp
     
     if sp.issparse(graph):
@@ -109,18 +97,6 @@ def commonNode(graph, items, node1, node2, numsims=100, jumpval=0.0):
 # monte carlo implementation of triadic comparison task, for when network is too large (works with sparse matrices)
 # sloppy code put together quickly...
 def triadicMonteCarlo(graph, items, triad, numsims=100,jumpval=0.0):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     import scipy.sparse as sp
 
     if sp.issparse(graph):
@@ -192,18 +168,6 @@ def triadicMonteCarlo(graph, items, triad, numsims=100,jumpval=0.0):
     return [ab/numsims, ac/numsims, bc/numsims]
 
 def similarity(a, items, start, choices, steps="inf", jumpval=0.0):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     inv_items = {v: k for k, v in items.items()}
     t=a/sum(a.astype(float))                                                                # link to transition matrix
     choices_idx=[inv_items[i] for i in choices]                                             # item labels to ids
@@ -255,18 +219,6 @@ def similarity(a, items, start, choices, steps="inf", jumpval=0.0):
     return probs
 
 def triadicComparison(graph, items, triad, steplimit=200, jumpval=0.0):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     # should simplify this code / extend to work with arbitrary number of items
     starta = similarity(graph, items, start=triad[0], choices=[triad[1],triad[2]],steps=steplimit, jumpval=jumpval)
     startb = similarity(graph, items, start=triad[1], choices=[triad[0],triad[2]],steps=steplimit, jumpval=jumpval)

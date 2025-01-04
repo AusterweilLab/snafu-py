@@ -4,18 +4,6 @@ from . import *
 # Include an extra parameter 'tail' which allows m-1 "null" nodes in
 # neighborhood of every node to better match scale-free distribution.
 def generate_tenenbaum_steyvers_network(n, m, tail=True, seed=None):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     nplocal = np.random.RandomState(seed)
     a = np.zeros((n,n))                                  # initialize matrix
     for i in range(m):                                   # complete m x m graph

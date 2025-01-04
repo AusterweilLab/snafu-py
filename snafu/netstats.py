@@ -1,18 +1,6 @@
 from . import *
 
 def degree_dist(g):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     if isinstance(g,np.ndarray):
         g=nx.to_networkx_graph(g)    # if matrix is passed, convert to networkx
     d=dict(g.degree()).values()
@@ -23,18 +11,6 @@ def degree_dist(g):
 # return small world statistic of a graph
 # returns metric of largest component if disconnected
 def smallworld(a):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     g_sm=nx.from_numpy_matrix(a)
     g_sm=g_sm.subgraph(max(nx.connected_components(g_sm),key=len))   # largest component
     numnodes=g_sm.number_of_nodes()

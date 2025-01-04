@@ -4,10 +4,6 @@ from . import *
 # http://stackoverflow.com/a/32107024/353278
 # use dot notation on dicts for convenience
 class dotdict(dict):
-    """
-    Example:
-    m = dotdict({'first_name': 'Eduardo'}, last_name='Pool', age=24, sports=['Soccer'])
-    """
     def __init__(self, *args, **kwargs):
         super(dotdict, self).__init__(*args, **kwargs)
         for arg in args:
@@ -39,18 +35,6 @@ class dotdict(dict):
 # from http://locallyoptimal.com/blog/2013/01/20/elegant-n-gram-generation-in-python/
 # generate list of ngrams
 def find_ngrams(input_list, n):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     return list(zip(*[input_list[i:] for i in range(n)]))
 
 # modified from ExGUtils package by Daniel Gamermann <gamermann@gmail.com>
@@ -59,18 +43,6 @@ def find_ngrams(input_list, n):
 # flattens list of list one level only, preserving non-list items
 # flattens type list and type np.ndarray, nothing else (on purpose)
 def flatten_list(l, numtimes=1):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     l1 = [item for sublist in l if isinstance(sublist,list) or isinstance(sublist,np.ndarray) for item in sublist]
     l = l1+[item for item in l if not isinstance(item,list) and not isinstance(item,np.ndarray)]
     if numtimes > 1:
@@ -79,18 +51,6 @@ def flatten_list(l, numtimes=1):
 
 # log trick given list of log-likelihoods **UNUSED
 def logTrick(loglist):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     logmax=max(loglist)
     loglist=[i-logmax for i in loglist]                     # log trick: subtract off the max
     p=np.log(sum([np.e**i for i in loglist])) + logmax  # add it back on
@@ -99,18 +59,6 @@ def logTrick(loglist):
 # helper function grabs highest n items from list items **UNUSED
 # http://stackoverflow.com/questions/350519/getting-the-lesser-n-elements-of-a-list-in-python
 def maxn(items,n):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     maxs = items[:n]
     maxs.sort(reverse=True)
     for i in items[n:]:
@@ -124,18 +72,6 @@ def maxn(items,n):
 # port from R's retimes library, mexgauss function by Davide Massidda <davide.massidda@humandata.it>
 # returns [mu, sigma, lambda]
 def mexgauss(rts):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     n = len(rts)
     k = [np.nan, np.nan, np.nan]
     start = [np.nan, np.nan, np.nan]
@@ -155,18 +91,6 @@ def mexgauss(rts):
 # decorator; disables garbage collection before a function, enable gc after function completes
 # provides some speed-up for functions that have lots of unnecessary garbage collection (e.g., lots of list appends)
 def nogc(fun):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     import gc
     def gcwrapper(*args, **kwargs):
         gc.disable()
@@ -177,18 +101,6 @@ def nogc(fun):
 
 # take list of lists in number/node and translate back to items using dictionary (e.g., 1->dog, 2->cat)
 def numToItemLabel(data, items):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     new_data=[]
     for l in data:
         new_data.append([])
@@ -198,18 +110,6 @@ def numToItemLabel(data, items):
 
 # modified from ExGUtils package by Daniel Gamermann <gamermann@gmail.com>
 def rand_exg(irt, sigma, lambd):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     tau=(1.0/lambd)
     nexp = -tau*np.log(1.-np.random.random())
     ngau = np.random.normal(irt, sigma)
@@ -241,18 +141,6 @@ def rand_exg(irt, sigma, lambd):
 
 # decorator; prints elapsed time for function call
 def timer(fun):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     from datetime import datetime
     def timerwrapper(*args, **kwargs):
         starttime=datetime.now()
@@ -263,18 +151,6 @@ def timer(fun):
     return timerwrapper
 
 def reverseDict(items):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     newitems=dict()
     for itemnum in items:
         itemlabel = items[itemnum]
@@ -284,18 +160,6 @@ def reverseDict(items):
 # remove perseverations -- keep only first occurrence in place
 # https://www.peterbe.com/plog/uniqifiers-benchmark
 def no_persev(x):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     seen = set()
     seen_add = seen.add
     return [i for i in x if not (i in seen or seen_add(i))]
@@ -303,18 +167,6 @@ def no_persev(x):
 # this function is copied from scipy to avoid shipping that whole library with snafu
 # unlike scipy version, this one doesn't return p-value (requires C code from scipy)
 def pearsonr(x, y):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     
     def _sum_of_squares(a, axis=0):
         a, axis = _chk_asarray(a, axis)
@@ -349,18 +201,6 @@ def pearsonr(x, y):
 
 # takes an individual's data in group space and translates it into local space
 def groupToIndividual(Xs, group_dict):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     itemset = set(flatten_list(Xs))
     
     ss_items = {}
@@ -375,18 +215,6 @@ def groupToIndividual(Xs, group_dict):
 
 # take Xs and convert them from numbers (nodes) to labels
 def numToLabel(Xs, items):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     for lnum, l in enumerate(Xs):
         for inum, i in enumerate(l):
             Xs[lnum][inum]=items[i]
@@ -394,54 +222,18 @@ def numToLabel(Xs, items):
 
 # flat list from tuple walk
 def nodes_from_edges(walk):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     path=list(list(zip(*walk))[0]) # first element from each tuple
     path.append(walk[-1][1]) # second element from last tuple
     return path
 
 # tuple walk from flat list
 def edges_from_nodes(path):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     walk=[]
     for i in range(len(path)-1):
         walk.append((path[i],path[i+1])) 
     return walk
 
 def stationary(t, method="unweighted"):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     if method=="unweighted":                 # only works for unweighted matrices!
         return sum(t>0)/float(sum(sum(t>0)))
     else:                                       # buggy
@@ -453,18 +245,6 @@ def stationary(t, method="unweighted"):
 # (aka fake participant data)
 # http://www.peterbe.com/plog/uniqifiers-benchmark
 def censored(walk, td=None, seed=None):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     def addItem(item):
         seen[item] = 1
         result.append(item)
@@ -492,18 +272,6 @@ def censored(walk, td=None, seed=None):
 # first hitting times for each node
 # TODO: Doesn't work with faulty censoring!!!
 def firstHits(walk):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     firsthit=[]
     path=edges_from_nodes(walk)
     for i in censored(walk):

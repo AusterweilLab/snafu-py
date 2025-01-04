@@ -2,18 +2,6 @@ from . import *
 
 # returns a vector of how many hidden nodes to expect between each Xi for each X in Xs
 def expectedHidden(Xs, a):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     numnodes=len(a)
     expecteds=[]
     t=a/sum(a.astype(float))                      # transition matrix (from: column, to: row)
@@ -34,18 +22,6 @@ def expectedHidden(Xs, a):
 
 # generates fake IRTs from # of steps in a random walk, using gamma distribution
 def stepsToIRT(irts, seed=None):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     nplocal=np.random.RandomState(seed)        # to generate the same IRTs each time
     new_irts=[]
     for irtlist in irts.data:
@@ -61,18 +37,6 @@ def stepsToIRT(irts, seed=None):
 # trim Xs to proportion of graph size, the trim graph to remove any nodes that weren't hit
 # used to simulate human data that doesn't cover the whole graph every time
 def trim_lists(trimprop, Xs, steps):
-    """One line description here.
-    
-        Detailed description here. Detailed description here.  Detailed 
-        description here.  
-    
-        Args:
-            arg1 (type): Description here.
-            arg2 (type): Description here.
-        Returns:
-            Detailed description here. Detailed description here.  Detailed 
-            description here. 
-    """
     numnodes=len(Xs[0])             # since Xs haven't been trimmed, we know list covers full graph
     alter_graph_size=0              # report if graph size changes-- may result in disconnected graph!
 
