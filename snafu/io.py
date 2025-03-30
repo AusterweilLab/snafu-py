@@ -115,81 +115,84 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
     if type(category) is str:
         category = [category]
 
-    # grab header col indices
-    mycsv = csv.reader(open(filepath,'rt', encoding='utf-8-sig'))
-    headers = next(mycsv, None)
-    subj_col = headers.index('id')
-    listnum_col = headers.index('listnum')
-    item_col = headers.index('item')
-    
-    # check for optional columns
-    try:
-        category_col = headers.index('category')
-        has_category_col = True
-    except:
-        has_category_col = False
-    try:
-        group_col = headers.index('group')
-        has_group_col = True
-    except:
-        has_group_col = False
-        if group:
-            raise ValueError('Data file does not have grouping column, but you asked for a specific group.')
-    try:
-        rt_col = headers.index('rt')
-        has_rt_col = True
-    except:
-        has_rt_col = False
+    # open the file once and process it
+    with open(filepath,'rt', encoding='utf-8-sig') as f:
 
-    Xs=dict()
-    irts=dict()
-    categories=dict()
-    items=dict()
-    spellingdict=dict()
-    spell_corrected = dict()
-    perseverations = dict()
-    intrusions = dict()
-    validitems=[]
-    
-    # read in list of valid items when removeIntrusions = True
-    if removeIntrusions:
-        if (not scheme) and (not targetletter):
-            raise ValueError('You need to provide a scheme or targetletter if you want to ignore intrusions!')
-        elif scheme:
-            with open(scheme,'rt', encoding='utf-8-sig') as fh:
-                for line in fh:
+        # grab header col indices
+        mycsv = csv.reader(f)
+        headers = next(mycsv, None)
+        subj_col = headers.index('id')
+        listnum_col = headers.index('listnum')
+        item_col = headers.index('item')
+
+        # check for optional columns
+        try:
+            category_col = headers.index('category')
+            has_category_col = True
+        except:
+            has_category_col = False
+        try:
+            group_col = headers.index('group')
+            has_group_col = True
+        except:
+            has_group_col = False
+            if group:
+                raise ValueError('Data file does not have grouping column, but you asked for a specific group.')
+        try:
+            rt_col = headers.index('rt')
+            has_rt_col = True
+        except:
+            has_rt_col = False
+
+        # Data containers
+        Xs = dict()
+        irts = dict()
+        categories = dict()
+        items = dict()
+        spellingdict = dict()
+        spell_corrected = dict()
+        perseverations = dict()
+        intrusions = dict()
+        validitems = []
+
+        # read in list of valid items when removeIntrusions = True
+        if removeIntrusions:
+            if (not scheme) and (not targetletter):
+                raise ValueError('You need to provide a scheme or targetletter if you want to ignore intrusions!')
+            elif scheme:
+                with open(scheme, 'rt', encoding='utf-8-sig') as fh:
+                    for line in fh:
+                        if line[0] == "#": continue  # skip commented lines
+                        try:
+                            validitems.append(line.rstrip().split(',')[1].lower())
+                        except:
+                            pass  # fail silently on wrong format
+
+        # read in spelling correction dictionary when spell is specified
+        if spell:
+            with open(spell,'rt', encoding='utf-8-sig') as spellfile:
+                for line in spellfile:
                     if line[0] == "#": continue         # skip commented lines
                     try:
-                        validitems.append(line.rstrip().split(',')[1].lower())
+                        correct, incorrect = line.rstrip().split(',')
+                        spellingdict[incorrect] = correct
                     except:
                         pass    # fail silently on wrong format
 
-    # read in spelling correction dictionary when spell is specified
-    if spell:
-        with open(spell,'rt', encoding='utf-8-sig') as spellfile:
-            for line in spellfile:
-                if line[0] == "#": continue         # skip commented lines
-                try:
-                    correct, incorrect = line.rstrip().split(',')
-                    spellingdict[incorrect] = correct
-                except:
-                    pass    # fail silently on wrong format
-   
-    with open(filepath,'rt', encoding='utf-8-sig') as f:
         f.readline()    # discard header row
         for line in f:
             if line[0] == "#": continue         # skip commented lines
             row = line.rstrip().split(',')
 
             storerow = True  # if the row meets the filters specified then load it, else skip it
-            if (subject != None) and (row[subj_col] not in subject):
+            if (subject is not None) and (row[subj_col] not in subject):
                 storerow = False
-            if (group != None) and (row[group_col] not in group):
+            if (group is not None) and (row[group_col] not in group):
                 storerow = False
-            if (category != None) and (row[category_col] not in category):
+            if (category is not None) and (row[category_col] not in category):
                 storerow = False
             
-            if storerow == True:
+            if storerow:
 
                 idx = row[subj_col]
                 listnum_int = int(row[listnum_col])
