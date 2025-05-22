@@ -16,3 +16,6 @@
     Greek animal scheme 
     Createdd by Alexandra Karousou
     Retrieved from https://osf.io/k6h3v/ on March 24, 2023
+
+* animals_snafu_mexican_spanish.csv
+	Contributed by Yamilka Garcia Avila and Yaira Chamorro
