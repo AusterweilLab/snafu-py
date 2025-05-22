@@ -36,6 +36,8 @@ Austerweil, 2018</a>). These methods are implemented:
 
 <p><code class="highlighter-rouge">pip install git+https://github.com/AusterweilLab/snafu-py</code></p>
 
+If you plan to use the `correlationBasedNetwork()` function, you will need to install the `planarity` package separately using `pip install planarity`
+
 <p>The Github repository contains several demo files, and a full tutorial is in press (<a href="http://alab.psych.wisc.edu/jzemla/brm.pdf">pre-print</a>). 
 
 <p>A graphical front-end is also available, though it does not contain as many
