@@ -85,7 +85,7 @@ If using the Spanish-language animal scheme (animals_ESnoaccent_scheme.csv):
 
 > Neergaard, K. D., Zemla, J. C., Lubrini, G., Periañez, J. A., Bernabéu, E., Ríos-Lago, M., ... & Ayesa-Arriola, R. (2025). Novel computational measure of semantic fluency performance associated with first-episode of psychosis. Psychiatry Research, 348, 116462.
 
-The Mexican Spanish-language animal scheme (animals_snafu_mexican_spanish.csv) was provided by Yamilka Garcia Avila and Yaira Chamorro (Universidad of Guadalajara)
+The Mexican Spanish-language animal scheme (animals_snafu_mexican_spanish.csv) was adapted from the Spanish-language scheme above and provided by Yamilka Garcia Avila and Yaira Chamorro (Universidad of Guadalajara)
 
 The Dutch-language schemes for bike parts, fruits, foods, transportation, and farm animals were provided by Adria Rofes (University of Groningen).
 
