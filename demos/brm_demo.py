@@ -81,7 +81,7 @@ to_write = list(zip(
             avg_aoa[0]
             ))
 
-# write data to a file!
-#with open('stats.csv','w') as fo:
-#    for line in to_write:
-#        fo.write(",".join([str(i) for i in line]) + "\n")
+#write data to a file!
+with open('stats.csv','w') as fo:
+   for line in to_write:
+       fo.write(",".join([str(i) for i in line]) + "\n")

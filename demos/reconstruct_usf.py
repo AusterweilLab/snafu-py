@@ -15,7 +15,7 @@ import numpy as np
 usf_graph, usf_items = snafu.read_graph("../snet/USF_animal_subset.snet")
 
 # convert network from adjacency matrix to networkx format
-usf_graph_nx = nx.from_numpy_matrix(usf_graph)
+usf_graph_nx = nx.from_numpy_array(usf_graph)
 usf_numnodes = len(usf_items)           # how many items are in the USF network
 
 # parameters for simulating data from the USF network
