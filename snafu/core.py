@@ -469,9 +469,13 @@ def probXhierarchical(Xs, graphs, items, td, priordict=None, irts=Irts({})):
 # does not work well for small number of lists! many NaN correlations + when two correlations are equal, ordering is arbitrary
 def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None):
     if valid and not td:
-        raise ValueError('Need to pass Data when generating \'valid\' kenett()')
-    
-    import planarity
+        raise ValueError('Need to pass Data when generating \'valid\' correlationBasedNetwork()')
+ 
+    try:
+        import planarity
+    except ImportError:
+        raise ImportError('Python package planarity is not included by default in SNAFU. Please install it separately from your terminal: pip install planarity')
+
     
     if numnodes == None:
         numnodes = len(set(flatten_list(Xs)))

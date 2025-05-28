@@ -40,6 +40,8 @@ Austerweil, 2018</a>). These methods are implemented:
 
 <p>The Github repository contains several demo files, and a tutorial covering some basic usage is available in <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7406526/">Zemla, Cao, Mueller, & Austerweil, 2020</a>
 
+If you plan to use the `correlationBasedNetwork()` function, you will need to install the `planarity` package separately using `pip install planarity`
+
 <p>A graphical front-end is also available, though it does not contain as many
 features as the Python library. You can download it for macOS or Windows. Find
 it here:</p>
