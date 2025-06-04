@@ -1,0 +1,11 @@
+method,simnum,ssnum,hit,miss,falsealarms,correctrejections,cost,startseed
+uinvite_hierarchical,0,1,0,393,0,12327,393.0,0
+uinvite_hierarchical,1,1,0,393,0,12327,393.0,3
+uinvite_hierarchical,2,1,0,393,0,12327,393.0,6
+uinvite_hierarchical,3,1,0,393,0,12327,393.0,9
+uinvite_hierarchical,4,1,0,393,0,12327,393.0,12
+uinvite_hierarchical,5,1,0,393,0,12327,393.0,15
+uinvite_hierarchical,6,1,0,393,0,12327,393.0,18
+uinvite_hierarchical,7,1,0,393,0,12327,393.0,21
+uinvite_hierarchical,8,1,0,393,0,12327,393.0,24
+uinvite_hierarchical,9,1,0,393,0,12327,393.0,27

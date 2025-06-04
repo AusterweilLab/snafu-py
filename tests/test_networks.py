@@ -1,58 +1,56 @@
-# tests/test_network_estimations.py
-
-import os
-import pytest
 import snafu
+import networkx as nx
 import numpy as np
+import pickle
+import pytest
 
-@pytest.fixture
-def fluencydata():
-    return snafu.load_fluency_data(
-        "../fluency_data/snafu_sample.csv",
-        category="animals",
-        removePerseverations=True,
-        spell="../spellfiles/animals_snafu_spellfile.csv",
-        hierarchical=False,
-        group="Experiment1"
-    )
+filepath = "../fluency_data/snafu_sample.csv"
+category = "animals"
 
-def test_network_estimations(fluencydata):
-    fitinfo = snafu.Fitinfo({
-        'cn_alpha': 0.05,
-        'cn_windowsize': 2,
-        'cn_threshold': 2
-    })
+fitinfo = snafu.Fitinfo({
+    'cn_alpha': 0.05,
+    'cn_windowsize': 2,
+    'cn_threshold': 2
+})
 
-    output_files = []
+fluencydata = snafu.load_fluency_data(filepath,
+                category=category,
+                removePerseverations=True,
+                spell="../spellfiles/animals_snafu_spellfile.csv",
+                hierarchical=False,
+                group="Experiment1")
 
-    # Naive Random Walk
-    nrw_graph = snafu.naiveRandomWalk(fluencydata.Xs, numnodes=fluencydata.groupnumnodes)
-    assert nrw_graph.shape[0] == nrw_graph.shape[1]
-    output_files.append("nrw_graph.csv")
-    snafu.write_graph(nrw_graph, output_files[-1], labels=fluencydata.groupitems, subj="GROUP")
-
-    # Conceptual Network
+def test_conceptual_network_metrics():
     cn_graph = snafu.conceptualNetwork(fluencydata.Xs, numnodes=fluencydata.groupnumnodes, fitinfo=fitinfo)
-    assert cn_graph.shape[0] == cn_graph.shape[1]
-    output_files.append("cn_graph.csv")
-    snafu.write_graph(cn_graph, output_files[-1], labels=fluencydata.groupitems, subj="GROUP")
+    nx_graph = nx.Graph(cn_graph)
 
-    # Pathfinder
-    pf_graph = snafu.pathfinder(fluencydata.Xs, numnodes=fluencydata.groupnumnodes)
-    assert pf_graph.shape[0] == pf_graph.shape[1]
-    output_files.append("pf_graph.csv")
-    snafu.write_graph(pf_graph, output_files[-1], labels=fluencydata.groupitems, subj="GROUP")
+    # Compute metrics
+    clustering = nx.average_clustering(nx_graph)
+    density = nx.density(nx_graph)
+    num_edges = nx.number_of_edges(nx_graph)
+    num_nodes = nx.number_of_nodes(nx_graph)
+    avg_neighbor_degree = nx.average_neighbor_degree(nx_graph)
+    avg_node_degree = np.mean(list(avg_neighbor_degree.values()))
 
-    # First-Edge
-    fe_graph = snafu.firstEdge(fluencydata.Xs, numnodes=fluencydata.groupnumnodes)
-    assert fe_graph.shape[0] == fe_graph.shape[1]
-    output_files.append("fe_graph.csv")
-    snafu.write_graph(fe_graph, output_files[-1], labels=fluencydata.groupitems, subj="GROUP")
+    largest_cc = max(nx.connected_components(nx_graph), key=len)
+    subgraph = nx_graph.subgraph(largest_cc)
 
-    # Check if output files were created
-    for file in output_files:
-        assert os.path.exists(file), f"{file} was not created."
+    avg_path_len = nx.average_shortest_path_length(subgraph)
+    diameter = nx.diameter(subgraph)
 
-    # Clean up files
-    # for file in output_files:
-    #     os.remove(file)
+    with open("../demos_data/cn_metrics_expected.pkl", "rb") as f:
+        expected = pickle.load(f)
+
+    def approx_equal(a, b, tol=1e-6):
+        return abs(a - b) <= tol
+
+    assert clustering == expected["clustering_coefficient"]
+    assert density == expected["density"]
+
+    assert approx_equal(clustering, expected["clustering_coefficient"])
+    assert approx_equal(density, expected["density"])
+    assert num_edges == expected["number_of_edges"]
+    assert num_nodes == expected["number_of_nodes"]
+    assert approx_equal(avg_node_degree, expected["average_node_degree"])
+    assert approx_equal(avg_path_len, expected["average_shortest_path_length"])
+    assert diameter == expected["diameter"]

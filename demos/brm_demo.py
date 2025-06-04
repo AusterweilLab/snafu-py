@@ -5,6 +5,11 @@
 # clusters, though the data is not letter fluency data.)
 
 import snafu
+import os
+import pickle
+
+OUTPUT_DIR = "../demos_data"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Example 1: Import data for the animal category of participant id A101
 fluencydata_a101 = snafu.load_fluency_data("../fluency_data/snafu_sample.csv",
@@ -52,11 +57,14 @@ avg_num_intrusions = snafu.intrusions(fluencydata.labeledlists, "../schemes/anim
 
 # Example 9: Return a list of all intrusions in animal fluency data
 intrusions_list = snafu.intrusionsList(fluencydata.labeledlists, "../schemes/animals_snafu_scheme.csv")
+with open(os.path.join(OUTPUT_DIR, "intrusions_list.pkl"), "wb") as f:
+    pickle.dump(intrusions_list, f)
 
 # Example 10: Return all intrusions in letter fluency data by specifying the target letter
 #       - The target letter is not case sensitive
 intrusions_list_letter = snafu.intrusionsList(fluencydata.labeledlists, "a")
-
+with open(os.path.join(OUTPUT_DIR, "intrusions_list_letter_a.pkl"), "wb") as f:
+    pickle.dump(intrusions_list_letter, f)
 
 # Example 11: Returns the average word frequency per list (or participant) and a list of words not factored into this calculation (when missing is set to None)
 avg_word_freq = snafu.wordFrequency(fluencydata.labeledlists, data="../frequency/subtlex-us.csv", missing=0.5)
@@ -82,6 +90,8 @@ to_write = list(zip(
             ))
 
 #write data to a file!
-with open('stats.csv','w') as fo:
+with open("../demos_data/stats.csv", "w") as fo:
+       # Add headers
+   fo.write("sub_id,cluster_switch,switch_rate,cluster_size,num_perseverations,num_intrusions,word_freq,aoa\n")
    for line in to_write:
        fo.write(",".join([str(i) for i in line]) + "\n")

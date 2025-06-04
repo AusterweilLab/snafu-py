@@ -2,6 +2,11 @@
 # or not -- useful for item level analysis
 
 import snafu
+import os
+
+os.makedirs("../demos_data", exist_ok=True)
+
+
 
 fluencydata = snafu.load_fluency_data("../fluency_data/snafu_sample.csv", 
                                         category="animals",
@@ -34,7 +39,7 @@ for fluencylist in clusterlabels:
     switchlists.append(switchlist)
 
 # write data to file
-with open('switches.csv','w') as fh:
+with open('../demos_data/switches.csv','w') as fh:
     fh.write('id,listnum,category,item,switch\n')
     for eachlistnum, eachlist in enumerate(fluencydata.listnums):
         subj = eachlist[0]

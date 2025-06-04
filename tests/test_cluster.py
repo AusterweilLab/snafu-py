@@ -1,26 +1,13 @@
-import os
 import snafu
-import pytest
+import pandas as pd
 
 DATA_PATH = "../fluency_data/snafu_sample.csv"
-SCHEME_PATH = "../schemes/animals_snafu_scheme.csv"
 SPELL_PATH = "../spellfiles/animals_snafu_spellfile.csv"
-OUTPUT_FILE = "switches.csv"
+SCHEME_PATH = "../schemes/animals_snafu_scheme.csv"
+EXPECTED_SWITCHES_PATH = "../demos_data/switches.csv"
 
-@pytest.fixture
-def fluencydata():
-    return snafu.load_fluency_data(
-        DATA_PATH,
-        category="animals",
-        removeNonAlphaChars=True,
-        spell=SPELL_PATH,
-        group=["Experiment1"]
-    )
-
-def test_switch_computation_and_output(fluencydata):
-    clusterlabels = snafu.labelClusters(fluencydata.labeledXs, scheme=SCHEME_PATH, labelIntrusions=True)
+def compute_switchlists(clusterlabels):
     switchlists = []
-
     for fluencylist in clusterlabels:
         switchlist = []
         prev_clusters = []
@@ -29,34 +16,26 @@ def test_switch_computation_and_output(fluencydata):
                 switchlist.append("intrusion")
                 continue
             curr_clusters = item.split(';')
-            matching_clusters = list(set(prev_clusters) & set(curr_clusters))
-            if len(matching_clusters) > 0 or len(prev_clusters) == 0:
-                switchlist.append(0)
-            else:
-                switchlist.append(1)
+            switchlist.append("0" if not prev_clusters or set(prev_clusters) & set(curr_clusters) else "1")
             prev_clusters = curr_clusters
         switchlists.append(switchlist)
+    return [s for sublist in switchlists for s in sublist]  # flatten
 
-    # Write to file
-    with open(OUTPUT_FILE, 'w') as fh:
-        fh.write('id,listnum,category,item,switch\n')
-        for eachlistnum, eachlist in enumerate(fluencydata.listnums):
-            subj = eachlist[0]
-            listnum = eachlist[1]
-            for itemnum, item in enumerate(fluencydata.labeledXs[eachlistnum]):
-                to_write = [subj, str(listnum), "animals", item, str(switchlists[eachlistnum][itemnum])]
-                fh.write(','.join(to_write) + "\n")
+def test_switches_match():
+    fluencydata = snafu.load_fluency_data(
+        DATA_PATH,
+        category="animals",
+        removeNonAlphaChars=True,
+        spell=SPELL_PATH,
+        group=["Experiment1"]
+    )
+    clusterlabels = snafu.labelClusters(fluencydata.labeledXs, scheme=SCHEME_PATH, labelIntrusions=True)
+    expected_df = pd.read_csv(EXPECTED_SWITCHES_PATH)
 
-    # Now test the file was written correctly
-    assert os.path.exists(OUTPUT_FILE)
+    actual_switches = compute_switchlists(clusterlabels)
+    print(actual_switches)
+    expected_switches = expected_df["switch"].astype(str).tolist()
+    print(expected_switches)
 
-    with open(OUTPUT_FILE, 'r') as f:
-        lines = f.readlines()
-
-    assert lines[0].strip() == "id,listnum,category,item,switch"  # header
-    for line in lines[1:]:
-        parts = line.strip().split(',')
-        assert len(parts) == 5
-        assert parts[4] in ['0', '1', 'intrusion']
-
-    os.remove(OUTPUT_FILE)  # clean up
+    assert len(actual_switches) == len(expected_switches), "Mismatch in number of switch labels"
+    assert actual_switches == expected_switches, "Mismatch in switch values"

@@ -10,6 +10,9 @@
 import snafu
 import networkx as nx
 import numpy as np
+import os
+
+os.makedirs("../demos_data", exist_ok=True)
 
 # import the USF network and dictionary of items
 usf_graph, usf_items = snafu.read_graph("../snet/USF_animal_subset.snet")
@@ -57,7 +60,7 @@ fitinfo=snafu.Fitinfo({
 # generate data for `numsub` participants, each having `numlists` lists of `listlengths` items
 seednum=0
 
-with open('usf_reconstruction_results.csv','w') as fh:
+with open('../demos_data/usf_reconstruction_results.csv','w') as fh:
     fh.write("method,simnum,ssnum,hit,miss,falsealarms,correctrejections,cost,startseed\n")
 
     for simnum in range(numsims):
