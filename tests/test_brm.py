@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 import pandas as pd
 import json
+import pickle as pkl
 
 # Adjust these paths as needed
 DATA_PATH = "../fluency_data/snafu_sample.csv"
@@ -11,8 +12,8 @@ SPELL_PATH = "../spellfiles/animals_snafu_spellfile.csv"
 FREQ_PATH = "../frequency/subtlex-us.csv"
 AOA_PATH = "../aoa/kuperman.csv"
 STATS_PATH = "../demos_data/stats.csv"  # CSV with expected values
-SEMANTIC_INTRUSIONS_PATH = "../demos_data/intrusions_list.json"
-LETTER_INTRUSIONS_PATH = "../demos_data/intrusions_list_letter_a.json"
+SEMANTIC_INTRUSIONS_PATH = "../demos_data/intrusions_list.pkl"
+LETTER_INTRUSIONS_PATH = "../demos_data/intrusions_list_letter_a.pkl"
 
 @pytest.fixture
 def expected():
@@ -55,14 +56,14 @@ def test_intrusions(fluencydata, expected):
     assert np.allclose(actual, expected["num_intrusions"], equal_nan=True), "Mismatch in num_intrusions"
 
 def test_intrusions_list_semantic_exact(fluencydata):
-    with open(SEMANTIC_INTRUSIONS_PATH, "r") as f:
-        expected_intrusions = json.load(f)
+    with open(SEMANTIC_INTRUSIONS_PATH, "rb") as f:
+        expected_intrusions = pkl.load(f)
     actual_intrusions = snafu.intrusionsList(fluencydata.labeledlists, SCHEME_PATH)
     assert actual_intrusions == expected_intrusions, " Mismatch in semantic intrusions list"
 
 def test_intrusions_list_letter_exact(fluencydata):
-    with open(LETTER_INTRUSIONS_PATH, "r") as f:
-        expected = json.load(f)
+    with open(LETTER_INTRUSIONS_PATH, "rb") as f:
+        expected = pkl.load(f)
 
     actual = snafu.intrusionsList(fluencydata.labeledlists, "a")
 

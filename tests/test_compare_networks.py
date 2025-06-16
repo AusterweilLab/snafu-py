@@ -54,15 +54,12 @@ def test_network_likelihoods_tolerant_match():
     # Regenerate new values
     current = generate_likelihoods()
 
-    # Tolerance level
-    tolerance = 50.0
-
     for key in expected:
         saved_val = float(expected[key])
         new_val = float(current[key])
         diff = abs(saved_val - new_val)
 
         print(f"{key}: expected={saved_val}, current={new_val}, Δ={diff}")
-        
-        if diff > tolerance:
-            print(f" WARNING: {key} value drifted beyond tolerance (Δ={diff})")
+
+        # Strict check: fail if difference is not 0
+        assert diff == 0.0, f" Mismatch for '{key}': expected {saved_val}, got {new_val} (Δ={diff})"

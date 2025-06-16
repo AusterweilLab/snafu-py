@@ -6,10 +6,17 @@ import snafu
 import numpy as np
 import random
 import networkx as nx
+import pickle  # added for saving output
+import os
 
+os.makedirs("../demos_data", exist_ok=True)
 
 # Load animal component of USF semantic network (Nelson et al, 1999)
 usf_network, usf_items = snafu.read_graph('../snet/usf_animal_subset.snet')
+
+# # Added: set random seed for reproducibility
+random.seed(42)
+np.random.seed(42)
 
 # Perturb this network by randomly changing ~10% of the edges to non-edges and an equivalent
 # number of non-edges to edges
@@ -55,3 +62,14 @@ print ('Log-likelihood of generating USF lists from alternate network: ', p_usf_
 print('')
 print ('Log-likelihood of generating alternate lists from USF network: ', p_alternate_from_usf)
 print ('Log-likelihood of generating alternate lists from alternate network: ', p_alternate_from_alternate)
+
+# Added: save results for testing
+loglikelihoods = {
+    "p_usf_from_usf": round(p_usf_from_usf, 2),
+    "p_usf_from_alternate": round(p_usf_from_alternate, 2),
+    "p_alternate_from_usf": round(p_alternate_from_usf, 2),
+    "p_alternate_from_alternate": round(p_alternate_from_alternate, 2)
+}
+
+with open("../demos_data/expected_likelihoods.pkl", "wb") as f:
+    pickle.dump(loglikelihoods, f)
