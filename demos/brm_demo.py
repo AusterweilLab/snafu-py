@@ -8,7 +8,7 @@ import snafu
 import os
 import pickle
 
-OUTPUT_DIR = "../demos_data"
+OUTPUT_DIR = "demos_data"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Example 1: Import data for the animal category of participant id A101
@@ -90,7 +90,7 @@ to_write = list(zip(
             ))
 
 #write data to a file!
-with open("../demos_data/stats.csv", "w") as fo:
+with open(os.path.join(OUTPUT_DIR, "stats.csv"), "w") as fo:
        # Add headers
    fo.write("sub_id,cluster_switch,switch_rate,cluster_size,num_perseverations,num_intrusions,word_freq,aoa\n")
    for line in to_write:

@@ -7,8 +7,8 @@ import pytest
 DATA_PATH = "../fluency_data/snafu_sample.csv"
 SPELL_PATH = "../spellfiles/foods_snafu_spellfile.csv"
 SCHEME_PATH = "../schemes/foods_snafu_scheme.csv"
-OUTPUT_DIR = "../demos_data"
-EXPECTED_DIR = "../tests_data"
+OUTPUT_DIR = "test_data"
+EXPECTED_DIR = "test_data"
 ACTUAL_CSV = os.path.join(OUTPUT_DIR, "foods_network.csv")
 EXPECTED_CSV = os.path.join(EXPECTED_DIR, "foods_network_expected.csv")
 

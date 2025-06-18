@@ -38,13 +38,13 @@ def test_conceptual_network_metrics():
     avg_path_len = nx.average_shortest_path_length(subgraph)
     diameter = nx.diameter(subgraph)
 
-    with open("../demos_data/cn_metrics_expected.pkl", "rb") as f:
+    with open("test_data/cn_metrics_expected.pkl", "rb") as f:
         expected = pickle.load(f)
 
     def approx_equal(a, b, tol=1e-6):
         return abs(a - b) <= tol
 
-    assert clustering == expected["clustering_coefficient"]
+    assert approx_equal(clustering, expected["clustering_coefficient"])
     assert density == expected["density"]
 
     assert approx_equal(clustering, expected["clustering_coefficient"])

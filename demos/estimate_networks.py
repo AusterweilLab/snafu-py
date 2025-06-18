@@ -2,7 +2,7 @@ import snafu
 import numpy as np
 import os
 
-os.makedirs("../demos_data", exist_ok=True)
+os.makedirs("demos_data", exist_ok=True)
 filepath = "../fluency_data/snafu_sample.csv"
 category="animals"
 
@@ -43,8 +43,8 @@ fe_graph = snafu.firstEdge(fluencydata.Xs, numnodes=fluencydata.groupnumnodes)
 print('Estimated First-Edge Network')
 
 # write edge lists to a file
-snafu.write_graph(nrw_graph, "../demos_data/nrw_graph.csv", labels=fluencydata.groupitems, subj="GROUP")
-snafu.write_graph(cn_graph, "../demos_data/cn_graph.csv", labels=fluencydata.groupitems, subj="GROUP")
-snafu.write_graph(pf_graph, "../demos_data/pf_graph.csv", labels=fluencydata.groupitems, subj="GROUP")
-snafu.write_graph(cbn_graph, "../demos_data/cbn_graph.csv", labels=fluencydata.groupitems, subj="GROUP")
-snafu.write_graph(fe_graph, "../demos_data/fe_graph.csv", labels=fluencydata.groupitems, subj="GROUP")
+snafu.write_graph(nrw_graph, "demos_data/nrw_graph.csv", labels=fluencydata.groupitems, subj="GROUP")
+snafu.write_graph(cn_graph, "demos_data/cn_graph.csv", labels=fluencydata.groupitems, subj="GROUP")
+snafu.write_graph(pf_graph, "demos_data/pf_graph.csv", labels=fluencydata.groupitems, subj="GROUP")
+snafu.write_graph(cbn_graph, "demos_data/cbn_graph.csv", labels=fluencydata.groupitems, subj="GROUP")
+snafu.write_graph(fe_graph, "demos_data/fe_graph.csv", labels=fluencydata.groupitems, subj="GROUP")

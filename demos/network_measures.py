@@ -60,7 +60,7 @@ metrics = {
     "diameter": diameter
 }
 
-with open("../demos_data/cn_metrics_expected.pkl", "wb") as f:
+with open("demos_data/cn_metrics_expected.pkl", "wb") as f:
     pickle.dump(metrics, f)
 
 # NetworkX can do many many other network calculations. Google for the documentation, which is quite good.
