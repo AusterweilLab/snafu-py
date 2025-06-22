@@ -1,0 +1,433 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>snafu.io &mdash; Snafu 2.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=b21de401"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Snafu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Snafu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">snafu.io</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for snafu.io</h1><div class="highlight"><pre>
+<span></span><span class="c1"># IO functions:</span>
+<span class="c1">#</span>
+<span class="c1"># * Read graph from file</span>
+<span class="c1"># * Write graph to file</span>
+<span class="c1"># * Read fluency data from file</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># alias for backwards compatibility</span>
+<div class="viewcode-block" id="write_graph">
+<a class="viewcode-back" href="../../snafu.html#snafu.io.write_graph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_graph</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">write_network</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="c1"># alias for backwards compatibility</span>
+<div class="viewcode-block" id="readX">
+<a class="viewcode-back" href="../../snafu.html#snafu.io.readX">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">readX</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">load_fluency_data</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="c1"># alias for backwards compatibility</span>
+<div class="viewcode-block" id="load_graph">
+<a class="viewcode-back" href="../../snafu.html#snafu.io.load_graph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_graph</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">load_network</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="c1"># alias for backwards compatibility</span>
+<div class="viewcode-block" id="read_graph">
+<a class="viewcode-back" href="../../snafu.html#snafu.io.read_graph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_graph</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">load_network</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="c1"># DEFUNCT</span>
+<div class="viewcode-block" id="graphToHash">
+<a class="viewcode-back" href="../../snafu.html#snafu.io.graphToHash">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">graphToHash</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This function is defunct, as it is no longer supported by NetworkX&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="c1">#nx.generate_sparse6(nx.to_networkx_graph(a),header=False)</span></div>
+
+
+<span class="c1"># DEFUNCT</span>
+<div class="viewcode-block" id="hashToGraph">
+<a class="viewcode-back" href="../../snafu.html#snafu.io.hashToGraph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hashToGraph</span><span class="p">(</span><span class="n">graphhash</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;This function is defunct, as it is no longer supported by NetworkX&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="c1">#nx.to_numpy_array(nx.parse_graph6(graphhash))</span></div>
+
+
+<span class="c1"># reads in graph from CSV</span>
+<span class="c1"># row order not preserved; could be optimized more</span>
+<div class="viewcode-block" id="load_network">
+<a class="viewcode-back" href="../../snafu.html#snafu.io.load_network">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_network</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span><span class="n">cols</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">filters</span><span class="o">=</span><span class="p">{},</span><span class="n">undirected</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">fh</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span><span class="s1">&#39;rt&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8-sig&#39;</span><span class="p">)</span>
+    <span class="n">idx</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">bigdict</span><span class="o">=</span><span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+        <span class="n">headerrow</span><span class="o">=</span><span class="n">fh</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">cols</span><span class="o">=</span><span class="p">(</span><span class="n">headerrow</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="n">headerrow</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">filterrows</span><span class="o">=</span><span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">filters</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">filterrows</span><span class="p">[</span><span class="n">headerrow</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span><span class="o">=</span><span class="n">filters</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">filterrows</span><span class="o">=</span><span class="p">{}</span>
+
+    <span class="n">done</span><span class="o">=</span><span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">line</span><span class="o">=</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+        <span class="n">linesplit</span><span class="o">=</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">twoitems</span><span class="o">=</span><span class="p">[</span><span class="n">linesplit</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span><span class="n">linesplit</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">1</span><span class="p">]]]</span>
+       
+        <span class="n">skiprow</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">filterrows</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">linesplit</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">!=</span><span class="n">filterrows</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">skiprow</span><span class="o">=</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">skiprow</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">continue</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">twoitems</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bigdict</span><span class="p">[</span><span class="n">twoitems</span><span class="p">[</span><span class="mi">0</span><span class="p">]]:</span>
+                <span class="n">bigdict</span><span class="p">[</span><span class="n">twoitems</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">twoitems</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">bigdict</span><span class="p">[</span><span class="n">twoitems</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">twoitems</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">twoitems</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bigdict</span><span class="p">:</span>              <span class="c1"># doesn&#39;t this scale with dictionary size-- something i was trying to avoid by rewriting this function?</span>
+            <span class="n">bigdict</span><span class="p">[</span><span class="n">twoitems</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+    
+    <span class="n">items_rev</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">bigdict</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">bigdict</span><span class="o">.</span><span class="n">keys</span><span class="p">())))))))</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">bigdict</span><span class="o">.</span><span class="n">keys</span><span class="p">())))),</span><span class="nb">list</span><span class="p">(</span><span class="n">bigdict</span><span class="o">.</span><span class="n">keys</span><span class="p">()))))</span>
+    
+    <span class="k">if</span> <span class="n">sparse</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">csr_matrix</span>
+        <span class="n">rows</span><span class="o">=</span><span class="p">[]</span>
+        <span class="n">cols</span><span class="o">=</span><span class="p">[]</span>
+        <span class="n">numedges</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">bigdict</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">bigdict</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">items_rev</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">items_rev</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">numedges</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">undirected</span><span class="p">:</span>
+                    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">items_rev</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                    <span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">items_rev</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">numedges</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">numedges</span><span class="p">)</span>
+        <span class="n">rows</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+        <span class="n">cols</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">csr_matrix</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">)),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)))</span>
+        
+        <span class="k">for</span> <span class="n">item1</span> <span class="ow">in</span> <span class="n">bigdict</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item2</span> <span class="ow">in</span> <span class="n">bigdict</span><span class="p">[</span><span class="n">item1</span><span class="p">]:</span>
+                <span class="n">idx1</span><span class="o">=</span><span class="n">items_rev</span><span class="p">[</span><span class="n">item1</span><span class="p">]</span>
+                <span class="n">idx2</span><span class="o">=</span><span class="n">items_rev</span><span class="p">[</span><span class="n">item2</span><span class="p">]</span>
+                <span class="n">graph</span><span class="p">[</span><span class="n">idx1</span><span class="p">,</span><span class="n">idx2</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+                <span class="k">if</span> <span class="n">undirected</span><span class="p">:</span>
+                    <span class="n">graph</span><span class="p">[</span><span class="n">idx2</span><span class="p">,</span><span class="n">idx1</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">graph</span><span class="p">,</span> <span class="n">items</span></div>
+
+
+<div class="viewcode-block" id="load_fluency_data">
+<a class="viewcode-back" href="../../snafu.html#snafu.io.load_fluency_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_fluency_data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="n">category</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">removePerseverations</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">removeIntrusions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">spell</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">scheme</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">group</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">subject</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">removeNonAlphaChars</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">hierarchical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">targetletter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">targetletter</span><span class="p">:</span>
+        <span class="n">targetletter</span> <span class="o">=</span> <span class="n">targetletter</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="p">[</span><span class="n">group</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">subject</span> <span class="o">=</span> <span class="p">[</span><span class="n">subject</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">category</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">category</span> <span class="o">=</span> <span class="p">[</span><span class="n">category</span><span class="p">]</span>
+
+    <span class="c1"># grab header col indices</span>
+    <span class="n">mycsv</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="s1">&#39;rt&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8-sig&#39;</span><span class="p">))</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">mycsv</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">subj_col</span> <span class="o">=</span> <span class="n">headers</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
+    <span class="n">listnum_col</span> <span class="o">=</span> <span class="n">headers</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;listnum&#39;</span><span class="p">)</span>
+    <span class="n">item_col</span> <span class="o">=</span> <span class="n">headers</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;item&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># check for optional columns</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">category_col</span> <span class="o">=</span> <span class="n">headers</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">)</span>
+        <span class="n">has_category_col</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">has_category_col</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">group_col</span> <span class="o">=</span> <span class="n">headers</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;group&#39;</span><span class="p">)</span>
+        <span class="n">has_group_col</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">has_group_col</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">group</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Data file does not have grouping column, but you asked for a specific group.&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">rt_col</span> <span class="o">=</span> <span class="n">headers</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;rt&#39;</span><span class="p">)</span>
+        <span class="n">has_rt_col</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">has_rt_col</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">Xs</span><span class="o">=</span><span class="nb">dict</span><span class="p">()</span>
+    <span class="n">irts</span><span class="o">=</span><span class="nb">dict</span><span class="p">()</span>
+    <span class="n">categories</span><span class="o">=</span><span class="nb">dict</span><span class="p">()</span>
+    <span class="n">items</span><span class="o">=</span><span class="nb">dict</span><span class="p">()</span>
+    <span class="n">spellingdict</span><span class="o">=</span><span class="nb">dict</span><span class="p">()</span>
+    <span class="n">spell_corrected</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">perseverations</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">intrusions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">validitems</span><span class="o">=</span><span class="p">[]</span>
+    
+    <span class="c1"># read in list of valid items when removeIntrusions = True</span>
+    <span class="k">if</span> <span class="n">removeIntrusions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">scheme</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">targetletter</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;You need to provide a scheme or targetletter if you want to ignore intrusions!&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">scheme</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">scheme</span><span class="p">,</span><span class="s1">&#39;rt&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8-sig&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span> <span class="k">continue</span>         <span class="c1"># skip commented lines</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">validitems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="k">pass</span>    <span class="c1"># fail silently on wrong format</span>
+
+    <span class="c1"># read in spelling correction dictionary when spell is specified</span>
+    <span class="k">if</span> <span class="n">spell</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">spell</span><span class="p">,</span><span class="s1">&#39;rt&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8-sig&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">spellfile</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">spellfile</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span> <span class="k">continue</span>         <span class="c1"># skip commented lines</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">correct</span><span class="p">,</span> <span class="n">incorrect</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+                    <span class="n">spellingdict</span><span class="p">[</span><span class="n">incorrect</span><span class="p">]</span> <span class="o">=</span> <span class="n">correct</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">pass</span>    <span class="c1"># fail silently on wrong format</span>
+   
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="s1">&#39;rt&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8-sig&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>    <span class="c1"># discard header row</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;#&quot;</span><span class="p">:</span> <span class="k">continue</span>         <span class="c1"># skip commented lines</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+            <span class="n">storerow</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># if the row meets the filters specified then load it, else skip it</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">subject</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">subj_col</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subject</span><span class="p">):</span>
+                <span class="n">storerow</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">group</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">group_col</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group</span><span class="p">):</span>
+                <span class="n">storerow</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">category</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">category_col</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">category</span><span class="p">):</span>
+                <span class="n">storerow</span> <span class="o">=</span> <span class="kc">False</span>
+            
+            <span class="k">if</span> <span class="n">storerow</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">subj_col</span><span class="p">]</span>
+                <span class="n">listnum_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">listnum_col</span><span class="p">])</span>
+                
+                <span class="c1"># make sure dict keys exist</span>
+                <span class="k">if</span> <span class="n">idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">:</span>
+                    <span class="n">Xs</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                    <span class="n">spell_corrected</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                    <span class="n">perseverations</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                    <span class="n">intrusions</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">has_rt_col</span><span class="p">:</span>
+                        <span class="n">irts</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">has_category_col</span><span class="p">:</span>
+                        <span class="n">categories</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">listnum_int</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">[</span><span class="n">idx</span><span class="p">]:</span>
+                    <span class="n">Xs</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">listnum_int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">spell_corrected</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">listnum_int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">perseverations</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">listnum_int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">intrusions</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">listnum_int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">has_rt_col</span><span class="p">:</span>
+                        <span class="n">irts</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">listnum_int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">has_category_col</span><span class="p">:</span>
+                        <span class="n">categories</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">listnum_int</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">category_col</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">idx</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                    <span class="n">items</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                    
+                <span class="c1"># basic clean-up</span>
+                <span class="n">item</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="n">item_col</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">removeNonAlphaChars</span><span class="p">:</span>
+                    <span class="n">goodchars</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">char</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
+                            <span class="n">goodchars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">goodchars</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">spellingdict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                    <span class="n">newitem</span> <span class="o">=</span> <span class="n">spellingdict</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+                    <span class="n">spell_corrected</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">listnum_int</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">item</span><span class="p">,</span> <span class="n">newitem</span><span class="p">))</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="n">newitem</span>
+                <span class="k">if</span> <span class="n">has_rt_col</span><span class="p">:</span>
+                    <span class="n">irt</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="n">rt_col</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="ow">in</span> <span class="n">validitems</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">removeIntrusions</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">targetletter</span><span class="p">):</span>
+                        <span class="n">item_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+                        <span class="n">items</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">item_count</span><span class="p">]</span><span class="o">=</span><span class="n">item</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">intrusions</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">listnum_int</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="c1"># record as intrusion</span>
+
+                <span class="c1"># add item to list</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">itemval</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">removePerseverations</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">itemval</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">listnum_int</span><span class="p">]):</span>   <span class="c1"># ignore any duplicates in same list resulting from spelling corrections</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="ow">in</span> <span class="n">validitems</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">removeIntrusions</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">targetletter</span><span class="p">):</span>
+                            <span class="n">Xs</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">listnum_int</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">itemval</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">has_rt_col</span><span class="p">:</span>
+                                <span class="n">irts</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">listnum_int</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">irt</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">perseverations</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">listnum_int</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="c1"># record as perseveration</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">pass</span>                <span class="c1"># bad practice to have empty except</span>
+   
+    <span class="k">return</span> <span class="n">Data</span><span class="p">({</span><span class="s1">&#39;Xs&#39;</span><span class="p">:</span> <span class="n">Xs</span><span class="p">,</span> <span class="s1">&#39;items&#39;</span><span class="p">:</span> <span class="n">items</span><span class="p">,</span> <span class="s1">&#39;irts&#39;</span><span class="p">:</span> <span class="n">irts</span><span class="p">,</span> <span class="s1">&#39;structure&#39;</span><span class="p">:</span> <span class="n">hierarchical</span><span class="p">,</span> <span class="s1">&#39;categories&#39;</span><span class="p">:</span> <span class="n">categories</span><span class="p">,</span>
+                 <span class="s1">&#39;spell_corrected&#39;</span><span class="p">:</span> <span class="n">spell_corrected</span><span class="p">,</span> <span class="s1">&#39;perseverations&#39;</span><span class="p">:</span> <span class="n">perseverations</span><span class="p">,</span> <span class="s1">&#39;intrusions&#39;</span><span class="p">:</span> <span class="n">intrusions</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="write_network">
+<a class="viewcode-back" href="../../snafu.html#snafu.io.write_network">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_network</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">fh</span><span class="p">,</span> <span class="n">subj</span><span class="o">=</span><span class="s2">&quot;NA&quot;</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">extra_data</span><span class="o">=</span><span class="p">{},</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">onezero</span><span class="o">=</span><span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s1">&#39;0&#39;</span><span class="p">}</span>        
+    <span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+    <span class="n">fh</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># if gs is not a list of graphs, then it should be a single graph</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">gs</span> <span class="o">=</span> <span class="p">[</span><span class="n">gs</span><span class="p">]</span>
+
+    <span class="c1"># turn them all into networkx graphs if they aren&#39;t already</span>
+    <span class="n">gs</span> <span class="o">=</span> <span class="p">[</span><span class="n">g</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="o">==</span> <span class="n">nx</span><span class="o">.</span><span class="n">classes</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">Graph</span> <span class="k">else</span> <span class="n">nx</span><span class="o">.</span><span class="n">to_networkx_graph</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gs</span><span class="p">]</span>
+
+    <span class="c1"># label nodes if labels are provided</span>
+    <span class="k">if</span> <span class="n">labels</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">labels</span><span class="p">]</span>
+        <span class="n">gs</span> <span class="o">=</span> <span class="p">[</span><span class="n">nx</span><span class="o">.</span><span class="n">relabel_nodes</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">labels</span><span class="p">)]</span>
+    
+    <span class="n">nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">flatten_list</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gs</span><span class="p">))])))</span>
+    
+    <span class="k">if</span> <span class="n">header</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;subj,item1,item2,edge,</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>            <span class="c1"># default header</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;subj,item1,item2,&#39;</span><span class="o">+</span> <span class="n">header</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>      <span class="c1"># manual header if string is specified</span>
+    
+    <span class="k">for</span> <span class="n">node1</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node2</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">node1</span> <span class="o">&lt;</span> <span class="n">node2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">((</span><span class="n">directed</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">node1</span> <span class="o">!=</span> <span class="n">node2</span><span class="p">)):</span>   <span class="c1"># write edges in alphabetical order unless directed graph</span>
+                <span class="n">edge</span> <span class="o">=</span> <span class="p">(</span><span class="n">node1</span><span class="p">,</span><span class="n">node2</span><span class="p">)</span>
+                <span class="n">edgelist</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+                <span class="k">if</span> <span class="n">sparse</span><span class="p">:</span>
+                    <span class="n">write_edge</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">write_edge</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gs</span><span class="p">:</span>
+                    <span class="n">hasedge</span> <span class="o">=</span> <span class="n">onezero</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+                    <span class="n">edgelist</span><span class="o">=</span><span class="n">edgelist</span><span class="o">+</span><span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="n">hasedge</span>    <span class="c1"># assumes graph is symmetrical if directed=True !!</span>
+                    <span class="n">write_edge</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hasedge</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">write_edge</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">extrainfo</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+                    <span class="k">if</span> <span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">extra_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                        <span class="k">if</span> <span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">extra_data</span><span class="p">[</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra_data</span><span class="p">[</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span><span class="nb">list</span><span class="p">):</span>
+                                <span class="n">extrainfo</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="o">+</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">extra_data</span><span class="p">[</span><span class="n">sortededge</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">sortededge</span><span class="p">[</span><span class="mi">1</span><span class="p">]]])</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">extrainfo</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">extra_data</span><span class="p">[</span><span class="n">sortededge</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">sortededge</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+                    <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">subj</span>    <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span>
+                            <span class="nb">str</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span>
+                            <span class="nb">str</span><span class="p">(</span><span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="o">+</span> 
+                            <span class="n">edgelist</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span>
+                            <span class="n">extrainfo</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jeff Zemla.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

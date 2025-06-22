@@ -1,0 +1,503 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>snafu.gui &mdash; Snafu 2.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=b21de401"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Snafu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Snafu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">snafu.gui</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for snafu.gui</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="list_subjects_and_categories">
+<a class="viewcode-back" href="../../snafu.html#snafu.gui.list_subjects_and_categories">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_subjects_and_categories</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
+    <span class="n">subjects</span><span class="o">=</span><span class="p">[]</span>
+    <span class="c1">#categories=[&quot;all&quot;]</span>
+    <span class="n">categories</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">]</span>
+    
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;fullpath&#39;</span><span class="p">],</span><span class="s1">&#39;rt&#39;</span><span class="p">,</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8-sig&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">header</span><span class="o">=</span><span class="n">fh</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">subj_idx</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cat_idx</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">cat_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">group_idx</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;group&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">group_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">csv</span><span class="w"> </span><span class="kn">import</span> <span class="n">reader</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">(</span><span class="n">fh</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="n">subj_idx</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subjects</span><span class="p">:</span>
+                <span class="n">subjects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="n">subj_idx</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">cat_idx</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="n">cat_idx</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">:</span>
+                    <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="n">cat_idx</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">group_idx</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">group_label</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">group_idx</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">group_label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+                    <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group_label</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;list_subjects_and_categories&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;subjects&quot;</span><span class="p">:</span> <span class="n">subjects</span><span class="p">,</span> 
+             <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="n">categories</span><span class="p">,</span>
+             <span class="s2">&quot;groups&quot;</span><span class="p">:</span> <span class="n">groups</span><span class="p">,</span>
+             <span class="s2">&quot;subject&quot;</span><span class="p">:</span> <span class="n">subjects</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+             <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="n">categories</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+             <span class="s2">&quot;group&quot;</span><span class="p">:</span> <span class="n">groups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="jsonGraph">
+<a class="viewcode-back" href="../../snafu.html#snafu.gui.jsonGraph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">jsonGraph</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+    <span class="n">json_data</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">readwrite</span><span class="o">.</span><span class="n">json_graph</span><span class="o">.</span><span class="n">node_link_data</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+    
+    <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;edges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;links&#39;</span><span class="p">]</span>
+    <span class="n">json_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;links&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">json_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;directed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">json_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;multigraph&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">json_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;graph&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;edges&#39;</span><span class="p">]):</span>
+        <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;edges&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+        
+        <span class="c1"># this line fixes a bug (JSON not serializable) i don&#39;t know why it&#39;s not serializable without it (py3.5)</span>
+        <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;edges&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;target&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;edges&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;target&#39;</span><span class="p">])</span> 
+   
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">]):</span>
+        <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="n">j</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]]</span>
+   
+    <span class="c1"># works when edges[&#39;target&#39;] aren&#39;t in dict</span>
+    <span class="c1">#json_data.pop(&#39;edges&#39;,None)</span>
+
+    <span class="k">return</span> <span class="n">json_data</span></div>
+
+
+<div class="viewcode-block" id="label_to_filepath">
+<a class="viewcode-back" href="../../snafu.html#snafu.gui.label_to_filepath">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">label_to_filepath</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">root_path</span><span class="p">,</span> <span class="n">filetype</span><span class="p">):</span>
+    <span class="n">filedict</span><span class="o">=</span><span class="nb">dict</span><span class="p">()</span>
+    <span class="n">folder</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">filetype</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+
+    <span class="c1"># since filenames are populated from directory listing there&#39;s no need to build a dict() anymore, but that&#39;s the way it&#39;s done still</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;csv&quot;</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">filename</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+            <span class="n">filedict</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">folder</span> <span class="o">+</span> <span class="n">filename</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">filedict</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">filename</span></div>
+
+
+<div class="viewcode-block" id="data_properties">
+<a class="viewcode-back" href="../../snafu.html#snafu.gui.data_properties">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">data_properties</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;data_parameters&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Initialize some filenames</span>
+    <span class="n">freqfile</span> <span class="o">=</span> <span class="n">label_to_filepath</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;freqfile&#39;</span><span class="p">],</span> <span class="n">root_path</span><span class="p">,</span> <span class="s2">&quot;frequency&quot;</span><span class="p">)</span>
+    <span class="n">aoafile</span> <span class="o">=</span> <span class="n">label_to_filepath</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;aoafile&#39;</span><span class="p">],</span> <span class="n">root_path</span><span class="p">,</span> <span class="s2">&quot;aoa&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Letter fluency scheme or semantic fluency scheme?</span>
+    <span class="n">preset_schemes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;1 letter&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                      <span class="s2">&quot;2 letters&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                      <span class="s2">&quot;3 letters&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;cluster_scheme&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">preset_schemes</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">schemefile</span> <span class="o">=</span> <span class="n">preset_schemes</span><span class="p">[</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;cluster_scheme&#39;</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">schemefile</span> <span class="o">=</span> <span class="n">label_to_filepath</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;cluster_scheme&#39;</span><span class="p">],</span> <span class="n">root_path</span><span class="p">,</span> <span class="s2">&quot;schemes&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Import a single subject or group of subjects?</span>
+    <span class="k">if</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;factor_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;subject&quot;</span><span class="p">:</span>
+        <span class="n">subject</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">])</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;factor_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;group&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">subject</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+        <span class="n">category</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">category</span> <span class="o">=</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Load fluency data</span>
+    <span class="n">filedata</span> <span class="o">=</span> <span class="n">load_fluency_data</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;fullpath&#39;</span><span class="p">],</span> <span class="n">category</span><span class="o">=</span><span class="n">category</span><span class="p">,</span> <span class="n">spell</span><span class="o">=</span><span class="n">label_to_filepath</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;spellfile&#39;</span><span class="p">],</span> <span class="n">root_path</span><span class="p">,</span> <span class="s2">&quot;spellfiles&quot;</span><span class="p">),</span> <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span> <span class="n">hierarchical</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">labeledXs</span> <span class="o">=</span> <span class="n">filedata</span><span class="o">.</span><span class="n">labeledXs</span>
+
+    <span class="c1"># Set imputation value for word frequency</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;freq_ignore&#39;</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span> <span class="n">freq_sub</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;freq_sub&#39;</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span> <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="s2">&quot;Missing frequency value must be a number&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span> <span class="n">freq_sub</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Set imputation value for age-of-acquisition</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;aoa_ignore&#39;</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span> <span class="n">aoa_sub</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;aoa_sub&#39;</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span> <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="s2">&quot;Missing age-of-acquisition value must be a number&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span> <span class="n">aoa_sub</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># List of perseverations and calculate average perseverations per participant</span>
+    <span class="n">list_of_perseverations</span> <span class="o">=</span> <span class="n">perseverationsList</span><span class="p">(</span><span class="n">labeledXs</span><span class="p">)</span>
+    <span class="n">avg_num_perseverations_list</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">subj</span><span class="p">]</span> <span class="k">for</span> <span class="n">subj</span> <span class="ow">in</span> <span class="n">list_of_perseverations</span><span class="p">]</span>
+    <span class="n">avg_num_perseverations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">avg_num_perseverations_list</span><span class="p">])</span>
+    <span class="n">avg_num_perseverations_list</span> <span class="o">=</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">avg_num_perseverations_list</span><span class="p">)</span>
+    <span class="n">list_of_perseverations</span> <span class="o">=</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">list_of_perseverations</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;cluster_scheme&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+        <span class="c1"># calculate cluster sizes</span>
+        <span class="n">list_of_clusters</span> <span class="o">=</span> <span class="n">findClusters</span><span class="p">(</span><span class="n">labeledXs</span><span class="p">,</span> <span class="n">schemefile</span><span class="p">,</span> <span class="n">clustertype</span><span class="o">=</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;cluster_type&#39;</span><span class="p">])</span>
+        <span class="n">avg_cluster_size_list</span> <span class="o">=</span> <span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">subj</span><span class="p">]</span> <span class="k">for</span> <span class="n">subj</span> <span class="ow">in</span> <span class="n">list_of_clusters</span><span class="p">]</span>
+        <span class="n">avg_cluster_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">avg_cluster_size_list</span><span class="p">])</span>
+        <span class="n">avg_cluster_size_list</span> <span class="o">=</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">avg_cluster_size_list</span><span class="p">)</span>
+        
+        <span class="c1"># calculate cluster switches</span>
+        <span class="n">avg_num_cluster_switches_list</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">subj</span><span class="p">]</span> <span class="k">for</span> <span class="n">subj</span> <span class="ow">in</span> <span class="n">list_of_clusters</span><span class="p">]</span>
+        <span class="n">avg_num_cluster_switches</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">avg_num_cluster_switches_list</span><span class="p">])</span>
+        <span class="n">avg_num_cluster_switches_list</span> <span class="o">=</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">avg_num_cluster_switches_list</span><span class="p">)</span>
+        
+        <span class="c1"># calculate intrusions</span>
+        <span class="k">if</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;fluency_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;semantic&quot;</span><span class="p">:</span>
+            <span class="n">list_of_intrusions</span> <span class="o">=</span> <span class="n">intrusionsList</span><span class="p">(</span><span class="n">labeledXs</span><span class="p">,</span> <span class="n">schemefile</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;fluency_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;letter&quot;</span><span class="p">:</span>
+            <span class="n">list_of_intrusions</span> <span class="o">=</span> <span class="n">intrusionsList</span><span class="p">(</span><span class="n">labeledXs</span><span class="p">,</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;target_letter&#39;</span><span class="p">])</span>
+        <span class="n">avg_num_intrusions_list</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">subj</span><span class="p">]</span> <span class="k">for</span> <span class="n">subj</span> <span class="ow">in</span> <span class="n">list_of_intrusions</span><span class="p">]</span>
+        <span class="n">avg_num_intrusions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">avg_num_intrusions_list</span><span class="p">])</span>
+        <span class="n">avg_num_intrusions_list</span> <span class="o">=</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">avg_num_intrusions_list</span><span class="p">)</span>
+        <span class="n">list_of_intrusions</span> <span class="o">=</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">list_of_intrusions</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># if no cluster scheme is provided, set defaults for cluster size/switches and intrusions</span>
+        <span class="n">list_of_intrusions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">avg_num_intrusions</span> <span class="o">=</span> <span class="s2">&quot;n/a&quot;</span>
+        <span class="n">avg_cluster_size</span> <span class="o">=</span> <span class="s2">&quot;n/a&quot;</span>
+        <span class="n">avg_num_cluster_switches</span> <span class="o">=</span> <span class="s2">&quot;n/a&quot;</span>
+        <span class="c1"># arbitrarily use `avg_num_perseverations_list` to create empty lists with correct number of elements</span>
+        <span class="n">avg_num_intrusions_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">avg_num_perseverations_list</span><span class="p">))]</span>
+        <span class="n">avg_num_cluster_switches_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">avg_num_perseverations_list</span><span class="p">))]</span>
+        <span class="n">avg_cluster_size_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">avg_num_perseverations_list</span><span class="p">))]</span>
+
+    <span class="c1"># count number of lists per participant</span>
+    <span class="n">num_lists_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">subj</span><span class="p">)</span> <span class="k">for</span> <span class="n">subj</span> <span class="ow">in</span> <span class="n">labeledXs</span><span class="p">]</span>
+    <span class="n">num_lists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">num_lists_list</span><span class="p">)</span>
+  
+    <span class="c1"># number of items listed for each participant</span>
+    <span class="n">avg_items_listed_list</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">subj</span><span class="p">]</span> <span class="k">for</span> <span class="n">subj</span> <span class="ow">in</span> <span class="n">labeledXs</span><span class="p">]</span>
+    <span class="n">avg_items_listed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">avg_items_listed_list</span><span class="p">])</span>
+    <span class="n">avg_items_listed_list</span> <span class="o">=</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">avg_items_listed_list</span><span class="p">)</span>
+  
+    <span class="c1"># calculate age-of-acquisition and word frequency</span>
+    <span class="c1"># loads word lists for each subject which could be optimized...</span>
+    <span class="n">aoa_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">word_aoa_excluded</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">freq_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">word_freq_excluded</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">subj</span> <span class="ow">in</span> <span class="n">labeledXs</span><span class="p">:</span>
+        <span class="n">aoa</span><span class="p">,</span> <span class="n">excluded</span> <span class="o">=</span> <span class="n">wordStat</span><span class="p">(</span><span class="n">subj</span><span class="p">,</span> <span class="n">missing</span><span class="o">=</span><span class="n">aoa_sub</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">aoafile</span><span class="p">)</span>
+        <span class="n">aoa_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aoa</span><span class="p">)</span>
+        <span class="n">word_aoa_excluded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">excluded</span><span class="p">)</span>
+
+        <span class="n">freq</span><span class="p">,</span> <span class="n">excluded</span> <span class="o">=</span> <span class="n">wordStat</span><span class="p">(</span><span class="n">subj</span><span class="p">,</span> <span class="n">missing</span><span class="o">=</span><span class="n">freq_sub</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">freqfile</span><span class="p">)</span>
+        <span class="n">freq_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span>
+        <span class="n">word_freq_excluded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">excluded</span><span class="p">)</span>
+        
+    <span class="n">avg_word_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">freq_list</span><span class="p">])</span>
+    <span class="n">avg_word_aoa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">aoa_list</span><span class="p">])</span>
+    <span class="n">freq_list</span> <span class="o">=</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">freq_list</span><span class="p">)</span>
+    <span class="n">aoa_list</span> <span class="o">=</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">aoa_list</span><span class="p">)</span>
+    <span class="n">word_freq_excluded</span> <span class="o">=</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">word_freq_excluded</span><span class="p">)</span>
+    <span class="n">word_aoa_excluded</span> <span class="o">=</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">word_aoa_excluded</span><span class="p">)</span>
+ 
+    <span class="c1"># calculate % of missing word tokens from age-of-acquisition and word frequency dictionaries</span>
+    <span class="n">total_words</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">flatten_list</span><span class="p">(</span><span class="n">labeledXs</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">word_freq_rate</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">flatten_list</span><span class="p">(</span><span class="n">word_freq_excluded</span><span class="p">))</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_words</span><span class="p">)</span>
+    <span class="n">word_freq_rate</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">word_freq_rate</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;%&#39;</span>
+    <span class="n">word_aoa_rate</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">flatten_list</span><span class="p">(</span><span class="n">word_aoa_excluded</span><span class="p">))</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_words</span><span class="p">)</span>
+    <span class="n">word_aoa_rate</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">word_aoa_rate</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;%&#39;</span>
+   
+    <span class="c1"># list of subjects and list nums</span>
+    <span class="n">subsandlists</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">filedata</span><span class="o">.</span><span class="n">listnums</span><span class="p">))</span>
+    <span class="n">subs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subsandlists</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">listnums</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subsandlists</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    
+    <span class="c1"># make csv file</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
+    <span class="n">csv_data</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">csv_data</span><span class="p">[</span><span class="s2">&quot;subject&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subs</span>
+    <span class="n">csv_data</span><span class="p">[</span><span class="s2">&quot;list_number&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">listnums</span>
+    <span class="n">csv_data</span><span class="p">[</span><span class="s2">&quot;num_responses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_items_listed_list</span>
+    <span class="n">csv_data</span><span class="p">[</span><span class="s2">&quot;num_intrusions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_num_intrusions_list</span>
+    <span class="n">csv_data</span><span class="p">[</span><span class="s2">&quot;num_perseverations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_num_perseverations_list</span>
+    <span class="n">csv_data</span><span class="p">[</span><span class="s2">&quot;num_cluster_switches&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_num_cluster_switches_list</span>
+    <span class="n">csv_data</span><span class="p">[</span><span class="s2">&quot;avg_cluster_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_cluster_size_list</span>
+    <span class="n">csv_data</span><span class="p">[</span><span class="s2">&quot;avg_word_freq&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">freq_list</span>
+    <span class="n">csv_data</span><span class="p">[</span><span class="s2">&quot;avg_word_aoa&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">aoa_list</span>
+    <span class="n">csv_file</span> <span class="o">=</span> <span class="n">generate_csv_file</span><span class="p">(</span><span class="n">csv_data</span><span class="p">)</span>
+
+    <span class="c1"># list of spelling corrections</span>
+    <span class="n">spell_corrected</span> <span class="o">=</span> <span class="n">flatten_list</span><span class="p">(</span><span class="n">filedata</span><span class="o">.</span><span class="n">spell_corrected</span><span class="p">)</span>
+    <span class="n">spell_corrected</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">l</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">spell_corrected</span><span class="p">]</span>
+    <span class="n">num_spell_corrections</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">spell_corrected</span><span class="p">])</span>
+    
+    <span class="k">return</span> <span class="p">{</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;data_properties&quot;</span><span class="p">,</span> 
+             <span class="s2">&quot;listnums&quot;</span><span class="p">:</span> <span class="n">filedata</span><span class="o">.</span><span class="n">listnums</span><span class="p">,</span>
+             <span class="s2">&quot;num_lists&quot;</span><span class="p">:</span> <span class="n">num_lists</span><span class="p">,</span>
+             <span class="s2">&quot;avg_items_listed&quot;</span><span class="p">:</span> <span class="n">avg_items_listed</span><span class="p">,</span>
+             <span class="s2">&quot;intrusions&quot;</span><span class="p">:</span> <span class="n">list_of_intrusions</span><span class="p">,</span>
+             <span class="s2">&quot;perseverations&quot;</span><span class="p">:</span> <span class="n">list_of_perseverations</span><span class="p">,</span>
+             <span class="s2">&quot;avg_num_intrusions&quot;</span><span class="p">:</span> <span class="n">avg_num_intrusions</span><span class="p">,</span>
+             <span class="s2">&quot;avg_num_perseverations&quot;</span><span class="p">:</span> <span class="n">avg_num_perseverations</span><span class="p">,</span>
+             <span class="s2">&quot;avg_num_cluster_switches&quot;</span><span class="p">:</span> <span class="n">avg_num_cluster_switches</span><span class="p">,</span>
+             <span class="s2">&quot;avg_cluster_size&quot;</span><span class="p">:</span> <span class="n">avg_cluster_size</span><span class="p">,</span>
+             <span class="s2">&quot;avg_word_freq&quot;</span><span class="p">:</span> <span class="n">avg_word_freq</span><span class="p">,</span>
+             <span class="s2">&quot;avg_word_aoa&quot;</span><span class="p">:</span> <span class="n">avg_word_aoa</span><span class="p">,</span>
+             <span class="s2">&quot;word_freq_rate&quot;</span><span class="p">:</span> <span class="n">word_freq_rate</span><span class="p">,</span>
+             <span class="s2">&quot;word_freq_excluded&quot;</span><span class="p">:</span> <span class="n">word_freq_excluded</span><span class="p">,</span>
+             <span class="s2">&quot;word_aoa_rate&quot;</span><span class="p">:</span> <span class="n">word_aoa_rate</span><span class="p">,</span>
+             <span class="s2">&quot;word_aoa_excluded&quot;</span><span class="p">:</span> <span class="n">word_aoa_excluded</span><span class="p">,</span>
+             <span class="s2">&quot;spell_corrected&quot;</span><span class="p">:</span> <span class="n">spell_corrected</span><span class="p">,</span>
+             <span class="s2">&quot;num_spell_corrections&quot;</span><span class="p">:</span> <span class="n">num_spell_corrections</span><span class="p">,</span>
+             <span class="s2">&quot;csv_file&quot;</span><span class="p">:</span> <span class="n">csv_file</span> <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="generate_csv_file">
+<a class="viewcode-back" href="../../snafu.html#snafu.gui.generate_csv_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_csv_file</span><span class="p">(</span><span class="n">json_file</span><span class="p">):</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">json_file</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">header_row</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+
+    <span class="n">csv_file</span> <span class="o">=</span> <span class="n">header_row</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+    
+    <span class="n">to_write</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">i</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">list</span><span class="p">(</span><span class="n">json_file</span><span class="o">.</span><span class="n">values</span><span class="p">())))]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">to_write</span><span class="p">:</span>
+        <span class="n">csv_file</span> <span class="o">+=</span> <span class="n">line</span>
+    
+    <span class="k">return</span> <span class="n">csv_file</span></div>
+
+
+
+
+<div class="viewcode-block" id="network_properties">
+<a class="viewcode-back" href="../../snafu.html#snafu.gui.network_properties">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">network_properties</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span>
+    <span class="n">subj_props</span> <span class="o">=</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;data_parameters&#39;</span><span class="p">]</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;network_parameters&#39;</span><span class="p">]</span>
+
+    <span class="c1"># U-INVITE won&#39;t work with perseverations</span>
+    <span class="k">if</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;network_method&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;U-INVITE&quot;</span><span class="p">:</span>
+        <span class="n">removePerseverations</span><span class="o">=</span><span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">removePerseverations</span><span class="o">=</span><span class="kc">False</span>
+   
+    <span class="k">if</span> <span class="n">subj_props</span><span class="p">[</span><span class="s1">&#39;factor_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;subject&quot;</span><span class="p">:</span>
+        <span class="n">subject</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">subj_props</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">])</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">subj_props</span><span class="p">[</span><span class="s1">&#39;factor_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;group&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">subj_props</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="n">subj_props</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="kc">None</span>                             <span class="c1"># reserved group label in GUI for all subjects</span>
+        <span class="n">subject</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">filedata</span> <span class="o">=</span> <span class="n">load_fluency_data</span><span class="p">(</span><span class="n">subj_props</span><span class="p">[</span><span class="s1">&#39;fullpath&#39;</span><span class="p">],</span> <span class="n">category</span><span class="o">=</span><span class="n">subj_props</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">],</span> <span class="n">spell</span><span class="o">=</span><span class="n">label_to_filepath</span><span class="p">(</span><span class="n">subj_props</span><span class="p">[</span><span class="s1">&#39;spellfile&#39;</span><span class="p">],</span> <span class="n">root_path</span><span class="p">,</span> <span class="s2">&quot;spellfiles&quot;</span><span class="p">),</span> <span class="n">removePerseverations</span><span class="o">=</span><span class="n">removePerseverations</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">)</span>
+    <span class="n">Xs</span> <span class="o">=</span> <span class="n">filedata</span><span class="o">.</span><span class="n">Xs</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">filedata</span><span class="o">.</span><span class="n">items</span>
+    <span class="n">numnodes</span> <span class="o">=</span> <span class="n">filedata</span><span class="o">.</span><span class="n">numnodes</span>
+    
+    <span class="n">toydata</span><span class="o">=</span><span class="n">DataModel</span><span class="p">({</span>
+            <span class="s1">&#39;numx&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">),</span>
+            <span class="s1">&#39;trim&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;jump&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;jump_probability&#39;</span><span class="p">]),</span>
+            <span class="s1">&#39;jumptype&#39;</span><span class="p">:</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;jump_type&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;priming&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;priming_probability&#39;</span><span class="p">]),</span>
+            <span class="s1">&#39;start_node&#39;</span><span class="p">:</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;first_item&#39;</span><span class="p">]})</span>
+    <span class="n">fitinfo</span><span class="o">=</span><span class="n">Fitinfo</span><span class="p">({</span>
+            <span class="c1">#&#39;prior_method&#39;: &quot;zeroinflatedbetabinomial&quot;,</span>
+            <span class="s1">&#39;prior_a&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;prior_b&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s1">&#39;zibb_p&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+            <span class="s1">&#39;startGraph&#39;</span><span class="p">:</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;starting_graph&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;cn_windowsize&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;cn_windowsize&#39;</span><span class="p">]),</span>
+            <span class="s1">&#39;cn_threshold&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;cn_threshold&#39;</span><span class="p">]),</span>
+            <span class="s1">&#39;cn_alpha&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;cn_alpha&#39;</span><span class="p">]),</span>
+            <span class="s1">&#39;followtype&#39;</span><span class="p">:</span> <span class="s2">&quot;avg&quot;</span><span class="p">,</span> 
+            <span class="s1">&#39;prune_limit&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;triangle_limit&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;other_limit&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">})</span>
+   
+    <span class="k">if</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;prior&#39;</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;None&quot;</span><span class="p">:</span>
+        <span class="n">prior</span><span class="o">=</span><span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;prior&#39;</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;USF&quot;</span><span class="p">:</span>
+        <span class="n">usf_file_path</span> <span class="o">=</span> <span class="s2">&quot;/snet/USF_animal_subset.snet&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">root_path</span> <span class="o">+</span> <span class="n">usf_file_path</span>
+        
+        <span class="n">usf_graph</span><span class="p">,</span> <span class="n">usf_items</span> <span class="o">=</span> <span class="n">read_graph</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">usf_numnodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">usf_items</span><span class="p">)</span>
+        <span class="n">priordict</span> <span class="o">=</span> <span class="n">genGraphPrior</span><span class="p">([</span><span class="n">usf_graph</span><span class="p">],</span> <span class="p">[</span><span class="n">usf_items</span><span class="p">],</span> <span class="n">fitinfo</span><span class="o">=</span><span class="n">fitinfo</span><span class="p">)</span>
+        <span class="n">prior</span> <span class="o">=</span> <span class="p">(</span><span class="n">priordict</span><span class="p">,</span> <span class="n">usf_items</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;network_method&#39;</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;Naive Random Walk&quot;</span><span class="p">:</span>
+        <span class="n">bestgraph</span> <span class="o">=</span> <span class="n">naiveRandomWalk</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="n">numnodes</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;network_method&#39;</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;Conceptual Network&quot;</span><span class="p">:</span>
+        <span class="n">bestgraph</span> <span class="o">=</span> <span class="n">conceptualNetwork</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">fitinfo</span><span class="o">=</span><span class="n">fitinfo</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="n">numnodes</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;network_method&#39;</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;Pathfinder&quot;</span><span class="p">:</span>
+        <span class="n">bestgraph</span> <span class="o">=</span> <span class="n">pathfinder</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="n">numnodes</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;network_method&#39;</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;Correlation-based Network&quot;</span><span class="p">:</span>
+        <span class="n">bestgraph</span> <span class="o">=</span> <span class="n">correlationBasedNetwork</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="n">numnodes</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;network_method&#39;</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;First Edge&quot;</span><span class="p">:</span>
+        <span class="n">bestgraph</span> <span class="o">=</span> <span class="n">firstEdge</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="n">numnodes</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">command</span><span class="p">[</span><span class="s1">&#39;network_method&#39;</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;U-INVITE&quot;</span><span class="p">:</span>
+        <span class="n">bestgraph</span><span class="p">,</span> <span class="n">ll</span> <span class="o">=</span> <span class="n">uinvite</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">toydata</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="n">numnodes</span><span class="p">,</span> <span class="n">fitinfo</span><span class="o">=</span><span class="n">fitinfo</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">)</span>
+    
+    <span class="n">nxg</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">to_networkx_graph</span><span class="p">(</span><span class="n">bestgraph</span><span class="p">)</span>
+    <span class="n">nxg_json</span> <span class="o">=</span> <span class="n">jsonGraph</span><span class="p">(</span><span class="n">nxg</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">graph_properties</span><span class="p">(</span><span class="n">nxg</span><span class="p">,</span><span class="n">nxg_json</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="analyze_graph">
+<a class="viewcode-back" href="../../snafu.html#snafu.gui.analyze_graph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">analyze_graph</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span> <span class="c1"># used when importing graphs</span>
+    <span class="n">nxg_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;fullpath&#39;</span><span class="p">],</span><span class="s1">&#39;rt&#39;</span><span class="p">,</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8-sig&quot;</span><span class="p">))</span>
+    <span class="n">nxg</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">readwrite</span><span class="o">.</span><span class="n">json_graph</span><span class="o">.</span><span class="n">node_link_graph</span><span class="p">(</span>
+        <span class="n">nxg_json</span><span class="p">,</span>
+        <span class="n">multigraph</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;nodes&#39;</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s1">&#39;edges&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">graph_properties</span><span class="p">(</span><span class="n">nxg</span><span class="p">,</span> <span class="n">nxg_json</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="graph_properties">
+<a class="viewcode-back" href="../../snafu.html#snafu.gui.graph_properties">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">graph_properties</span><span class="p">(</span><span class="n">nxg</span><span class="p">,</span><span class="n">nxg_json</span><span class="p">):</span> <span class="c1"># separate function that calculates graph properties</span>
+    <span class="n">node_degree</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">nxg</span><span class="o">.</span><span class="n">degree</span><span class="p">())</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="n">clustering_coefficient</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">average_clustering</span><span class="p">(</span><span class="n">nxg</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">aspl</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">average_shortest_path_length</span><span class="p">(</span><span class="n">nxg</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">aspl</span> <span class="o">=</span> <span class="s2">&quot;disjointed graph&quot;</span>
+    <span class="n">density</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">classes</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">nxg</span><span class="p">)</span>
+    <span class="n">betweenness_centrality_nodes</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">algorithms</span><span class="o">.</span><span class="n">centrality</span><span class="o">.</span><span class="n">betweenness_centrality</span><span class="p">(</span><span class="n">nxg</span><span class="p">)</span>
+    <span class="n">avg_betweenness_centrality</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">bc</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">betweenness_centrality_nodes</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">avg_betweenness_centrality</span> <span class="o">+=</span> <span class="n">bc</span>
+    <span class="n">avg_betweenness_centrality</span> <span class="o">/=</span> <span class="nb">len</span><span class="p">(</span><span class="n">betweenness_centrality_nodes</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;network_properties&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;node_degree&quot;</span><span class="p">:</span> <span class="n">node_degree</span><span class="p">,</span>
+        <span class="s2">&quot;clustering_coefficient&quot;</span><span class="p">:</span> <span class="n">clustering_coefficient</span><span class="p">,</span>
+        <span class="s2">&quot;aspl&quot;</span><span class="p">:</span> <span class="n">aspl</span><span class="p">,</span>
+        <span class="s2">&quot;density&quot;</span><span class="p">:</span> <span class="n">density</span><span class="p">,</span>
+        <span class="s2">&quot;avg_betweenness_centrality&quot;</span><span class="p">:</span> <span class="n">avg_betweenness_centrality</span><span class="p">,</span>
+        <span class="s2">&quot;graph&quot;</span><span class="p">:</span> <span class="n">nxg_json</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="quit">
+<a class="viewcode-back" href="../../snafu.html#snafu.gui.quit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">quit</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">root_path</span><span class="p">):</span> 
+    <span class="k">return</span> <span class="p">{</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;quit&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span> <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="error">
+<a class="viewcode-back" href="../../snafu.html#snafu.gui.error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">error</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="p">}</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jeff Zemla.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

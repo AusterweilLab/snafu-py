@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>snafu.triadic &mdash; Snafu 2.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=b21de401"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Snafu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Snafu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">snafu.triadic</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for snafu.triadic</h1><div class="highlight"><pre>
+<span></span><span class="c1"># these functions need to be made more extensible</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="commonNode">
+<a class="viewcode-back" href="../../snafu.html#snafu.triadic.commonNode">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">commonNode</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">,</span> <span class="n">numsims</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">jumpval</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sp</span>
+    
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+        <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">chooseRandomNeighbor</span><span class="p">(</span><span class="n">pos</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">sparse</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">graph</span><span class="p">[</span><span class="n">pos</span><span class="p">])[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">graph</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">inv_items</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">items</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">common_items</span><span class="o">=</span><span class="p">{}</span>
+    <span class="k">for</span> <span class="n">sim</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsims</span><span class="p">):</span>
+        <span class="n">a_idx</span> <span class="o">=</span> <span class="n">a_cur</span> <span class="o">=</span> <span class="n">inv_items</span><span class="p">[</span><span class="n">node1</span><span class="p">]</span>
+        <span class="n">b_idx</span> <span class="o">=</span> <span class="n">b_cur</span> <span class="o">=</span> <span class="n">inv_items</span><span class="p">[</span><span class="n">node2</span><span class="p">]</span>
+        <span class="n">idx</span><span class="o">=</span><span class="p">[</span><span class="n">a_idx</span><span class="p">,</span> <span class="n">b_idx</span><span class="p">]</span>
+        <span class="n">a_hits</span><span class="o">=</span><span class="p">[]</span>
+        <span class="n">b_hits</span><span class="o">=</span><span class="p">[]</span>
+        <span class="n">intersect</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">intersect</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">jumpval</span><span class="p">:</span>
+                <span class="n">a_cur</span> <span class="o">=</span> <span class="n">a_idx</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">a_cur</span> <span class="o">=</span> <span class="n">chooseRandomNeighbor</span><span class="p">(</span><span class="n">a_cur</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">jumpval</span><span class="p">:</span>
+                <span class="n">b_cur</span> <span class="o">=</span> <span class="n">b_idx</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">b_cur</span> <span class="o">=</span> <span class="n">chooseRandomNeighbor</span><span class="p">(</span><span class="n">b_cur</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">a_cur</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">a_hits</span> <span class="ow">and</span> <span class="n">a_cur</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">:</span>
+                <span class="n">a_hits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a_cur</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">b_cur</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">b_hits</span> <span class="ow">and</span> <span class="n">b_cur</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">:</span>
+                <span class="n">b_hits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b_cur</span><span class="p">)</span>
+            
+            <span class="n">intersect</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">a_hits</span> <span class="k">if</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">b_hits</span><span class="p">]</span>
+
+        <span class="n">incr_val</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">intersect</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">intersect</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">items</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">common_items</span><span class="p">:</span>
+                <span class="n">common_items</span><span class="p">[</span><span class="n">items</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">incr_val</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">common_items</span><span class="p">[</span><span class="n">items</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">incr_val</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">common_items</span><span class="p">:</span>
+        <span class="n">common_items</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">common_items</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">numsims</span><span class="p">)</span>
+
+    <span class="n">common_items</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span><span class="n">common_items</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">common_items</span><span class="p">]</span>
+    <span class="n">common_items</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">common_items</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">tup</span><span class="p">:</span> <span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> 
+
+    <span class="k">return</span> <span class="n">common_items</span></div>
+
+
+<span class="c1"># first attempt to find similar items between node1 and node2 -- i think something is conceptually wrong here</span>
+<span class="c1">#def commonNode(graph, items, node1, node2):</span>
+<span class="c1">#    inv_items = {v: k for k, v in items.iteritems()}</span>
+<span class="c1">#    t=graph/sum(graph.astype(float))                                                          # link to transition matrix</span>
+<span class="c1">#    node_idx=[inv_items[node1], inv_items[node2]]                                             # item labels to ids</span>
+<span class="c1">#    x=[i for i in range(len(graph)) if i not in node_idx]                                     # item ids to transition across freely</span>
+<span class="c1">#    x1 = x + [node_idx[0], node_idx[1]]</span>
+<span class="c1">#    x2 = x + [node_idx[1], node_idx[0]]</span>
+<span class="c1">#    x1=np.array(x1)</span>
+<span class="c1">#    x2=np.array(x2)</span>
+<span class="c1">#    t1=t[x1[:,None],x1]                                                                       # re-arrange transition matrix to be in this order</span>
+<span class="c1">#    t2=t[x2[:,None],x2]</span>
+<span class="c1">#    </span>
+<span class="c1">#    Q1=t1[:-1,:-1]</span>
+<span class="c1">#    Q2=t2[:-1,:-1]</span>
+<span class="c1">#    </span>
+<span class="c1">#    # this can probably be made more efficient by using linalg instead of inv -- model after snafu.probX()</span>
+<span class="c1">#    reg=(1+1e-10)                        </span>
+<span class="c1">#    identmat=np.identity(len(graph)) * reg</span>
+<span class="c1">#    I=identmat[:len(Q1),:len(Q1)]</span>
+<span class="c1">#    N1=inv(I-Q1)</span>
+<span class="c1">#    N2=inv(I-Q2)</span>
+<span class="c1">#    #prob1=N1[-1,:-1]/sum(N1[-1,:-1])    # probability of starting at node 2 passing through node i before being absorbed by node 2</span>
+<span class="c1">#    #prob2=N2[-1,:-1]/sum(N2[-1,:-1])    # vice versa</span>
+<span class="c1">#    prob1=N1[-1,:-1]    # probability of starting at node 2 passing through node i before being absorbed by node 2</span>
+<span class="c1">#    prob2=N2[-1,:-1]    # vice versa</span>
+<span class="c1">#    #probs = np.multiply(prob1, prob2)</span>
+<span class="c1">#    probs = np.add(prob1, prob2)</span>
+<span class="c1">#    probs = probs/sum(probs)</span>
+<span class="c1">#    similarityscore = sum(probs)</span>
+<span class="c1">#    labels = [items[i] for i in x]</span>
+<span class="c1">#    common = zip(probs, labels)</span>
+<span class="c1">#    common = sorted(common, key=lambda tup: tup[0]) </span>
+<span class="c1">#</span>
+<span class="c1">#    return zip(probs, labels), similarityscore</span>
+
+
+<span class="c1"># monte carlo implementation of triadic comparison task, for when network is too large (works with sparse matrices)</span>
+<span class="c1"># sloppy code put together quickly...</span>
+<div class="viewcode-block" id="triadicMonteCarlo">
+<a class="viewcode-back" href="../../snafu.html#snafu.triadic.triadicMonteCarlo">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">triadicMonteCarlo</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">triad</span><span class="p">,</span> <span class="n">numsims</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">jumpval</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sp</span>
+
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+        <span class="n">sparse</span><span class="o">=</span><span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">chooseRandomNeighbor</span><span class="p">(</span><span class="n">pos</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">sparse</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">graph</span><span class="p">[</span><span class="n">pos</span><span class="p">])[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">graph</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">inv_items</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">items</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">ab</span> <span class="o">=</span> <span class="n">ac</span> <span class="o">=</span> <span class="n">bc</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">sim</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numsims</span><span class="p">):</span>
+        <span class="n">a_idx</span> <span class="o">=</span> <span class="n">a_cur</span> <span class="o">=</span> <span class="n">inv_items</span><span class="p">[</span><span class="n">triad</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">b_idx</span> <span class="o">=</span> <span class="n">b_cur</span> <span class="o">=</span> <span class="n">inv_items</span><span class="p">[</span><span class="n">triad</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">c_idx</span> <span class="o">=</span> <span class="n">c_cur</span> <span class="o">=</span> <span class="n">inv_items</span><span class="p">[</span><span class="n">triad</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">fin</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">while</span> <span class="n">fin</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">jumpval</span><span class="p">:</span>
+                <span class="n">a_cur</span> <span class="o">=</span> <span class="n">a_idx</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">a_cur</span> <span class="o">=</span> <span class="n">chooseRandomNeighbor</span><span class="p">(</span><span class="n">a_cur</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">jumpval</span><span class="p">:</span>
+                <span class="n">b_cur</span> <span class="o">=</span> <span class="n">b_idx</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">b_cur</span> <span class="o">=</span> <span class="n">chooseRandomNeighbor</span><span class="p">(</span><span class="n">b_cur</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">jumpval</span><span class="p">:</span>
+                <span class="n">c_cur</span> <span class="o">=</span> <span class="n">c_idx</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">c_cur</span> <span class="o">=</span> <span class="n">chooseRandomNeighbor</span><span class="p">(</span><span class="n">c_cur</span><span class="p">)</span>
+            
+            <span class="c1"># split wins</span>
+            <span class="n">numwins</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">a_cur</span> <span class="ow">in</span> <span class="p">[</span><span class="n">b_idx</span><span class="p">,</span> <span class="n">c_idx</span><span class="p">]:</span>
+                <span class="n">numwins</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">b_cur</span> <span class="ow">in</span> <span class="p">[</span><span class="n">a_idx</span><span class="p">,</span> <span class="n">c_idx</span><span class="p">]:</span>
+                <span class="n">numwins</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">c_cur</span> <span class="ow">in</span> <span class="p">[</span><span class="n">a_idx</span><span class="p">,</span> <span class="n">b_idx</span><span class="p">]:</span>
+                <span class="n">numwins</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">numwins</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># reset walk if there&#39;s a tie (could split wins, but then results are slightly different than analytic version)</span>
+                <span class="n">a_cur</span> <span class="o">=</span> <span class="n">a_idx</span>
+                <span class="n">b_cur</span> <span class="o">=</span> <span class="n">b_idx</span>
+                <span class="n">c_cur</span> <span class="o">=</span> <span class="n">c_idx</span>
+
+            
+            <span class="k">if</span> <span class="n">a_cur</span> <span class="o">==</span> <span class="n">b_idx</span><span class="p">:</span>
+                <span class="n">ab</span> <span class="o">+=</span> <span class="mf">1.0</span>
+                <span class="n">fin</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">a_cur</span> <span class="o">==</span> <span class="n">c_idx</span><span class="p">:</span>
+                <span class="n">ac</span> <span class="o">+=</span> <span class="mf">1.0</span>
+                <span class="n">fin</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">b_cur</span> <span class="o">==</span> <span class="n">a_idx</span><span class="p">:</span>
+                <span class="n">ab</span> <span class="o">+=</span> <span class="mf">1.0</span>
+                <span class="n">fin</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">b_cur</span> <span class="o">==</span> <span class="n">c_idx</span><span class="p">:</span>
+                <span class="n">bc</span> <span class="o">+=</span> <span class="mf">1.0</span>
+                <span class="n">fin</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">c_cur</span> <span class="o">==</span> <span class="n">a_idx</span><span class="p">:</span>
+                <span class="n">ac</span> <span class="o">+=</span> <span class="mf">1.0</span>
+                <span class="n">fin</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">c_cur</span> <span class="o">==</span> <span class="n">b_idx</span><span class="p">:</span>
+                <span class="n">bc</span> <span class="o">+=</span> <span class="mf">1.0</span>
+                <span class="n">fin</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">numsims</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">numsims</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">ab</span><span class="o">/</span><span class="n">numsims</span><span class="p">,</span> <span class="n">ac</span><span class="o">/</span><span class="n">numsims</span><span class="p">,</span> <span class="n">bc</span><span class="o">/</span><span class="n">numsims</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="similarity">
+<a class="viewcode-back" href="../../snafu.html#snafu.triadic.similarity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">similarity</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">choices</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="s2">&quot;inf&quot;</span><span class="p">,</span> <span class="n">jumpval</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="n">inv_items</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">items</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">t</span><span class="o">=</span><span class="n">a</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>                                                                <span class="c1"># link to transition matrix</span>
+    <span class="n">choices_idx</span><span class="o">=</span><span class="p">[</span><span class="n">inv_items</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">]</span>                                             <span class="c1"># item labels to ids</span>
+    <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="k">if</span> <span class="p">((</span><span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">choices_idx</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">i</span> <span class="o">!=</span> <span class="n">inv_items</span><span class="p">[</span><span class="n">start</span><span class="p">]))]</span>    <span class="c1"># item ids to transition across freely</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="p">[</span><span class="n">inv_items</span><span class="p">[</span><span class="n">start</span><span class="p">]]</span> <span class="o">+</span> <span class="n">choices_idx</span>                                                <span class="c1"># tack start state and absorbging states on the end</span>
+    <span class="n">x2</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">t2</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="n">x2</span><span class="p">[:,</span><span class="kc">None</span><span class="p">],</span><span class="n">x2</span><span class="p">]</span>                                                                       <span class="c1"># re-arrange transition matrix to be in this order</span>
+   
+    <span class="c1"># indices/length for convenience later</span>
+    <span class="n">numchoices</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span>
+    <span class="n">nonchoicelength</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">-</span><span class="n">numchoices</span>
+    <span class="n">start_idx</span> <span class="o">=</span> <span class="n">nonchoicelength</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">choice_idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">start_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+  
+    <span class="c1"># add jumps</span>
+    <span class="k">if</span> <span class="n">jumpval</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="n">t2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">jumpval</span><span class="p">)</span>
+        <span class="n">t2</span><span class="p">[</span><span class="n">start_idx</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">t2</span><span class="p">[</span><span class="n">start_idx</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">jumpval</span>        <span class="c1"># + jumpval probability of transitioning to start node from any node</span>
+  
+    <span class="c1"># separate into Q (btw non-absorbing) and R (non-absorbing to absorbing)</span>
+    <span class="n">Q</span><span class="o">=</span><span class="n">t2</span><span class="p">[:</span><span class="n">nonchoicelength</span><span class="p">,:</span><span class="n">nonchoicelength</span><span class="p">]</span>
+    
+    <span class="c1"># compute absorbing probabilities</span>
+    <span class="k">if</span> <span class="n">steps</span><span class="o">==</span><span class="s2">&quot;inf&quot;</span><span class="p">:</span>
+        <span class="c1"># this can probably be made more efficient by using linalg instead of inv -- model after snafu.probX()</span>
+        <span class="n">reg</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="mf">1e-10</span><span class="p">)</span>                        
+        <span class="n">identmat</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="o">*</span> <span class="n">reg</span>
+        <span class="n">I</span><span class="o">=</span><span class="n">identmat</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">Q</span><span class="p">),:</span><span class="nb">len</span><span class="p">(</span><span class="n">Q</span><span class="p">)]</span>
+        <span class="n">R</span><span class="o">=</span><span class="n">t2</span><span class="p">[</span><span class="n">nonchoicelength</span><span class="p">:,:</span><span class="n">nonchoicelength</span><span class="p">]</span>
+        <span class="n">N</span><span class="o">=</span><span class="n">inv</span><span class="p">(</span><span class="n">I</span><span class="o">-</span><span class="n">Q</span><span class="p">)</span>
+        <span class="n">B</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span><span class="n">N</span><span class="p">)</span>
+        <span class="n">probs</span> <span class="o">=</span> <span class="n">B</span><span class="p">[:,</span><span class="n">nonchoicelength</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">steps</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">probs</span><span class="o">=</span><span class="p">[]</span>
+        <span class="n">newQ</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nonchoicelength</span><span class="p">)</span>
+        <span class="n">newQ</span><span class="p">[</span><span class="n">start_idx</span><span class="p">]</span><span class="o">=</span><span class="mf">1.0</span>
+        <span class="k">for</span> <span class="n">stepnum</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+            <span class="n">ptmp</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numchoices</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nonchoicelength</span><span class="p">):</span>
+                <span class="n">num1</span><span class="o">=</span><span class="n">newQ</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">choicenum</span><span class="p">,</span> <span class="n">choice</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">choice_idx</span><span class="p">):</span>
+                    <span class="n">num2</span><span class="o">=</span><span class="n">t2</span><span class="p">[</span><span class="n">choice</span><span class="p">,</span><span class="n">k</span><span class="p">]</span>                          <span class="c1"># probability transitioning from k to absorbing node</span>
+                    <span class="n">ptmp</span><span class="p">[</span><span class="n">choicenum</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="n">num1</span><span class="o">*</span><span class="n">num2</span><span class="p">)</span>
+            <span class="n">newQ</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">newQ</span><span class="p">,</span><span class="n">Q</span><span class="p">)</span>
+            <span class="n">probs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ptmp</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;similarity() must take steps &gt;=1 or &#39;inf&#39;&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">probs</span></div>
+
+
+<div class="viewcode-block" id="triadicComparison">
+<a class="viewcode-back" href="../../snafu.html#snafu.triadic.triadicComparison">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">triadicComparison</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">triad</span><span class="p">,</span> <span class="n">steplimit</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">jumpval</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="c1"># should simplify this code / extend to work with arbitrary number of items</span>
+    <span class="n">starta</span> <span class="o">=</span> <span class="n">similarity</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">triad</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="n">triad</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">triad</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span><span class="n">steps</span><span class="o">=</span><span class="n">steplimit</span><span class="p">,</span> <span class="n">jumpval</span><span class="o">=</span><span class="n">jumpval</span><span class="p">)</span>
+    <span class="n">startb</span> <span class="o">=</span> <span class="n">similarity</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">triad</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="n">triad</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">triad</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span><span class="n">steps</span><span class="o">=</span><span class="n">steplimit</span><span class="p">,</span> <span class="n">jumpval</span><span class="o">=</span><span class="n">jumpval</span><span class="p">)</span>
+    <span class="n">startc</span> <span class="o">=</span> <span class="n">similarity</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">triad</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="n">triad</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">triad</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span><span class="n">steps</span><span class="o">=</span><span class="n">steplimit</span><span class="p">,</span> <span class="n">jumpval</span><span class="o">=</span><span class="n">jumpval</span><span class="p">)</span>
+    
+    <span class="n">a_term</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">starta</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+    <span class="n">b_term</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">startb</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+    <span class="n">c_term</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">startc</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">steplimit</span><span class="p">):</span>
+        <span class="n">a_term</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a_term</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span><span class="n">starta</span><span class="p">[</span><span class="n">step</span><span class="p">]))</span>   <span class="c1"># probability that chain a has terminated by step X</span>
+        <span class="n">b_term</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b_term</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span><span class="n">startb</span><span class="p">[</span><span class="n">step</span><span class="p">]))</span>   <span class="c1"># &quot; chain b</span>
+        <span class="n">c_term</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c_term</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span><span class="n">startc</span><span class="p">[</span><span class="n">step</span><span class="p">]))</span>   <span class="c1"># &quot; chain c</span>
+    
+    <span class="c1"># e.g., startab = probability that chain starting at a ends at b before chains starting from b or c terminate</span>
+    <span class="n">startab</span> <span class="o">=</span> <span class="n">startac</span> <span class="o">=</span> <span class="n">startba</span> <span class="o">=</span> <span class="n">startbc</span> <span class="o">=</span> <span class="n">startca</span> <span class="o">=</span> <span class="n">startcb</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steplimit</span><span class="p">):</span>
+        <span class="n">startab</span> <span class="o">+=</span> <span class="n">starta</span><span class="p">[</span><span class="n">step</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">b_term</span><span class="p">[</span><span class="n">step</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">c_term</span><span class="p">[</span><span class="n">step</span><span class="p">])</span>
+        <span class="n">startac</span> <span class="o">+=</span> <span class="n">starta</span><span class="p">[</span><span class="n">step</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">b_term</span><span class="p">[</span><span class="n">step</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">c_term</span><span class="p">[</span><span class="n">step</span><span class="p">])</span>
+        <span class="n">startba</span> <span class="o">+=</span> <span class="n">startb</span><span class="p">[</span><span class="n">step</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">a_term</span><span class="p">[</span><span class="n">step</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">c_term</span><span class="p">[</span><span class="n">step</span><span class="p">])</span>
+        <span class="n">startbc</span> <span class="o">+=</span> <span class="n">startb</span><span class="p">[</span><span class="n">step</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">a_term</span><span class="p">[</span><span class="n">step</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">c_term</span><span class="p">[</span><span class="n">step</span><span class="p">])</span>
+        <span class="n">startca</span> <span class="o">+=</span> <span class="n">startc</span><span class="p">[</span><span class="n">step</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">a_term</span><span class="p">[</span><span class="n">step</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">b_term</span><span class="p">[</span><span class="n">step</span><span class="p">])</span>
+        <span class="n">startcb</span> <span class="o">+=</span> <span class="n">startc</span><span class="p">[</span><span class="n">step</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">a_term</span><span class="p">[</span><span class="n">step</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">b_term</span><span class="p">[</span><span class="n">step</span><span class="p">])</span>
+    
+    <span class="n">denom</span> <span class="o">=</span> <span class="p">(</span><span class="n">startab</span><span class="o">+</span><span class="n">startac</span><span class="o">+</span><span class="n">startba</span><span class="o">+</span><span class="n">startbc</span><span class="o">+</span><span class="n">startca</span><span class="o">+</span><span class="n">startcb</span><span class="p">)</span>
+    <span class="n">choiceab</span> <span class="o">=</span> <span class="p">(</span><span class="n">startab</span> <span class="o">+</span> <span class="n">startba</span><span class="p">)</span> <span class="o">/</span> <span class="n">denom</span>
+    <span class="n">choiceac</span> <span class="o">=</span> <span class="p">(</span><span class="n">startac</span> <span class="o">+</span> <span class="n">startca</span><span class="p">)</span> <span class="o">/</span> <span class="n">denom</span>
+    <span class="n">choicebc</span> <span class="o">=</span> <span class="p">(</span><span class="n">startbc</span> <span class="o">+</span> <span class="n">startcb</span><span class="p">)</span> <span class="o">/</span> <span class="n">denom</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">choiceab</span><span class="p">,</span> <span class="n">choiceac</span><span class="p">,</span> <span class="n">choicebc</span><span class="p">]</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jeff Zemla.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

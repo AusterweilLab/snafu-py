@@ -1,0 +1,1110 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>snafu.core &mdash; Snafu 2.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=b21de401"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Snafu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Snafu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">snafu.core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for snafu.core</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
+
+<span class="c1"># TODO: when doing same phase twice in a row, don&#39;t re-try same failures</span>
+    <span class="c1"># (pass dict of failures, don&#39;t try if numchanges==0)</span>
+<span class="c1"># TODO: Implement GOTM/ECN from Goni et al. 2011</span>
+
+<span class="c1"># alias for backwards compatibility</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">communitynetwork</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">conceptualNetwork</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="c1"># alias for backwards compatibility</span>
+<div class="viewcode-block" id="priorToGraph">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.priorToGraph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">priorToGraph</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">priorToNetwork</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> </div>
+
+
+<span class="c1"># mix U-INVITE with random jumping model</span>
+<div class="viewcode-block" id="addJumps">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.addJumps">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">addJumps</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">td</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">statdist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Xs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">td</span><span class="o">.</span><span class="n">jumptype</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">numnodes</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify &#39;numnodes&#39; when jumptype is uniform [addJumps]&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">td</span><span class="o">.</span><span class="n">jumptype</span> <span class="o">==</span> <span class="s2">&quot;stationary&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">statdist</span> <span class="o">==</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">Xs</span> <span class="o">==</span> <span class="kc">None</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify &#39;statdist&#39; and &#39;Xs&#39; when jumptype is stationary [addJumps]&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">td</span><span class="o">.</span><span class="n">jumptype</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
+        <span class="n">jumpprob</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">td</span><span class="o">.</span><span class="n">jump</span><span class="p">)</span><span class="o">/</span><span class="n">numnodes</span>                     <span class="c1"># uniform jumping</span>
+    
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">probs</span><span class="p">)):</span>                                <span class="c1"># loop through all lists (l)</span>
+        <span class="k">for</span> <span class="n">inum</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">probs</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">1</span><span class="p">:]):</span>                <span class="c1"># loop through all items (i) excluding first (don&#39;t jump to item 1)</span>
+            <span class="k">if</span> <span class="n">td</span><span class="o">.</span><span class="n">jumptype</span><span class="o">==</span><span class="s2">&quot;stationary&quot;</span><span class="p">:</span>
+                <span class="n">jumpprob</span> <span class="o">=</span> <span class="n">statdist</span><span class="p">[</span><span class="n">Xs</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="n">inum</span><span class="o">+</span><span class="mi">1</span><span class="p">]]</span>             <span class="c1"># stationary probability jumping</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">jumpprob</span><span class="p">):</span>                         <span class="c1"># if node is disconnected, jumpprob is nan</span>
+                    <span class="n">jumpprob</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">probs</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="n">inum</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">jumpprob</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">td</span><span class="o">.</span><span class="n">jump</span><span class="p">)</span><span class="o">*</span><span class="n">i</span>        <span class="c1"># else normalize existing probability and add jumping probability</span>
+    <span class="k">return</span> <span class="n">probs</span></div>
+
+
+<span class="c1"># mix U-INVITE with priming model</span>
+<span class="c1"># code is confusing...</span>
+<div class="viewcode-block" id="adjustPriming">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.adjustPriming">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">adjustPriming</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">td</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">xnum</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Xs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>         <span class="c1"># check all items starting with 2nd list</span>
+        <span class="k">for</span> <span class="n">inum</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>     <span class="c1"># except last item</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">[</span><span class="n">xnum</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>            <span class="c1"># is item in previous list? if so, prime next item</span>
+                <span class="c1"># follow prime with calc_prob_adjacent td.priming, follow RW with calc_prob_adjacent (1-td.priming)</span>
+                <span class="n">idx</span><span class="o">=</span><span class="n">Xs</span><span class="p">[</span><span class="n">xnum</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="c1"># index of item in previous list</span>
+                <span class="k">if</span> <span class="n">Xs</span><span class="p">[</span><span class="n">xnum</span><span class="p">][</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">Xs</span><span class="p">[</span><span class="n">xnum</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="n">inum</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">probs</span><span class="p">[</span><span class="n">xnum</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="n">inum</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">probs</span><span class="p">[</span><span class="n">xnum</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="n">inum</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">td</span><span class="o">.</span><span class="n">priming</span><span class="p">))</span> <span class="o">+</span> <span class="n">td</span><span class="o">.</span><span class="n">priming</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">probs</span><span class="p">[</span><span class="n">xnum</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="n">inum</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">probs</span><span class="p">[</span><span class="n">xnum</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="n">inum</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">td</span><span class="o">.</span><span class="n">priming</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">probs</span></div>
+
+
+<span class="c1"># Chan, Butters, Paulsen, Salmon, Swenson, &amp; Maloney (1993) jcogneuro (p. 256) + pathfinder (PF; Schvaneveldt)</span>
+<span class="c1"># + Chan, Butters, Salmon, Johnson, Paulsen, &amp; Swenson (1995) neuropsychology</span>
+<span class="c1"># Returns only PF(q, r) = PF(n-1, inf) = minimum spanning tree (sparsest possible graph)</span>
+<span class="c1"># other parameterizations of PF(q, r) not implemented</span>
+<div class="viewcode-block" id="pathfinder">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.pathfinder">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pathfinder</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">valid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">td</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">numnodes</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">numnodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">flatten_list</span><span class="p">(</span><span class="n">Xs</span><span class="p">)))</span>
+    
+    <span class="c1"># From https://github.com/evanmiltenburg/dm-graphs</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">MST_pathfinder</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The MST-pathfinder algorithm (Quirin et al. 2008) reduces the graph to the</span>
+<span class="sd">        unions of all minimal spanning trees.&quot;&quot;&quot;</span>
+        <span class="n">NG</span>    <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+        <span class="n">NG</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">numnodes</span><span class="p">)))</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span> <span class="p">((</span><span class="n">G</span><span class="p">[</span><span class="n">a</span><span class="p">][</span><span class="n">b</span><span class="p">][</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span>
+                            <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>                                                <span class="c1"># smaller distances are more similar</span>
+        <span class="n">clusters</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="p">:</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">())}</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">edges</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="n">w1</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">l</span>      <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># Select edges to be considered this round:</span>
+            <span class="k">for</span> <span class="n">w2</span><span class="p">,</span><span class="n">u</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">w1</span> <span class="o">==</span> <span class="n">w2</span><span class="p">:</span>
+                    <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">w2</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="c1"># Remaining edges are those not being considered this round:</span>
+            <span class="n">edges</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">):]</span>
+            <span class="c1"># Only select those edges for which the items are not in the same cluster</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="n">l</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">clusters</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">==</span><span class="n">clusters</span><span class="p">[</span><span class="n">b</span><span class="p">]]</span>
+            <span class="c1"># Add these edges to the graph:</span>
+            <span class="n">NG</span><span class="o">.</span><span class="n">add_weighted_edges_from</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+            <span class="c1"># Merge the clusters:</span>
+            <span class="k">for</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">w</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+                <span class="n">cluster_1</span> <span class="o">=</span> <span class="n">clusters</span><span class="p">[</span><span class="n">a</span><span class="p">]</span>
+                <span class="n">cluster_2</span> <span class="o">=</span> <span class="n">clusters</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>
+                <span class="n">clusters</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span><span class="p">:</span><span class="n">cluster_1</span> <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="n">cluster_2</span> <span class="k">else</span> <span class="n">i</span>
+                            <span class="k">for</span> <span class="n">node</span><span class="p">,</span><span class="n">i</span> <span class="ow">in</span> <span class="n">clusters</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="n">NG</span>
+
+    <span class="k">if</span> <span class="n">valid</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">td</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Need to pass DataModel when generating </span><span class="se">\&#39;</span><span class="s1">valid</span><span class="se">\&#39;</span><span class="s1"> pathfinder()&#39;</span><span class="p">)</span>
+        
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">))</span>
+    <span class="n">distance_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numnodes</span><span class="p">,</span> <span class="n">numnodes</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">item1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numnodes</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">item1</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">numnodes</span><span class="p">):</span>
+            <span class="n">Tij</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">dijk</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">item1</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">item2</span> <span class="ow">in</span> <span class="n">x</span><span class="p">):</span>
+                    <span class="n">Tij</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">dijk</span> <span class="o">=</span> <span class="n">dijk</span> <span class="o">+</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">item1</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">item2</span><span class="p">))</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">dij</span> <span class="o">=</span> <span class="n">dijk</span> <span class="o">*</span> <span class="p">(</span><span class="n">N</span> <span class="o">/</span> <span class="p">(</span><span class="n">Tij</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">dij</span> <span class="o">=</span> <span class="mf">0.0</span>      <span class="c1"># added constraint for divide-by-zero... this will ensure that no edge will exist between i and j</span>
+            <span class="n">distance_mat</span><span class="p">[</span><span class="n">item1</span><span class="p">,</span> <span class="n">item2</span><span class="p">]</span> <span class="o">=</span> <span class="n">dij</span>
+            <span class="n">distance_mat</span><span class="p">[</span><span class="n">item2</span><span class="p">,</span> <span class="n">item1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dij</span>
+
+    <span class="c1">#graph = scipy.sparse.csgraph.minimum_spanning_tree(distance_mat)</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">to_numpy_array</span><span class="p">(</span><span class="n">MST_pathfinder</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">distance_mat</span><span class="p">)))</span>
+
+    <span class="c1"># binarize and make graph symmetric (undirected)... some redundancy but it&#39;s cheap</span>
+    <span class="c1">#graph = np.where(graph.todense(), 1, 0)</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">rownum</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">colnum</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">val</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">graph</span><span class="p">[</span><span class="n">rownum</span><span class="p">,</span><span class="n">colnum</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+                <span class="n">graph</span><span class="p">[</span><span class="n">colnum</span><span class="p">,</span><span class="n">rownum</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">valid</span><span class="p">:</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">makeValid</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">td</span><span class="p">)</span>
+        
+    <span class="c1">#return np.array(graph).astype(int)</span>
+    <span class="k">return</span> <span class="n">graph</span></div>
+
+
+<span class="c1"># objective graph cost</span>
+<span class="c1"># returns the number of links that need to be added or removed to reach the true graph</span>
+<div class="viewcode-block" id="cost">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.cost">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cost</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="n">a</span><span class="p">,</span> <span class="n">undirected</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">cost</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">graph</span><span class="o">-</span><span class="n">a</span><span class="p">))))</span>
+    <span class="k">if</span> <span class="n">undirected</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cost</span><span class="o">/</span><span class="mf">2.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cost</span></div>
+
+
+<span class="c1"># graph=estimated graph, a=target/comparison graph</span>
+<div class="viewcode-block" id="costSDT">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.costSDT">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">costSDT</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+    <span class="n">hit</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">miss</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">fa</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">cr</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">check</span><span class="o">=</span><span class="p">(</span><span class="n">graph</span><span class="o">==</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">rnum</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">cnum</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">r</span><span class="p">[:</span><span class="n">rnum</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">check</span><span class="p">[</span><span class="n">rnum</span><span class="p">,</span><span class="n">cnum</span><span class="p">]</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="n">rnum</span><span class="p">,</span><span class="n">cnum</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">hit</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cr</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="n">rnum</span><span class="p">,</span><span class="n">cnum</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">miss</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fa</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">hit</span><span class="p">,</span> <span class="n">miss</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">cr</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="evalGraphPrior">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.evalGraphPrior">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">evalGraphPrior</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">undirected</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">probs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">priordict</span> <span class="o">=</span> <span class="n">prior</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">prior</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">nullprob</span> <span class="o">=</span> <span class="n">priordict</span><span class="p">[</span><span class="s1">&#39;DEFAULTPRIOR&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">inum</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">jnum</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">inum</span> <span class="o">&gt;</span> <span class="n">jnum</span><span class="p">)</span> <span class="ow">or</span> <span class="p">((</span><span class="n">undirected</span><span class="o">==</span><span class="kc">False</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">inum</span> <span class="o">!=</span> <span class="n">jnum</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">undirected</span><span class="p">:</span>
+                    <span class="n">pair</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">((</span><span class="n">items</span><span class="p">[</span><span class="n">inum</span><span class="p">],</span> <span class="n">items</span><span class="p">[</span><span class="n">jnum</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pair</span> <span class="o">=</span> <span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="n">inum</span><span class="p">],</span> <span class="n">items</span><span class="p">[</span><span class="n">jnum</span><span class="p">])</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">priorprob</span> <span class="o">=</span> <span class="n">priordict</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                    <span class="k">if</span> <span class="n">j</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="n">prob</span> <span class="o">=</span> <span class="n">priorprob</span>
+                    <span class="k">elif</span> <span class="n">j</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                        <span class="n">prob</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">priorprob</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">prob</span> <span class="o">=</span> <span class="n">nullprob</span>  <span class="c1">#  no information about edge</span>
+                <span class="n">probs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span>
+    
+    <span class="n">probs</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span> <span class="k">for</span> <span class="n">prob</span> <span class="ow">in</span> <span class="n">probs</span><span class="p">]</span>      <span class="c1"># multiplication probably results in underflow...</span>
+    <span class="n">probs</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">probs</span></div>
+
+
+<div class="viewcode-block" id="firstEdge">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.firstEdge">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">firstEdge</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">numnodes</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">numnodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">flatten_list</span><span class="p">(</span><span class="n">Xs</span><span class="p">)))</span>
+    <span class="n">a</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numnodes</span><span class="p">,</span><span class="n">numnodes</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">:</span>
+        <span class="n">a</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">=</span><span class="mi">1</span>
+        <span class="n">a</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">=</span><span class="mi">1</span> <span class="c1"># symmetry</span>
+    <span class="n">a</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">a</span></div>
+
+
+<div class="viewcode-block" id="fullyConnected">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.fullyConnected">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fullyConnected</span><span class="p">(</span><span class="n">numnodes</span><span class="p">):</span>
+    <span class="n">a</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">numnodes</span><span class="p">,</span><span class="n">numnodes</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numnodes</span><span class="p">):</span>
+        <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="mf">0.0</span>
+    <span class="k">return</span> <span class="n">a</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span></div>
+
+
+<span class="c1"># only returns adjacency matrix, not nx graph</span>
+<div class="viewcode-block" id="naiveRandomWalk">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.naiveRandomWalk">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">naiveRandomWalk</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">numnodes</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">numnodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">flatten_list</span><span class="p">(</span><span class="n">Xs</span><span class="p">)))</span>
+    <span class="n">a</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numnodes</span><span class="p">,</span><span class="n">numnodes</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">:</span>
+        <span class="n">walk</span> <span class="o">=</span> <span class="n">edges_from_nodes</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">walk</span><span class="p">):</span>
+            <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">=</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="n">directed</span><span class="o">==</span><span class="kc">False</span><span class="p">:</span>
+                <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">=</span><span class="mi">1</span>
+    <span class="n">a</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">a</span></div>
+
+
+<div class="viewcode-block" id="genGraphPrior">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.genGraphPrior">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">genGraphPrior</span><span class="p">(</span><span class="n">graphs</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">fitinfo</span><span class="o">=</span><span class="n">Fitinfo</span><span class="p">({}),</span> <span class="n">mincount</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">undirected</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">returncounts</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">a_start</span> <span class="o">=</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">prior_a</span>
+    <span class="n">b_start</span> <span class="o">=</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">prior_b</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">prior_method</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">zibb_p</span>
+    
+    <span class="n">priordict</span><span class="o">=</span><span class="p">{}</span>
+  
+    <span class="c1">#def betabinomial(a,b):</span>
+    <span class="c1">#    return (b / (a + b))</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">zeroinflatedbetabinomial</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">b</span> <span class="o">/</span> <span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">p</span><span class="p">)</span><span class="o">*</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">))</span>
+
+    <span class="c1"># tabulate number of times edge does or doesn&#39;t appear in all of the graphs when node pair is present</span>
+    <span class="k">for</span> <span class="n">graphnum</span><span class="p">,</span> <span class="n">graph</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">graphs</span><span class="p">):</span>   <span class="c1"># for each graph</span>
+        <span class="n">itemdict</span><span class="o">=</span><span class="n">items</span><span class="p">[</span><span class="n">graphnum</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">inum</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>     <span class="c1"># rows of graph</span>
+            <span class="k">for</span> <span class="n">jnum</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>     <span class="c1"># columns of graph</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">inum</span> <span class="o">&gt;</span> <span class="n">jnum</span><span class="p">)</span> <span class="ow">or</span> <span class="p">((</span><span class="n">undirected</span><span class="o">==</span><span class="kc">False</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">inum</span> <span class="o">!=</span> <span class="n">jnum</span><span class="p">)):</span>
+                    <span class="n">item1</span> <span class="o">=</span> <span class="n">itemdict</span><span class="p">[</span><span class="n">inum</span><span class="p">]</span>
+                    <span class="n">item2</span> <span class="o">=</span> <span class="n">itemdict</span><span class="p">[</span><span class="n">jnum</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">undirected</span><span class="p">:</span>
+                        <span class="n">pair</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">((</span><span class="n">item1</span><span class="p">,</span><span class="n">item2</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">pair</span> <span class="o">=</span> <span class="p">(</span><span class="n">item1</span><span class="p">,</span><span class="n">item2</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">priordict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                        <span class="n">priordict</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">=</span><span class="p">{}</span>
+                    <span class="k">if</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">priordict</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                        <span class="n">priordict</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">a_start</span><span class="p">,</span> <span class="n">b_start</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">j</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="n">priordict</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">1.0</span> <span class="c1"># increment b counts</span>
+                    <span class="k">elif</span> <span class="n">j</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                        <span class="n">priordict</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">1.0</span> <span class="c1"># increment a counts</span>
+   
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">returncounts</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">item1</span> <span class="ow">in</span> <span class="n">priordict</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item2</span> <span class="ow">in</span> <span class="n">priordict</span><span class="p">[</span><span class="n">item1</span><span class="p">]:</span>
+                <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">priordict</span><span class="p">[</span><span class="n">item1</span><span class="p">][</span><span class="n">item2</span><span class="p">]</span>      <span class="c1"># a=number of participants without link, b=number of participants with link</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">mincount</span> <span class="o">+</span> <span class="n">a_start</span> <span class="o">+</span> <span class="n">b_start</span><span class="p">):</span>
+                    <span class="c1">#if method == &quot;zeroinflatedbetabinomial&quot;:</span>
+                    <span class="n">priordict</span><span class="p">[</span><span class="n">item1</span><span class="p">][</span><span class="n">item2</span><span class="p">]</span> <span class="o">=</span> <span class="n">zeroinflatedbetabinomial</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="c1"># zero-inflated beta-binomial</span>
+                    <span class="c1">#elif method == &quot;betabinomial&quot;:</span>
+                    <span class="c1">#    priordict[item1][item2] = betabinomial(a,b) # beta-binomial</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">priordict</span><span class="p">[</span><span class="n">item1</span><span class="p">][</span><span class="n">item2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>   <span class="c1"># if number of observations is less than mincount, make edge prior 0.0</span>
+        <span class="k">if</span> <span class="s1">&#39;DEFAULTPRIOR&#39;</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">priordict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Sorry, you can</span><span class="se">\&#39;</span><span class="s1">t have a node called DEFAULTPRIOR. </span><span class="se">\</span>
+<span class="s1">                              Sure, I should have coded this better, but I really didn</span><span class="se">\&#39;</span><span class="s1">t think this situation would ever occur.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#if method == &quot;zeroinflatedbetabinomial&quot;:</span>
+            <span class="n">priordict</span><span class="p">[</span><span class="s1">&#39;DEFAULTPRIOR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">zeroinflatedbetabinomial</span><span class="p">(</span><span class="n">a_start</span><span class="p">,</span> <span class="n">b_start</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+            <span class="c1">#elif method==&quot;betabinomial&quot;:</span>
+            <span class="c1">#    priordict[&#39;DEFAULTPRIOR&#39;] = betabinomial(a_start, b_start)</span>
+    
+    <span class="k">return</span> <span class="n">priordict</span></div>
+
+
+<span class="c1"># generate starting graph for U-INVITE</span>
+<div class="viewcode-block" id="genStartGraph">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.genStartGraph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">genStartGraph</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">numnodes</span><span class="p">,</span> <span class="n">td</span><span class="p">,</span> <span class="n">fitinfo</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">startGraph</span><span class="o">==</span><span class="s2">&quot;cn_valid&quot;</span><span class="p">:</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">conceptualNetwork</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">numnodes</span><span class="p">,</span> <span class="n">td</span><span class="o">=</span><span class="n">td</span><span class="p">,</span> <span class="n">valid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fitinfo</span><span class="o">=</span><span class="n">fitinfo</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">startGraph</span><span class="o">==</span><span class="s2">&quot;pf_valid&quot;</span><span class="p">:</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">pathfinder</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">numnodes</span><span class="p">,</span> <span class="n">valid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">td</span><span class="o">=</span><span class="n">td</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">fitinfo</span><span class="o">.</span><span class="n">startGraph</span><span class="o">==</span><span class="s2">&quot;rw&quot;</span> <span class="ow">or</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">startGraph</span><span class="o">==</span><span class="s2">&quot;nrw&quot;</span><span class="p">):</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">naiveRandomWalk</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span><span class="n">numnodes</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">startGraph</span><span class="o">==</span><span class="s2">&quot;fully_connected&quot;</span><span class="p">:</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">fullyConnected</span><span class="p">(</span><span class="n">numnodes</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">startGraph</span><span class="o">==</span><span class="s2">&quot;empty_graph&quot;</span><span class="p">:</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numnodes</span><span class="p">,</span><span class="n">numnodes</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>           <span class="c1"># useless...</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">fitinfo</span><span class="o">.</span><span class="n">startGraph</span><span class="p">)</span>                         <span class="c1"># assume a graph has been passed as a starting point</span>
+    <span class="k">return</span> <span class="n">graph</span></div>
+
+
+<span class="c1"># deprecated alias for backwards compatibility</span>
+<div class="viewcode-block" id="communitynetwork">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.communitynetwork">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">communitynetwork</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">conceptualNetwork</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="c1"># w = window size; two items appear within +/- w steps of each other (where w=1 means adjacent items)</span>
+<span class="c1"># f = filter frequency; if two items don&#39;t fall within the same window more than f times, then no edge is inferred</span>
+<span class="c1"># c = confidence interval; retain the edge if there is a &lt;= c probability that two items occur within the same window n times by chance alone</span>
+<span class="c1"># valid (t/f) ensures that graph can produce data using censored RW.</span>
+<div class="viewcode-block" id="conceptualNetwork">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.conceptualNetwork">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">conceptualNetwork</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fitinfo</span><span class="o">=</span><span class="n">Fitinfo</span><span class="p">({}),</span> <span class="n">valid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">td</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">numnodes</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">numnodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">flatten_list</span><span class="p">(</span><span class="n">Xs</span><span class="p">)))</span>
+        
+    <span class="n">w</span> <span class="o">=</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">cn_windowsize</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">cn_threshold</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">cn_alpha</span>
+    
+    <span class="k">if</span> <span class="n">f</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">:</span>                 <span class="c1"># if &lt;1 treat as proportion of total lists; if &gt;1 treat as absolute # of lists</span>
+        <span class="n">f</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span><span class="o">*</span><span class="n">f</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">valid</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">td</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Need to pass Data when generating </span><span class="se">\&#39;</span><span class="s1">valid</span><span class="se">\&#39;</span><span class="s1"> goni()&#39;</span><span class="p">)</span>
+
+    <span class="c1">#if c&lt;1:</span>
+    <span class="c1">#    from statsmodels.stats.proportion import proportion_confint as pci</span>
+
+    <span class="k">if</span> <span class="n">w</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error in goni(): w must be &gt;= 1&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">graph</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numnodes</span><span class="p">,</span> <span class="n">numnodes</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>         <span class="c1"># empty graph</span>
+
+    <span class="c1"># frequency of co-occurrences within window (w)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">:</span>                                             <span class="c1"># for each list</span>
+        <span class="n">cooccur_within_list</span> <span class="o">=</span> <span class="p">[]</span>                             <span class="c1"># only count one cooccurence per list (for binomial test)</span>
+        <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>                            <span class="c1"># for each item in list</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">w</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>                          <span class="c1"># for each window size</span>
+                <span class="k">if</span> <span class="n">pos</span><span class="o">+</span><span class="n">i</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">pos</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="n">i</span><span class="p">])</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cooccur_within_list</span><span class="p">:</span>
+                        <span class="n">graph</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">pos</span><span class="p">],</span><span class="n">x</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="n">i</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">graph</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="n">i</span><span class="p">],</span><span class="n">x</span><span class="p">[</span><span class="n">pos</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">cooccur_within_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="p">[</span><span class="n">pos</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="n">i</span><span class="p">]))</span>
+                        <span class="n">cooccur_within_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="n">i</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="n">pos</span><span class="p">]))</span>
+
+    <span class="c1"># exclude edges with co-occurrences less than frequency (f) and binarize</span>
+    <span class="c1"># but first save co-occurence frequencies</span>
+    <span class="n">cooccur</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">graph</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">graph</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">graph</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># check if co-occurrences are due to chance</span>
+    <span class="k">if</span> <span class="n">c</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">setXs</span><span class="o">=</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>                              <span class="c1"># unique nodes in each list</span>
+        <span class="n">flatX</span><span class="o">=</span><span class="n">flatten_list</span><span class="p">(</span><span class="n">setXs</span><span class="p">)</span>                                     <span class="c1"># flattened</span>
+        <span class="n">xfreq</span><span class="o">=</span><span class="p">[</span><span class="n">flatX</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numnodes</span><span class="p">)]</span>               <span class="c1"># number of lists each item appears in (at least once)</span>
+        <span class="n">listofedges</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">graph</span><span class="p">)))</span>                           <span class="c1"># list of edges in graph to check</span>
+        <span class="n">numlists</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">))</span>
+        <span class="n">meanlistlength</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">])</span>
+    
+        <span class="c1"># Goni et al. (2011), eq. 10</span>
+        <span class="n">p_adj</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span><span class="o">/</span><span class="p">(</span><span class="n">meanlistlength</span><span class="o">*</span><span class="p">(</span><span class="n">meanlistlength</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span> <span class="o">*</span> <span class="p">((</span><span class="n">w</span><span class="o">*</span><span class="n">meanlistlength</span><span class="p">)</span> <span class="o">-</span> <span class="p">((</span><span class="n">w</span><span class="o">*</span><span class="p">(</span><span class="n">w</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mf">2.0</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="n">listofedges</span><span class="p">:</span>
+            <span class="n">p_linked</span> <span class="o">=</span> <span class="p">(</span><span class="n">xfreq</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">numlists</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">xfreq</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">/</span><span class="n">numlists</span><span class="p">)</span> <span class="o">*</span> <span class="n">p_adj</span>
+            <span class="c1">#ci=pci(cooccur[i,j],numlists,alpha=c,method=&quot;beta&quot;)[0]     # lower bound of Clopper-Pearson binomial CI</span>
+            <span class="n">ci</span> <span class="o">=</span> <span class="n">pci_lowerbound</span><span class="p">(</span><span class="n">cooccur</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">],</span> <span class="n">numlists</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>              <span class="c1"># lower bound of Clopper-Pearson binomial CI</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">p_linked</span> <span class="o">&gt;=</span> <span class="n">ci</span><span class="p">):</span>                                        <span class="c1"># if co-occurrence could be due to chance, remove edge</span>
+                <span class="n">graph</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
+                <span class="n">graph</span><span class="p">[</span><span class="n">j</span><span class="p">,</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">valid</span><span class="p">:</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">makeValid</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">td</span><span class="p">)</span>
+
+    <span class="c1"># make sure there are no self-transitions -- is this necessary?</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="p">)):</span>
+        <span class="n">graph</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="mf">0.0</span>
+
+    <span class="k">return</span> <span class="n">graph</span></div>
+
+
+<span class="c1"># enrich graph by finding modules and making them completely interconnected</span>
+<span class="c1"># using Generalized Topological Overlap Measure (GTOM)</span>
+<span class="c1"># right now only does n=2 (neighbors and neighbors of neighbors)</span>
+<span class="c1"># see Goni et al 2010</span>
+<span class="c1"># TODO unfinished: so far, creates GTOM matrix but doesn&#39;t &quot;enrich&quot; network... how to determine # of clusters?</span>
+<div class="viewcode-block" id="gtom">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.gtom">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gtom</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+
+    <span class="c1"># modified from uinvite(), copied for convenience (TODO consolidate by moving outside to its own function)</span>
+    <span class="c1"># return list of neighbors of neighbors of i, that aren&#39;t themselves neighbors of i</span>
+    <span class="c1"># i.e., an edge between i and any item in nn forms a triangle</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">neighborsofneighbors</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nxg</span><span class="p">):</span>
+        <span class="n">nn</span><span class="o">=</span><span class="p">[]</span>                                       <span class="c1"># neighbors of neighbors (nn)</span>
+        <span class="n">n</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">all_neighbors</span><span class="p">(</span><span class="n">nxg</span><span class="p">,</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">n</span><span class="p">:</span>
+            <span class="n">nn</span><span class="o">=</span><span class="n">nn</span><span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">all_neighbors</span><span class="p">(</span><span class="n">nxg</span><span class="p">,</span><span class="n">j</span><span class="p">))</span>
+        <span class="n">nn</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nn</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">nn</span><span class="p">:</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>                            <span class="c1"># remove self</span>
+        <span class="k">return</span> <span class="n">nn</span>
+    
+    <span class="n">nxgraph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">to_networkx_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+    <span class="n">numnodes</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">(</span><span class="n">nxgraph</span><span class="p">)</span>
+    <span class="n">gtom_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numnodes</span><span class="p">,</span><span class="n">numnodes</span><span class="p">))</span>
+   
+    <span class="n">nn_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numnodes</span><span class="p">):</span>
+        <span class="n">nn_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">neighborsofneighbors</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nxgraph</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numnodes</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">numnodes</span><span class="p">):</span>
+            <span class="n">i_neighbors</span> <span class="o">=</span> <span class="n">nn_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">j_neighbors</span> <span class="o">=</span> <span class="n">nn_dict</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">min_neighbors</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">i_neighbors</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">j_neighbors</span><span class="p">))</span>
+            <span class="n">len_overlap</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">i_neighbors</span><span class="p">),</span><span class="nb">set</span><span class="p">(</span><span class="n">j_neighbors</span><span class="p">)))</span>
+            <span class="n">gtom_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">len_overlap</span><span class="p">)</span> <span class="o">/</span> <span class="n">min_neighbors</span><span class="p">)</span>
+            <span class="n">gtom_mat</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">gtom_mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">gtom_mat</span></div>
+
+
+ 
+<div class="viewcode-block" id="hierarchicalUinvite">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.hierarchicalUinvite">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hierarchicalUinvite</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">td</span><span class="o">=</span><span class="n">DataModel</span><span class="p">({}),</span> <span class="n">irts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fitinfo</span><span class="o">=</span><span class="n">Fitinfo</span><span class="p">({}),</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">numnodes</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">numnodes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">flatten_list</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
+    
+    <span class="n">nplocal</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> 
+    <span class="n">fitinfoSG</span> <span class="o">=</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">startGraph</span>  <span class="c1"># fitinfo is mutable, need to revert at end of function... blah</span>
+    <span class="c1"># create ids for all subjects</span>
+    <span class="n">subs</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">)))</span>
+    <span class="n">graphs</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subs</span><span class="p">))]</span>
+    <span class="c1">#graphs=[[]]*len(subs)</span>
+
+    <span class="c1"># cycle though participants</span>
+    <span class="n">exclude_subs</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">graphchanges</span><span class="o">=</span><span class="mi">1</span>
+    <span class="n">rnd</span><span class="o">=</span><span class="mi">1</span>
+    <span class="k">while</span> <span class="n">graphchanges</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Round: &quot;</span><span class="p">,</span> <span class="n">rnd</span><span class="p">)</span>
+        <span class="n">graphchanges</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">nplocal</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">subs</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude_subs</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SS: &quot;</span><span class="p">,</span> <span class="n">sub</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">graphs</span><span class="p">[</span><span class="n">sub</span><span class="p">]</span> <span class="o">==</span> <span class="p">[]:</span>
+                <span class="n">fitinfo</span><span class="o">.</span><span class="n">startGraph</span> <span class="o">=</span> <span class="n">fitinfoSG</span>      <span class="c1"># on first pass for subject, use default fitting method (e.g., NRW, goni, etc)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fitinfo</span><span class="o">.</span><span class="n">startGraph</span> <span class="o">=</span> <span class="n">graphs</span><span class="p">[</span><span class="n">sub</span><span class="p">]</span>    <span class="c1"># on subsequent passes, use ss graph from previous iteration</span>
+
+            <span class="c1"># generate prior without participant&#39;s data, fit graph</span>
+            <span class="n">priordict</span> <span class="o">=</span> <span class="n">genGraphPrior</span><span class="p">(</span><span class="n">graphs</span><span class="p">[:</span><span class="n">sub</span><span class="p">]</span><span class="o">+</span><span class="n">graphs</span><span class="p">[</span><span class="n">sub</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span> <span class="n">items</span><span class="p">[:</span><span class="n">sub</span><span class="p">]</span><span class="o">+</span><span class="n">items</span><span class="p">[</span><span class="n">sub</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span> <span class="n">fitinfo</span><span class="o">=</span><span class="n">fitinfo</span><span class="p">)</span>
+            <span class="n">prior</span> <span class="o">=</span> <span class="p">(</span><span class="n">priordict</span><span class="p">,</span> <span class="n">items</span><span class="p">[</span><span class="n">sub</span><span class="p">])</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">irts</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">uinvite_graph</span><span class="p">,</span> <span class="n">bestval</span> <span class="o">=</span> <span class="n">uinvite</span><span class="p">(</span><span class="n">Xs</span><span class="p">[</span><span class="n">sub</span><span class="p">],</span> <span class="n">td</span><span class="p">,</span> <span class="n">numnodes</span><span class="p">[</span><span class="n">sub</span><span class="p">],</span> <span class="n">fitinfo</span><span class="o">=</span><span class="n">fitinfo</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">irts</span><span class="o">=</span><span class="n">irts</span><span class="p">[</span><span class="n">sub</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">uinvite_graph</span><span class="p">,</span> <span class="n">bestval</span> <span class="o">=</span> <span class="n">uinvite</span><span class="p">(</span><span class="n">Xs</span><span class="p">[</span><span class="n">sub</span><span class="p">],</span> <span class="n">td</span><span class="p">,</span> <span class="n">numnodes</span><span class="p">[</span><span class="n">sub</span><span class="p">],</span> <span class="n">fitinfo</span><span class="o">=</span><span class="n">fitinfo</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error while fitting U-INVITE for subject </span><span class="si">{</span><span class="n">sub</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">uinvite_graph</span><span class="p">,</span> <span class="n">bestval</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>  <span class="c1"># or handle however needed</span>
+            
+            <span class="c1"># if isinstance(irts, list):</span>
+            <span class="c1">#     uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior, irts=irts[sub])</span>
+            <span class="c1"># else:</span>
+            <span class="c1">#     uinvite_graph, bestval = uinvite(Xs[sub], td, numnodes[sub], fitinfo=fitinfo, prior=prior)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">uinvite_graph</span><span class="p">,</span> <span class="n">graphs</span><span class="p">[</span><span class="n">sub</span><span class="p">]):</span>
+                <span class="n">graphchanges</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">graphs</span><span class="p">[</span><span class="n">sub</span><span class="p">]</span> <span class="o">=</span> <span class="n">uinvite_graph</span>
+                <span class="n">exclude_subs</span><span class="o">=</span><span class="p">[</span><span class="n">sub</span><span class="p">]</span>              <span class="c1"># if a single change, fit everyone again (except the graph that was just fit)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">exclude_subs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>        <span class="c1"># if graph didn&#39;t change, don&#39;t fit them again until another change</span>
+        <span class="n">rnd</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1">## generate group graph</span>
+    <span class="n">priordict</span> <span class="o">=</span> <span class="n">genGraphPrior</span><span class="p">(</span><span class="n">graphs</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">fitinfo</span><span class="o">=</span><span class="n">fitinfo</span><span class="p">)</span>
+    <span class="n">fitinfo</span><span class="o">.</span><span class="n">startGraph</span> <span class="o">=</span> <span class="n">fitinfoSG</span>  <span class="c1"># reset fitinfo starting graph to default</span>
+    
+    <span class="k">return</span> <span class="n">graphs</span><span class="p">,</span> <span class="n">priordict</span></div>
+
+
+<div class="viewcode-block" id="probXhierarchical">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.probXhierarchical">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">probXhierarchical</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">graphs</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">td</span><span class="p">,</span> <span class="n">priordict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">irts</span><span class="o">=</span><span class="n">Irts</span><span class="p">({})):</span>
+    <span class="n">lls</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">priordict</span><span class="p">:</span>
+            <span class="n">prior</span> <span class="o">=</span> <span class="p">(</span><span class="n">priordict</span><span class="p">,</span> <span class="n">items</span><span class="p">[</span><span class="n">sub</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prior</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">best_ll</span><span class="p">,</span> <span class="n">probmat</span> <span class="o">=</span> <span class="n">probX</span><span class="p">(</span><span class="n">Xs</span><span class="p">[</span><span class="n">sub</span><span class="p">],</span> <span class="n">graphs</span><span class="p">[</span><span class="n">sub</span><span class="p">],</span> <span class="n">td</span><span class="p">,</span> <span class="n">irts</span><span class="o">=</span><span class="n">irts</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">)</span>   <span class="c1"># LL of graph</span>
+        <span class="n">lls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_ll</span><span class="p">)</span>
+    <span class="n">ll</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="n">lls</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ll</span></div>
+
+
+<span class="c1"># construct graph using method using item correlation matrix and planar maximally filtered graph (PMFG)</span>
+<span class="c1"># see Borodkin, Kenett, Faust, &amp; Mashal (2016) and Kenett, Kenett, Ben-Jacob, &amp; Faust (2011)</span>
+<span class="c1"># does not work well for small number of lists! many NaN correlations + when two correlations are equal, ordering is arbitrary</span>
+<div class="viewcode-block" id="correlationBasedNetwork">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.correlationBasedNetwork">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">correlationBasedNetwork</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minlists</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">valid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">td</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+    
+    <span class="k">if</span> <span class="n">numnodes</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">numnodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">flatten_list</span><span class="p">(</span><span class="n">Xs</span><span class="p">)))</span>
+ 
+    <span class="c1"># construct matrix of list x item where each cell indicates whether that item is in that list</span>
+    <span class="n">list_by_item</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numnodes</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numnodes</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Xs</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">[</span><span class="n">x</span><span class="p">]:</span>
+                <span class="n">list_by_item</span><span class="p">[</span><span class="n">node</span><span class="p">,</span><span class="n">x</span><span class="p">]</span><span class="o">=</span><span class="mf">1.0</span>
+    
+    <span class="c1"># find pearsonr correlation for all item pairs</span>
+    <span class="n">item_by_item</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">item1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numnodes</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">item1</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">numnodes</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">list_by_item</span><span class="p">[</span><span class="n">item1</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">minlists</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">list_by_item</span><span class="p">[</span><span class="n">item2</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">minlists</span><span class="p">):</span>    <span class="c1"># if a word only appears in &lt;= minlists lists, exclude from correlation list (kenett personal communication, to avoid spurious correlations)</span>
+                <span class="n">item_by_item</span><span class="p">[(</span><span class="n">item1</span><span class="p">,</span> <span class="n">item2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1">#item_by_item[(item1, item2)] = scipy.stats.pearsonr(list_by_item[item1],list_by_item[item2])[0]</span>
+                <span class="n">item_by_item</span><span class="p">[(</span><span class="n">item1</span><span class="p">,</span> <span class="n">item2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">pearsonr</span><span class="p">(</span><span class="n">list_by_item</span><span class="p">[</span><span class="n">item1</span><span class="p">],</span><span class="n">list_by_item</span><span class="p">[</span><span class="n">item2</span><span class="p">])</span>
+    
+    <span class="n">corr_vals</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">item_by_item</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">item_by_item</span><span class="o">.</span><span class="n">get</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>       <span class="c1"># keys in correlation dictionary sorted by value (high to low, including NaN first)</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">numnodes</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">corr_vals</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">item_by_item</span><span class="p">[</span><span class="n">pair</span><span class="p">]):</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="o">*</span><span class="n">pair</span><span class="p">)</span>
+            <span class="n">is_planar</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">check_planarity</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_planar</span><span class="p">:</span>
+                <span class="n">g</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="o">*</span><span class="n">pair</span><span class="p">)</span>
+
+    <span class="n">a</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">to_numpy_array</span><span class="p">(</span><span class="n">g</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">valid</span><span class="p">:</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">makeValid</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">td</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">a</span></div>
+
+
+<div class="viewcode-block" id="makeValid">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.makeValid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">makeValid</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">td</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># add direct edges when transition is impossible</span>
+    <span class="n">check</span><span class="o">=</span><span class="n">probX</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">td</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">check</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">check</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">graph</span><span class="p">[</span><span class="n">check</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">check</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">graph</span><span class="p">[</span><span class="n">check</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">check</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># i think these 2 lines are no longer necessary</span>
+        <span class="c1">#elif check[1] == &quot;prior&quot;:</span>
+        <span class="c1">#    raise ValueError(&#39;Starting graph has prior probability of 0.0&#39;)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">check</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="nb">int</span><span class="p">):</span>
+            <span class="c1"># when list contains one item and node is unreachable, connect to random node</span>
+            <span class="n">nplocal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">randnode</span> <span class="o">=</span> <span class="n">nplocal</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="p">)))</span>
+            <span class="n">graph</span><span class="p">[</span><span class="n">check</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">randnode</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">graph</span><span class="p">[</span><span class="n">randnode</span><span class="p">,</span> <span class="n">check</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unexpected error from makeValid()&#39;</span><span class="p">)</span>
+        <span class="n">check</span><span class="o">=</span><span class="n">probX</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">td</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">graph</span></div>
+
+
+<span class="c1"># converts priordict to graph if probability of edge is greater than cutoff value</span>
+<div class="viewcode-block" id="priorToNetwork">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.priorToNetwork">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">priorToNetwork</span><span class="p">(</span><span class="n">priordict</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">undirected</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">numnodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numnodes</span><span class="p">,</span> <span class="n">numnodes</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">item1</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">priordict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">item1</span> <span class="o">!=</span> <span class="s1">&#39;DEFAULTPRIOR&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item2</span> <span class="ow">in</span> <span class="n">priordict</span><span class="p">[</span><span class="n">item1</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">priordict</span><span class="p">[</span><span class="n">item1</span><span class="p">][</span><span class="n">item2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">cutoff</span><span class="p">:</span>
+                    <span class="n">item1_idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">item1</span><span class="p">)]</span>    <span class="c1"># syntax is a little convoluted in case dictionary keys are not in sequential order</span>
+                    <span class="n">item2_idx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">item2</span><span class="p">)]</span>
+                    <span class="n">a</span><span class="p">[</span><span class="n">item1_idx</span><span class="p">,</span> <span class="n">item2_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+                    <span class="k">if</span> <span class="n">undirected</span><span class="p">:</span>
+                        <span class="n">a</span><span class="p">[</span><span class="n">item2_idx</span><span class="p">,</span> <span class="n">item1_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">return</span> <span class="n">a</span></div>
+
+
+<span class="c1"># probability of observing Xs, including irts and prior</span>
+<span class="c1">#@profile</span>
+<span class="c1">#@nogc</span>
+<div class="viewcode-block" id="probX">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.probX">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">probX</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">td</span><span class="p">,</span> <span class="n">irts</span><span class="o">=</span><span class="n">Irts</span><span class="p">({}),</span> <span class="n">prior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">origmat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">changed</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">numnodes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">reg</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="mf">1e-10</span><span class="p">)</span>                           <span class="c1"># nuisance parameter to prevent errors; can also use pinv instead of inv, but that&#39;s much slower</span>
+    <span class="n">identmat</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">numnodes</span><span class="p">)</span> <span class="o">*</span> <span class="n">reg</span>    <span class="c1"># pre-compute for tiny speed-up (only for non-IRT)</span>
+
+    <span class="n">probs</span><span class="o">=</span><span class="p">[]</span>
+
+    <span class="c1"># generate transition matrix (from: column, to: row) from link matrix</span>
+    <span class="n">t</span><span class="o">=</span><span class="n">a</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+    <span class="n">t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>                  <span class="c1"># jumping/priming models can have nan in matrix, need to change to 0</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">td</span><span class="o">.</span><span class="n">jumptype</span><span class="o">==</span><span class="s2">&quot;stationary&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">td</span><span class="o">.</span><span class="n">start_node</span><span class="o">==</span><span class="s2">&quot;stationary&quot;</span><span class="p">):</span>
+        <span class="n">statdist</span><span class="o">=</span><span class="n">stationary</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="c1"># U-INVITE probability excluding jumps, prior, and priming adjustments -- those come later</span>
+    <span class="k">for</span> <span class="n">xnum</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Xs</span><span class="p">):</span>
+        <span class="n">x2</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">t2</span><span class="o">=</span><span class="n">t</span><span class="p">[</span><span class="n">x2</span><span class="p">[:,</span><span class="kc">None</span><span class="p">],</span><span class="n">x2</span><span class="p">]</span>                                        <span class="c1"># re-arrange transition matrix to be in list order</span>
+        <span class="n">prob</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">if</span> <span class="n">td</span><span class="o">.</span><span class="n">start_node</span><span class="o">==</span><span class="s2">&quot;stationary&quot;</span><span class="p">:</span>
+            <span class="n">prob</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">statdist</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>                            <span class="c1"># probability of X_1</span>
+        <span class="k">elif</span> <span class="n">td</span><span class="o">.</span><span class="n">start_node</span><span class="o">==</span><span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
+            <span class="n">prob</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">numnodes</span><span class="p">)</span>
+
+        <span class="c1"># if impossible starting point, return immediately</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">prob</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mf">0.0</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">changed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">origmat</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span>        <span class="c1"># if updating prob. matrix based on specific link changes</span>
+            <span class="n">update</span><span class="o">=</span><span class="mi">0</span>                                               <span class="c1"># reset for each list</span>
+
+        <span class="c1"># flag if list contains perseverations</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+            <span class="n">list_has_perseverations</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">list_has_perseverations</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">for</span> <span class="n">curpos</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">changed</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">origmat</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">update</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>                                      <span class="c1"># first check if probability needs to be updated</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">Xs</span><span class="p">[</span><span class="n">xnum</span><span class="p">][</span><span class="n">curpos</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">changed</span><span class="p">):</span>            <span class="c1"># (only AFTER first changed node has been reached)</span>
+                        <span class="n">update</span><span class="o">=</span><span class="mi">1</span>
+                    <span class="k">else</span><span class="p">:</span>                                          <span class="c1"># if not, take probability from old matrix</span>
+                        <span class="n">prob</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">origmat</span><span class="p">[</span><span class="n">xnum</span><span class="p">][</span><span class="n">curpos</span><span class="p">])</span>
+                        <span class="k">continue</span>
+            
+            <span class="k">if</span> <span class="n">list_has_perseverations</span><span class="p">:</span>            <span class="c1"># a bit slower because matrix is being copied</span>
+                <span class="n">x2</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">j</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">x</span><span class="p">[:</span><span class="n">i</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">curpos</span><span class="p">)])</span> <span class="c1"># column ids for transient states excluding perseverations</span>
+                <span class="n">Q</span><span class="o">=</span><span class="n">t2</span><span class="p">[</span><span class="n">x2</span><span class="p">[:,</span><span class="kc">None</span><span class="p">],</span><span class="n">x2</span><span class="p">]</span>                <span class="c1"># excludes perseverations. could be sped if only performed when Q contains perseverations</span>
+                                                   <span class="c1"># as opposed to being done for every transition if a perseveration is in the list</span>
+            <span class="k">else</span><span class="p">:</span>                                  
+                <span class="n">Q</span><span class="o">=</span><span class="n">t2</span><span class="p">[:</span><span class="n">curpos</span><span class="p">,:</span><span class="n">curpos</span><span class="p">]</span>              <span class="c1"># old way when data does not include perseverations</span>
+                
+            <span class="c1"># td.censor_fault is necessary to model perservations in the data</span>
+            <span class="k">if</span> <span class="n">td</span><span class="o">.</span><span class="n">censor_fault</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">Q</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">-</span><span class="n">td</span><span class="o">.</span><span class="n">censor_fault</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">irts</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>     <span class="c1"># use this method only when passing IRTs</span>
+                <span class="n">numcols</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">Q</span><span class="p">)</span>
+                <span class="n">flist</span><span class="o">=</span><span class="p">[]</span>
+                <span class="n">newQ</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numcols</span><span class="p">)</span>                             <span class="c1"># init to Q^0, for when r=1</span>
+                <span class="n">newQ</span><span class="p">[</span><span class="n">curpos</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="mf">1.0</span>                                 <span class="c1"># (using only one: row for efficiency)</span>
+
+                <span class="n">irt</span><span class="o">=</span><span class="n">irts</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">xnum</span><span class="p">][</span><span class="n">curpos</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="c1"># precompute for small speedup</span>
+                <span class="k">if</span> <span class="n">irts</span><span class="o">.</span><span class="n">irttype</span><span class="o">==</span><span class="s2">&quot;gamma&quot;</span><span class="p">:</span>
+                    <span class="n">logbeta</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">irts</span><span class="o">.</span><span class="n">gamma_beta</span><span class="p">)</span>
+                    <span class="n">logirt</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">irt</span><span class="p">)</span>
+
+                <span class="c1"># normalize irt probabilities to avoid irt weighting</span>
+                <span class="k">if</span> <span class="n">irts</span><span class="o">.</span><span class="n">irttype</span><span class="o">==</span><span class="s2">&quot;gamma&quot;</span><span class="p">:</span>
+                     <span class="c1"># r=alpha. probability of observing irt at r steps</span>
+                    <span class="n">irtdist</span><span class="o">=</span><span class="p">[</span><span class="n">r</span><span class="o">*</span><span class="n">logbeta</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">lgamma</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">logirt</span><span class="o">-</span><span class="n">irts</span><span class="o">.</span><span class="n">gamma_beta</span><span class="o">*</span><span class="n">irt</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">irts</span><span class="o">.</span><span class="n">rcutoff</span><span class="p">)]</span>
+                <span class="k">if</span> <span class="n">irts</span><span class="o">.</span><span class="n">irttype</span><span class="o">==</span><span class="s2">&quot;exgauss&quot;</span><span class="p">:</span>
+                
+                    <span class="n">irtdist</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">irts</span><span class="o">.</span><span class="n">exgauss_lambda</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">irts</span><span class="o">.</span><span class="n">exgauss_lambda</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="n">r</span><span class="o">+</span><span class="n">irts</span><span class="o">.</span><span class="n">exgauss_lambda</span><span class="o">*</span><span class="p">(</span><span class="n">irts</span><span class="o">.</span><span class="n">exgauss_sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">irt</span><span class="p">)</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">erfc</span><span class="p">((</span><span class="n">r</span><span class="o">+</span><span class="n">irts</span><span class="o">.</span><span class="n">exgauss_lambda</span><span class="o">*</span><span class="p">(</span><span class="n">irts</span><span class="o">.</span><span class="n">exgauss_sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="n">irt</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">irts</span><span class="o">.</span><span class="n">exgauss_sigma</span><span class="p">)))</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">irts</span><span class="o">.</span><span class="n">rcutoff</span><span class="p">)]</span>
+
+                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">irts</span><span class="o">.</span><span class="n">rcutoff</span><span class="p">):</span>
+                    <span class="n">innersum</span><span class="o">=</span><span class="mi">0</span>
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numcols</span><span class="p">):</span>
+                        <span class="n">num1</span><span class="o">=</span><span class="n">newQ</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>                               <span class="c1"># probability of being at node k in r-1 steps</span>
+                        <span class="n">num2</span><span class="o">=</span><span class="n">t2</span><span class="p">[</span><span class="n">curpos</span><span class="p">,</span><span class="n">k</span><span class="p">]</span>                          <span class="c1"># probability transitioning from k to absorbing node    </span>
+                        <span class="n">innersum</span><span class="o">=</span><span class="n">innersum</span><span class="o">+</span><span class="p">(</span><span class="n">num1</span><span class="o">*</span><span class="n">num2</span><span class="p">)</span>
+
+                    <span class="c1"># compute irt probability given r steps</span>
+                    <span class="n">log_dist</span> <span class="o">=</span> <span class="n">irtdist</span><span class="p">[</span><span class="n">r</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="nb">sum</span><span class="p">(</span><span class="n">irtdist</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">innersum</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># sometimes it&#39;s not possible to get to the target node in r steps</span>
+                        <span class="n">flist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log_dist</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">innersum</span><span class="p">))</span>
+
+                    <span class="n">newQ</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">newQ</span><span class="p">,</span><span class="n">Q</span><span class="p">)</span>                          <span class="c1"># raise power by one</span>
+
+                <span class="n">f</span><span class="o">=</span><span class="nb">sum</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">e</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">flist</span><span class="p">])</span>
+                <span class="n">prob</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>                                     <span class="c1"># probability of x_(t-1) to X_t</span>
+            <span class="k">else</span><span class="p">:</span>                                                  <span class="c1"># if no IRTs, use standard U-INVITE</span>
+                <span class="n">I</span><span class="o">=</span><span class="n">identmat</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">Q</span><span class="p">),:</span><span class="nb">len</span><span class="p">(</span><span class="n">Q</span><span class="p">)]</span>
+                
+                <span class="c1"># novel items are emitted with probability 1 when encountered. perseverations are emitted with probability td.censor_fault when encountered.</span>
+                <span class="k">if</span> <span class="n">list_has_perseverations</span><span class="p">:</span>              <span class="c1"># if list has perseverations. could speed up by only doing this step when a perseveration has been encountered</span>
+                    <span class="n">x1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">curpos</span><span class="p">])</span>   <span class="c1"># absorbing node</span>
+                    <span class="c1">#x2=np.array([i for i,j in enumerate(x) if (j not in x[:i]) and (i &lt; curpos)]) # column ids for transient states excluding perseverations</span>
+                    <span class="n">x2</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">j</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">curpos</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">curpos</span><span class="p">)])</span> <span class="c1"># column ids for transient states excluding perseverations</span>
+                    <span class="n">R</span><span class="o">=</span><span class="n">t2</span><span class="p">[</span><span class="n">x1</span><span class="p">[:,</span><span class="kc">None</span><span class="p">],</span><span class="n">x2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># why is [0] necessary here but not in the else case?</span>
+                    
+                    <span class="k">if</span> <span class="n">Xs</span><span class="p">[</span><span class="n">xnum</span><span class="p">][</span><span class="n">curpos</span><span class="p">]</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">[</span><span class="n">xnum</span><span class="p">][:</span><span class="n">curpos</span><span class="p">]:</span>       <span class="c1"># if absorbing state has appeared in list before...</span>
+                        <span class="n">R</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">R</span><span class="p">,</span><span class="n">td</span><span class="o">.</span><span class="n">censor_fault</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>                                       <span class="c1"># if not a perseveration</span>
+                    <span class="n">R</span><span class="o">=</span><span class="n">t2</span><span class="p">[</span><span class="n">curpos</span><span class="p">,:</span><span class="n">curpos</span><span class="p">]</span>                    <span class="c1"># old way</span>
+               
+                <span class="c1">### test (when censor_fault=0) to see if absorbing distribution sums to 1... something is broken</span>
+                <span class="c1">#total = []</span>
+                <span class="c1">#x2=np.array([j for i,j in enumerate(x) if (i &lt; curpos)]) # column ids for transient states excluding perseverations</span>
+                <span class="c1">#N=np.linalg.solve(I-Q,I[-1])</span>
+                <span class="c1">#for i in range(len(t)):</span>
+                <span class="c1">#    R=t[np.array([i])[:,None],x2]</span>
+                <span class="c1">#    B=np.dot(R,N)</span>
+                <span class="c1">#    total.append(B[0])</span>
+                <span class="c1">#    if B[0] &gt; 1.0:</span>
+                <span class="c1">#        print(&quot;NONONO&quot;)</span>
+                <span class="c1">#print(&quot;total &quot;, total)</span>
+                <span class="c1">#R=t2[curpos,:curpos]                    # old way to reset</span>
+                <span class="c1">###</span>
+                
+                <span class="n">N</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">I</span><span class="o">-</span><span class="n">Q</span><span class="p">,</span><span class="n">I</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">B</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span><span class="n">N</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
+                    <span class="n">B</span><span class="o">=</span><span class="mf">0.0</span>
+                <span class="n">prob</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+               
+                <span class="c1"># alternative/original using matrix inverse</span>
+                <span class="c1">#R=t2[curpos:,:curpos]</span>
+                <span class="c1">#N=inv(I-Q)</span>
+                <span class="c1">#B=np.dot(R,N)                </span>
+                <span class="c1">#prob.append(B[0,curpos-1])</span>
+
+            <span class="c1"># if there&#39;s an impossible transition and no jumping/priming, return immediately</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">prob</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mf">0.0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">td</span><span class="o">.</span><span class="n">jump</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">td</span><span class="o">.</span><span class="n">priming</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">):</span>
+                <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">curpos</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="n">curpos</span><span class="p">])</span>
+
+        <span class="n">probs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span>
+
+    <span class="n">uinvite_probs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>      <span class="c1"># store only u-invite transition probabilities (the computationally hard stuff) to avoid recomputing</span>
+    
+    <span class="c1"># adjust for jumping probability</span>
+    <span class="k">if</span> <span class="n">td</span><span class="o">.</span><span class="n">jump</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">td</span><span class="o">.</span><span class="n">jumptype</span><span class="o">==</span><span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
+            <span class="n">probs</span><span class="o">=</span><span class="n">addJumps</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">td</span><span class="p">,</span> <span class="n">numnodes</span><span class="o">=</span><span class="n">numnodes</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">td</span><span class="o">.</span><span class="n">jumptype</span><span class="o">==</span><span class="s2">&quot;stationary&quot;</span><span class="p">:</span>
+            <span class="n">probs</span><span class="o">=</span><span class="n">addJumps</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">td</span><span class="p">,</span> <span class="n">statdist</span><span class="o">=</span><span class="n">statdist</span><span class="p">,</span> <span class="n">Xs</span><span class="o">=</span><span class="n">Xs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">td</span><span class="o">.</span><span class="n">priming</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="n">probs</span><span class="o">=</span><span class="n">adjustPriming</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">td</span><span class="p">,</span> <span class="n">Xs</span><span class="p">)</span>
+
+    <span class="c1"># check for impossible transitions after priming and jumping</span>
+    <span class="k">for</span> <span class="n">xnum</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">probs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">inum</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">==</span><span class="mf">0.0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">inum</span><span class="o">==</span><span class="mi">0</span><span class="p">):</span>
+                <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="p">(</span><span class="n">Xs</span><span class="p">[</span><span class="n">xnum</span><span class="p">][</span><span class="n">inum</span><span class="p">],</span> <span class="n">Xs</span><span class="p">[</span><span class="n">xnum</span><span class="p">][</span><span class="n">inum</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># link to next item when first item is unreachable</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">i</span><span class="o">==</span><span class="mf">0.0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">inum</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="p">(</span><span class="n">Xs</span><span class="p">[</span><span class="n">xnum</span><span class="p">][</span><span class="n">inum</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">Xs</span><span class="p">[</span><span class="n">xnum</span><span class="p">][</span><span class="n">inum</span><span class="p">])</span>  <span class="c1"># link to previous item otherwise</span>
+                
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ll</span><span class="o">=</span><span class="nb">sum</span><span class="p">([</span><span class="nb">sum</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">probs</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">probs</span><span class="p">))])</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">ll</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+    <span class="c1"># include prior?</span>
+    <span class="k">if</span> <span class="n">prior</span><span class="p">:</span>
+        <span class="n">priorlogprob</span> <span class="o">=</span> <span class="n">evalGraphPrior</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">prior</span><span class="p">)</span>
+        <span class="n">ll</span> <span class="o">=</span> <span class="n">ll</span> <span class="o">+</span> <span class="n">priorlogprob</span>
+
+    <span class="k">return</span> <span class="n">ll</span><span class="p">,</span> <span class="n">uinvite_probs</span></div>
+
+
+<span class="c1">#@profile</span>
+<div class="viewcode-block" id="uinvite">
+<a class="viewcode-back" href="../../snafu.html#snafu.core.uinvite">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">uinvite</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">td</span><span class="o">=</span><span class="n">DataModel</span><span class="p">({}),</span> <span class="n">numnodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">irts</span><span class="o">=</span><span class="n">Irts</span><span class="p">({}),</span> <span class="n">fitinfo</span><span class="o">=</span><span class="n">Fitinfo</span><span class="p">({}),</span> <span class="n">prior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">nplocal</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> 
+
+    <span class="k">if</span> <span class="n">numnodes</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">numnodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">flatten_list</span><span class="p">(</span><span class="n">Xs</span><span class="p">)))</span>
+
+    <span class="c1"># return list of neighbors of neighbors of i, that aren&#39;t themselves neighbors of i</span>
+    <span class="c1"># i.e., an edge between i and any item in nn forms a triangle</span>
+    <span class="c1">#@profile</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">neighborsofneighbors</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nxg</span><span class="p">):</span>
+        <span class="n">nn</span><span class="o">=</span><span class="p">[]</span>                                       <span class="c1"># neighbors of neighbors (nn)</span>
+        <span class="n">n</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">all_neighbors</span><span class="p">(</span><span class="n">nxg</span><span class="p">,</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">n</span><span class="p">:</span>
+            <span class="n">nn</span><span class="o">=</span><span class="n">nn</span><span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">all_neighbors</span><span class="p">(</span><span class="n">nxg</span><span class="p">,</span><span class="n">j</span><span class="p">))</span>
+        <span class="n">nn</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nn</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">n</span><span class="p">:</span>                                 <span class="c1"># remove neighbors</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">nn</span><span class="p">:</span>
+                <span class="n">nn</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">nn</span><span class="p">:</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>                            <span class="c1"># remove self</span>
+        <span class="k">return</span> <span class="n">nn</span>
+        
+    <span class="c1"># toggle links back, should be faster than making graph copy</span>
+    <span class="c1">#@profile</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">swapEdges</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span><span class="n">links</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
+            <span class="n">graph</span><span class="p">[</span><span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">graph</span><span class="p">[</span><span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                <span class="n">graph</span><span class="p">[</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">graph</span><span class="p">[</span><span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">graph</span>
+        
+    <span class="c1">#@timer</span>
+    <span class="c1">#@profile</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pivot</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmaj</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">best_ll</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">probmat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="n">numchanges</span><span class="o">=</span><span class="mi">0</span>     <span class="c1"># number of changes in single pivot() call</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">best_ll</span> <span class="o">==</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">probmat</span> <span class="o">==</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="n">best_ll</span><span class="p">,</span> <span class="n">probmat</span> <span class="o">=</span> <span class="n">probX</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span><span class="n">graph</span><span class="p">,</span><span class="n">td</span><span class="p">,</span><span class="n">irts</span><span class="o">=</span><span class="n">irts</span><span class="p">,</span><span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">)</span>   <span class="c1"># LL of best graph found</span>
+        <span class="n">nxg</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">to_networkx_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+
+        <span class="c1"># generate dict where v[i] is a list of nodes where (i, v[i]) is an existing edge in the graph</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">method</span><span class="o">==</span><span class="s2">&quot;prune&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">method</span><span class="o">==</span><span class="mi">0</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pruning&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">vmaj</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">vmin</span><span class="p">),</span> <span class="s2">&quot;... &quot;</span><span class="p">,)</span> <span class="c1"># (len(edges)/2)-len(firstedges), &quot;possible:&quot;,</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">listofedges</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">graph</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">=</span><span class="nb">dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numnodes</span><span class="p">):</span>
+                <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">listofedges</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">((</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">firstedges</span><span class="p">)</span> <span class="ow">and</span> <span class="p">((</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">firstedges</span><span class="p">):</span> <span class="c1"># don&#39;t flip first edges (FE)!</span>
+                    <span class="k">if</span> <span class="n">td</span><span class="o">.</span><span class="n">jump</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>                                                      <span class="c1"># unless jumping is allowed, untested 10/6/17 JCZ</span>
+                        <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        
+        <span class="c1"># generate dict where v[i] is a list of nodes where (i, v[i]) would form a new triangle</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">method</span><span class="o">==</span><span class="s2">&quot;triangles&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">method</span><span class="o">==</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Adding triangles&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">vmaj</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">vmin</span><span class="p">),</span> <span class="s2">&quot;... &quot;</span><span class="p">,)</span> <span class="c1"># (len(edges)/2), &quot;possible:&quot;,</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">nn</span><span class="o">=</span><span class="nb">dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="p">)):</span>
+                <span class="n">nn</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">neighborsofneighbors</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nxg</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">=</span><span class="n">nn</span>
+        
+        <span class="c1"># generate dict where v[i] is a list of nodes where (i, v[i]) is NOT an existing an edge and does NOT form a triangle</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">method</span><span class="o">==</span><span class="s2">&quot;nonneighbors&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">method</span><span class="o">==</span><span class="mi">2</span><span class="p">):</span>
+            <span class="c1"># list of a node&#39;s non-neighbors (non-edges) that don&#39;t form triangles</span>
+            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Adding other edges&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">vmaj</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">vmin</span><span class="p">),</span> <span class="s2">&quot;... &quot;</span><span class="p">,)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">nonneighbors</span><span class="o">=</span><span class="nb">dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numnodes</span><span class="p">):</span>
+                <span class="n">nn</span><span class="o">=</span><span class="n">neighborsofneighbors</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nxg</span><span class="p">)</span>
+                <span class="c1"># non-neighbors that DON&#39;T form triangles </span>
+                <span class="n">nonneighbors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numnodes</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nx</span><span class="o">.</span><span class="n">all_neighbors</span><span class="p">(</span><span class="n">nxg</span><span class="p">,</span><span class="n">i</span><span class="p">)</span> <span class="ow">and</span> <span class="n">j</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nn</span><span class="p">]</span> 
+                <span class="n">nonneighbors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="c1"># also remove self</span>
+            <span class="n">v</span><span class="o">=</span><span class="n">nonneighbors</span>
+
+        <span class="n">count</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">]</span><span class="o">*</span><span class="n">numnodes</span>
+        <span class="n">avg</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span><span class="o">*</span><span class="n">numnodes</span>
+        <span class="n">finishednodes</span><span class="o">=</span><span class="mi">0</span>
+        <span class="n">loopcount</span><span class="o">=</span><span class="mi">0</span>
+
+        <span class="k">while</span> <span class="p">(</span><span class="n">finishednodes</span> <span class="o">&lt;</span> <span class="n">numnodes</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">loopcount</span> <span class="o">&lt;</span> <span class="n">limit</span><span class="p">):</span>
+            <span class="n">loopcount</span> <span class="o">+=</span> <span class="mi">1</span>          <span class="c1"># number of failures before giving up on this pahse</span>
+            <span class="n">maxval</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">avg</span><span class="p">)</span>             
+            <span class="n">bestnodes</span><span class="o">=</span><span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">avg</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="n">maxval</span><span class="p">]</span>  <span class="c1"># most promising nodes based on avg logprob of edges with each node as vertex</span>
+            <span class="n">node1</span><span class="o">=</span><span class="n">nplocal</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">bestnodes</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">node1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1">#node2=nplocal.choice(v[node1]) # old</span>
+                
+                <span class="n">n2avg</span><span class="o">=</span><span class="p">[</span><span class="n">avg</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="n">node1</span><span class="p">]]</span>
+                <span class="n">maxval</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">n2avg</span><span class="p">)</span>
+                <span class="n">bestnodes</span><span class="o">=</span><span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="n">node1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">n2avg</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="n">maxval</span><span class="p">]</span>
+                <span class="n">node2</span><span class="o">=</span><span class="n">nplocal</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">bestnodes</span><span class="p">)</span>
+
+                <span class="n">edge</span><span class="o">=</span><span class="p">(</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="p">)</span>
+                <span class="n">graph</span><span class="o">=</span><span class="n">swapEdges</span><span class="p">(</span><span class="n">graph</span><span class="p">,[</span><span class="n">edge</span><span class="p">])</span>
+
+                <span class="n">graph_ll</span><span class="p">,</span> <span class="n">newprobmat</span><span class="o">=</span><span class="n">probX</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span><span class="n">graph</span><span class="p">,</span><span class="n">td</span><span class="p">,</span><span class="n">irts</span><span class="o">=</span><span class="n">irts</span><span class="p">,</span><span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span><span class="n">origmat</span><span class="o">=</span><span class="n">probmat</span><span class="p">,</span><span class="n">changed</span><span class="o">=</span><span class="p">[</span><span class="n">node1</span><span class="p">,</span><span class="n">node2</span><span class="p">])</span>
+
+                <span class="k">if</span> <span class="n">best_ll</span> <span class="o">&gt;=</span> <span class="n">graph_ll</span><span class="p">:</span>
+                    <span class="n">graph</span><span class="o">=</span><span class="n">swapEdges</span><span class="p">(</span><span class="n">graph</span><span class="p">,[</span><span class="n">edge</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">best_ll</span> <span class="o">=</span> <span class="n">graph_ll</span>
+                    <span class="n">probmat</span> <span class="o">=</span> <span class="n">newprobmat</span>
+                    <span class="n">numchanges</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">loopcount</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="c1"># probX under all possible perseveration values JCZ 5/9/2018</span>
+                    <span class="k">if</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">estimatePerseveration</span><span class="p">:</span>
+                        <span class="n">old_censor</span> <span class="o">=</span> <span class="n">td</span><span class="o">.</span><span class="n">censor_fault</span>
+                        <span class="n">best_param</span> <span class="o">=</span> <span class="n">old_censor</span>
+                        <span class="k">for</span> <span class="n">censor_param</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span><span class="o">/</span><span class="mf">100.0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">101</span><span class="p">)]:</span>
+                            <span class="n">td</span><span class="o">.</span><span class="n">censor_fault</span> <span class="o">=</span> <span class="n">censor_param</span>
+                            <span class="n">graph_ll</span><span class="p">,</span> <span class="n">newprobmat</span> <span class="o">=</span> <span class="n">probX</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span><span class="n">graph</span><span class="p">,</span><span class="n">td</span><span class="p">,</span><span class="n">irts</span><span class="o">=</span><span class="n">irts</span><span class="p">,</span><span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">)</span>   <span class="c1"># LL of starting graph</span>
+                            <span class="k">if</span> <span class="n">graph_ll</span> <span class="o">&gt;</span> <span class="n">best_ll</span><span class="p">:</span>
+                                <span class="n">best_ll</span> <span class="o">=</span> <span class="n">graph_ll</span>
+                                <span class="n">probmat</span> <span class="o">=</span> <span class="n">newprobmat</span>
+                                <span class="n">best_param</span> <span class="o">=</span> <span class="n">censor_param</span>
+                        <span class="n">td</span><span class="o">.</span><span class="n">censor_fault</span> <span class="o">=</span> <span class="n">best_param</span>
+                        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;censor_fault old:&quot;</span><span class="p">,</span> <span class="n">old_censor</span><span class="p">,</span> <span class="s2">&quot; censor_fault new: &quot;</span><span class="p">,</span> <span class="n">best_param</span><span class="p">)</span>
+
+                <span class="n">v</span><span class="p">[</span><span class="n">node1</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node2</span><span class="p">)</span>   <span class="c1"># remove edge from possible choices</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                    <span class="n">v</span><span class="p">[</span><span class="n">node2</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node1</span><span class="p">)</span>
+           
+                <span class="c1"># increment even if graph prob = -np.inf for implicit penalty</span>
+                <span class="n">count</span><span class="p">[</span><span class="n">node1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">count</span><span class="p">[</span><span class="n">node2</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">graph_ll</span> <span class="o">!=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">fitinfo</span><span class="o">.</span><span class="n">followtype</span> <span class="o">!=</span> <span class="s2">&quot;random&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">avg</span><span class="p">[</span><span class="n">node1</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+                        <span class="n">avg</span><span class="p">[</span><span class="n">node1</span><span class="p">]</span> <span class="o">=</span> <span class="n">graph_ll</span>
+                    <span class="k">else</span><span class="p">:</span> <span class="c1"># followtype == avg</span>
+                            <span class="n">avg</span><span class="p">[</span><span class="n">node1</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg</span><span class="p">[</span><span class="n">node1</span><span class="p">]</span> <span class="o">*</span> <span class="p">((</span><span class="n">count</span><span class="p">[</span><span class="n">node1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">count</span><span class="p">[</span><span class="n">node1</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">count</span><span class="p">[</span><span class="n">node1</span><span class="p">])</span> <span class="o">*</span> <span class="n">graph_ll</span>
+                    <span class="k">if</span> <span class="n">avg</span><span class="p">[</span><span class="n">node2</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+                        <span class="n">avg</span><span class="p">[</span><span class="n">node2</span><span class="p">]</span> <span class="o">=</span> <span class="n">graph_ll</span>
+                    <span class="k">else</span><span class="p">:</span>  <span class="c1"># followtype == avg</span>
+                        <span class="n">avg</span><span class="p">[</span><span class="n">node2</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg</span><span class="p">[</span><span class="n">node2</span><span class="p">]</span> <span class="o">*</span> <span class="p">((</span><span class="n">count</span><span class="p">[</span><span class="n">node2</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">count</span><span class="p">[</span><span class="n">node2</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">count</span><span class="p">[</span><span class="n">node2</span><span class="p">])</span> <span class="o">*</span> <span class="n">graph_ll</span>
+            <span class="k">else</span><span class="p">:</span>                       <span class="c1"># no edges on this node left to try!</span>
+                <span class="n">avg</span><span class="p">[</span><span class="n">node1</span><span class="p">]</span><span class="o">=-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>      <span class="c1"># so we don&#39;t try it again...</span>
+                <span class="n">finishednodes</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">numchanges</span><span class="p">,</span> <span class="s2">&quot;changes&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">graph</span><span class="p">,</span> <span class="n">best_ll</span><span class="p">,</span> <span class="n">probmat</span><span class="p">,</span> <span class="n">numchanges</span>
+
+    <span class="c1">#    return graph</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">phases</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">best_ll</span><span class="p">,</span> <span class="n">probmat</span><span class="p">):</span>
+        <span class="n">complete</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>         <span class="c1"># marks which phases are complete</span>
+        <span class="n">vmaj</span><span class="o">=</span><span class="mi">0</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="mi">1</span>
+        <span class="k">while</span> <span class="nb">sum</span><span class="p">(</span><span class="n">complete</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">phasenum</span><span class="o">=</span><span class="n">complete</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">phasenum</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="n">limit</span><span class="o">=</span><span class="n">fitinfo</span><span class="o">.</span><span class="n">prune_limit</span>
+            <span class="k">if</span> <span class="n">phasenum</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span> <span class="n">limit</span><span class="o">=</span><span class="n">fitinfo</span><span class="o">.</span><span class="n">triangle_limit</span>
+            <span class="k">if</span> <span class="n">phasenum</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span> <span class="n">limit</span><span class="o">=</span><span class="n">fitinfo</span><span class="o">.</span><span class="n">other_limit</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">phasenum</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">vmin</span><span class="o">==</span><span class="mi">1</span><span class="p">):</span> <span class="n">vmaj</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">graph</span><span class="p">,</span> <span class="n">best_ll</span><span class="p">,</span> <span class="n">probmat</span><span class="p">,</span> <span class="n">numchanges</span> <span class="o">=</span> <span class="n">pivot</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">best_ll</span><span class="o">=</span><span class="n">best_ll</span><span class="p">,</span> <span class="n">vmaj</span><span class="o">=</span><span class="n">vmaj</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">phasenum</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">probmat</span><span class="o">=</span><span class="n">probmat</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">numchanges</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">vmin</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">vmin</span><span class="o">==</span><span class="mi">1</span><span class="p">):</span> <span class="n">complete</span><span class="p">[</span><span class="n">phasenum</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">phasenum</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">vmin</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">):</span> <span class="n">complete</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">phasenum</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">vmin</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">):</span> <span class="n">complete</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">phasenum</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">vmin</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">):</span> <span class="n">complete</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">vmin</span><span class="o">=</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">graph</span><span class="p">,</span> <span class="n">best_ll</span>
+
+    <span class="c1"># check if data has perseverations</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span><span class="o">==</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">td</span><span class="o">.</span><span class="n">censor_fault</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">estimatePerseveration</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;Your data contains perseverations, but </span><span class="se">\</span>
+<span class="s1">                            censor_fault = 0.0; Set to some value 0.0 &lt; x &lt;= 1.0 or</span>
+<span class="s1">                            set estimatePerseveration to True&#39;&#39;&#39;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">firstedges</span><span class="o">=</span><span class="p">[(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">]</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">firstedges</span><span class="o">=</span><span class="p">[]</span>
+    
+    <span class="c1"># find a good starting graph</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">genStartGraph</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">numnodes</span><span class="p">,</span> <span class="n">td</span><span class="p">,</span> <span class="n">fitinfo</span><span class="p">)</span>
+
+    <span class="c1"># find best starting perseveration parameter if applicable JCZ 5/9/2018</span>
+    <span class="k">if</span> <span class="n">fitinfo</span><span class="o">.</span><span class="n">estimatePerseveration</span><span class="p">:</span>
+        <span class="n">best_ll</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">best_param</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">censor_param</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span><span class="o">/</span><span class="mf">100.0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">101</span><span class="p">)]:</span>
+            <span class="n">td</span><span class="o">.</span><span class="n">censor_fault</span> <span class="o">=</span> <span class="n">censor_param</span>
+            <span class="n">graph_ll</span><span class="p">,</span> <span class="n">probmat</span> <span class="o">=</span> <span class="n">probX</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span><span class="n">graph</span><span class="p">,</span><span class="n">td</span><span class="p">,</span><span class="n">irts</span><span class="o">=</span><span class="n">irts</span><span class="p">,</span><span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">)</span>   <span class="c1"># LL of starting graph</span>
+            <span class="k">if</span> <span class="n">graph_ll</span> <span class="o">&gt;</span> <span class="n">best_ll</span><span class="p">:</span>
+                <span class="n">best_ll</span> <span class="o">=</span> <span class="n">graph_ll</span>
+                <span class="n">best_param</span> <span class="o">=</span> <span class="n">censor_param</span>
+        <span class="n">td</span><span class="o">.</span><span class="n">censor_fault</span> <span class="o">=</span> <span class="n">best_param</span>
+        
+    <span class="n">best_ll</span><span class="p">,</span> <span class="n">probmat</span> <span class="o">=</span> <span class="n">probX</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span><span class="n">graph</span><span class="p">,</span><span class="n">td</span><span class="p">,</span><span class="n">irts</span><span class="o">=</span><span class="n">irts</span><span class="p">,</span><span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">)</span>   <span class="c1"># LL of starting graph</span>
+    <span class="n">graph</span><span class="p">,</span> <span class="n">best_ll</span> <span class="o">=</span> <span class="n">phases</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">best_ll</span><span class="p">,</span> <span class="n">probmat</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">graph</span><span class="p">,</span> <span class="n">best_ll</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jeff Zemla.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,806 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>snafu package &mdash; Snafu 2.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=b21de401"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Snafu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">snafu package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-snafu.clustering">snafu.clustering module</a><ul>
+<li><a class="reference internal" href="#snafu.clustering.clusterSize"><code class="docutils literal notranslate"><span class="pre">clusterSize()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.clustering.clusterSwitch"><code class="docutils literal notranslate"><span class="pre">clusterSwitch()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.clustering.findClusters"><code class="docutils literal notranslate"><span class="pre">findClusters()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.clustering.labelClusters"><code class="docutils literal notranslate"><span class="pre">labelClusters()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.core">snafu.core module</a><ul>
+<li><a class="reference internal" href="#snafu.core.addJumps"><code class="docutils literal notranslate"><span class="pre">addJumps()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.adjustPriming"><code class="docutils literal notranslate"><span class="pre">adjustPriming()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.communitynetwork"><code class="docutils literal notranslate"><span class="pre">communitynetwork()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.conceptualNetwork"><code class="docutils literal notranslate"><span class="pre">conceptualNetwork()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.correlationBasedNetwork"><code class="docutils literal notranslate"><span class="pre">correlationBasedNetwork()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.cost"><code class="docutils literal notranslate"><span class="pre">cost()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.costSDT"><code class="docutils literal notranslate"><span class="pre">costSDT()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.evalGraphPrior"><code class="docutils literal notranslate"><span class="pre">evalGraphPrior()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.firstEdge"><code class="docutils literal notranslate"><span class="pre">firstEdge()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.fullyConnected"><code class="docutils literal notranslate"><span class="pre">fullyConnected()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.genGraphPrior"><code class="docutils literal notranslate"><span class="pre">genGraphPrior()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.genStartGraph"><code class="docutils literal notranslate"><span class="pre">genStartGraph()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.gtom"><code class="docutils literal notranslate"><span class="pre">gtom()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.hierarchicalUinvite"><code class="docutils literal notranslate"><span class="pre">hierarchicalUinvite()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.makeValid"><code class="docutils literal notranslate"><span class="pre">makeValid()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.naiveRandomWalk"><code class="docutils literal notranslate"><span class="pre">naiveRandomWalk()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.pathfinder"><code class="docutils literal notranslate"><span class="pre">pathfinder()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.priorToGraph"><code class="docutils literal notranslate"><span class="pre">priorToGraph()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.priorToNetwork"><code class="docutils literal notranslate"><span class="pre">priorToNetwork()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.probX"><code class="docutils literal notranslate"><span class="pre">probX()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.probXhierarchical"><code class="docutils literal notranslate"><span class="pre">probXhierarchical()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.core.uinvite"><code class="docutils literal notranslate"><span class="pre">uinvite()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.generate_graphs">snafu.generate_graphs module</a><ul>
+<li><a class="reference internal" href="#snafu.generate_graphs.generate_tenenbaum_steyvers_network"><code class="docutils literal notranslate"><span class="pre">generate_tenenbaum_steyvers_network()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.generate_lists">snafu.generate_lists module</a><ul>
+<li><a class="reference internal" href="#snafu.generate_lists.gen_lists"><code class="docutils literal notranslate"><span class="pre">gen_lists()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.generate_lists.random_walk"><code class="docutils literal notranslate"><span class="pre">random_walk()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.gui">snafu.gui module</a><ul>
+<li><a class="reference internal" href="#snafu.gui.analyze_graph"><code class="docutils literal notranslate"><span class="pre">analyze_graph()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.gui.data_properties"><code class="docutils literal notranslate"><span class="pre">data_properties()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.gui.error"><code class="docutils literal notranslate"><span class="pre">error()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.gui.generate_csv_file"><code class="docutils literal notranslate"><span class="pre">generate_csv_file()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.gui.graph_properties"><code class="docutils literal notranslate"><span class="pre">graph_properties()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.gui.jsonGraph"><code class="docutils literal notranslate"><span class="pre">jsonGraph()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.gui.label_to_filepath"><code class="docutils literal notranslate"><span class="pre">label_to_filepath()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.gui.list_subjects_and_categories"><code class="docutils literal notranslate"><span class="pre">list_subjects_and_categories()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.gui.network_properties"><code class="docutils literal notranslate"><span class="pre">network_properties()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.gui.quit"><code class="docutils literal notranslate"><span class="pre">quit()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.helper">snafu.helper module</a><ul>
+<li><a class="reference internal" href="#snafu.helper.censored"><code class="docutils literal notranslate"><span class="pre">censored()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.dotdict"><code class="docutils literal notranslate"><span class="pre">dotdict</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.edges_from_nodes"><code class="docutils literal notranslate"><span class="pre">edges_from_nodes()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.find_ngrams"><code class="docutils literal notranslate"><span class="pre">find_ngrams()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.firstHits"><code class="docutils literal notranslate"><span class="pre">firstHits()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.flatten_list"><code class="docutils literal notranslate"><span class="pre">flatten_list()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.groupToIndividual"><code class="docutils literal notranslate"><span class="pre">groupToIndividual()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.logTrick"><code class="docutils literal notranslate"><span class="pre">logTrick()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.maxn"><code class="docutils literal notranslate"><span class="pre">maxn()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.mexgauss"><code class="docutils literal notranslate"><span class="pre">mexgauss()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.no_persev"><code class="docutils literal notranslate"><span class="pre">no_persev()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.nodes_from_edges"><code class="docutils literal notranslate"><span class="pre">nodes_from_edges()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.nogc"><code class="docutils literal notranslate"><span class="pre">nogc()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.numToItemLabel"><code class="docutils literal notranslate"><span class="pre">numToItemLabel()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.numToLabel"><code class="docutils literal notranslate"><span class="pre">numToLabel()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.pearsonr"><code class="docutils literal notranslate"><span class="pre">pearsonr()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.rand_exg"><code class="docutils literal notranslate"><span class="pre">rand_exg()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.reverseDict"><code class="docutils literal notranslate"><span class="pre">reverseDict()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.stationary"><code class="docutils literal notranslate"><span class="pre">stationary()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.helper.timer"><code class="docutils literal notranslate"><span class="pre">timer()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.intrusions">snafu.intrusions module</a><ul>
+<li><a class="reference internal" href="#snafu.intrusions.intrusions"><code class="docutils literal notranslate"><span class="pre">intrusions()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.intrusions.intrusionsList"><code class="docutils literal notranslate"><span class="pre">intrusionsList()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.io">snafu.io module</a><ul>
+<li><a class="reference internal" href="#snafu.io.graphToHash"><code class="docutils literal notranslate"><span class="pre">graphToHash()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.io.hashToGraph"><code class="docutils literal notranslate"><span class="pre">hashToGraph()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.io.load_fluency_data"><code class="docutils literal notranslate"><span class="pre">load_fluency_data()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.io.load_graph"><code class="docutils literal notranslate"><span class="pre">load_graph()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.io.load_network"><code class="docutils literal notranslate"><span class="pre">load_network()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.io.readX"><code class="docutils literal notranslate"><span class="pre">readX()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.io.read_graph"><code class="docutils literal notranslate"><span class="pre">read_graph()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.io.write_graph"><code class="docutils literal notranslate"><span class="pre">write_graph()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.io.write_network"><code class="docutils literal notranslate"><span class="pre">write_network()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.irts">snafu.irts module</a><ul>
+<li><a class="reference internal" href="#snafu.irts.expectedHidden"><code class="docutils literal notranslate"><span class="pre">expectedHidden()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.irts.stepsToIRT"><code class="docutils literal notranslate"><span class="pre">stepsToIRT()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.irts.trim_lists"><code class="docutils literal notranslate"><span class="pre">trim_lists()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.netstats">snafu.netstats module</a><ul>
+<li><a class="reference internal" href="#snafu.netstats.degree_dist"><code class="docutils literal notranslate"><span class="pre">degree_dist()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.netstats.smallworld"><code class="docutils literal notranslate"><span class="pre">smallworld()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.pci">snafu.pci module</a><ul>
+<li><a class="reference internal" href="#snafu.pci.contfractbeta"><code class="docutils literal notranslate"><span class="pre">contfractbeta()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.pci.incomplete_beta"><code class="docutils literal notranslate"><span class="pre">incomplete_beta()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.pci.pci_lowerbound"><code class="docutils literal notranslate"><span class="pre">pci_lowerbound()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.pci.ppf"><code class="docutils literal notranslate"><span class="pre">ppf()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.perseverations">snafu.perseverations module</a><ul>
+<li><a class="reference internal" href="#snafu.perseverations.perseverations"><code class="docutils literal notranslate"><span class="pre">perseverations()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.perseverations.perseverationsList"><code class="docutils literal notranslate"><span class="pre">perseverationsList()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.search">snafu.search module</a><ul>
+<li><a class="reference internal" href="#snafu.search.cbdfs"><code class="docutils literal notranslate"><span class="pre">cbdfs()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.search.nodeDegreeSearch"><code class="docutils literal notranslate"><span class="pre">nodeDegreeSearch()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.search.spreadingActivationSearch"><code class="docutils literal notranslate"><span class="pre">spreadingActivationSearch()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.structs">snafu.structs module</a><ul>
+<li><a class="reference internal" href="#snafu.structs.Data"><code class="docutils literal notranslate"><span class="pre">Data</span></code></a><ul>
+<li><a class="reference internal" href="#snafu.structs.Data.hierarchical"><code class="docutils literal notranslate"><span class="pre">Data.hierarchical()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.structs.Data.nonhierarchical"><code class="docutils literal notranslate"><span class="pre">Data.nonhierarchical()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.structs.Data.subs"><code class="docutils literal notranslate"><span class="pre">Data.subs()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#snafu.structs.DataModel"><code class="docutils literal notranslate"><span class="pre">DataModel()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.structs.Fitinfo"><code class="docutils literal notranslate"><span class="pre">Fitinfo()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.structs.Irts"><code class="docutils literal notranslate"><span class="pre">Irts()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.triadic">snafu.triadic module</a><ul>
+<li><a class="reference internal" href="#snafu.triadic.commonNode"><code class="docutils literal notranslate"><span class="pre">commonNode()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.triadic.similarity"><code class="docutils literal notranslate"><span class="pre">similarity()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.triadic.triadicComparison"><code class="docutils literal notranslate"><span class="pre">triadicComparison()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.triadic.triadicMonteCarlo"><code class="docutils literal notranslate"><span class="pre">triadicMonteCarlo()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu.word_properties">snafu.word_properties module</a><ul>
+<li><a class="reference internal" href="#snafu.word_properties.ageOfAcquisition"><code class="docutils literal notranslate"><span class="pre">ageOfAcquisition()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.word_properties.wordFrequency"><code class="docutils literal notranslate"><span class="pre">wordFrequency()</span></code></a></li>
+<li><a class="reference internal" href="#snafu.word_properties.wordStat"><code class="docutils literal notranslate"><span class="pre">wordStat()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-snafu">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Snafu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">snafu package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/snafu.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="snafu-package">
+<h1>snafu package<a class="headerlink" href="#snafu-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-snafu.clustering">
+<span id="snafu-clustering-module"></span><h2>snafu.clustering module<a class="headerlink" href="#module-snafu.clustering" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.clustering.clusterSize">
+<span class="sig-prename descclassname"><span class="pre">snafu.clustering.</span></span><span class="sig-name descname"><span class="pre">clusterSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clustertype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fluid'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/clustering.html#clusterSize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.clustering.clusterSize" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.clustering.clusterSwitch">
+<span class="sig-prename descclassname"><span class="pre">snafu.clustering.</span></span><span class="sig-name descname"><span class="pre">clusterSwitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clustertype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fluid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">switchrate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/clustering.html#clusterSwitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.clustering.clusterSwitch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.clustering.findClusters">
+<span class="sig-prename descclassname"><span class="pre">snafu.clustering.</span></span><span class="sig-name descname"><span class="pre">findClusters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clustertype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fluid'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/clustering.html#findClusters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.clustering.findClusters" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.clustering.labelClusters">
+<span class="sig-prename descclassname"><span class="pre">snafu.clustering.</span></span><span class="sig-name descname"><span class="pre">labelClusters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelIntrusions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetLetter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/clustering.html#labelClusters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.clustering.labelClusters" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.core">
+<span id="snafu-core-module"></span><h2>snafu.core module<a class="headerlink" href="#module-snafu.core" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.addJumps">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">addJumps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numnodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statdist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#addJumps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.addJumps" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.adjustPriming">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">adjustPriming</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#adjustPriming"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.adjustPriming" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.communitynetwork">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">communitynetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#communitynetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.communitynetwork" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.conceptualNetwork">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">conceptualNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numnodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitinfo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'cn_alpha':</span> <span class="pre">0.05,</span> <span class="pre">'cn_threshold':</span> <span class="pre">2,</span> <span class="pre">'cn_windowsize':</span> <span class="pre">2,</span> <span class="pre">'directed':</span> <span class="pre">False,</span> <span class="pre">'estimatePerseveration':</span> <span class="pre">False,</span> <span class="pre">'followtype':</span> <span class="pre">'avg',</span> <span class="pre">'other_limit':</span> <span class="pre">inf,</span> <span class="pre">'prior_a':</span> <span class="pre">2.0,</span> <span class="pre">'prior_b':</span> <span class="pre">1,</span> <span class="pre">'prune_limit':</span> <span class="pre">inf,</span> <span class="pre">'startGraph':</span> <span class="pre">'cn_valid',</span> <span class="pre">'triangle_limit':</span> <span class="pre">inf,</span> <span class="pre">'zibb_p':</span> <span class="pre">0.5}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#conceptualNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.conceptualNetwork" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.correlationBasedNetwork">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">correlationBasedNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numnodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minlists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#correlationBasedNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.correlationBasedNetwork" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.cost">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undirected</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#cost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.cost" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.costSDT">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">costSDT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#costSDT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.costSDT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.evalGraphPrior">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">evalGraphPrior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undirected</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#evalGraphPrior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.evalGraphPrior" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.firstEdge">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">firstEdge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numnodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#firstEdge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.firstEdge" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.fullyConnected">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">fullyConnected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numnodes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#fullyConnected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.fullyConnected" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.genGraphPrior">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">genGraphPrior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitinfo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'cn_alpha':</span> <span class="pre">0.05,</span> <span class="pre">'cn_threshold':</span> <span class="pre">2,</span> <span class="pre">'cn_windowsize':</span> <span class="pre">2,</span> <span class="pre">'directed':</span> <span class="pre">False,</span> <span class="pre">'estimatePerseveration':</span> <span class="pre">False,</span> <span class="pre">'followtype':</span> <span class="pre">'avg',</span> <span class="pre">'other_limit':</span> <span class="pre">inf,</span> <span class="pre">'prior_a':</span> <span class="pre">2.0,</span> <span class="pre">'prior_b':</span> <span class="pre">1,</span> <span class="pre">'prune_limit':</span> <span class="pre">inf,</span> <span class="pre">'startGraph':</span> <span class="pre">'cn_valid',</span> <span class="pre">'triangle_limit':</span> <span class="pre">inf,</span> <span class="pre">'zibb_p':</span> <span class="pre">0.5}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mincount</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undirected</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returncounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#genGraphPrior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.genGraphPrior" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.genStartGraph">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">genStartGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numnodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitinfo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#genStartGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.genStartGraph" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.gtom">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">gtom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#gtom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.gtom" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.hierarchicalUinvite">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">hierarchicalUinvite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numnodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'censor_fault':</span> <span class="pre">0.0,</span> <span class="pre">'emission_fault':</span> <span class="pre">0.0,</span> <span class="pre">'jump':</span> <span class="pre">0.0,</span> <span class="pre">'jumponcensored':</span> <span class="pre">None,</span> <span class="pre">'jumptype':</span> <span class="pre">'stationary',</span> <span class="pre">'priming':</span> <span class="pre">0.0,</span> <span class="pre">'start_node':</span> <span class="pre">'stationary',</span> <span class="pre">'trim':</span> <span class="pre">1.0}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">irts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitinfo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'cn_alpha':</span> <span class="pre">0.05,</span> <span class="pre">'cn_threshold':</span> <span class="pre">2,</span> <span class="pre">'cn_windowsize':</span> <span class="pre">2,</span> <span class="pre">'directed':</span> <span class="pre">False,</span> <span class="pre">'estimatePerseveration':</span> <span class="pre">False,</span> <span class="pre">'followtype':</span> <span class="pre">'avg',</span> <span class="pre">'other_limit':</span> <span class="pre">inf,</span> <span class="pre">'prior_a':</span> <span class="pre">2.0,</span> <span class="pre">'prior_b':</span> <span class="pre">1,</span> <span class="pre">'prune_limit':</span> <span class="pre">inf,</span> <span class="pre">'startGraph':</span> <span class="pre">'cn_valid',</span> <span class="pre">'triangle_limit':</span> <span class="pre">inf,</span> <span class="pre">'zibb_p':</span> <span class="pre">0.5}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#hierarchicalUinvite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.hierarchicalUinvite" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.makeValid">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">makeValid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#makeValid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.makeValid" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.naiveRandomWalk">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">naiveRandomWalk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numnodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#naiveRandomWalk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.naiveRandomWalk" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.pathfinder">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">pathfinder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numnodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#pathfinder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.pathfinder" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.priorToGraph">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">priorToGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#priorToGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.priorToGraph" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.priorToNetwork">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">priorToNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">priordict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undirected</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#priorToNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.priorToNetwork" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.probX">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">probX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">irts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'data':</span> <span class="pre">[],</span> <span class="pre">'irttype':</span> <span class="pre">'none',</span> <span class="pre">'rcutoff':</span> <span class="pre">20}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origmat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">changed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#probX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.probX" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.probXhierarchical">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">probXhierarchical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graphs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priordict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">irts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'data':</span> <span class="pre">[],</span> <span class="pre">'irttype':</span> <span class="pre">'none',</span> <span class="pre">'rcutoff':</span> <span class="pre">20}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#probXhierarchical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.probXhierarchical" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.core.uinvite">
+<span class="sig-prename descclassname"><span class="pre">snafu.core.</span></span><span class="sig-name descname"><span class="pre">uinvite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'censor_fault':</span> <span class="pre">0.0,</span> <span class="pre">'emission_fault':</span> <span class="pre">0.0,</span> <span class="pre">'jump':</span> <span class="pre">0.0,</span> <span class="pre">'jumponcensored':</span> <span class="pre">None,</span> <span class="pre">'jumptype':</span> <span class="pre">'stationary',</span> <span class="pre">'priming':</span> <span class="pre">0.0,</span> <span class="pre">'start_node':</span> <span class="pre">'stationary',</span> <span class="pre">'trim':</span> <span class="pre">1.0}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numnodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">irts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'data':</span> <span class="pre">[],</span> <span class="pre">'irttype':</span> <span class="pre">'none',</span> <span class="pre">'rcutoff':</span> <span class="pre">20}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitinfo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'cn_alpha':</span> <span class="pre">0.05,</span> <span class="pre">'cn_threshold':</span> <span class="pre">2,</span> <span class="pre">'cn_windowsize':</span> <span class="pre">2,</span> <span class="pre">'directed':</span> <span class="pre">False,</span> <span class="pre">'estimatePerseveration':</span> <span class="pre">False,</span> <span class="pre">'followtype':</span> <span class="pre">'avg',</span> <span class="pre">'other_limit':</span> <span class="pre">inf,</span> <span class="pre">'prior_a':</span> <span class="pre">2.0,</span> <span class="pre">'prior_b':</span> <span class="pre">1,</span> <span class="pre">'prune_limit':</span> <span class="pre">inf,</span> <span class="pre">'startGraph':</span> <span class="pre">'cn_valid',</span> <span class="pre">'triangle_limit':</span> <span class="pre">inf,</span> <span class="pre">'zibb_p':</span> <span class="pre">0.5}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/core.html#uinvite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.core.uinvite" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.generate_graphs">
+<span id="snafu-generate-graphs-module"></span><h2>snafu.generate_graphs module<a class="headerlink" href="#module-snafu.generate_graphs" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.generate_graphs.generate_tenenbaum_steyvers_network">
+<span class="sig-prename descclassname"><span class="pre">snafu.generate_graphs.</span></span><span class="sig-name descname"><span class="pre">generate_tenenbaum_steyvers_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/generate_graphs.html#generate_tenenbaum_steyvers_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.generate_graphs.generate_tenenbaum_steyvers_network" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.generate_lists">
+<span id="snafu-generate-lists-module"></span><h2>snafu.generate_lists module<a class="headerlink" href="#module-snafu.generate_lists" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.generate_lists.gen_lists">
+<span class="sig-prename descclassname"><span class="pre">snafu.generate_lists.</span></span><span class="sig-name descname"><span class="pre">gen_lists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/generate_lists.html#gen_lists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.generate_lists.gen_lists" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.generate_lists.random_walk">
+<span class="sig-prename descclassname"><span class="pre">snafu.generate_lists.</span></span><span class="sig-name descname"><span class="pre">random_walk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priming_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/generate_lists.html#random_walk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.generate_lists.random_walk" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.gui">
+<span id="snafu-gui-module"></span><h2>snafu.gui module<a class="headerlink" href="#module-snafu.gui" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.gui.analyze_graph">
+<span class="sig-prename descclassname"><span class="pre">snafu.gui.</span></span><span class="sig-name descname"><span class="pre">analyze_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/gui.html#analyze_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.gui.analyze_graph" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.gui.data_properties">
+<span class="sig-prename descclassname"><span class="pre">snafu.gui.</span></span><span class="sig-name descname"><span class="pre">data_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/gui.html#data_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.gui.data_properties" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.gui.error">
+<span class="sig-prename descclassname"><span class="pre">snafu.gui.</span></span><span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/gui.html#error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.gui.error" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.gui.generate_csv_file">
+<span class="sig-prename descclassname"><span class="pre">snafu.gui.</span></span><span class="sig-name descname"><span class="pre">generate_csv_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/gui.html#generate_csv_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.gui.generate_csv_file" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.gui.graph_properties">
+<span class="sig-prename descclassname"><span class="pre">snafu.gui.</span></span><span class="sig-name descname"><span class="pre">graph_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nxg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nxg_json</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/gui.html#graph_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.gui.graph_properties" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.gui.jsonGraph">
+<span class="sig-prename descclassname"><span class="pre">snafu.gui.</span></span><span class="sig-name descname"><span class="pre">jsonGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/gui.html#jsonGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.gui.jsonGraph" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.gui.label_to_filepath">
+<span class="sig-prename descclassname"><span class="pre">snafu.gui.</span></span><span class="sig-name descname"><span class="pre">label_to_filepath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filetype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/gui.html#label_to_filepath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.gui.label_to_filepath" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.gui.list_subjects_and_categories">
+<span class="sig-prename descclassname"><span class="pre">snafu.gui.</span></span><span class="sig-name descname"><span class="pre">list_subjects_and_categories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/gui.html#list_subjects_and_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.gui.list_subjects_and_categories" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.gui.network_properties">
+<span class="sig-prename descclassname"><span class="pre">snafu.gui.</span></span><span class="sig-name descname"><span class="pre">network_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/gui.html#network_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.gui.network_properties" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.gui.quit">
+<span class="sig-prename descclassname"><span class="pre">snafu.gui.</span></span><span class="sig-name descname"><span class="pre">quit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/gui.html#quit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.gui.quit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.helper">
+<span id="snafu-helper-module"></span><h2>snafu.helper module<a class="headerlink" href="#module-snafu.helper" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.censored">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">censored</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#censored"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.censored" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="snafu.helper.dotdict">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">dotdict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#dotdict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.dotdict" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.edges_from_nodes">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">edges_from_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#edges_from_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.edges_from_nodes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.find_ngrams">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">find_ngrams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#find_ngrams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.find_ngrams" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.firstHits">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">firstHits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#firstHits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.firstHits" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.flatten_list">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">flatten_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numtimes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#flatten_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.flatten_list" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.groupToIndividual">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">groupToIndividual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#groupToIndividual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.groupToIndividual" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.logTrick">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">logTrick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loglist</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#logTrick"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.logTrick" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.maxn">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">maxn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#maxn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.maxn" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.mexgauss">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">mexgauss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#mexgauss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.mexgauss" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.no_persev">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">no_persev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#no_persev"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.no_persev" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.nodes_from_edges">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">nodes_from_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#nodes_from_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.nodes_from_edges" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.nogc">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">nogc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#nogc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.nogc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.numToItemLabel">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">numToItemLabel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#numToItemLabel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.numToItemLabel" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.numToLabel">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">numToLabel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#numToLabel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.numToLabel" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.pearsonr">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">pearsonr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#pearsonr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.pearsonr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.rand_exg">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">rand_exg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">irt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambd</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#rand_exg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.rand_exg" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.reverseDict">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">reverseDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#reverseDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.reverseDict" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.stationary">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">stationary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'unweighted'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#stationary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.stationary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.helper.timer">
+<span class="sig-prename descclassname"><span class="pre">snafu.helper.</span></span><span class="sig-name descname"><span class="pre">timer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fun</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/helper.html#timer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.helper.timer" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.intrusions">
+<span id="snafu-intrusions-module"></span><h2>snafu.intrusions module<a class="headerlink" href="#module-snafu.intrusions" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.intrusions.intrusions">
+<span class="sig-prename descclassname"><span class="pre">snafu.intrusions.</span></span><span class="sig-name descname"><span class="pre">intrusions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/intrusions.html#intrusions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.intrusions.intrusions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.intrusions.intrusionsList">
+<span class="sig-prename descclassname"><span class="pre">snafu.intrusions.</span></span><span class="sig-name descname"><span class="pre">intrusionsList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/intrusions.html#intrusionsList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.intrusions.intrusionsList" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.io">
+<span id="snafu-io-module"></span><h2>snafu.io module<a class="headerlink" href="#module-snafu.io" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.io.graphToHash">
+<span class="sig-prename descclassname"><span class="pre">snafu.io.</span></span><span class="sig-name descname"><span class="pre">graphToHash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/io.html#graphToHash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.io.graphToHash" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.io.hashToGraph">
+<span class="sig-prename descclassname"><span class="pre">snafu.io.</span></span><span class="sig-name descname"><span class="pre">hashToGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphhash</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/io.html#hashToGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.io.hashToGraph" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.io.load_fluency_data">
+<span class="sig-prename descclassname"><span class="pre">snafu.io.</span></span><span class="sig-name descname"><span class="pre">load_fluency_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removePerseverations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removeIntrusions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removeNonAlphaChars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hierarchical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetletter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/io.html#load_fluency_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.io.load_fluency_data" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.io.load_graph">
+<span class="sig-prename descclassname"><span class="pre">snafu.io.</span></span><span class="sig-name descname"><span class="pre">load_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/io.html#load_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.io.load_graph" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.io.load_network">
+<span class="sig-prename descclassname"><span class="pre">snafu.io.</span></span><span class="sig-name descname"><span class="pre">load_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undirected</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/io.html#load_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.io.load_network" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.io.readX">
+<span class="sig-prename descclassname"><span class="pre">snafu.io.</span></span><span class="sig-name descname"><span class="pre">readX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/io.html#readX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.io.readX" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.io.read_graph">
+<span class="sig-prename descclassname"><span class="pre">snafu.io.</span></span><span class="sig-name descname"><span class="pre">read_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/io.html#read_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.io.read_graph" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.io.write_graph">
+<span class="sig-prename descclassname"><span class="pre">snafu.io.</span></span><span class="sig-name descname"><span class="pre">write_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/io.html#write_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.io.write_graph" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.io.write_network">
+<span class="sig-prename descclassname"><span class="pre">snafu.io.</span></span><span class="sig-name descname"><span class="pre">write_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/io.html#write_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.io.write_network" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.irts">
+<span id="snafu-irts-module"></span><h2>snafu.irts module<a class="headerlink" href="#module-snafu.irts" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.irts.expectedHidden">
+<span class="sig-prename descclassname"><span class="pre">snafu.irts.</span></span><span class="sig-name descname"><span class="pre">expectedHidden</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/irts.html#expectedHidden"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.irts.expectedHidden" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.irts.stepsToIRT">
+<span class="sig-prename descclassname"><span class="pre">snafu.irts.</span></span><span class="sig-name descname"><span class="pre">stepsToIRT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">irts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/irts.html#stepsToIRT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.irts.stepsToIRT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.irts.trim_lists">
+<span class="sig-prename descclassname"><span class="pre">snafu.irts.</span></span><span class="sig-name descname"><span class="pre">trim_lists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trimprop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/irts.html#trim_lists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.irts.trim_lists" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.netstats">
+<span id="snafu-netstats-module"></span><h2>snafu.netstats module<a class="headerlink" href="#module-snafu.netstats" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.netstats.degree_dist">
+<span class="sig-prename descclassname"><span class="pre">snafu.netstats.</span></span><span class="sig-name descname"><span class="pre">degree_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/netstats.html#degree_dist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.netstats.degree_dist" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.netstats.smallworld">
+<span class="sig-prename descclassname"><span class="pre">snafu.netstats.</span></span><span class="sig-name descname"><span class="pre">smallworld</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/netstats.html#smallworld"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.netstats.smallworld" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.pci">
+<span id="snafu-pci-module"></span><h2>snafu.pci module<a class="headerlink" href="#module-snafu.pci" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.pci.contfractbeta">
+<span class="sig-prename descclassname"><span class="pre">snafu.pci.</span></span><span class="sig-name descname"><span class="pre">contfractbeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ITMAX</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/pci.html#contfractbeta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.pci.contfractbeta" title="Link to this definition"></a></dt>
+<dd><p>contfractbeta() evaluates the continued fraction form of the incomplete Beta function; incompbeta().  
+(Code translated from: Numerical Recipes in C.)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.pci.incomplete_beta">
+<span class="sig-prename descclassname"><span class="pre">snafu.pci.</span></span><span class="sig-name descname"><span class="pre">incomplete_beta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/pci.html#incomplete_beta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.pci.incomplete_beta" title="Link to this definition"></a></dt>
+<dd><p>incompbeta(a,b,x) evaluates incomplete beta function, here a, b &gt; 0 and 0 &lt;= x &lt;= 1. This function requires contfractbeta(a,b,x, ITMAX = 200) 
+(Code translated from: Numerical Recipes in C.)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.pci.pci_lowerbound">
+<span class="sig-prename descclassname"><span class="pre">snafu.pci.</span></span><span class="sig-name descname"><span class="pre">pci_lowerbound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cooccur</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/pci.html#pci_lowerbound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.pci.pci_lowerbound" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.pci.ppf">
+<span class="sig-prename descclassname"><span class="pre">snafu.pci.</span></span><span class="sig-name descname"><span class="pre">ppf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">span</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/pci.html#ppf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.pci.ppf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.perseverations">
+<span id="snafu-perseverations-module"></span><h2>snafu.perseverations module<a class="headerlink" href="#module-snafu.perseverations" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.perseverations.perseverations">
+<span class="sig-prename descclassname"><span class="pre">snafu.perseverations.</span></span><span class="sig-name descname"><span class="pre">perseverations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/perseverations.html#perseverations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.perseverations.perseverations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.perseverations.perseverationsList">
+<span class="sig-prename descclassname"><span class="pre">snafu.perseverations.</span></span><span class="sig-name descname"><span class="pre">perseverationsList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/perseverations.html#perseverationsList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.perseverations.perseverationsList" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.search">
+<span id="snafu-search-module"></span><h2>snafu.search module<a class="headerlink" href="#module-snafu.search" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.search.cbdfs">
+<span class="sig-prename descclassname"><span class="pre">snafu.search.</span></span><span class="sig-name descname"><span class="pre">cbdfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/search.html#cbdfs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.search.cbdfs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.search.nodeDegreeSearch">
+<span class="sig-prename descclassname"><span class="pre">snafu.search.</span></span><span class="sig-name descname"><span class="pre">nodeDegreeSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/search.html#nodeDegreeSearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.search.nodeDegreeSearch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.search.spreadingActivationSearch">
+<span class="sig-prename descclassname"><span class="pre">snafu.search.</span></span><span class="sig-name descname"><span class="pre">spreadingActivationSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decay</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/search.html#spreadingActivationSearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.search.spreadingActivationSearch" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.structs">
+<span id="snafu-structs-module"></span><h2>snafu.structs module<a class="headerlink" href="#module-snafu.structs" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="snafu.structs.Data">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">snafu.structs.</span></span><span class="sig-name descname"><span class="pre">Data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/structs.html#Data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.structs.Data" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="snafu.structs.Data.hierarchical">
+<span class="sig-name descname"><span class="pre">hierarchical</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/structs.html#Data.hierarchical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.structs.Data.hierarchical" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="snafu.structs.Data.nonhierarchical">
+<span class="sig-name descname"><span class="pre">nonhierarchical</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/structs.html#Data.nonhierarchical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.structs.Data.nonhierarchical" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="snafu.structs.Data.subs">
+<span class="sig-name descname"><span class="pre">subs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/structs.html#Data.subs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.structs.Data.subs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.structs.DataModel">
+<span class="sig-prename descclassname"><span class="pre">snafu.structs.</span></span><span class="sig-name descname"><span class="pre">DataModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/structs.html#DataModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.structs.DataModel" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.structs.Fitinfo">
+<span class="sig-prename descclassname"><span class="pre">snafu.structs.</span></span><span class="sig-name descname"><span class="pre">Fitinfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fitinfo</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/structs.html#Fitinfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.structs.Fitinfo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.structs.Irts">
+<span class="sig-prename descclassname"><span class="pre">snafu.structs.</span></span><span class="sig-name descname"><span class="pre">Irts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">irts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/structs.html#Irts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.structs.Irts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.triadic">
+<span id="snafu-triadic-module"></span><h2>snafu.triadic module<a class="headerlink" href="#module-snafu.triadic" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.triadic.commonNode">
+<span class="sig-prename descclassname"><span class="pre">snafu.triadic.</span></span><span class="sig-name descname"><span class="pre">commonNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numsims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jumpval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/triadic.html#commonNode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.triadic.commonNode" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.triadic.similarity">
+<span class="sig-prename descclassname"><span class="pre">snafu.triadic.</span></span><span class="sig-name descname"><span class="pre">similarity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'inf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jumpval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/triadic.html#similarity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.triadic.similarity" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.triadic.triadicComparison">
+<span class="sig-prename descclassname"><span class="pre">snafu.triadic.</span></span><span class="sig-name descname"><span class="pre">triadicComparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steplimit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jumpval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/triadic.html#triadicComparison"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.triadic.triadicComparison" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.triadic.triadicMonteCarlo">
+<span class="sig-prename descclassname"><span class="pre">snafu.triadic.</span></span><span class="sig-name descname"><span class="pre">triadicMonteCarlo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numsims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jumpval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/triadic.html#triadicMonteCarlo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.triadic.triadicMonteCarlo" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu.word_properties">
+<span id="snafu-word-properties-module"></span><h2>snafu.word_properties module<a class="headerlink" href="#module-snafu.word_properties" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.word_properties.ageOfAcquisition">
+<span class="sig-prename descclassname"><span class="pre">snafu.word_properties.</span></span><span class="sig-name descname"><span class="pre">ageOfAcquisition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/word_properties.html#ageOfAcquisition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.word_properties.ageOfAcquisition" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.word_properties.wordFrequency">
+<span class="sig-prename descclassname"><span class="pre">snafu.word_properties.</span></span><span class="sig-name descname"><span class="pre">wordFrequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/word_properties.html#wordFrequency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.word_properties.wordFrequency" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="snafu.word_properties.wordStat">
+<span class="sig-prename descclassname"><span class="pre">snafu.word_properties.</span></span><span class="sig-name descname"><span class="pre">wordStat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/snafu/word_properties.html#wordStat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#snafu.word_properties.wordStat" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-snafu">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-snafu" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jeff Zemla.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
