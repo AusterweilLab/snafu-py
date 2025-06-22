@@ -11,9 +11,9 @@ SCHEME_PATH = "../schemes/animals_snafu_scheme.csv"
 SPELL_PATH = "../spellfiles/animals_snafu_spellfile.csv"
 FREQ_PATH = "../frequency/subtlex-us.csv"
 AOA_PATH = "../aoa/kuperman.csv"
-STATS_PATH = "../demos_data/stats.csv"  # CSV with expected values
-SEMANTIC_INTRUSIONS_PATH = "../demos_data/intrusions_list.pkl"
-LETTER_INTRUSIONS_PATH = "../demos_data/intrusions_list_letter_a.pkl"
+STATS_PATH = "test_data/stats.csv"  # CSV with expected values
+SEMANTIC_INTRUSIONS_PATH = "test_data/intrusions_list.pkl"
+LETTER_INTRUSIONS_PATH = "test_data/intrusions_list_letter_a.pkl"
 
 @pytest.fixture
 def expected():

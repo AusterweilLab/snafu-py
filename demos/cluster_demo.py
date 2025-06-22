@@ -4,7 +4,7 @@
 import snafu
 import os
 
-os.makedirs("../demos_data", exist_ok=True)
+os.makedirs("demos_data", exist_ok=True)
 
 
 
@@ -39,7 +39,7 @@ for fluencylist in clusterlabels:
     switchlists.append(switchlist)
 
 # write data to file
-with open('../demos_data/switches.csv','w') as fh:
+with open('demos_data/switches.csv','w') as fh:
     fh.write('id,listnum,category,item,switch\n')
     for eachlistnum, eachlist in enumerate(fluencydata.listnums):
         subj = eachlist[0]

@@ -6,54 +6,45 @@ import os
 import csv
 
 def test_regenerated_output_matches_saved_csv():
-    saved_path = "../demos_data/usf_reconstruction_results.csv"
-    regenerated_path = "../demos_data/temp_regenerated.csv"
-
+    saved_path = "test_data/usf_reconstruction_results.csv"
+    regenerated_path = "test_data/temp_regenerated.csv"
+    
     # Load USF graph
     usf_graph, usf_items = snafu.read_graph("../snet/USF_animal_subset.snet")
     usf_graph_nx = nx.from_numpy_array(usf_graph)
     usf_numnodes = len(usf_items)
-
+    
     # Simulation config (same as original)
-    numsubs = 1
-    numlists = 3
-    listlength = 35
-    numsims = 10
-
+    numsubs = 30
+    listlength = 30
+    numsims = 1
+    
     toydata = snafu.DataModel({
-        'jump': 0.0,
-        'jumptype': "stationary",
-        'priming': 0.0,
-        'jumponcensored': None,
-        'censor_fault': 0.0,
-        'emission_fault': 0.0,
-        'startX': "stationary",
-        'numx': numlists,
-        'trim': listlength
-    })
-
+            'jump': 0.0,
+            'jumptype': "stationary",
+            'priming': 0.0,
+            'jumponcensored': None,
+            'censor_fault': 0.0,
+            'emission_fault': 0.0,
+            'startX': "stationary", 
+            'numx': 1,     
+            'trim': listlength })  
+    
     fitinfo = snafu.Fitinfo({
-        'startGraph': "cn_valid",
-        'directed': False,
-        'prior_method': "zeroinflatedbetabinomial",
-        'zibb_p': 0.5,
-        'prior_a': 2,
-        'prior_b': 1,
-        'goni_size': 2,
-        'goni_threshold': 2,
-        'followtype': "avg",
-        'prune_limit': np.inf,
-        'triangle_limit': np.inf,
-        'other_limit': np.inf
-    })
-
+            'startGraph': "cn_valid",
+            'directed': False,
+            'cn_size': 2,
+            'cn_threshold': 2 })
+    
     seednum = 0
-
+   
+    methods = ['naiveRandomWalk','conceptualNetwork','pathfinder','correlationBasedNetwork'] 
+   
     # Generate and write regenerated values
     with open(regenerated_path, 'w') as fh:
         fh.write("method,simnum,ssnum,hit,miss,falsealarms,correctrejections,cost,startseed\n")
         for simnum in range(numsims):
-            data, data_hier, numnodes, items = [], [], [], []
+            data, numnodes, items = [], [], []
             startseed = seednum
 
             for _ in range(numsubs):
@@ -61,28 +52,48 @@ def test_regenerated_output_matches_saved_csv():
                 data.append(Xs)
                 itemset = set(snafu.flatten_list(Xs))
                 numnodes.append(len(itemset))
-                ss_Xs, ss_items = snafu.groupToIndividual(Xs, usf_items)
-                data_hier.append(ss_Xs)
-                items.append(ss_items)
-                seednum += numlists
+                seednum += 1
 
             for ssnum in range(1, len(data) + 1):
-                uinvite_graphs, priordict = snafu.hierarchicalUinvite(
-                    data_hier[:ssnum], items[:ssnum], numnodes[:ssnum], toydata, fitinfo=fitinfo
-                )
-                priordict = snafu.genGraphPrior(uinvite_graphs, items[:ssnum], fitinfo=fitinfo, mincount=2)
-                uinvite_group_graph = snafu.priorToGraph(priordict, usf_items)
+                flatdata = snafu.flatten_list(data[:ssnum])  # flatten list of lists
+                
+                # Generate Naive Random Walk graph from data
+                if 'naiveRandomWalk' in methods:
+                    naiveRandomWalk_graph = snafu.naiveRandomWalk(flatdata, usf_numnodes)
 
-                costlist = snafu.flatten_list([
-                    snafu.costSDT(uinvite_group_graph, usf_graph),
-                    snafu.cost(uinvite_group_graph, usf_graph)
-                ])
+                # Generate Goni graph from data
+                if 'conceptualNetwork' in methods:
+                    conceptualNetwork_graph = snafu.conceptualNetwork(flatdata, usf_numnodes, fitinfo=fitinfo)
 
-                fh.write("uinvite_hierarchical," + str(simnum) + "," + str(ssnum))
-                for val in costlist:
-                    fh.write("," + str(val))
-                fh.write("," + str(startseed))
-                fh.write('\n')
+                # Generate pathfinder graph from data
+                if 'pathfinder' in methods:
+                    pathfinder_graph = snafu.pathfinder(flatdata, usf_numnodes)
+                
+                # Generate correlationBasedNetwork from data
+                if 'correlationBasedNetwork' in methods:
+                    correlationBasedNetwork_graph = snafu.correlationBasedNetwork(flatdata, usf_numnodes)
+
+                # Generate First Edge graph from data
+                if 'fe' in methods:
+                    fe_graph = snafu.firstEdge(flatdata, usf_numnodes)
+                   
+                # Generate non-hierarchical U-INVITE graph from data
+                if 'uinvite' in methods:
+                    uinvite_graph, ll = snafu.uinvite(flatdata, toydata, usf_numnodes, fitinfo=fitinfo)
+                
+                for method in methods:
+                    if method=="naiveRandomWalk": costlist = [snafu.costSDT(naiveRandomWalk_graph, usf_graph), snafu.cost(naiveRandomWalk_graph, usf_graph)]
+                    if method=="conceptualNetwork": costlist = [snafu.costSDT(conceptualNetwork_graph, usf_graph), snafu.cost(conceptualNetwork_graph, usf_graph)]
+                    if method=="pathfinder": costlist = [snafu.costSDT(pathfinder_graph, usf_graph), snafu.cost(pathfinder_graph, usf_graph)]
+                    if method=="correlationBasedNetwork": costlist = [snafu.costSDT(correlationBasedNetwork_graph, usf_graph), snafu.cost(correlationBasedNetwork_graph, usf_graph)]
+                    if method=="fe": costlist = [snafu.costSDT(fe_graph, usf_graph), snafu.cost(fe_graph, usf_graph)]
+                    if method=="uinvite": costlist = [snafu.costSDT(uinvite_graph, usf_graph), snafu.cost(uinvite_graph, usf_graph)]
+                    costlist = snafu.flatten_list(costlist)
+                    fh.write(method + "," + str(simnum) + "," + str(ssnum))
+                    for i in costlist:
+                        fh.write("," + str(i))
+                    fh.write("," + str(startseed))
+                    fh.write('\n')
 
     # Now compare both CSVs row by row
     with open(saved_path, newline='') as f_saved, open(regenerated_path, newline='') as f_new:

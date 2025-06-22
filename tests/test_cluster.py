@@ -4,7 +4,7 @@ import pandas as pd
 DATA_PATH = "../fluency_data/snafu_sample.csv"
 SPELL_PATH = "../spellfiles/animals_snafu_spellfile.csv"
 SCHEME_PATH = "../schemes/animals_snafu_scheme.csv"
-EXPECTED_SWITCHES_PATH = "../demos_data/switches.csv"
+EXPECTED_SWITCHES_PATH = "test_data/switches.csv"
 
 def compute_switchlists(clusterlabels):
     switchlists = []

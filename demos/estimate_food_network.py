@@ -3,7 +3,7 @@ import networkx as nx
 import os
 
 
-os.makedirs("../demos_data", exist_ok=True)
+os.makedirs("demos_data", exist_ok=True)
 
 # load FOODS fluency lists, correcting spelling mistakes, grouping by participant
 
@@ -49,7 +49,7 @@ foodsnetwork = snafu.conceptualNetwork(fluencydata.Xs, fitinfo=fitinfo)
 # write edge list to file
 
 snafu.write_graph(foodsnetwork,
-                  "../demos_data/foods_network.csv",      # filename of edge list
+                  "demos_data/foods_network.csv",      # filename of edge list
                   labels = fluencydata.groupitems,
                   sparse = False,           # list all edge pairs, even if graph has no edge
                   subj = "Group")             # an identifier for the graph in the file (e.g., "S101", "Bilinguals", etc.)

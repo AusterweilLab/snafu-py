@@ -9,7 +9,7 @@ import networkx as nx
 import pickle  # added for saving output
 import os
 
-os.makedirs("../demos_data", exist_ok=True)
+os.makedirs("demos_data", exist_ok=True)
 
 # Load animal component of USF semantic network (Nelson et al, 1999)
 usf_network, usf_items = snafu.read_graph('../snet/usf_animal_subset.snet')
@@ -71,5 +71,5 @@ loglikelihoods = {
     "p_alternate_from_alternate": round(p_alternate_from_alternate, 2)
 }
 
-with open("../demos_data/expected_likelihoods.pkl", "wb") as f:
+with open("demos_data/expected_likelihoods.pkl", "wb") as f:
     pickle.dump(loglikelihoods, f)
