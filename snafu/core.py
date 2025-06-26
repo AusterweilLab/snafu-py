@@ -267,18 +267,19 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=Tru
 
 # generate starting graph for U-INVITE
 def genStartGraph(Xs, numnodes, td, fitinfo):
-    if fitinfo.startGraph=="cn_valid":
+    sg = fitinfo.startGraph  # cache for clarity
+    if isinstance(sg, str) and sg == "cn_valid":
         graph = conceptualNetwork(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
-    elif fitinfo.startGraph=="pf_valid":
+    elif isinstance(sg, str) and sg == "pf_valid":
         graph = pathfinder(Xs, numnodes, valid=True, td=td)
-    elif (fitinfo.startGraph=="rw" or fitinfo.startGraph=="nrw"):
-        graph = naiveRandomWalk(Xs,numnodes)
-    elif fitinfo.startGraph=="fully_connected":
+    elif isinstance(sg, str) and (sg == "rw" or sg == "nrw"):
+        graph = naiveRandomWalk(Xs, numnodes)
+    elif isinstance(sg, str) and sg == "fully_connected":
         graph = fullyConnected(numnodes)
-    elif fitinfo.startGraph=="empty_graph":
-        graph = np.zeros((numnodes,numnodes)).astype(int)           # useless...
+    elif isinstance(sg, str) and sg == "empty_graph":
+        graph = np.zeros((numnodes, numnodes)).astype(int)
     else:
-        graph = np.copy(fitinfo.startGraph)                         # assume a graph has been passed as a starting point
+        graph = np.copy(sg)  # assume it's a numpy array graph
     return graph
 
 # deprecated alias for backwards compatibility
@@ -411,7 +412,7 @@ def hierarchicalUinvite(Xs, items, numnodes=None, td=DataModel({}), irts=False, 
     fitinfoSG = fitinfo.startGraph  # fitinfo is mutable, need to revert at end of function... blah
     # create ids for all subjects
     subs=list(range(len(Xs)))
-    graphs=[[]]*len(subs)
+    graphs = [None] * len(subs)
 
     # cycle though participants
     exclude_subs=[]
@@ -424,13 +425,15 @@ def hierarchicalUinvite(Xs, items, numnodes=None, td=DataModel({}), irts=False, 
         for sub in [i for i in subs if i not in exclude_subs]:
             if debug: print("SS: ", sub)
             
-            if graphs[sub] == []:
+            if graphs[sub] is None:
                 fitinfo.startGraph = fitinfoSG      # on first pass for subject, use default fitting method (e.g., NRW, goni, etc)
             else:
                 fitinfo.startGraph = graphs[sub]    # on subsequent passes, use ss graph from previous iteration
 
             # generate prior without participant's data, fit graph
-            priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
+            valid_graphs = [g for i, g in enumerate(graphs) if i != sub and g is not None]
+            valid_items = [items[i] for i in range(len(items)) if i != sub and graphs[i] is not None]
+            priordict = genGraphPrior(valid_graphs, valid_items, fitinfo=fitinfo)
             prior = (priordict, items[sub])
             
             if isinstance(irts, list):
