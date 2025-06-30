@@ -1,8 +1,7 @@
-snafu-py
-========
+demos
+=====
 
 .. toctree::
    :maxdepth: 4
 
    demos
-   snafu
