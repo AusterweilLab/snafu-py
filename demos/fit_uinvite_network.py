@@ -159,7 +159,7 @@ def main():
     print("Total edges:", np.sum(network1))
     print("Adjacency matrix:\n", network1)
 
-    with open("uinvite_network1.pkl", "wb") as f:
+    with open("demos_data/uinvite_network1.pkl", "wb") as f:
         pickle.dump(network1, f)
 
     individual_graphs, group_network = example2()
@@ -167,7 +167,7 @@ def main():
     for i, graph in enumerate(individual_graphs):
         print(f"Graph {i}: shape={graph.shape}, total edges={np.sum(graph)}")
 
-    with open("individual_graphs.pkl", "wb") as f:
+    with open("demos_data/individual_graphs.pkl", "wb") as f:
         pickle.dump(individual_graphs, f)
 
     print("\n[Group Network]")
@@ -175,7 +175,7 @@ def main():
     print("Total edges:", np.sum(group_network))
     print("Adjacency matrix:\n", group_network)
 
-    with open("group_network.pkl", "wb") as f:
+    with open("demos_data/group_network.pkl", "wb") as f:
         pickle.dump(group_network, f)
 
     network3 = example3()
@@ -184,7 +184,7 @@ def main():
     print("Total edges:", np.sum(network3))
     print("Adjacency matrix:\n", network3)
 
-    with open("uinvite_network3.pkl", "wb") as f:
+    with open("demos_data/uinvite_network3.pkl", "wb") as f:
         pickle.dump(network3, f)
 
 if __name__ == "__main__":
