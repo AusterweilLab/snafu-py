@@ -1,0 +1,3 @@
+This folder contains unit tests to ensure SNAFU is working properly after changes to the codebase.
+
+Users of SNAFU can disregard this directory

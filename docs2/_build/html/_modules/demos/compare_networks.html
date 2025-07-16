@@ -1,0 +1,176 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>demos.compare_networks &mdash; Snafu 2.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=b21de401"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Snafu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Snafu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">demos.compare_networks</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for demos.compare_networks</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file load a semantic network and perturbs it (randomly changes some edges)</span>
+<span class="c1"># It then simulates fluency data using censored random walks on both networks</span>
+<span class="c1"># Finally, it compares the likelihood of generating each data set under each network</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">snafu</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>  <span class="c1"># added for saving output</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;../demos_data&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Load animal component of USF semantic network (Nelson et al, 1999)</span>
+<span class="n">usf_network</span><span class="p">,</span> <span class="n">usf_items</span> <span class="o">=</span> <span class="n">snafu</span><span class="o">.</span><span class="n">read_graph</span><span class="p">(</span><span class="s1">&#39;../snet/usf_animal_subset.snet&#39;</span><span class="p">)</span>
+
+<span class="c1"># Added: set random seed for reproducibility</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Perturb this network by randomly changing ~10% of the edges to non-edges and an equivalent</span>
+<span class="c1"># number of non-edges to edges</span>
+<span class="n">edges</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">usf_network</span><span class="p">)</span><span class="o">==</span><span class="mf">1.0</span><span class="p">)))</span>      <span class="c1"># edges in USF network</span>
+<span class="n">nonedges</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">usf_network</span><span class="p">)</span><span class="o">==</span><span class="mf">0.0</span><span class="p">)))</span>   <span class="c1"># non-edges in USF network</span>
+<span class="n">nonedges</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">nonedges</span> <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>    <span class="c1"># don&#39;t change diagonal (no self-loops allowed)</span>
+
+<span class="c1"># random sample of edges / non-edges</span>
+<span class="n">n</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span><span class="o">*</span><span class="mf">.1</span><span class="p">)</span>
+<span class="n">edges_to_flip</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="n">nonedges_to_flip</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">nonedges</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+<span class="c1"># https://stackoverflow.com/questions/2572916/numpy-smart-symmetric-matrix</span>
+<div class="viewcode-block" id="symmetrize">
+<a class="viewcode-back" href="../../demos.html#demos.compare_networks.symmetrize">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">symmetrize</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">a</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">diagonal</span><span class="p">())</span></div>
+
+
+<span class="c1"># copy USF network and flip edges</span>
+<span class="n">alternate_network</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">usf_network</span><span class="p">)</span>
+<span class="n">alternate_network</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">edges_to_flip</span><span class="p">))]</span> <span class="o">=</span> <span class="mf">0.0</span>     <span class="c1"># flip edges to nonedges</span>
+<span class="n">alternate_network</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">nonedges_to_flip</span><span class="p">))]</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># flip nonedges to nonedges</span>
+<span class="n">alternate_network</span> <span class="o">=</span> <span class="n">symmetrize</span><span class="p">(</span><span class="n">alternate_network</span><span class="p">)</span>      <span class="c1"># make sure network is undirected</span>
+
+
+<span class="c1"># generate fake fluency data from the USF network and alternate network</span>
+<span class="n">datamodel</span> <span class="o">=</span> <span class="n">snafu</span><span class="o">.</span><span class="n">DataModel</span><span class="p">({</span>
+                <span class="s1">&#39;start_node&#39;</span><span class="p">:</span>  <span class="s1">&#39;stationary&#39;</span><span class="p">,</span>       <span class="c1"># choose a starting node at random</span>
+                <span class="s1">&#39;jump&#39;</span><span class="p">:</span>         <span class="mf">0.05</span><span class="p">,</span>           <span class="c1"># allow 5% of jumping on each step</span>
+                <span class="s1">&#39;jump_type&#39;</span><span class="p">:</span>   <span class="s1">&#39;stationary&#39;</span><span class="p">,</span>       <span class="c1"># when jumping, jump to a random node</span>
+                <span class="s1">&#39;numx&#39;</span><span class="p">:</span>         <span class="mi">20</span><span class="p">,</span>             <span class="c1"># generate 20 fluency lists</span>
+                <span class="s1">&#39;trim&#39;</span><span class="p">:</span>         <span class="mi">35</span><span class="p">})</span>            <span class="c1"># each fluency list should be 35 items long </span>
+
+<span class="n">usf_lists</span> <span class="o">=</span> <span class="n">snafu</span><span class="o">.</span><span class="n">gen_lists</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">from_numpy_array</span><span class="p">(</span><span class="n">usf_network</span><span class="p">),</span> <span class="n">datamodel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">alternate_lists</span> <span class="o">=</span> <span class="n">snafu</span><span class="o">.</span><span class="n">gen_lists</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">from_numpy_array</span><span class="p">(</span><span class="n">alternate_network</span><span class="p">),</span> <span class="n">datamodel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Calculate probability of each list from each network</span>
+<span class="n">p_usf_from_usf</span> <span class="o">=</span> <span class="n">snafu</span><span class="o">.</span><span class="n">probX</span><span class="p">(</span><span class="n">usf_lists</span><span class="p">,</span> <span class="n">usf_network</span><span class="p">,</span> <span class="n">datamodel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">p_alternate_from_usf</span> <span class="o">=</span> <span class="n">snafu</span><span class="o">.</span><span class="n">probX</span><span class="p">(</span><span class="n">alternate_lists</span><span class="p">,</span> <span class="n">usf_network</span><span class="p">,</span> <span class="n">datamodel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">p_usf_from_alternate</span> <span class="o">=</span> <span class="n">snafu</span><span class="o">.</span><span class="n">probX</span><span class="p">(</span><span class="n">usf_lists</span><span class="p">,</span> <span class="n">alternate_network</span><span class="p">,</span> <span class="n">datamodel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">p_alternate_from_alternate</span> <span class="o">=</span> <span class="n">snafu</span><span class="o">.</span><span class="n">probX</span><span class="p">(</span><span class="n">alternate_lists</span><span class="p">,</span> <span class="n">alternate_network</span><span class="p">,</span> <span class="n">datamodel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;Log-likelihood of generating USF lists from USF network: &#39;</span><span class="p">,</span> <span class="n">p_usf_from_usf</span><span class="p">)</span>
+<span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;Log-likelihood of generating USF lists from alternate network: &#39;</span><span class="p">,</span> <span class="n">p_usf_from_alternate</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;Log-likelihood of generating alternate lists from USF network: &#39;</span><span class="p">,</span> <span class="n">p_alternate_from_usf</span><span class="p">)</span>
+<span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;Log-likelihood of generating alternate lists from alternate network: &#39;</span><span class="p">,</span> <span class="n">p_alternate_from_alternate</span><span class="p">)</span>
+
+<span class="c1"># Added: save results for testing</span>
+<span class="n">loglikelihoods</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;p_usf_from_usf&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">p_usf_from_usf</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="s2">&quot;p_usf_from_alternate&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">p_usf_from_alternate</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="s2">&quot;p_alternate_from_usf&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">p_alternate_from_usf</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="s2">&quot;p_alternate_from_alternate&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">p_alternate_from_alternate</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../demos_data/expected_likelihoods.pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">loglikelihoods</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jeff Zemla.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

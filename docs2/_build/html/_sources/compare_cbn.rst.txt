@@ -1,0 +1,7 @@
+compare\_cbn module
+===================
+
+.. automodule:: compare_cbn
+   :members:
+   :show-inheritance:
+   :undoc-members:

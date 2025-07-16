@@ -53,6 +53,7 @@
 
 import snafu
 import numpy as np
+import pickle
 
 # Default parameters are shown
 datamodel = snafu.DataModel({
@@ -150,3 +151,41 @@ def example3():
     uinvite_network, ll = snafu.uinvite(fluencydata.lists[0],
                                     prior=(usf_prior, fluencydata.items[0]))
     return uinvite_network
+
+def main():
+    network1 = example1()
+    print("\n[Network 1]")
+    print("Shape:", network1.shape)
+    print("Total edges:", np.sum(network1))
+    print("Adjacency matrix:\n", network1)
+
+    with open("demos_data/uinvite_network1.pkl", "wb") as f:
+        pickle.dump(network1, f)
+
+    individual_graphs, group_network = example2()
+    print("\n[Individual Graphs]")
+    for i, graph in enumerate(individual_graphs):
+        print(f"Graph {i}: shape={graph.shape}, total edges={np.sum(graph)}")
+
+    with open("demos_data/individual_graphs.pkl", "wb") as f:
+        pickle.dump(individual_graphs, f)
+
+    print("\n[Group Network]")
+    print("Shape:", group_network.shape)
+    print("Total edges:", np.sum(group_network))
+    print("Adjacency matrix:\n", group_network)
+
+    with open("demos_data/group_network.pkl", "wb") as f:
+        pickle.dump(group_network, f)
+
+    network3 = example3()
+    print("\n[Network 3]")
+    print("Shape:", network3.shape)
+    print("Total edges:", np.sum(network3))
+    print("Adjacency matrix:\n", network3)
+
+    with open("demos_data/uinvite_network3.pkl", "wb") as f:
+        pickle.dump(network3, f)
+
+if __name__ == "__main__":
+    main()

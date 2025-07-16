@@ -1,0 +1,142 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estimate Networks Demo &mdash; SNAFU 2.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=b21de401"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SNAFU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos/index.html">Demos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SNAFU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Estimate Networks Demo</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/estimate_networks.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="estimate-networks-demo">
+<h1>Estimate Networks Demo<a class="headerlink" href="#estimate-networks-demo" title="Link to this heading"></a></h1>
+<p>This demo estimates semantic networks from fluency data using a variety of modeling techniques implemented in SNAFU. It provides a comparative view of different network construction algorithms commonly used in semantic network research.</p>
+<p>—</p>
+<p><strong>Overview of Workflow:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Load animal fluency data</strong> for a specific group (<cite>Experiment1</cite>), applying spell correction and flattening the data.</p></li>
+<li><p><strong>Define fit parameters</strong> using the <cite>Fitinfo</cite> object (mainly for Conceptual Network).</p></li>
+<li><p><strong>Estimate semantic networks</strong> using five different methods:
+- <strong>Naive Random Walk (NRW)</strong> – Random walk transition probabilities
+- <strong>Conceptual Network (CN)</strong> – Co-occurrence-based estimation from Goni et al. (2011)
+- <strong>Pathfinder Network (PF)</strong> – Based on distance metrics
+- <strong>Correlation-Based Network (CBN)</strong> – Based on word correlation
+- <strong>First-Edge Network (FE)</strong> – Based on order of item appearance</p></li>
+<li><p>Save each network’s edge list as a <cite>.csv</cite> file for further visualization or analysis.</p></li>
+</ol>
+<p>—</p>
+<p><strong>Functions Used:</strong></p>
+<ul class="simple">
+<li><p><cite>snafu.load_fluency_data</cite></p></li>
+<li><p><cite>snafu.Fitinfo</cite></p></li>
+<li><p><cite>snafu.naiveRandomWalk</cite></p></li>
+<li><p><cite>snafu.conceptualNetwork</cite></p></li>
+<li><p><cite>snafu.pathfinder</cite></p></li>
+<li><p><cite>snafu.correlationBasedNetwork</cite></p></li>
+<li><p><cite>snafu.firstEdge</cite></p></li>
+<li><p><cite>snafu.write_graph</cite></p></li>
+</ul>
+<p><strong>Output Files:</strong></p>
+<p>Each file contains an edge list in CSV format:</p>
+<ul class="simple">
+<li><p><cite>nrw_graph.csv</cite></p></li>
+<li><p><cite>cn_graph.csv</cite></p></li>
+<li><p><cite>pf_graph.csv</cite></p></li>
+<li><p><cite>cbn_graph.csv</cite></p></li>
+<li><p><cite>fe_graph.csv</cite></p></li>
+</ul>
+<p>All files are saved in the <cite>demos_data/</cite> directory and labeled by group.</p>
+<hr class="docutils" />
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jeff Zemla.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

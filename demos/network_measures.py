@@ -3,6 +3,8 @@
 
 import snafu
 import numpy as np
+import pickle
+
 filepath = "../fluency_data/snafu_sample.csv"
 category="animals"
 
@@ -47,5 +49,18 @@ largest_component = nx_graph.subgraph(nodes_in_largest_component)
 
 average_shortest_path_length = nx.average_shortest_path_length(largest_component)
 diameter = nx.diameter(largest_component)
+
+metrics = {
+    "clustering_coefficient": clustering_coefficient,
+    "density": density,
+    "number_of_edges": number_of_edges,
+    "number_of_nodes": number_of_nodes,
+    "average_node_degree": average_node_degree,
+    "average_shortest_path_length": average_shortest_path_length,
+    "diameter": diameter
+}
+
+with open("demos_data/cn_metrics_expected.pkl", "wb") as f:
+    pickle.dump(metrics, f)
 
 # NetworkX can do many many other network calculations. Google for the documentation, which is quite good.

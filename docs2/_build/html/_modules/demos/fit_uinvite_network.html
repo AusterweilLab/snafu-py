@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>demos.fit_uinvite_network &mdash; Snafu 2.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=b21de401"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Snafu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Snafu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">demos.fit_uinvite_network</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for demos.fit_uinvite_network</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file explains how to fit U-INVITE and hierarchical U-INVITE networks</span>
+
+<span class="c1"># Q: U-INVITE NETWORK ESTIMATION IS SO SLOW...</span>
+
+<span class="c1"># A: That&#39;s not really a question, but you&#39;re not wrong. Of all the network</span>
+<span class="c1"># estimation methods implemented in SNAFU, U-INVITE is the most computationally</span>
+<span class="c1"># intensive. The time needed to fit a network increases ~exponentially with the</span>
+<span class="c1"># size of the network. Networks with a couple dozen nodes may take 2-30</span>
+<span class="c1"># minutes, whereas a network with hundreds of nodes could take hours.</span>
+
+<span class="c1"># Hierarchical U-INVITE fitting time is affected more by the number of</span>
+<span class="c1"># participants (since each individual graph is small, but must be estimated</span>
+<span class="c1"># iteratively many times). For very large datasets, we recommend using</span>
+<span class="c1"># parallelization, but this implementation is not discussed here as it will</span>
+<span class="c1"># depend on the system used for parallelization. If you need help, try</span>
+<span class="c1"># e-mailing snafu-fluency@googlegroups.com and we&#39;ll figure something out.</span>
+
+<span class="c1"># Q: I CAN&#39;T FIGURE THIS HIERARCHICAL U-INVITE STUFF OUT. ISN&#39;T THERE ANOTHER WAY?</span>
+
+<span class="c1"># A: You can use a static prior instead. Instad of fitting all networks at</span>
+<span class="c1"># once, what this does is only fit one network and assumes the rest of the</span>
+<span class="c1"># networks are fixed. You can use a set of networks as a prior, or just one</span>
+<span class="c1"># (such as the USF network or Small World of Words network). This process is</span>
+<span class="c1"># much much faster and results in better networks, but (of course) this biases</span>
+<span class="c1"># your network towards whatever you use as a prior. See Example 3 below.</span>
+
+<span class="c1"># Q: WHAT IS A DATA MODEL?</span>
+
+<span class="c1"># A: The DataModel is a dictionary of parameters that describe assumptions</span>
+<span class="c1"># about how your fluency data is generated.</span>
+
+<span class="c1"># Q: WHAT IS &#39;FIT INFO&#39;?</span>
+
+<span class="c1"># A: The estimation method for U-INVITE is stochastic. This is a dictionary of</span>
+<span class="c1"># parameters that can be used to adjust the fitting procedure, sometimes</span>
+<span class="c1"># resulting in faster estimation. Most of the time, you probably want to leave</span>
+<span class="c1"># this alone, but some of the parameters could be useful when specifying a</span>
+<span class="c1"># prior.</span>
+
+<span class="c1"># Q: DO I NEED TO REMOVE PERSEVERATIONS FROM MY DATA?</span>
+
+<span class="c1"># A: By default, U-INVITE assumes a censored random walk that does not produce</span>
+<span class="c1"># perseverations. You can allow perseverations by changing &#39;censor_fault&#39; in</span>
+<span class="c1"># the data model or &#39;estimatePerseveration&#39; in the fit info</span>
+
+<span class="c1"># Q: DOES U-INVITE ALLOW FOR ANY POSSIBLE PAIRWISE TRANSITION?</span>
+
+<span class="c1"># A: Some transitions might be impossible given a network, e.g., it might not</span>
+<span class="c1"># be possible to transition from &quot;dog&quot; to &quot;hippo&quot; because that transition may</span>
+<span class="c1"># have a zero probability under the U-INVITE model. If you allow for random</span>
+<span class="c1"># jumps, then any transition will be possible. You can do this by changing the</span>
+<span class="c1"># &#39;jump&#39; parameter in the data model.</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">snafu</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Default parameters are shown</span>
+<span class="n">datamodel</span> <span class="o">=</span> <span class="n">snafu</span><span class="o">.</span><span class="n">DataModel</span><span class="p">({</span>
+        <span class="s1">&#39;jump&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>                        <span class="c1"># The censored random walk should jump to a new node with what probability?</span>
+        <span class="s1">&#39;jumptype&#39;</span><span class="p">:</span> <span class="s2">&quot;stationary&quot;</span><span class="p">,</span>           <span class="c1"># When jumping, should it jump to a new node with &#39;uniform&#39; probability or according to the &#39;stationary&#39; distribution?</span>
+        <span class="s1">&#39;start_node&#39;</span><span class="p">:</span> <span class="s2">&quot;stationary&quot;</span><span class="p">,</span>         <span class="c1"># Is the start node in each list chosen with &#39;uniform&#39; probability or according to the &#39;stationary&#39; distribution?</span>
+        <span class="s1">&#39;priming&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>                     <span class="c1"># Accounts for increased bi-gram probability in repeated fluency task. See Zemla &amp; Austerweil (2017; cogsci proceeeding)</span>
+        <span class="s1">&#39;censor_fault&#39;</span><span class="p">:</span> <span class="mf">0.0</span>                 <span class="c1"># Repeated nodes are typically censore with probability 1, but can be emitted with some fixed probability</span>
+<span class="p">})</span>
+
+<span class="c1"># These fitting parameters are used for U-INVITE and/or Conceptual Network</span>
+<span class="n">fitinfo</span> <span class="o">=</span> <span class="n">snafu</span><span class="o">.</span><span class="n">Fitinfo</span><span class="p">({</span>
+        <span class="c1"># U-INVIE needs to be initialized. A modified ConceptualNetwork (see Zemla</span>
+        <span class="c1"># &amp; Austerweil, 2018) is a reasonable choice, but you can also use</span>
+        <span class="c1"># NaiveRandomWalk (&#39;nrw&#39;), modified Pathfinder (&#39;pf_valid&#39;) or a</span>
+        <span class="c1"># &#39;fully_connected&#39; network</span>
+        <span class="s1">&#39;startGraph&#39;</span><span class="p">:</span> <span class="s2">&quot;cn_valid&quot;</span><span class="p">,</span>
+        
+        <span class="s1">&#39;directed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>                  <span class="c1"># U-INVITE can fit directed networks, though it hasn&#39;t been tested extensively</span>
+        
+        <span class="c1"># Parameters for the ConceptualNetwork initialization, or when fitting ConceptualNetworks in their own right</span>
+        <span class="s1">&#39;cn_alpha&#39;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>                   <span class="c1"># p-value for deciding if two nodes occur together more than chance. Goni et al (2011) Table 1 \alpha</span>
+        <span class="s1">&#39;cn_windowsize&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>                 <span class="c1"># Do two items in a list co-occur? See Goni et al (2011) Fig 1</span>
+        <span class="s1">&#39;cn_threshold&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>                  <span class="c1"># At least this many co-occurrences to add an edge. See Goni et al (2011) Table 1 &#39;Hits&#39;</span>
+        
+        <span class="c1"># U-INVITE will toggle edges in a network to see if the data are more</span>
+        <span class="c1"># likely under that new network. When set to np.inf, it will</span>
+        <span class="c1"># exhaustively toggle all edges. Because U-INVITE prioritizes togling</span>
+        <span class="c1"># edges that are likely to affect the maximum-likelihood solution, you</span>
+        <span class="c1"># can drastically cut down on compute time by setting a threshold.</span>
+        <span class="c1"># These thresholds indicate how many edges to toggle in each phase</span>
+        <span class="c1"># before moving on. See Zemla &amp; Austerweil (2018) and its appendix.</span>
+        <span class="s1">&#39;prune_limit&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>                 <span class="c1"># ...when trying to remove nodes</span>
+        <span class="s1">&#39;triangle_limit&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>              <span class="c1"># ...when trying to add edges that form network triangles</span>
+        <span class="s1">&#39;other_limit&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>                 <span class="c1"># ...when trying to add edges that do not form triangles</span>
+        
+        <span class="c1"># When using a prior, how is the prior probability of each edge determined from the given prior networks?</span>
+        <span class="c1"># See Zemla &amp; Austerweil (2018) for more detail (ZA2018)</span>
+        
+        <span class="c1"># when using ZIBB, affects proportion of non-observed non-edges (ZA2018</span>
+        <span class="c1"># Eq. 15 &quot;p_hidden&quot;). when set to 0.0, it becomes the beta-binomial</span>
+        <span class="c1"># (not zero-inflated). this trio of parameters sets the prior</span>
+        <span class="c1"># probability of an edge to 0.5 when no other info is known about that</span>
+        <span class="c1"># edge.</span>
+        <span class="s1">&#39;zibb_p&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="s1">&#39;prior_b&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>                                 <span class="c1"># affects probability of edge when no knowledge of edge exists (ZA2018 Eq. 16 &quot;\beta_0&quot;)</span>
+        <span class="s1">&#39;prior_a&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>                                 <span class="c1"># affects probability of non-edge when no knowledge of edge exists (ZA2018 Eq. 15 &quot;\alpha_0&quot;)</span>
+
+        <span class="c1"># Instead of specifying a fixed censor_fault in the data model, you can</span>
+        <span class="c1"># estimate the best fit parameter using maximum-likelihood and grid</span>
+        <span class="c1"># search</span>
+        <span class="s1">&#39;estimatePerseveration&#39;</span><span class="p">:</span> <span class="kc">False</span>                
+        <span class="p">})</span>
+        
+<span class="n">filepath</span> <span class="o">=</span> <span class="s2">&quot;../fluency_data/snafu_sample.csv&quot;</span>
+<span class="n">category</span><span class="o">=</span><span class="s2">&quot;animals&quot;</span>
+
+<span class="c1"># read in animal fluency data from Experiment 1</span>
+<span class="n">fluencydata</span> <span class="o">=</span> <span class="n">snafu</span><span class="o">.</span><span class="n">load_fluency_data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="n">category</span><span class="o">=</span><span class="n">category</span><span class="p">,</span>
+                            <span class="n">removePerseverations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">spell</span><span class="o">=</span><span class="s2">&quot;../spellfiles/animals_snafu_spellfile.csv&quot;</span><span class="p">,</span>
+                            <span class="n">hierarchical</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">group</span><span class="o">=</span><span class="s2">&quot;Experiment1&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># RUN A FUNCTION TO SEE ITS RESULTS</span>
+
+<span class="c1"># Estimate the best network using a non-hierarchical U-INVITE for the first subject only</span>
+<span class="c1"># def example1():</span>
+<span class="c1">#     uinvite_network, ll = snafu.uinvite(fluencydata.lists[0],    # provide fluency lists</span>
+<span class="c1">#                                       datamodel,                # specify data model</span>
+<span class="c1">#                                       fitinfo=fitinfo,          # specify fit info</span>
+<span class="c1">#                                       debug=True)               # suppress print output to console when set to False</span>
+<span class="c1">#     return uinvite_network</span>
+       
+<span class="c1"># Estimate the best network using hierarchical U-INVITE</span>
+<div class="viewcode-block" id="example2">
+<a class="viewcode-back" href="../../demos.html#demos.fit_uinvite_network.example2">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">example2</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">individual_graphs</span><span class="p">,</span> <span class="n">priordict</span> <span class="o">=</span> <span class="n">snafu</span><span class="o">.</span><span class="n">hierarchicalUinvite</span><span class="p">(</span>
+            <span class="n">fluencydata</span><span class="o">.</span><span class="n">lists</span><span class="p">,</span>
+            <span class="n">fluencydata</span><span class="o">.</span><span class="n">items</span><span class="p">,</span>
+            <span class="n">fluencydata</span><span class="o">.</span><span class="n">numnodes</span><span class="p">,</span>
+            <span class="n">datamodel</span><span class="p">,</span>
+            <span class="n">fitinfo</span><span class="o">=</span><span class="n">fitinfo</span>
+        <span class="p">)</span>
+
+        <span class="n">hierarchical_uinvite_graph</span> <span class="o">=</span> <span class="n">snafu</span><span class="o">.</span><span class="n">priorToGraph</span><span class="p">(</span><span class="n">priordict</span><span class="p">,</span> <span class="n">fluencydata</span><span class="o">.</span><span class="n">groupitems</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">individual_graphs</span><span class="p">,</span> <span class="n">hierarchical_uinvite_graph</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; Error in hierarchicalUinvite:&quot;</span><span class="p">)</span>
+        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+        <span class="k">raise</span>  <span class="c1"># Re-raise to let it crash if needed</span></div>
+
+
+<span class="c1"># def example2():</span>
+<span class="c1">#     #num_nodes = len(fluencydata.groupitems)</span>
+<span class="c1">#     # estimate individual graph and return a prior</span>
+<span class="c1">#     individual_graphs, priordict = snafu.hierarchicalUinvite(fluencydata.lists, </span>
+<span class="c1">#                                         fluencydata.items,</span>
+<span class="c1">#                                         fluencydata.numnodes,</span>
+<span class="c1">#                                         datamodel,</span>
+<span class="c1">#                                         fitinfo=fitinfo)</span>
+<span class="c1">#     # turn the prior edge probabilities into a network, as described in Zemla &amp; Austerweil (2018)</span>
+<span class="c1">#     hierarchical_uinvite_graph = snafu.priorToGraph(priordict, fluencydata.groupitems)</span>
+<span class="c1">#     return individual_graphs, hierarchical_uinvite_graph</span>
+
+<span class="c1"># Estimate the best network using a static prior (generated from University of South Florida free association norms) for the first subject only</span>
+<span class="c1"># def example3():</span>
+<span class="c1">#     usf_network, usf_items = snafu.load_network(&quot;../snet/USF_animal_subset.snet&quot;)</span>
+<span class="c1">#     # Here you can specify multiple networks as a prior; the first parameter is</span>
+<span class="c1">#     # a list of networks, the second parameter is a list of dictionaries that</span>
+<span class="c1">#     # map indices to items in each network</span>
+<span class="c1">#     usf_prior = snafu.genGraphPrior([usf_network], [usf_items])</span>
+<span class="c1">#     uinvite_network, ll = snafu.uinvite(fluencydata.lists[0],</span>
+<span class="c1">#                                     prior=(usf_prior, fluencydata.items[0]))</span>
+<span class="c1">#     return uinvite_network</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># Run and store example1 output</span>
+    <span class="c1"># net1 = example1()</span>
+    <span class="c1"># np.save(&quot;../demos_data/network_example1.npy&quot;, net1)</span>
+
+    <span class="c1"># Run and store example2 output</span>
+    <span class="n">individual_graphs</span><span class="p">,</span> <span class="n">hierarchical_uinvite_graph</span> <span class="o">=</span> <span class="n">example2</span><span class="p">()</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;../demos_data/individual_graphs.npy&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">individual_graphs</span><span class="p">))</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;../demos_data/hierarchical_uinvite_graph.npy&quot;</span><span class="p">,</span><span class="n">hierarchical_uinvite_graph</span><span class="p">)</span>
+
+    <span class="c1"># # Run and store example3 output</span>
+    <span class="c1"># net3 = example3()</span>
+    <span class="c1"># np.save(&quot;../demos_data/network_example3.npy&quot;, net3)</span>
+
+<span class="c1">#     print(&quot;Networks saved successfully.&quot;)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jeff Zemla.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

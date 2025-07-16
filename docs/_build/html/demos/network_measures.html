@@ -1,0 +1,156 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Network Measures Demo &mdash; SNAFU 2.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=b21de401"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reconstruct USF Network Demo" href="reconstruct_usf.html" />
+    <link rel="prev" title="Fit U-INVITE Network Demo" href="fit_uinvite_network.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SNAFU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Demos</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="brm_demo.html">BRM Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cluster_demo.html">Cluster Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compare_networks.html">Compare Networks Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimate_food_network.html">Estimate Food Network Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimate_networks.html">Estimate Networks Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fit_uinvite_network.html">Fit U-INVITE Network Demo</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Network Measures Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reconstruct_usf.html">Reconstruct USF Network Demo</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SNAFU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Demos</a></li>
+      <li class="breadcrumb-item active">Network Measures Demo</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/demos/network_measures.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="network-measures-demo">
+<h1>Network Measures Demo<a class="headerlink" href="#network-measures-demo" title="Link to this heading"></a></h1>
+<p>This demo computes structural metrics for a semantic network generated using the <strong>Conceptual Network</strong> method from fluency data. These measures are useful for comparing networks across individuals, groups, or experimental conditions.</p>
+<p>—</p>
+<p><strong>Workflow Summary:</strong></p>
+<ol class="arabic simple">
+<li><p>Load and flatten fluency data in the <strong>“animals”</strong> category.</p></li>
+<li><p>Generate a semantic network using the Conceptual Network method.</p></li>
+<li><p>Convert the resulting adjacency matrix to a NetworkX graph.</p></li>
+<li><p>Compute common network metrics using built-in NetworkX functions.</p></li>
+<li><p>Save the results to a <cite>.pkl</cite> file for further use.</p></li>
+</ol>
+<p>—</p>
+<p><strong>Metrics Calculated:</strong></p>
+<ul class="simple">
+<li><p><cite>clustering_coefficient</cite>: How often a node’s neighbors are connected.</p></li>
+<li><p><cite>density</cite>: Ratio of edges to all possible edges in the graph.</p></li>
+<li><p><cite>number_of_edges</cite>: Total connections in the network.</p></li>
+<li><p><cite>number_of_nodes</cite>: Vocabulary size represented in the graph.</p></li>
+<li><p><cite>average_node_degree</cite>: Average degree of nodes, based on neighbors’ degree.</p></li>
+<li><p><cite>average_shortest_path_length</cite>: Average number of steps in shortest paths (largest component only).</p></li>
+<li><p><cite>diameter</cite>: Longest shortest path (largest component only).</p></li>
+</ul>
+<p>These measures are calculated using both the full network and the <strong>largest connected component</strong>, which avoids failures in disconnected graphs.</p>
+<p>—</p>
+<p><strong>Functions and Tools Used:</strong></p>
+<ul class="simple">
+<li><p><cite>snafu.conceptualNetwork</cite></p></li>
+<li><p><cite>networkx.Graph</cite></p></li>
+<li><p><cite>nx.average_clustering</cite>, <cite>nx.density</cite>, <cite>nx.diameter</cite>, etc.</p></li>
+<li><p><cite>pickle.dump()</cite> for result storage</p></li>
+</ul>
+<p><strong>Output:</strong></p>
+<ul class="simple">
+<li><p><cite>cn_metrics_expected.pkl</cite>: A serialized Python dictionary of the computed metrics.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="fit_uinvite_network.html" class="btn btn-neutral float-left" title="Fit U-INVITE Network Demo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reconstruct_usf.html" class="btn btn-neutral float-right" title="Reconstruct USF Network Demo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jeff Zemla.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

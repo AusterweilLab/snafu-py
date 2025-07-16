@@ -267,18 +267,19 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=Tru
 
 # generate starting graph for U-INVITE
 def genStartGraph(Xs, numnodes, td, fitinfo):
-    if fitinfo.startGraph=="cn_valid":
+    sg = fitinfo.startGraph  # cache for clarity
+    if isinstance(sg, str) and sg == "cn_valid":
         graph = conceptualNetwork(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
-    elif fitinfo.startGraph=="pf_valid":
+    elif isinstance(sg, str) and sg == "pf_valid":
         graph = pathfinder(Xs, numnodes, valid=True, td=td)
-    elif (fitinfo.startGraph=="rw" or fitinfo.startGraph=="nrw"):
-        graph = naiveRandomWalk(Xs,numnodes)
-    elif fitinfo.startGraph=="fully_connected":
+    elif isinstance(sg, str) and (sg == "rw" or sg == "nrw"):
+        graph = naiveRandomWalk(Xs, numnodes)
+    elif isinstance(sg, str) and sg == "fully_connected":
         graph = fullyConnected(numnodes)
-    elif fitinfo.startGraph=="empty_graph":
-        graph = np.zeros((numnodes,numnodes)).astype(int)           # useless...
+    elif isinstance(sg, str) and sg == "empty_graph":
+        graph = np.zeros((numnodes, numnodes)).astype(int)
     else:
-        graph = np.copy(fitinfo.startGraph)                         # assume a graph has been passed as a starting point
+        graph = np.copy(sg)  # assume it's a numpy array graph
     return graph
 
 # deprecated alias for backwards compatibility
@@ -411,7 +412,7 @@ def hierarchicalUinvite(Xs, items, numnodes=None, td=DataModel({}), irts=False, 
     fitinfoSG = fitinfo.startGraph  # fitinfo is mutable, need to revert at end of function... blah
     # create ids for all subjects
     subs=list(range(len(Xs)))
-    graphs=[[]]*len(subs)
+    graphs = [None] * len(subs)
 
     # cycle though participants
     exclude_subs=[]
@@ -424,13 +425,15 @@ def hierarchicalUinvite(Xs, items, numnodes=None, td=DataModel({}), irts=False, 
         for sub in [i for i in subs if i not in exclude_subs]:
             if debug: print("SS: ", sub)
             
-            if graphs[sub] == []:
+            if graphs[sub] is None:
                 fitinfo.startGraph = fitinfoSG      # on first pass for subject, use default fitting method (e.g., NRW, goni, etc)
             else:
                 fitinfo.startGraph = graphs[sub]    # on subsequent passes, use ss graph from previous iteration
 
             # generate prior without participant's data, fit graph
-            priordict = genGraphPrior(graphs[:sub]+graphs[sub+1:], items[:sub]+items[sub+1:], fitinfo=fitinfo)
+            valid_graphs = [g for i, g in enumerate(graphs) if i != sub and g is not None]
+            valid_items = [items[i] for i in range(len(items)) if i != sub and graphs[i] is not None]
+            priordict = genGraphPrior(valid_graphs, valid_items, fitinfo=fitinfo)
             prior = (priordict, items[sub])
             
             if isinstance(irts, list):
@@ -468,14 +471,7 @@ def probXhierarchical(Xs, graphs, items, td, priordict=None, irts=Irts({})):
 # see Borodkin, Kenett, Faust, & Mashal (2016) and Kenett, Kenett, Ben-Jacob, & Faust (2011)
 # does not work well for small number of lists! many NaN correlations + when two correlations are equal, ordering is arbitrary
 def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None):
-    if valid and not td:
-        raise ValueError('Need to pass Data when generating \'valid\' correlationBasedNetwork()')
- 
-    try:
-        import planarity
-    except ImportError:
-        raise ImportError('Python package planarity is not included by default in SNAFU. Please install it separately from your terminal: pip install planarity')
-
+    import networkx as nx
     
     if numnodes == None:
         numnodes = len(set(flatten_list(Xs)))
@@ -499,21 +495,21 @@ def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None)
     
     corr_vals = sorted(item_by_item, key=item_by_item.get)[::-1]       # keys in correlation dictionary sorted by value (high to low, including NaN first)
 
-    edgelist=[]
-    for pair in corr_vals:
-        if not np.isnan(item_by_item[pair]):    # nan correlation occurs when item is in all lists-- exclude from graph (conservative)
-            edgelist.append(pair)
-            if not planarity.is_planar(edgelist):
-                edgelist.pop()
-    
     g = nx.Graph()
-    g.add_nodes_from(list(range(numnodes)))
-    g.add_edges_from(edgelist)
-    a=nx.to_numpy_array(g).astype(int)
-   
+    g.add_nodes_from(range(numnodes))
+
+    for pair in corr_vals:
+        if not np.isnan(item_by_item[pair]):
+            g.add_edge(*pair)
+            is_planar, _ = nx.check_planarity(g)
+            if not is_planar:
+                g.remove_edge(*pair)
+
+    a = nx.to_numpy_array(g).astype(int)
+
     if valid:
         a = makeValid(Xs, a, td)
-   
+
     return a
 
 def makeValid(Xs, graph, td, seed=None):
