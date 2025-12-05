@@ -13,13 +13,13 @@ from pathlib import Path
 # ------------------------------------------------------------
 
 # ---------- Setup output directory ----------
-out_dir = os.path.join(os.path.dirname(__file__), "demos_data")
+out_dir = os.path.join(os.path.dirname(__file__), "demos_test_data")
 os.makedirs(out_dir, exist_ok=True)
 out_csv = os.path.join(out_dir, "jump_probability_results.csv")
 
 # ---------- Build network ----------
 G = nx.Graph()
-with open(os.path.join("demos_data", "madrid_network.csv"), "r", newline="", encoding="utf-8") as f:
+with open(os.path.join("demos_test_data", "madrid_network.csv"), "r", newline="", encoding="utf-8") as f:
     reader = csv.reader(f)
     header = next(reader, None)
     for row in reader:
@@ -36,7 +36,7 @@ items = {inum: node for inum, node in enumerate(list(G.nodes()))}
 group_network = nx.to_numpy_array(G)
 
 # ---------- Load and align fluency data ----------
-patient_data = snafu.load_fluency_data(os.path.join("demos_data", "PAFIP_animal.txt"))
+patient_data = snafu.load_fluency_data(os.path.join("demos_test_data", "PAFIP_animal.txt"))
 
 revItems = snafu.reverseDict(items)  # label -> index
 fluency_data = []

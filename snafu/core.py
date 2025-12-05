@@ -920,18 +920,13 @@ def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None)
             else:
                 #item_by_item[(item1, item2)] = scipy.stats.pearsonr(list_by_item[item1],list_by_item[item2])[0]
                 item_by_item[(item1, item2)] = pearsonr(list_by_item[item1],list_by_item[item2])
-
-    PRECISION = 8
-
+    
+    # Fixed NaNs:
     corr_vals = sorted(
         item_by_item,
-        key=lambda k: (
-            np.isnan(item_by_item[k]),
-            -(round(item_by_item[k], PRECISION) if not np.isnan(item_by_item[k]) else 0),
-            k[0],
-            k[1]
-        )
-    )       # keys in correlation dictionary sorted by value (high to low, including NaN first)
+        key=lambda k: (np.isnan(item_by_item[k]), -item_by_item[k] if not np.isnan(item_by_item[k]) else 0, k)
+    )
+    #corr_vals = sorted(item_by_item, key=item_by_item.get)[::-1]       # keys in correlation dictionary sorted by value (high to low, including NaN first)
 
     g = nx.Graph()
     g.add_nodes_from(range(numnodes))
@@ -942,7 +937,7 @@ def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None)
             is_planar, _ = nx.check_planarity(g)
             if not is_planar:
                 g.remove_edge(*pair)
-           
+
     a = nx.to_numpy_array(g).astype(int)
 
     if valid:

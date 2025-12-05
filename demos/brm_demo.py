@@ -8,7 +8,7 @@ import snafu
 import os
 import pickle
 
-OUTPUT_DIR = "demos_data"
+OUTPUT_DIR = "demos_test_data"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Example 1: Import data for the animal category of participant id A101
