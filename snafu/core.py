@@ -1,5 +1,6 @@
 from . import *
 from functools import reduce
+from .pci import _pci_lowerbound
 
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
@@ -676,7 +677,7 @@ def conceptualNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=No
         for i,j in listofedges:
             p_linked = (xfreq[i]/numlists) * (xfreq[j]/numlists) * p_adj
             #ci=pci(cooccur[i,j],numlists,alpha=c,method="beta")[0]     # lower bound of Clopper-Pearson binomial CI
-            ci = pci_lowerbound(cooccur[i,j], numlists, c)              # lower bound of Clopper-Pearson binomial CI
+            ci = _pci_lowerbound(cooccur[i,j], numlists, c)              # lower bound of Clopper-Pearson binomial CI
             if (p_linked >= ci):                                        # if co-occurrence could be due to chance, remove edge
                 graph[i,j]=0
                 graph[j,i]=0
