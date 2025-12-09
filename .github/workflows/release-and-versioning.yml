@@ -35,3 +35,8 @@ jobs:
             See [commits](https://github.com/${{ github.repository }}/commits/master) for changes.
           draft: false
           prerelease: false
+
+      - name: Move 'latest' tag
+        run: |
+          git tag -f latest
+          git push origin -f latest   
