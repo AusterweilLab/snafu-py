@@ -184,7 +184,7 @@ def main():
     print("Total edges:", np.sum(network3))
     print("Adjacency matrix:\n", network3)
 
-    with open("demos_test_data/uinvite_network3.pkl", "wb") as f:
+    with open("demos_data/uinvite_network3.pkl", "wb") as f:
         pickle.dump(network3, f)
 
 if __name__ == "__main__":
