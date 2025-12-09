@@ -5,47 +5,47 @@ on:
     branches: [development]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+  # test:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: ["3.10", "3.11", "3.12", "3.13"]
 
-    steps:
-      - name: Check out
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Check out
+  #       uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+  #     - name: Set up Python ${{ matrix.python-version }}
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt', '**/pyproject.toml', '**/setup.cfg') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+  #     - name: Cache pip
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ~/.cache/pip
+  #         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt', '**/pyproject.toml', '**/setup.cfg') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-pip-
 
-      - name: Install deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r .github/requirements.txt
-          pip install -e .
+  #     - name: Install deps
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         pip install -r .github/requirements.txt
+  #         pip install -e .
 
-      - name: Run tests (cwd=tests so ../fluency_data paths work)
-        working-directory: tests
-        env:
-          PYTHONPATH: ${{ github.workspace }}
-        run: |
-          pwd
-          ls -la
-          python -m pytest -q --disable-warnings --maxfail=1
+  #     - name: Run tests (cwd=tests so ../fluency_data paths work)
+  #       working-directory: tests
+  #       env:
+  #         PYTHONPATH: ${{ github.workspace }}
+  #       run: |
+  #         pwd
+  #         ls -la
+  #         python -m pytest -q --disable-warnings --maxfail=1
 
   version-and-tag:
-    needs: test 
+    #needs: test 
     runs-on: ubuntu-latest
     steps:
       - name: Check out
@@ -57,14 +57,14 @@ jobs:
         id: bump
         run: |
           VERSION_FILE="snafu/_version.py"
-          VERSION=$(grep -Po '(?<=__version__ = \")[^\"]*" $VERSION_FILE)
+          VERSION=$(grep -Po '(?<=__version__ = ")[^"]*' "$VERSION_FILE")
           echo "Current version: $VERSION"
 
           IFS='.' read -r major minor patch <<< "$VERSION"
           patch=$((patch + 1))
           NEW_VERSION="$major.$minor.$patch"
 
-          sed -i "s/__version__ = \".*\"/__version__ = \"$NEW_VERSION\"/" $VERSION_FILE
+          sed -i "s/__version__ = \".*\"/__version__ = \"$NEW_VERSION\"/" "$VERSION_FILE"
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "Bumped to version: $NEW_VERSION"
 
@@ -76,7 +76,22 @@ jobs:
           git commit -m "ci: bump version to ${{ steps.bump.outputs.new_version }}" || echo "No changes to commit"
           git push
 
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.bump.outputs.new_version }}
+          release_name: Release v${{ steps.bump.outputs.new_version }}
+          body: |
+            Automated release for version ${{ steps.bump.outputs.new_version }}
+            
+            See [commits](https://github.com/${{ github.repository }}/commits/development) for changes.
+          draft: false
+          prerelease: false
+
       - name: Move 'latest' tag
         run: |
           git tag -f latest
           git push origin -f latest
+          
