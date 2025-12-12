@@ -4,7 +4,7 @@
 import snafu
 import os
 
-os.makedirs("demos_test_data", exist_ok=True)
+os.makedirs("demos_data", exist_ok=True)
 
 
 

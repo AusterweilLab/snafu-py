@@ -9,7 +9,7 @@ import networkx as nx
 import pickle  # added for saving output
 import os
 
-os.makedirs("demos_test_data", exist_ok=True)
+os.makedirs("demos_data", exist_ok=True)
 
 # Load animal component of USF semantic network (Nelson et al, 1999)
 usf_network, usf_items = snafu.read_graph('../snet/usf_animal_subset.snet')

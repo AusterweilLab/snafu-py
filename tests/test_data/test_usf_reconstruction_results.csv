@@ -1,6 +1,0 @@
-method,simnum,ssnum,hit,miss,falsealarms,correctrejections,cost,startseed
-correlationBasedNetwork,0,1,0,393,0,12327,393.0,0
-correlationBasedNetwork,0,2,14,379,124,12203,503.0,0
-correlationBasedNetwork,0,3,30,363,174,12153,537.0,0
-correlationBasedNetwork,0,4,33,360,201,12126,561.0,0
-correlationBasedNetwork,0,5,32,361,244,12083,605.0,0
