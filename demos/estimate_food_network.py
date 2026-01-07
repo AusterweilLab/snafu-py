@@ -3,7 +3,7 @@ import networkx as nx
 import os
 
 
-os.makedirs("demos_test_data", exist_ok=True)
+os.makedirs("demos_data", exist_ok=True)
 
 # load FOODS fluency lists, correcting spelling mistakes, grouping by participant
 
