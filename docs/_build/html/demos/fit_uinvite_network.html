@@ -1,0 +1,163 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fit U-INVITE Network Demo &mdash; SNAFU 2.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=b21de401"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Network Measures Demo" href="network_measures.html" />
+    <link rel="prev" title="Estimate Networks Demo" href="estimate_networks.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SNAFU
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Demos</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="brm_demo.html">BRM Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cluster_demo.html">Cluster Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compare_networks.html">Compare Networks Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimate_food_network.html">Estimate Food Network Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimate_networks.html">Estimate Networks Demo</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Fit U-INVITE Network Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="network_measures.html">Network Measures Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reconstruct_usf.html">Reconstruct USF Network Demo</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SNAFU</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Demos</a></li>
+      <li class="breadcrumb-item active">Fit U-INVITE Network Demo</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/demos/fit_uinvite_network.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="fit-u-invite-network-demo">
+<h1>Fit U-INVITE Network Demo<a class="headerlink" href="#fit-u-invite-network-demo" title="Link to this heading"></a></h1>
+<p>This demo illustrates how to estimate semantic networks using the <strong>U-INVITE</strong> and <strong>Hierarchical U-INVITE</strong> models — two of the most powerful and computationally intensive methods available in the SNAFU framework.</p>
+<p>—</p>
+<p><strong>About U-INVITE:</strong></p>
+<ul class="simple">
+<li><p>U-INVITE uses a censored random walk model to infer latent semantic structure from fluency lists.</p></li>
+<li><p>Estimation can be slow, especially with larger vocabularies or participant pools.</p></li>
+<li><p>Hierarchical U-INVITE allows estimating both individual-level and group-level networks simultaneously.</p></li>
+<li><p>You can also fit U-INVITE using a static prior (e.g., from USF norms) for improved speed and interpretability.</p></li>
+</ul>
+<p>—</p>
+<p><strong>What This Demo Does:</strong></p>
+<ol class="arabic simple">
+<li><p>Loads animal fluency data (<cite>Experiment1</cite>) and prepares it for modeling.</p></li>
+<li><p>Sets up the <cite>DataModel</cite> (e.g., jump rates, censoring behavior) and <cite>Fitinfo</cite> (e.g., initialization strategy, priors).</p></li>
+<li><p>Runs <strong>three network estimation methods</strong>:
+- <strong>Example 1:</strong> Standard U-INVITE on a single participant’s fluency lists
+- <strong>Example 2:</strong> Hierarchical U-INVITE across multiple participants
+- <strong>Example 3:</strong> U-INVITE with a static prior (USF semantic network)</p></li>
+<li><p>Saves all estimated networks using <cite>pickle</cite>.</p></li>
+</ol>
+<p>—</p>
+<p><strong>Key SNAFU Functions Used:</strong></p>
+<ul class="simple">
+<li><p><cite>snafu.uinvite</cite></p></li>
+<li><p><cite>snafu.hierarchicalUinvite</cite></p></li>
+<li><p><cite>snafu.priorToGraph</cite></p></li>
+<li><p><cite>snafu.genGraphPrior</cite></p></li>
+<li><p><cite>snafu.load_network</cite></p></li>
+</ul>
+<p><strong>Output Files:</strong></p>
+<ul class="simple">
+<li><p><cite>uinvite_network1.pkl</cite>: Adjacency matrix for individual U-INVITE network</p></li>
+<li><p><cite>individual_graphs.pkl</cite>: List of participant-level networks (hierarchical)</p></li>
+<li><p><cite>group_network.pkl</cite>: Aggregated group network (hierarchical)</p></li>
+<li><p><cite>uinvite_network3.pkl</cite>: U-INVITE network using USF prior</p></li>
+</ul>
+<p><strong>Tips:</strong></p>
+<ul class="simple">
+<li><p>Consider reducing <cite>prune_limit</cite>, <cite>triangle_limit</cite>, and <cite>other_limit</cite> in <cite>fitinfo</cite> to reduce runtime.</p></li>
+<li><p>You can use a pre-defined network (like USF) as a prior for faster, guided fitting.</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="estimate_networks.html" class="btn btn-neutral float-left" title="Estimate Networks Demo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="network_measures.html" class="btn btn-neutral float-right" title="Network Measures Demo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jeff Zemla.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

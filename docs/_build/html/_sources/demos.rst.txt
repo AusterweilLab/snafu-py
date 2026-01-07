@@ -1,0 +1,74 @@
+demos 
+=============
+
+brm_demo
+----------------------
+
+.. automodule:: demos.brm_demo
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+cluster_demo
+--------------------------
+
+.. automodule:: demos.cluster_demo
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+compare_networks
+------------------------------
+
+.. automodule:: demos.compare_networks
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+estimate_food_network
+------------------------------------
+
+.. automodule:: demos.estimate_food_network
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+estimate_networks
+-------------------------------
+
+.. automodule:: demos.estimate_networks
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+fit_uinvite_network
+----------------------------------
+
+.. automodule:: demos.fit_uinvite_network
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+network_measures
+------------------------------
+
+.. automodule:: demos.network_measures
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+reconstruct_usf
+-----------------------------
+
+.. automodule:: demos.reconstruct_usf
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: demos
+   :members:
+   :show-inheritance:
+   :undoc-members:

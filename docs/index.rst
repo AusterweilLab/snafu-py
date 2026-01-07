@@ -101,7 +101,6 @@ Visit our `Google Group <https://groups.google.com/forum/#!forum/snafu-fluency>`
 
     snafu-fluency@googlegroups.com
  
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -116,4 +115,3 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
-  

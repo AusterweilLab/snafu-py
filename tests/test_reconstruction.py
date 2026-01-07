@@ -37,7 +37,7 @@ def test_regenerated_output_matches_saved_csv():
     })
     
     seednum = 0
-    methods = ['naiveRandomWalk','conceptualNetwork','pathfinder','correlationBasedNetwork'] 
+    methods = ['naiveRandomWalk','conceptualNetwork','pathfinder','correlationBasedNetwork']  # missing fe, uinvite
    
     # Generate and write regenerated values
     with open(regenerated_path, 'w') as fh:

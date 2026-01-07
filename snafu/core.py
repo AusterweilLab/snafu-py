@@ -942,7 +942,6 @@ def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None)
             is_planar, _ = nx.check_planarity(g)
             if not is_planar:
                 g.remove_edge(*pair)
-           
     a = nx.to_numpy_array(g).astype(int)
 
     if valid:
