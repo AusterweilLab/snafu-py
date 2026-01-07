@@ -4,8 +4,8 @@ import networkx as nx
 import csv
 
 def test_regenerated_output_matches_saved_csv():
-    saved_path = "../demos/demos_data/usf_reconstruction_results.csv"
-    regenerated_path = "test_data/test_usf_reconstruction_results.csv"
+    saved_path = "static_input/usf_reconstruction_results.csv"
+    regenerated_path = "Output/test_usf_reconstruction_results.csv"
     
     # Load USF graph
     usf_graph, usf_items = snafu.read_graph("../snet/USF_animal_subset.snet")

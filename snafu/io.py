@@ -207,7 +207,6 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
         has_rt_col = True
     except:
         has_rt_col = False
-    # NEW: check for itemnum column
     try:
         itemnum_col = headers.index('itemnum')
         has_itemnum_col = True
@@ -248,7 +247,6 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
                 except:
                     pass    # fail silently on wrong format
    
-    # NEW: Read all data rows into memory
     data_rows = []
     with open(filepath,'rt', encoding='utf-8-sig') as f:
         f.readline()    # discard header row
@@ -257,8 +255,6 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
             row = line.rstrip().split(',')
             data_rows.append(row)
     
-        # NEW: Sort by (id, listnum, itemnum) if itemnum column exists
-        # This preserves category order while sorting items within each list
         if has_itemnum_col:
             def sort_key(row):
                 id_val = row[subj_col]
@@ -268,7 +264,6 @@ def load_fluency_data(filepath,category=None,removePerseverations=False,removeIn
             
             data_rows.sort(key=sort_key)
         
-        # MODIFIED: Process rows from sorted data_rows instead of re-reading file
         for row in data_rows:
             storerow = True  # if the row meets the filters specified then load it, else skip it
             if (subject != None) and (row[subj_col] not in subject):

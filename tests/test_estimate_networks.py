@@ -38,7 +38,7 @@ def test_conceptual_network_metrics():
     avg_path_len = nx.average_shortest_path_length(subgraph)
     diameter = nx.diameter(subgraph)
 
-    with open("test_data/cn_metrics_expected.pkl", "rb") as f:
+    with open("static_input/cn_metrics_expected.pkl", "rb") as f:
         expected = pickle.load(f)
 
     def approx_equal(a, b, tol=1e-6):

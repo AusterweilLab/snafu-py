@@ -1,0 +1,36 @@
+name: release-and-tagging
+
+on:
+  push:
+    branches: [master]
+
+jobs:    
+  version-and-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version
+        id: get_version
+        run: |
+          VERSION_FILE="snafu/_version.py"
+          VERSION=$(grep -Po '(?<=__version__ = ")[^"]*' "$VERSION_FILE")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v${{ steps.get_version.outputs.version }} \
+            --title "Release v${{ steps.get_version.outputs.version }}" \
+            --notes "Automated release for version ${{ steps.get_version.outputs.version }}
+          
+          See [commits](https://github.com/${{ github.repository }}/commits/master) for changes."
+
+      - name: Move 'latest' tag
+        run: |
+          git tag -f latest
+          git push origin -f latest

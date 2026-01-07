@@ -51,7 +51,7 @@ fitinfo = snafu.Fitinfo({
 
 seednum=0
 
-with open('demos_data/usf_reconstruction_results.csv','w') as fh:
+with open('demos_test_data/usf_reconstruction_results.csv','w') as fh:
     fh.write("method,simnum,ssnum,hit,miss,falsealarms,correctrejections,cost,startseed\n")
 
     for simnum in range(numsims):
