@@ -1,6 +1,21 @@
 from . import *
 
 def list_subjects_and_categories(command, root_path):
+    """
+    Extract unique subject IDs, categories, and groups from a CSV file.
+
+    Parameters
+    ----------
+    command : dict
+        Dictionary containing the key `'fullpath'` to the input CSV file.
+    root_path : str
+        Root directory path (unused in this function but kept for interface consistency).
+
+    Returns
+    -------
+    dict
+        Dictionary with subject metadata and default selected values for subject, category, and group.
+    """    
     subjects=[]
     #categories=["all"]
     categories = []
@@ -38,6 +53,22 @@ def list_subjects_and_categories(command, root_path):
              "group": groups[0] }
 
 def jsonGraph(g, items):
+    """
+    Convert a NetworkX graph to a JSON-compatible format, including node labels.
+
+    Parameters
+    ----------
+    g : networkx.Graph
+        Input NetworkX graph.
+    items : list of str
+        List of item labels indexed by node ID.
+
+    Returns
+    -------
+    dict
+        A dictionary formatted for JSON export with labeled nodes and uniquely indexed edges.
+    """
+
     json_data = nx.readwrite.json_graph.node_link_data(g)
     
     json_data['edges'] = json_data['links']
@@ -76,6 +107,22 @@ def label_to_filepath(x, root_path, filetype):
     return filename
 
 def data_properties(command, root_path):
+    """
+    Compute descriptive properties of the fluency data including intrusions, perseverations,
+    cluster sizes, frequency, and age of acquisition statistics.
+
+    Parameters
+    ----------
+    command : dict
+        Dictionary with nested 'data_parameters' including cluster scheme, subject selection, and imputation values.
+    root_path : str
+        Root directory containing the data and auxiliary files.
+
+    Returns
+    -------
+    dict
+        Dictionary containing computed data metrics and values for further GUI rendering.
+    """    
     command = command['data_parameters']
 
     # Initialize some filenames
@@ -245,6 +292,19 @@ def data_properties(command, root_path):
              "csv_file": csv_file }
 
 def generate_csv_file(json_file):
+    """
+    Converts a dictionary of lists into a CSV-formatted string.
+
+    Parameters
+    ----------
+    json_file : dict
+        Dictionary where each key is a column name and each value is a list of values.
+
+    Returns
+    -------
+    str
+        CSV-formatted string with header and rows.
+    """    
     keys = list(json_file.keys())
     header_row = ",".join(keys)
 
@@ -259,6 +319,22 @@ def generate_csv_file(json_file):
 
 
 def network_properties(command, root_path):
+    """
+    Infers a network structure from fluency data using the selected algorithm.
+
+    Parameters
+    ----------
+    command : dict
+        Dictionary with 'data_parameters' and 'network_parameters'.
+    root_path : str
+        Root directory to access supporting files such as priors or spell files.
+
+    Returns
+    -------
+    dict
+        Network statistics and graph structure in JSON format.
+    """
+
     subj_props = command['data_parameters']
     command = command['network_parameters']
 
@@ -334,6 +410,22 @@ def network_properties(command, root_path):
     return graph_properties(nxg,nxg_json)
 
 def analyze_graph(command, root_path): # used when importing graphs
+    """
+    Loads a graph from JSON file and computes its properties.
+
+    Parameters
+    ----------
+    command : dict
+        Dictionary containing 'fullpath' to the JSON graph file.
+    root_path : str
+        Root path (not used in function).
+
+    Returns
+    -------
+    dict
+        Graph properties including degree, density, and clustering.
+    """
+
     nxg_json = json.load(open(command['fullpath'],'rt',encoding="utf-8-sig"))
     nxg = nx.readwrite.json_graph.node_link_graph(
         nxg_json,
@@ -343,6 +435,22 @@ def analyze_graph(command, root_path): # used when importing graphs
     return graph_properties(nxg, nxg_json)
 
 def graph_properties(nxg,nxg_json): # separate function that calculates graph properties
+    """
+    Computes graph-level properties from a NetworkX graph.
+
+    Parameters
+    ----------
+    nxg : networkx.Graph
+        The input graph.
+    nxg_json : dict
+        JSON-serializable format of the same graph.
+
+    Returns
+    -------
+    dict
+        Dictionary of computed metrics including degree, density, clustering, and betweenness.
+    """
+
     node_degree = np.mean(list(dict(nxg.degree()).values()))
     clustering_coefficient = nx.average_clustering(nxg)
     try:

@@ -31,9 +31,7 @@ This demo illustrates how to compute **item-level cluster switch labeling** for 
   Columns: `id`, `listnum`, `category`, `item`, `switch`  
   Each row corresponds to a word in the original fluency list.
 
-----
-
-.. automodule:: demos.cluster_demo
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. .. automodule:: demos.cluster_demo
+..    :members:
+..    :undoc-members:
+..    :show-inheritance:

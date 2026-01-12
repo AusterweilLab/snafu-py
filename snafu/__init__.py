@@ -28,7 +28,7 @@ from .intrusions import *
 from .search import *
 from .word_properties import *
 from .pci import *
-from .generate_graphs import *
 
 from .core import *
 from . import gui
+from .core import estimateJumpProbability

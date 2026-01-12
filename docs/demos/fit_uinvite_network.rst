@@ -47,9 +47,7 @@ This demo illustrates how to estimate semantic networks using the **U-INVITE** a
 - Consider reducing `prune_limit`, `triangle_limit`, and `other_limit` in `fitinfo` to reduce runtime.
 - You can use a pre-defined network (like USF) as a prior for faster, guided fitting.
 
-----
-
-.. automodule:: demos.fit_uinvite_network
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. .. automodule:: demos.fit_uinvite_network
+..    :members:
+..    :undoc-members:
+..    :show-inheritance:

@@ -4,6 +4,22 @@
 from . import *
 
 class Data():
+    """
+    Container for fluency data used in SNAFU analyses.
+
+    This class processes hierarchical and non-hierarchical list data structures
+    into formats that are convenient for analysis, including labeled responses,
+    corrected spellings, intrusions, and IRTs.
+
+    Parameters
+    ----------
+    data : dict
+        Dictionary containing keys:
+        - 'Xs' : nested dict of fluency responses
+        - 'items' : dict of item labels
+        - 'structure' : bool, True if hierarchical
+        - 'spell_corrected', 'perseverations', 'intrusions', 'categories', 'irts' (optional)
+    """
     
     def __init__(self, data):
         
@@ -34,6 +50,15 @@ class Data():
         return
 
     def hierarchical(self):
+        """
+        Process hierarchical (nested) fluency data structure.
+
+        Returns
+        -------
+        self : Data
+            The Data object with hierarchical attributes populated.
+        """
+ 
 
         Xs = copy.deepcopy(self.rawdata['Xs'])
         self.Xs = [[Xs[i][j] for j in sorted(Xs[i].keys())] for i in self.subs]
@@ -73,6 +98,14 @@ class Data():
         return self
 
     def nonhierarchical(self):
+        """
+        Process non-hierarchical fluency data, mapping individuals into group space.
+
+        Returns
+        -------
+        self : Data
+            The Data object with flattened attributes populated.
+        """
         # map everyone to group space
         reverseGroup = reverseDict(self.groupitems)
         Xs = copy.deepcopy(self.rawdata['Xs'])
@@ -117,6 +150,23 @@ class Data():
     
         
 def DataModel(data):
+    """
+    Fill in missing parameters in a data dictionary for generative model configuration.
+
+    This sets default values for generative search parameters, such as jump probability,
+    priming effects, and censoring faults.
+
+    Parameters
+    ----------
+    data : dict
+        Dictionary with optional keys like 'trim', 'jump', 'jumptype', 'priming',
+        'jumponcensored', 'censor_fault', 'emission_fault', etc.
+
+    Returns
+    -------
+    dotdict
+        A dictionary-like object with attribute access to the parameters.
+    """
     tdkeys=list(data.keys())
 
     if 'trim' not in tdkeys:
@@ -153,6 +203,21 @@ def DataModel(data):
     return dotdict(data)
 
 def Irts(irts):
+    """
+    Fill in missing parameters in IRT configuration dictionary.
+
+    Supports gamma and ex-Gaussian IRT types. Sets default parameter values if missing.
+
+    Parameters
+    ----------
+    irts : dict
+        Dictionary with keys like 'irttype', 'gamma_beta', 'exgauss_lambda', etc.
+
+    Returns
+    -------
+    dotdict
+        A dictionary-like object with completed IRT configuration.
+    """
     irtkeys=list(irts.keys())
 
     if 'data' not in irtkeys:
@@ -182,6 +247,21 @@ def Irts(irts):
     return dotdict(irts)
 
 def Fitinfo(fitinfo):
+    """
+    Fill in missing fields in a dictionary of model-fitting configuration.
+
+    Sets default values for priors, graph options, and Conceptual Network parameters.
+
+    Parameters
+    ----------
+    fitinfo : dict
+        Dictionary of model fitting options.
+
+    Returns
+    -------
+    dotdict
+        Dictionary with all required fitting parameters populated.
+    """
     fitkeys=list(fitinfo.keys())
 
     if 'followtype' not in fitkeys:

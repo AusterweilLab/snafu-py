@@ -1,0 +1,62 @@
+name: unit-tests
+
+on:
+  push:
+    branches: [development]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt', '**/pyproject.toml', '**/setup.cfg') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r .github/requirements.txt
+          pip install -e .
+
+      - name: Run tests (cwd=tests so ../fluency_data paths work)
+        working-directory: tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          pwd
+          ls -la
+          python -m pytest -q --disable-warnings --maxfail=1
+
+  check-version-updated:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need at least 2 commits to compare
+
+      - name: Verify version file was updated
+        run: |
+          # Check if _version.py was modified in this push
+          if ! git diff HEAD^ HEAD --name-only | grep -q "snafu/_version.py"; then
+            echo "ERROR: snafu/_version.py was not updated"
+            echo "Current version: $(grep -Po '(?<=__version__ = ")[^"]*' snafu/_version.py)"
+            exit 1
+          fi

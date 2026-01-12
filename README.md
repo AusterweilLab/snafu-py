@@ -59,41 +59,7 @@ The primary citation for SNAFU is:
 
 > Zemla, J. C., Cao, K., Mueller, K. D., & Austerweil, J. L. (2020). SNAFU: The semantic network and fluency utility. Behavior Research Methods, 52, 1681-1699.
 
-If using the English-language animal scheme (animals_snafu_scheme.csv), also cite:
-
-> Troyer, A. K. (2000). Normative data for clustering and switching on verbal fluency tasks. Journal of Clinical and Experimental Neuropsychology, 22, 370-378.
-
-> Hills, T. T., Jones, M. N., & Todd, P. M. (2012). Optimal foraging in semantic memory. Psychological Review, 119, 431-440.
-
-The English-language foods scheme (foods_snafu_scheme.csv) should also cite the primary SNAFU publication and Troyer et al. (2000)
-
-If using the English-language age-of-aquisition norms (kuperman.csv):
-
-> Kuperman, V., Stadthagen-Gonzalez, H., & Brysbaert, M. (2012). Age-of-acquisition ratings for 30,000 English words. Behavior Research Methods, 44, 978-990.
-
-If using the English-language word frequency norms (subtlex-us.csv):
-
-> Brysbaert, M., & New, B. (2009). Moving beyond Kucˇera and Francis: A critical evaluation of current word frequency norms and the introduction of a new and improved word frequency measure for American English. Behavior Research Methods, 41, 977– 990.
-
-If using the Dutch-language animal scheme (Dutch_animals_snafu_scheme.csv):
-
-> Rofes, A., Beran, M., Jonkers, R., Geerlings, M.I., Vonk, J.M.J. (2023). What drives task performance in animal fluency in individuals without dementia? The SMART-MR study. Journal of Speech, Language, and Hearing Research (ASHA). Retrieved from: https://github.com/jmjvonk/2022_Rofes_SMART-MR/blob/main/Dutch_animals_snafu_scheme.csv
-
-If using the Greek-language animal scheme (animals_Scheme_Greek_Karousou_v.01.2.csv):
-
-> Karousou, A., Economacou, D., & Makris, N. (2023). Clustering and Switching in Semantic Verbal Fluency: Their Development and Relationship with Word Productivity in Typically Developing Greek-Speaking Children and Adolescents. Journal of Intelligence, 11(11), 209. https://doi.org/10.3390/jintelligence11110209
-
-If using the Spanish-language animal scheme (animals_ESnoaccent_scheme.csv):
-
-> Neergaard, K. D., Zemla, J. C., Lubrini, G., Periañez, J. A., Bernabéu, E., Ríos-Lago, M., ... & Ayesa-Arriola, R. (2025). Novel computational measure of semantic fluency performance associated with first-episode of psychosis. Psychiatry Research, 348, 116462.
-
-The Mexican Spanish-language animal scheme (animals_snafu_mexican_spanish.csv) was adapted from the Spanish-language scheme above and provided by Yamilka Garcia Avila and Yaira Chamorro (Universidad of Guadalajara)
-
-The Dutch-language schemes for bike parts, fruits, foods, transportation, and farm animals were provided by Adria Rofes (University of Groningen).
-
-The Italian-language animal scheme (snafu_Italian_scheme_Costantini.csv) was provided by Sabia Costantini (Universität Potsdam)
-
-If would like to contribute additional files to this repository, and/or would like to change the list citations associated with your work, please contact us.
+However, the software builds on the contributions of many. Most users will want to include additional citations based on the functions they use. See <a href="https://austerweillab.github.io/snafu-py/References.html">this page</a> for a full reference list.
 
 # Need help?
 

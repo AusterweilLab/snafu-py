@@ -29,7 +29,7 @@ This demo illustrates how to simulate and compare semantic fluency data using tw
 - Prints log-likelihoods to console
 - Saves rounded log-likelihoods in `demos_data/expected_likelihoods.pkl`
 
-.. automodule:: demos.compare_networks
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. .. automodule:: demos.compare_networks
+..    :members:
+..    :undoc-members:
+..    :show-inheritance:

@@ -1,0 +1,64 @@
+.wy-nav-content {
+    max-width: 1100px !important;
+}
+
+
+/* Hide the Contents heading */
+.toctree-wrapper {
+    display: none;
+}
+
+/* Hide the Indices and tables heading */
+#indices-and-tables {
+    display: none;
+}
+
+.citation-block {
+    border-left: 4px solid #4a90e2;
+    padding-left: 15px;
+    padding-right: 15px;
+    background-color: #e6faff;
+}
+
+.citation-block .admonition-title {
+    display: none;
+}
+
+/* Simple two-column layout */
+.two-column-layout {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.left-col {
+    overflow-wrap: break-word;
+    width: 250px;
+    max-width: 250px;
+}
+
+.right-col {
+    flex: 1;
+    overflow-wrap: break-word;
+    padding-left: 15px;
+}
+
+.left-col .line-block {
+    margin: 0;
+}
+
+.left-col .line {
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Stack on mobile */
+@media (max-width: 768px) {
+    .two-column-layout {
+        flex-direction: column;
+    }
+    
+    .left-col, .right-col {
+        flex: 1 1 100%;
+    }
+}

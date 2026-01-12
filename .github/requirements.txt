@@ -1,0 +1,25 @@
+sphinx>=7.0.0
+ghp-import>=2.1.0
+
+# Optional: Theme (only include if you're using it in conf.py)
+sphinx_rtd_theme>=1.2.0
+
+# Optional: For type hints in docstrings (if used)
+sphinx-autodoc-typehints>=1.25.2
+
+# Optional: NumPy-style docstring support
+numpydoc>=1.5.0
+
+# Core project dependencies
+networkx>=3.2
+numpy>=2.0.0
+pandas
+matplotlib
+
+# Optional: Syntax highlighting
+Pygments>=2.16.0
+
+# Test dependencies
+pytest
+pytest-cov
+scipy

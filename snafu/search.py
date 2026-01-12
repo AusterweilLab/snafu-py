@@ -2,6 +2,21 @@ from . import *
 
 # stochastic search through graph by node degree (proxy for frequency)
 def nodeDegreeSearch(g, td):
+    """
+    Biased random walk where selection favors high-degree nodes.
+
+    Parameters
+    ----------
+    g : networkx.Graph
+        The input graph.
+    td : object
+        Includes `trim` (float or int) and `start_node` (str or tuple).
+
+    Returns
+    -------
+    list
+        Sequence of visited node indices.
+    """
     numnodes=nx.number_of_nodes(g)
     if td.trim <= 1:
         numtrim=int(round(numnodes*td.trim))       # if <=1, paramater is proportion of a list
@@ -31,6 +46,21 @@ def nodeDegreeSearch(g, td):
 # cluster-based depth first search: output all neighbors of starting node (random order), then all neighbors of most recently
 # outputted node, etc; when you reach a dead end, back through the list until a new node with neighbors is usable
 def cbdfs(g, td):
+    """
+    Coverage-biased depth-first search on a graph.
+
+    Parameters
+    ----------
+    g : networkx.Graph
+        The input graph.
+    td : object
+        Parameters including `trim` and `start_node`.
+
+    Returns
+    -------
+    list
+        Sequence of visited node indices.
+    """
     import scipy    
     numnodes=nx.number_of_nodes(g)
     if td.trim <= 1:
@@ -74,6 +104,21 @@ def cbdfs(g, td):
     return walk
 
 def spreadingActivationSearch(g, td, decay):
+    """
+    Perform spreading activation search on a graph.
+
+    Parameters
+    ----------
+    g : networkx.Graph
+        The graph to search.
+    td : object
+        Configuration object with search parameters like `trim`, `start_node`, and `priming`.
+
+    Returns
+    -------
+    list
+        Ordered list of activated node indices.
+    """
     import scipy    
     numnodes=nx.number_of_nodes(g)
     if td.trim <= 1:

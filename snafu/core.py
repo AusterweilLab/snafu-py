@@ -1,9 +1,76 @@
 from . import *
 from functools import reduce
+from .pci import _pci_lowerbound
 
 # TODO: when doing same phase twice in a row, don't re-try same failures
     # (pass dict of failures, don't try if numchanges==0)
 # TODO: Implement GOTM/ECN from Goni et al. 2011
+
+
+#jump probability
+
+import numpy as np
+import math
+from typing import Tuple
+
+def estimateJumpProbability(
+    group_network,
+    data_model,
+    fluency_list,
+    return_ll: bool = False,
+) -> Tuple[float, float]:
+    """
+    Grid-search jump in [0.01, 0.99] to maximize likelihood for ONE fluency list.
+    Always returns a (best_jump, best_log_likelihood) tuple.
+    If return_ll is False, best_log_likelihood will be np.nan and nothing is printed.
+    
+    
+    Parameters
+    ----------
+    group_network : np.ndarray (N x N)
+        Adjacency matrix for the known network.
+    data_model : DataModel
+        SNAFU data model. Only the `.jump` field is varied here.
+    fluency_list : list[int]
+        Single fluency list as item indices aligned to group_network.
+
+    Returns
+    -------
+    float
+        Best jump probability (0.01..0.99).
+
+    """
+
+    A = np.asarray(group_network, dtype=float)
+    if A.ndim != 2 or A.shape[0] != A.shape[1]:
+        raise ValueError("group_network must be a square adjacency matrix.")
+    if not fluency_list:
+        raise ValueError("fluency_list must be non-empty.")
+
+    original_jump = getattr(data_model, "jump", 0.0)
+
+    best_jump = None
+    best_ll = -np.inf
+
+    try:
+        for i in range(1, 100):
+            candidate = i / 100.0
+            data_model.jump = candidate
+            ll, _ = probX([fluency_list], A, data_model)
+            if ll > best_ll:
+                best_ll = ll
+                best_jump = candidate
+    finally:
+        data_model.jump = original_jump
+
+    if best_jump is None or not math.isfinite(best_ll):
+        raise RuntimeError("Failed to find a valid jump over 0.01..0.99.")
+
+    if return_ll:
+        print(f"Best jump: {best_jump:.2f}, Log-likelihood: {best_ll:.4f}")
+        return best_jump, best_ll
+    else:
+        return best_jump, np.nan
 
 # alias for backwards compatibility
 def communitynetwork(*args, **kwargs):
@@ -11,10 +78,37 @@ def communitynetwork(*args, **kwargs):
 
 # alias for backwards compatibility
 def priorToGraph(*args, **kwargs):
+    """
+    References priorToNetwork
+    """
     return priorToNetwork(*args, **kwargs) 
 
 # mix U-INVITE with random jumping model
 def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
+    """
+    Adjusts transition probabilities by incorporating jump behavior.
+
+    Depending on jump type ('uniform' or 'stationary'), modifies the transition
+    probabilities to allow for random jumps in the network.
+
+    Parameters
+    ----------
+    probs : list of list
+        Original transition probabilities
+    td : DataModel
+        Data model containing the jump type and jump probability.
+    numnodes : int, optional
+        Number of nodes (required for uniform jump).
+    statdist : array-like, optional
+        Stationary distribution across nodes (required for stationary jump).
+    Xs : list, optional
+        List of token sequences (used with stationary jump).
+
+    Returns
+    -------
+    list of list
+        Jump-adjusted transition probabilities.
+    """    
     if (td.jumptype == "uniform") and (numnodes == None):
         raise ValueError("Must specify 'numnodes' when jumptype is uniform [addJumps]")
     if (td.jumptype == "stationary") and (np.any(statdist == None) or (Xs == None)):
@@ -35,6 +129,28 @@ def addJumps(probs, td, numnodes=None, statdist=None, Xs=None):
 # mix U-INVITE with priming model
 # code is confusing...
 def adjustPriming(probs, td, Xs):
+    """
+    Modifies transition probabilities to account for priming across lists.
+
+    If an item appears at the end of a list and is followed by the same
+    transition in the next list, it is treated as a primed transition and
+    boosted by a configurable weight.
+
+    Parameters
+    ----------
+    probs : list of list
+        Transition probability matrix for each list.
+    td : DataModel
+        Contains the priming parameter.
+    Xs : list of list
+        Sequences of node indices (one per participant/list).
+
+    Returns
+    -------
+    list of list
+        Transition probabilities adjusted for priming.
+    """
+
     for xnum, x in enumerate(Xs[1:]):         # check all items starting with 2nd list
         for inum, i in enumerate(x[:-1]):     # except last item
             if i in Xs[xnum][:-1]:            # is item in previous list? if so, prime next item
@@ -51,6 +167,29 @@ def adjustPriming(probs, td, Xs):
 # Returns only PF(q, r) = PF(n-1, inf) = minimum spanning tree (sparsest possible graph)
 # other parameterizations of PF(q, r) not implemented
 def pathfinder(Xs, numnodes=None, valid=False, td=None):
+    """
+    Constructs a Pathfinder network (minimal spanning tree) based on item co-occurrences.
+
+    The function builds a weighted graph from co-occurrence distances and then reduces
+    it to a minimum spanning tree using the Pathfinder MST algorithm.
+
+    Parameters
+    ----------
+    Xs : list of list
+        Sequence of observed node transitions.
+    numnodes : int, optional
+        Number of unique nodes.
+    valid : bool, optional
+        If True, ensures that the resulting graph can generate data using censored RW.
+    td : DataModel, optional
+        Used when `valid=True`.
+
+    Returns
+    -------
+    ndarray
+        Binary adjacency matrix of the Pathfinder network.
+    """
+
     if numnodes == None:
         numnodes = len(set(flatten_list(Xs)))
     
@@ -127,6 +266,26 @@ def pathfinder(Xs, numnodes=None, valid=False, td=None):
 # objective graph cost
 # returns the number of links that need to be added or removed to reach the true graph
 def cost(graph,a, undirected=True):
+    """
+    Computes the link cost between two graphs.
+
+    Measures the number of differing edges between the estimated and target graph.
+
+    Parameters
+    ----------
+    graph : ndarray
+        Estimated graph adjacency matrix.
+    a : ndarray
+        Target or comparison graph.
+    undirected : bool, optional
+        Whether the graphs are undirected. Default is True.
+
+    Returns
+    -------
+    float
+        Number of differing edges (adjusted for direction).
+    """
+
     cost = sum(sum(np.array(abs(graph-a))))
     if undirected:
         return cost/2.0
@@ -135,6 +294,24 @@ def cost(graph,a, undirected=True):
 
 # graph=estimated graph, a=target/comparison graph
 def costSDT(graph, a):
+    """
+    Computes signal detection theory metrics for graph comparison.
+
+    Returns hit, miss, false alarm, and correct rejection counts.
+
+    Parameters
+    ----------
+    graph : ndarray
+        Estimated graph.
+    a : ndarray
+        Ground truth or comparison graph.
+
+    Returns
+    -------
+    list
+        [hits, misses, false alarms, correct rejections]
+    """
+
     hit=0; miss=0; fa=0; cr=0
     check=(graph==a)
     for rnum, r in enumerate(a):
@@ -152,6 +329,27 @@ def costSDT(graph, a):
     return [hit, miss, fa, cr]
 
 def evalGraphPrior(a, prior, undirected=True):
+    """
+    Evaluates the log-likelihood of a graph under a prior.
+
+    Calculates the total log probability of a graph based on a learned or assumed
+    edge prior.
+
+    Parameters
+    ----------
+    a : ndarray
+        Graph adjacency matrix.
+    prior : tuple
+        A tuple of (priordict, item dictionary).
+    undirected : bool, optional
+        Whether the graph is undirected.
+
+    Returns
+    -------
+    float
+        Total log-likelihood of the graph given the prior.
+    """
+
     probs = []
     priordict = prior[0]
     items = prior[1]
@@ -179,6 +377,22 @@ def evalGraphPrior(a, prior, undirected=True):
     return probs
 
 def firstEdge(Xs, numnodes=None):
+    """
+    Constructs a graph connecting only the first two nodes of each list.
+
+    Parameters
+    ----------
+    Xs : list of list
+        Node sequences.
+    numnodes : int, optional
+        Number of unique nodes.
+
+    Returns
+    -------
+    ndarray
+        Binary adjacency matrix.
+    """
+
     if numnodes == None:
         numnodes = len(set(flatten_list(Xs)))
     a=np.zeros((numnodes,numnodes))
@@ -189,6 +403,19 @@ def firstEdge(Xs, numnodes=None):
     return a
 
 def fullyConnected(numnodes):
+    """
+    Generate a fully connected undirected graph.
+
+    Parameters
+    ----------
+    numnodes : int
+        Number of nodes in the graph.
+
+    Returns
+    -------
+    ndarray
+        Binary adjacency matrix with all non-diagonal elements set to 1.
+    """    
     a=np.ones((numnodes,numnodes))
     for i in range(numnodes):
         a[i,i]=0.0
@@ -196,6 +423,24 @@ def fullyConnected(numnodes):
 
 # only returns adjacency matrix, not nx graph
 def naiveRandomWalk(Xs, numnodes=None, directed=False):
+    """
+    Build a graph by connecting items based on their sequential occurrence.
+
+    Parameters
+    ----------
+    Xs : list of list
+        Lists of node sequences.
+    numnodes : int, optional
+        Total number of unique nodes.
+    directed : bool, optional
+        Whether to treat transitions as directed edges. Default is False.
+
+    Returns
+    -------
+    ndarray
+        Binary adjacency matrix of the random walk graph.
+    """
+
     if numnodes == None:
         numnodes = len(set(flatten_list(Xs)))
     a=np.zeros((numnodes,numnodes))
@@ -209,6 +454,33 @@ def naiveRandomWalk(Xs, numnodes=None, directed=False):
     return a
 
 def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=True, returncounts=False):
+    """
+    Generate edge prior probabilities from a collection of graphs.
+
+    Uses a beta-binomial or zero-inflated beta-binomial model to calculate
+    edge presence probability across subjects or samples.
+
+    Parameters
+    ----------
+    graphs : list of ndarray
+        List of adjacency matrices (one per subject).
+    items : list of dict
+        Mapping of item index to item label (one per graph).
+    fitinfo : Fitinfo, optional
+        Configuration object controlling prior method.
+    mincount : int, optional
+        Minimum number of observations required to include an edge.
+    undirected : bool, optional
+        Whether the graph is undirected.
+    returncounts : bool, optional
+        If True, returns raw counts instead of probabilities.
+
+    Returns
+    -------
+    dict
+        Nested dictionary of edge probabilities or counts.
+    """
+
     a_start = fitinfo.prior_a
     b_start = fitinfo.prior_b
     method = fitinfo.prior_method
@@ -267,6 +539,28 @@ def genGraphPrior(graphs, items, fitinfo=Fitinfo({}), mincount=1, undirected=Tru
 
 # generate starting graph for U-INVITE
 def genStartGraph(Xs, numnodes, td, fitinfo):
+    """
+    Generate an initial graph for U-INVITE fitting based on strategy.
+
+    Strategy is determined by `fitinfo.startGraph`, which can include:
+    - "cn_valid", "pf_valid", "rw", "fully_connected", etc.
+
+    Parameters
+    ----------
+    Xs : list of list
+        Input fluency data.
+    numnodes : int
+        Number of unique nodes.
+    td : DataModel
+        Model configuration.
+    fitinfo : Fitinfo
+        Model fitting configuration.
+
+    Returns
+    -------
+    ndarray
+        Starting adjacency matrix.
+    """    
     sg = fitinfo.startGraph  # cache for clarity
     if isinstance(sg, str) and sg == "cn_valid":
         graph = conceptualNetwork(Xs, numnodes, td=td, valid=True, fitinfo=fitinfo)
@@ -284,6 +578,9 @@ def genStartGraph(Xs, numnodes, td, fitinfo):
 
 # deprecated alias for backwards compatibility
 def communitynetwork(*args, **kwargs):
+    """
+    references conceptualNetwork
+    """
     return conceptualNetwork(*args, **kwargs)
 
 # w = window size; two items appear within +/- w steps of each other (where w=1 means adjacent items)
@@ -291,6 +588,37 @@ def communitynetwork(*args, **kwargs):
 # c = confidence interval; retain the edge if there is a <= c probability that two items occur within the same window n times by chance alone
 # valid (t/f) ensures that graph can produce data using censored RW.
 def conceptualNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=None):
+    """
+    Generate a semantic network using co-occurrence windows.
+
+    Builds a network by identifying how often item pairs co-occur
+    within a specified window, and filters edges based on frequency
+    and significance.
+    w = window size; two items appear within +/- w steps of each other (where w=1 means adjacent items)
+    f = filter frequency; if two items don't fall within the same window more than f times, then no edge is inferred
+    c = confidence interval; retain the edge if there is a <= c probability that two items occur within the same window n times by chance alone
+    valid (t/f) ensures that graph can produce data using censored RW.
+
+    Parameters
+    ----------
+    Xs : list of list
+        List of item sequences.
+    numnodes : int, optional
+        Total number of nodes.
+    fitinfo : Fitinfo, optional
+        Parameters controlling window size, frequency threshold, etc.
+    valid : bool, optional
+        If True, ensures resulting graph can produce valid walk data.
+    td : DataModel, optional
+        Required if `valid=True`.
+
+    Returns
+    -------
+    ndarray
+        Binary adjacency matrix.
+    """
+
+
     if numnodes == None:
         numnodes = len(set(flatten_list(Xs)))
         
@@ -302,13 +630,13 @@ def conceptualNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=No
         f=int(round(len(Xs)*f))
 
     if valid and not td:
-        raise ValueError('Need to pass Data when generating \'valid\' goni()')
+        raise ValueError('Need to pass Data when generating \'valid\' conceptualNetwork()')
 
     #if c<1:
     #    from statsmodels.stats.proportion import proportion_confint as pci
 
     if w < 1:
-        print("Error in goni(): w must be >= 1")
+        print("Error in conceptualNetwork(): w must be >= 1")
         return
 
     graph=np.zeros((numnodes, numnodes)).astype(int)         # empty graph
@@ -349,7 +677,7 @@ def conceptualNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=No
         for i,j in listofedges:
             p_linked = (xfreq[i]/numlists) * (xfreq[j]/numlists) * p_adj
             #ci=pci(cooccur[i,j],numlists,alpha=c,method="beta")[0]     # lower bound of Clopper-Pearson binomial CI
-            ci = pci_lowerbound(cooccur[i,j], numlists, c)              # lower bound of Clopper-Pearson binomial CI
+            ci = _pci_lowerbound(cooccur[i,j], numlists, c)              # lower bound of Clopper-Pearson binomial CI
             if (p_linked >= ci):                                        # if co-occurrence could be due to chance, remove edge
                 graph[i,j]=0
                 graph[j,i]=0
@@ -370,6 +698,22 @@ def conceptualNetwork(Xs, numnodes=None, fitinfo=Fitinfo({}), valid=False, td=No
 # TODO unfinished: so far, creates GTOM matrix but doesn't "enrich" network... how to determine # of clusters?
 def gtom(graph):
 
+    """
+    Compute the Generalized Topological Overlap Measure (GTOM).
+
+    Measures how similar nodes are in terms of shared neighbors.
+    Currently supports GTOM with n=2.
+
+    Parameters
+    ----------
+    graph : ndarray
+        Adjacency matrix of a graph.
+
+    Returns
+    -------
+    ndarray
+        Symmetric matrix of pairwise GTOM scores.
+    """
     # modified from uinvite(), copied for convenience (TODO consolidate by moving outside to its own function)
     # return list of neighbors of neighbors of i, that aren't themselves neighbors of i
     # i.e., an edge between i and any item in nn forms a triangle
@@ -405,6 +749,39 @@ def gtom(graph):
  
 def hierarchicalUinvite(Xs, items, numnodes=None, td=DataModel({}), irts=False, fitinfo=Fitinfo({}), seed=None, debug=True):
 
+    """
+    Fit subject-level U-INVITE models in a hierarchical manner.
+
+    Iteratively fits subject graphs by conditioning on others' graphs
+    and generates a prior from group estimates. Process continues until
+    no more changes in graphs are detected.
+
+    Parameters
+    ----------
+    Xs : list of list
+        List of subject fluency data (sequences).
+    items : list of dict
+        Mapping of item indices to labels.
+    numnodes : int or list of int, optional
+        Number of unique nodes. If list, must match number of subjects.
+    td : DataModel, optional
+        Configuration for U-INVITE model.
+    irts : list or bool, optional
+        IRTs per subject or False to ignore.
+    fitinfo : Fitinfo, optional
+        Model settings (starting graph, limits, etc.).
+    seed : int, optional
+        Random seed.
+    debug : bool, optional
+        If True, prints debug output.
+
+    Returns
+    -------
+    list of ndarray
+        List of fitted subject-level graphs.
+    dict
+        Final group prior dictionary.
+    """
     if numnodes == None:
         numnodes = [len(set(flatten_list(x))) for x in Xs]
     
@@ -456,6 +833,33 @@ def hierarchicalUinvite(Xs, items, numnodes=None, td=DataModel({}), irts=False, 
     return graphs, priordict
 
 def probXhierarchical(Xs, graphs, items, td, priordict=None, irts=Irts({})):
+    """
+    Compute the total log-likelihood of a set of subject graphs under a hierarchical U-INVITE model.
+
+    For each subject, this function calculates the likelihood of their observed data
+    given their individual graph and optionally a shared group prior. Returns the sum
+    of log-likelihoods across all subjects.
+
+    Parameters
+    ----------
+    Xs : list of list
+        Observed sequences for each subject.
+    graphs : list of ndarray
+        Individual graph (adjacency matrix) for each subject.
+    items : list of dict
+        Mapping of node indices to item labels for each subject.
+    td : DataModel
+        Data model settings including jump, priming, and censoring behavior.
+    priordict : dict, optional
+        Group prior used to condition each subject's likelihood. If None, prior is not used.
+    irts : Irts, optional
+        Inter-response time data, one list per subject. Default is empty.
+
+    Returns
+    -------
+    float
+        Sum of log-likelihoods across all subjects.
+    """    
     lls=[]
     for sub in range(len(Xs)):
         if priordict:
@@ -471,6 +875,31 @@ def probXhierarchical(Xs, graphs, items, td, priordict=None, irts=Irts({})):
 # see Borodkin, Kenett, Faust, & Mashal (2016) and Kenett, Kenett, Ben-Jacob, & Faust (2011)
 # does not work well for small number of lists! many NaN correlations + when two correlations are equal, ordering is arbitrary
 def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None):
+    """
+    Generate a semantic network using item co-occurrence correlations.
+
+    Constructs a correlation matrix from binary item-by-list occurrence
+    and builds a Planar Maximally Filtered Graph (PMFG) by retaining only
+    non-redundant edges while maintaining planarity.
+
+    Parameters
+    ----------
+    Xs : list of list
+        List of observed item sequences.
+    numnodes : int, optional
+        Number of unique nodes.
+    minlists : int, optional
+        Minimum number of lists an item must appear in to be included.
+    valid : bool, optional
+        If True, ensures the graph is usable with censored random walk.
+    td : DataModel, optional
+        Required if `valid=True`.
+
+    Returns
+    -------
+    ndarray
+        Adjacency matrix of the PMFG network.
+    """    
     import networkx as nx
     
     if numnodes == None:
@@ -493,7 +922,12 @@ def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None)
                 #item_by_item[(item1, item2)] = scipy.stats.pearsonr(list_by_item[item1],list_by_item[item2])[0]
                 item_by_item[(item1, item2)] = pearsonr(list_by_item[item1],list_by_item[item2])
     
-    corr_vals = sorted(item_by_item, key=item_by_item.get)[::-1]       # keys in correlation dictionary sorted by value (high to low, including NaN first)
+    # Fixed NaNs:
+    corr_vals = sorted(
+        item_by_item,
+        key=lambda k: (np.isnan(item_by_item[k]), -item_by_item[k] if not np.isnan(item_by_item[k]) else 0, k)
+    )
+    #corr_vals = sorted(item_by_item, key=item_by_item.get)[::-1]       # keys in correlation dictionary sorted by value (high to low, including NaN first)
 
     g = nx.Graph()
     g.add_nodes_from(range(numnodes))
@@ -504,7 +938,6 @@ def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None)
             is_planar, _ = nx.check_planarity(g)
             if not is_planar:
                 g.remove_edge(*pair)
-
     a = nx.to_numpy_array(g).astype(int)
 
     if valid:
@@ -513,6 +946,28 @@ def correlationBasedNetwork(Xs, numnodes=None, minlists=0, valid=False, td=None)
     return a
 
 def makeValid(Xs, graph, td, seed=None):
+    """
+    Modify the graph to ensure all transitions in `Xs` are reachable.
+
+    If a transition results in zero probability, adds necessary edges
+    to make the sequence valid under the model.
+
+    Parameters
+    ----------
+    Xs : list of list
+        Observed sequences.
+    graph : ndarray
+        Initial adjacency matrix.
+    td : DataModel
+        Configuration object.
+    seed : int, optional
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    ndarray
+        Modified, valid adjacency matrix.
+    """    
     # add direct edges when transition is impossible
     check=probX(Xs, graph, td)
     while check[0] == -np.inf:
@@ -535,6 +990,28 @@ def makeValid(Xs, graph, td, seed=None):
 
 # converts priordict to graph if probability of edge is greater than cutoff value
 def priorToNetwork(priordict, items, cutoff=0.5, undirected=True):
+    """
+    Convert a prior probability dictionary into a binary graph.
+
+    Adds an edge between nodes if the prior probability exceeds a threshold.
+
+    Parameters
+    ----------
+    priordict : dict
+        Nested dictionary of prior edge probabilities.
+    items : dict
+        Mapping of node index to item label.
+    cutoff : float, optional
+        Threshold for edge inclusion. Default is 0.5.
+    undirected : bool, optional
+        Whether to mirror edges for symmetry. Default is True.
+
+    Returns
+    -------
+    ndarray
+        Binary adjacency matrix.
+    """
+
     numnodes = len(items)
     a = np.zeros((numnodes, numnodes))
     
@@ -553,6 +1030,38 @@ def priorToNetwork(priordict, items, cutoff=0.5, undirected=True):
 #@profile
 #@nogc
 def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[]):
+    """
+    Compute the likelihood of observed sequences under a transition model.
+
+    Calculates the log-likelihood of each sequence under the given adjacency
+    matrix using the U-INVITE framework. Supports censoring, priming, jumping,
+    and IRT models.
+
+    Parameters
+    ----------
+    Xs : list of list
+        Sequences of node transitions.
+    a : ndarray
+        Adjacency matrix representing the transition structure.
+    td : DataModel
+        Configuration object (jump, priming, censoring).
+    irts : Irts, optional
+        Inter-response time model. Default is empty.
+    prior : tuple, optional
+        (priordict, items) for computing graph priors.
+    origmat : list of list, optional
+        Previously computed probability matrix (for delta updates).
+    changed : list, optional
+        List of nodes that changed since `origmat`.
+
+    Returns
+    -------
+    float
+        Log-likelihood of the data.
+    list of list
+        Transition probabilities for each sequence.
+    """
+
     try:
         numnodes=len(a)
     except TypeError:
@@ -734,6 +1243,40 @@ def probX(Xs, a, td, irts=Irts({}), prior=None, origmat=None, changed=[]):
 
 #@profile
 def uinvite(Xs, td=DataModel({}), numnodes=None, irts=Irts({}), fitinfo=Fitinfo({}), prior=None, debug=True, seed=None):
+    """
+    Fit a graph to fluency data using the U-INVITE algorithm.
+
+    Iteratively searches over graph space to find a structure that
+    maximizes likelihood under a random walk model, using triangle-based
+    heuristics and pruning. Optionally adjusts for IRTs and perseverations.
+
+    Parameters
+    ----------
+    Xs : list of list
+        Observed sequences of node transitions.
+    td : DataModel, optional
+        Model configuration (jump, priming, censoring).
+    numnodes : int, optional
+        Number of unique nodes in the network.
+    irts : Irts, optional
+        IRT model information.
+    fitinfo : Fitinfo, optional
+        Algorithm parameters including edge strategy and convergence criteria.
+    prior : tuple, optional
+        Prior probability dictionary and item mappings.
+    debug : bool, optional
+        If True, prints debug output.
+    seed : int, optional
+        Random seed.
+
+    Returns
+    -------
+    ndarray
+        Fitted graph adjacency matrix.
+    float
+        Log-likelihood of the fitted graph.
+    """
+
     nplocal=np.random.RandomState(seed) 
 
     if numnodes == None:

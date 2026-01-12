@@ -4,6 +4,33 @@ from . import *
 # return simulated data on graph g
 # also return number of steps between first hits (to use for IRTs)
 def gen_lists(g, td, seed=None):
+    """
+    Generate simulated lists by running censored random walks on a graph.
+
+    This function simulates category fluency-style data by performing repeated 
+    random walks on a given graph `g`, using parameters defined in `td`. It returns
+    the visited item lists, unused step info (placeholder), and a flag indicating
+    whether the output used all nodes in the graph.
+
+    Parameters
+    ----------
+    g : networkx.Graph
+        The graph on which the random walks are performed.
+    td : DataModel
+        Object containing simulation parameters such as list length, jump probability, 
+        priming, and censoring behavior.
+    seed : int, optional
+        Random seed for reproducibility. Default is None.
+
+    Returns
+    -------
+    list of list
+        Simulated fluency data (visited node sequences) for each run.
+    list
+        Placeholder for step counts between items (currently unused).
+    int
+        A binary flag indicating if not all nodes were visited (1 = graph altered).
+    """    
     Xs=[]
     steps=[]
     priming_vector=[]
@@ -34,13 +61,38 @@ def gen_lists(g, td, seed=None):
 
 # given an adjacency matrix, take a random walk that hits every node; returns a list of tuples
 def random_walk(g, td, priming_vector=[], seed=None):
+    """
+    Perform a censored random walk on a graph, optionally with priming and jumping.
+
+    This function simulates a walk on graph `g`, incorporating jump probabilities,
+    censoring behavior, and optional priming effects to simulate memory recall or
+    fluency search strategies.
+
+    Parameters
+    ----------
+    g : networkx.Graph
+        Graph on which the random walk is performed.
+    td : DataModel
+        Object defining walk behavior: jump probability, jump type, max steps, 
+        starting node policy, censoring, and priming.
+    priming_vector : list, optional
+        List of previously visited nodes to bias the walk. Default is empty.
+    seed : int, optional
+        Random seed for reproducibility. Default is None.
+
+    Returns
+    -------
+    list of tuple
+        A list of (from_node, to_node) edges representing the random walk path.
+    """
+
     import scipy.stats
     nplocal=np.random.RandomState(seed)    
 
     def jump():
         if td.jumptype=="stationary":
             second=statdist.rvs(random_state=seed)     # jump based on statdist
-        elif td.jumptype=="uniform":
+        elif td.jumptype=="uniform": 
             second=nplocal.choice(nx.nodes(g))         # jump uniformly
         return second
 
